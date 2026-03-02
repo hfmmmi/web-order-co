@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>顧客管理 - WEB受注システム</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        /* 管理画面レイアウト */
+        body { margin: 0; overflow: hidden; }
+        .admin-layout-wrapper { display: flex; height: 100vh; }
+        .admin-sidebar { width: 250px; background: #343a40; color: white; display: flex; flex-direction: column; flex-shrink: 0; }
+        .admin-main-content { flex-grow: 1; background: #f4f6f9; padding: 20px; overflow-y: auto; height: 100vh; box-sizing: border-box; }
+        
+        /* 共通パーツ */
+        .page-header { margin-bottom: 20px; border-bottom: 2px solid #dee2e6; padding-bottom: 10px; }
+        .admin-section { background: white; padding: 20px; border-radius: 5px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); margin-bottom: 20px; }
+
+        /* モーダル用CSS (簡易版・style.cssに移設推奨) */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); z-index: 1000;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: white; width: 90%; max-width: 600px;
+            border-radius: 8px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.3s;
+        }
+        .modal-header {
+            padding: 15px; border-bottom: 1px solid #eee;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .modal-body { padding: 20px; }
+        .close-btn { font-size: 1.5rem; cursor: pointer; color: #aaa; }
+        .close-btn:hover { color: #000; }
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="admin-layout-wrapper">
+        <aside class="admin-sidebar"></aside>
+
+        <main class="admin-main-content">
+            <div class="page-header">
+                <h2>👥 顧客管理 (Customer Relations)</h2>
+            </div>
+
+            <div class="admin-section" style="border-left: 5px solid #28a745;">
+                <div style="display:flex; gap:10px; margin-bottom:15px; background:#f1f3f5; padding:10px; border-radius:4px; align-items:center;">
+                    <input type="text" id="cust-search-keyword" placeholder="顧客ID・社名で検索..." style="padding:8px; width:250px;">
+                    <button id="cust-search-btn" style="background:#28a745; color:white; border:none; padding:8px 15px; cursor:pointer;">検索</button>
+                    <button id="btn-add-customer" style="background:#007bff; color:white; border:none; padding:8px 15px; cursor:pointer; margin-left:auto;">＋ 新規顧客追加</button>
+                </div>
+                
+                <div class="embedded-csv-area" style="margin-bottom:15px; background-color:#e8f5e9; border-color:#c3e6cb; padding: 10px; border: 1px solid #c3e6cb; border-radius: 4px;">
+                    <h3>📥 顧客一括登録 (CSV)</h3>
+                    <div style="display:flex; gap:10px;">
+                        <input type="file" id="customer-csv-input" accept=".csv">
+                        <button id="customer-csv-btn" style="background:#28a745; color:white; border:none; padding:5px 15px;">一括登録</button>
+                    </div>
+                </div>
+
+                <div id="cust-list-area" style="min-height:100px; max-height:500px; overflow-y:auto; border:1px solid #ddd; margin-bottom:10px;">
+                    <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+                        <thead style="background:#e9ecef; position:sticky; top:0;">
+                            <tr>
+                                <th style="padding:8px; text-align:left;">顧客ID</th>
+                                <th style="padding:8px; text-align:left;">顧客名</th>
+                                <th style="padding:8px; text-align:left;">メール</th>
+                                <th style="padding:8px; text-align:center;">ランク</th>
+                                <th style="padding:8px; text-align:center;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cust-table-body"></tbody>
+                    </table>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <button id="cust-prev-btn" disabled style="padding:5px 15px;">« 前へ</button>
+                    <span id="cust-page-info" style="font-weight:bold;">Page 1 / 1</span>
+                    <button id="cust-next-btn" disabled style="padding:5px 15px;">次へ »</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="customer-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content" style="max-width:500px;">
+            <div class="modal-header">
+                <h3 id="cm-modal-title">顧客情報</h3>
+                <span class="close-btn" onclick="document.getElementById('customer-modal').style.display='none'">×</span>
+            </div>
+            <div class="modal-body">
+                <form id="cm-form">
+                    <input type="hidden" id="cm-mode" value="add"> 
+                    
+                    <label style="display:block; font-weight:bold; margin-bottom:5px;">顧客ID (必須・変更不可)</label>
+                    <input type="text" id="cm-id" required style="width:100%; padding:8px; margin-bottom:10px; box-sizing: border-box;">
+
+                    <label style="display:block; font-weight:bold; margin-bottom:5px;">顧客名 (必須)</label>
+                    <input type="text" id="cm-name" required style="width:100%; padding:8px; margin-bottom:10px; box-sizing: border-box;">
+
+                    <label style="display:block; font-weight:bold; margin-bottom:5px;">パスワード <span id="cm-pass-note" style="font-size:0.8rem; color:red;"></span></label>
+                    <input type="text" id="cm-password" style="width:100%; padding:8px; margin-bottom:10px; box-sizing: border-box;">
+
+                    <label style="display:block; font-weight:bold; margin-bottom:5px;">メールアドレス</label>
+                    <input type="email" id="cm-email" placeholder="招待メール送信先（任意）" style="width:100%; padding:8px; margin-bottom:10px; box-sizing: border-box;">
+
+                    <label style="display:block; font-weight:bold; margin-bottom:5px;">価格ランク</label>
+                    <input type="text" id="cm-rank" placeholder="A, B, C... または空欄" list="rank-list" style="width:100%; padding:8px; margin-bottom:20px; box-sizing: border-box;">
+                    <datalist id="rank-list">
+                        <option value="A"></option>
+                        <option value="B"></option>
+                        <option value="C"></option>
+                        <option value="D"></option>
+                        <option value="E"></option>
+                        <option value="F"></option>
+                        <option value="G"></option>
+                        <option value="P"></option>
+                    </datalist>
+
+                    <button type="submit" style="width:100%; padding:10px; background:#007bff; color:white; border:none; font-weight:bold; border-radius:4px; cursor:pointer;">保存</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="invite-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content" style="max-width:500px;">
+            <div class="modal-header">
+                <h3>🔗 招待リンクの発行</h3>
+                <span class="close-btn" onclick="document.getElementById('invite-modal').style.display='none'">×</span>
+            </div>
+            <div class="modal-body">
+                <p style="font-size:0.9em; margin-bottom:15px; line-height:1.5;">
+                    以下のURLが発行されました。<br>
+                    コピーして、メールやLINEで顧客へ送信してください。
+                </p>
+                <p style="font-size:0.85em; color:#d9534f; margin-bottom:15px;">
+                    ※このリンクは1回のみ使用でき、24時間で有効期限が切れます。メールアドレスを登録すると招待メールを直接送信できます。
+                </p>
+                
+                <div style="display:flex; gap:5px; margin-bottom:15px;">
+                    <input type="text" id="invite-url-input" readonly 
+                           style="flex-grow:1; padding:10px; background:#f8f9fa; border:1px solid #ced4da; border-radius:4px; color:#495057; font-family:monospace;">
+                    <button id="btn-copy-invite" 
+                            style="white-space:nowrap; background:#28a745; color:white; border:none; padding:0 20px; border-radius:4px; font-weight:bold; cursor:pointer;">
+                        コピー
+                    </button>
+                </div>
+
+                <div style="text-align:right;">
+                    <button onclick="document.getElementById('invite-modal').style.display='none'" 
+                            style="background:#6c757d; color:white; border:none; padding:8px 20px; border-radius:4px; cursor:pointer;">
+                        閉じる
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 代理ログイン申請：顧客の許可待ちモーダル -->
+    <div id="proxy-request-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content" style="max-width:480px;">
+            <div class="modal-header">
+                <h3>🔐 代理ログイン申請</h3>
+                <span class="close-btn" id="proxy-request-modal-close">×</span>
+            </div>
+            <div class="modal-body">
+                <p id="proxy-request-msg" style="margin-bottom:16px; line-height:1.5;"></p>
+                <p id="proxy-request-wait" style="font-size:0.9em; color:#666; margin-bottom:12px; display:none;">顧客の操作をお待ちください…</p>
+                <div style="display:flex; gap:10px; justify-content:flex-end;">
+                    <button type="button" id="proxy-execute-btn" disabled style="background:#6f42c1; color:white; border:none; padding:10px 20px; border-radius:4px; cursor:pointer; width:auto;">代理ログインを実行</button>
+                    <button type="button" id="proxy-request-cancel-btn" style="background:#6c757d; color:white; border:none; padding:10px 20px; border-radius:4px; cursor:pointer;">閉じる</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/admin-common.js"></script>
+    <script src="../js/admin-customers.js?v=7.3"></script>
+</body>
+</html>

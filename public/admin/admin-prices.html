@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>価格設定 - WEB受注システム</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        /* 管理画面レイアウト */
+        body { margin: 0; overflow: hidden; }
+        .admin-layout-wrapper { display: flex; height: 100vh; }
+        .admin-sidebar { width: 250px; background: #343a40; color: white; display: flex; flex-direction: column; flex-shrink: 0; }
+        .admin-main-content { flex-grow: 1; background: #f4f6f9; padding: 20px; overflow-y: auto; height: 100vh; box-sizing: border-box; }
+        
+        /* 共通パーツ */
+        .page-header { margin-bottom: 20px; border-bottom: 2px solid #dee2e6; padding-bottom: 10px; }
+        .admin-section { background: white; padding: 20px; border-radius: 5px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); margin-bottom: 20px; }
+
+        /* God Hand エリア独自スタイル */
+        .god-hand-area {
+            background-color: #f0f8ff; padding: 15px; border-radius: 5px; border: 1px solid #cfe2ff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="admin-layout-wrapper">
+        <aside class="admin-sidebar"></aside>
+
+        <main class="admin-main-content">
+            <div class="page-header">
+                <h2>💎 価格設定 (Price Manager)</h2>
+            </div>
+
+            <div class="admin-section">
+                <h2 class="section-title" style="color: #007bff;">個別価格設定 (God Hand)</h2>
+                
+                <div class="god-hand-area">
+                    <p style="font-size:0.9rem; margin-top:0;">顧客と商品を検索し、その顧客専用の「特価」を即時設定します。</p>
+                    
+                    <div style="display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap;">
+                        <div style="position: relative;">
+                            <label style="font-size: 0.8rem; font-weight:bold;">顧客ID</label><br>
+                            <input type="text" id="price-customer-id" placeholder="ID検索..." autocomplete="off" style="padding: 6px;">
+                            <div id="suggest-customer" style="display:none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid #ccc; z-index: 100; max-height: 200px; overflow-y: auto; width: 200px;"></div>
+                        </div>
+
+                        <div style="position: relative;">
+                            <label style="font-size: 0.8rem; font-weight:bold;">商品コード</label><br>
+                            <input type="text" id="price-product-code" placeholder="商品検索..." autocomplete="off" style="padding: 6px;">
+                            <div id="suggest-product" style="display:none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid #ccc; z-index: 100; max-height: 200px; overflow-y: auto; width: 300px;"></div>
+                        </div>
+
+                        <div id="price-edit-area" style="display: none; background: #fff; padding: 4px 10px; border-radius: 4px; border: 1px solid #17a2b8; display:flex; align-items:center; gap:5px;">
+                            <span id="current-price-display" style="font-weight: bold; font-size: 0.9rem;">---</span>
+                            <span>➡</span>
+                            <input type="number" id="new-special-price" placeholder="新単価" style="width: 80px; padding: 4px; font-weight: bold; color: #d63384;">
+                            <button id="btn-save-price" style="background-color: #d63384; color: white; border: none; padding: 5px 10px; cursor: pointer;">保存</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; border-top: 1px solid #ccc; padding-top: 20px;">
+                    <h3>📊 設定済み個別特価リスト</h3>
+                    <button id="btn-refresh-prices" style="margin-bottom: 10px; cursor: pointer; padding: 5px 10px;">リスト更新</button>
+                    <table border="1" style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 8px;">顧客名</th>
+                                <th style="padding: 8px;">商品名</th>
+                                <th style="padding: 8px;">特別単価</th>
+                                <th style="padding: 8px;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="special-price-table-body"></tbody>
+                    </table>
+                </div>
+
+                <div class="embedded-csv-area" style="margin-top:20px; background-color:#fff3cd; border-color:#ffeeba; padding:15px; border-radius:5px;">
+                    <h3>📥 個別価格一括登録 (CSV/Excel)</h3>
+                    <p style="font-size:0.8rem; margin:0 0 5px;">顧客ID, 商品コード, 単価 の形式でアップロードしてください。</p>
+                    <div style="display:flex; gap:10px;">
+                        <input type="file" id="price-csv-input" accept=".csv, .xlsx, .xls">
+                        <button id="price-csv-btn" style="background:#ffc107; border:none; padding:5px 15px; font-weight:bold;">一括登録</button>
+                    </div>
+                </div>
+
+                <div class="admin-section" style="margin-top:20px; background-color:#e8f5e9; border:1px solid #a5d6a7;">
+                    <h2 class="section-title" style="color: #2e7d32;">📥 ランク別価格をExcelで取り込む</h2>
+                    <p style="font-size:0.9rem; color:#555;">Excelのシート名を「<strong>Upload</strong>」にし、1行目にヘッダー（A列＝商品コード、G列以降＝ランクA,B,C,D,E,F,G,H,I,P の単価）を配置したファイルをアップロードしてください。既存のランク価格が上書きされます。</p>
+                    <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:12px;">
+                        <input type="file" id="rank-excel-input" accept=".xlsx,.xls">
+                        <button type="button" id="rank-excel-import-btn" style="background:#2e7d32; color:white; border:none; padding:8px 16px; border-radius:5px; font-weight:bold; cursor:pointer;">取り込む</button>
+                        <span id="rank-excel-import-status" style="font-size:0.85rem; color:#666;"></span>
+                    </div>
+                </div>
+
+                <div class="admin-section" style="margin-top:20px;">
+                    <h2 class="section-title" style="color: #0d6efd;">📋 ランク別価格表ダウンロード</h2>
+                    <p style="font-size:0.9rem; color:#555;">各ランクの顧客に配布する価格表をCSVでダウンロードできます。メール添付や印刷用にご利用ください。</p>
+                    <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:12px;">
+                        <span style="font-weight:bold;">ランクを選択:</span>
+                        <select id="pricelist-rank-select" style="padding:6px 10px; border-radius:4px;">
+                            <option value="A">A</option>
+                        </select>
+                        <a id="pricelist-download-link" href="/api/admin/download-pricelist-by-rank/A" class="btn-pricelist-dl" style="display:inline-flex; align-items:center; padding:8px 16px; background:#0d6efd; color:white; text-decoration:none; border-radius:5px; font-weight:bold;">📥 価格表をダウンロード</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/admin-common.js"></script>
+    
+    <script src="../js/admin-customers.js?v=7.2"></script>
+    <script>
+        (function() {
+            var sel = document.getElementById("pricelist-rank-select");
+            var link = document.getElementById("pricelist-download-link");
+            function updateHref() { if (link && sel) link.href = "/api/admin/download-pricelist-by-rank/" + sel.value; }
+            if (sel && link) {
+                sel.addEventListener("change", updateHref);
+                updateHref();
+            }
+            fetch("/api/admin/rank-list", { credentials: "include" })
+                .then(function(r) { return r.ok ? r.json() : []; })
+                .then(function(list) {
+                    if (!sel || !list.length) return;
+                    sel.innerHTML = list.map(function(item) {
+                        return "<option value=\"" + (item.id || "") + "\">" + (item.name === item.id ? item.id : item.id + " - " + item.name) + "</option>";
+                    }).join("");
+                    updateHref();
+                })
+                .catch(function() {});
+        })();
+    </script>
+    <script>
+        (function() {
+            var rankExcelInput = document.getElementById("rank-excel-input");
+            var rankExcelBtn = document.getElementById("rank-excel-import-btn");
+            var rankExcelStatus = document.getElementById("rank-excel-import-status");
+            if (!rankExcelBtn || !rankExcelInput) return;
+            rankExcelBtn.addEventListener("click", function() {
+                var file = rankExcelInput.files[0];
+                if (!file) {
+                    if (typeof toastWarning === "function") toastWarning("ファイルを選択してください");
+                    else rankExcelStatus.textContent = "ファイルを選択してください";
+                    return;
+                }
+                var formData = new FormData();
+                formData.append("rankExcelFile", file);
+                rankExcelBtn.disabled = true;
+                if (rankExcelStatus) rankExcelStatus.textContent = "取り込み中...";
+                fetch("/api/admin/import-rank-prices-excel", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+                .then(function(result) {
+                    if (result.ok && result.data.success) {
+                        if (typeof toastSuccess === "function") toastSuccess(result.data.message || "取り込みました", 4000);
+                        if (rankExcelStatus) rankExcelStatus.textContent = result.data.message || "取り込みました";
+                        rankExcelInput.value = "";
+                    } else {
+                        var msg = result.data && result.data.message ? result.data.message : "取り込みに失敗しました";
+                        if (typeof toastError === "function") toastError(msg);
+                        if (rankExcelStatus) rankExcelStatus.textContent = msg;
+                    }
+                })
+                .catch(function(err) {
+                    if (typeof toastError === "function") toastError("通信エラー");
+                    if (rankExcelStatus) rankExcelStatus.textContent = "通信エラー";
+                })
+                .finally(function() {
+                    rankExcelBtn.disabled = false;
+                });
+            });
+        })();
+    </script>
+</body>
+</html>

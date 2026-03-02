@@ -1,0 +1,259 @@
+// public/js/admin-kaitori-view.js
+// 買取管理画面の「表示（View）」を担当するクラス
+// ※ DOM操作はすべてここに集約し、ロジックから分離する
+
+class KaitoriView {
+    constructor() {
+        // テーブル・モーダル等の要素参照
+        this.listBody = document.getElementById("kaitori-list-body");
+        this.masterBody = document.getElementById("kaitori-master-body");
+        
+        // 依頼詳細モーダル要素
+        this.reqModal = document.getElementById("kaitori-modal");
+        this.mReqId = document.getElementById("m-req-id");
+        this.mCustName = document.getElementById("m-cust-name");
+        this.mDate = document.getElementById("m-date");
+        this.mItemList = document.getElementById("m-item-list");
+        this.mTotal = document.getElementById("m-total");
+        this.mStatusSelect = document.getElementById("m-status-select");
+        this.mAdminNote = document.getElementById("m-admin-note");
+        this.mCustomerNote = document.getElementById("m-customer-note"); // 存在確認済
+
+        // マスタ編集モーダル要素
+        this.masterModal = document.getElementById("kaitori-master-modal");
+    }
+
+    // =========================================
+    // 1. 査定依頼リスト描画
+    // =========================================
+    renderRequestList(list) {
+        this.listBody.innerHTML = "";
+        if (!list || list.length === 0) {
+            this.listBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">該当するデータはありません</td></tr>';
+            return;
+        }
+
+        list.forEach(req => {
+            const totalAmount = req.items.reduce((sum, item) => sum + (item.subtotal || 0), 0);
+            const itemCount = req.items.reduce((sum, item) => sum + (item.qty || 0), 0);
+            const dateStr = new Date(req.requestDate).toLocaleString("ja-JP");
+            
+            let status = req.status && req.status.trim() !== "" ? req.status : "未対応";
+
+            const tr = document.createElement("tr");
+            tr.style.cursor = "pointer";
+            tr.className = "kaitori-row";
+            
+            // バッジスタイルの決定
+            let badgeClass = "badge-secondary";
+            let badgeStyle = "";
+
+            if(status === "未対応") {
+                badgeClass = "badge-danger"; 
+                badgeStyle = "background-color: #dc3545 !important; color: white !important; font-weight: bold;";
+            } else if(status === "査定中") {
+                badgeClass = "badge-warning";
+                badgeStyle = "color: #212529; background-color: #ffc107;"; 
+            } else if(status === "保留") {
+                badgeClass = "badge-info";
+                badgeStyle = "color: white; background-color: #17a2b8;";
+            } else if(status === "成立") {
+                badgeClass = "badge-success";
+                badgeStyle = "color: white; background-color: #28a745;";
+            }
+            
+            tr.innerHTML = `
+                <td>${req.requestId}</td>
+                <td>${dateStr}</td>
+                <td>${req.customerName || "不明"}</td>
+                <td><span class="badge ${badgeClass}" style="${badgeStyle}">${status}</span></td>
+                <td style="text-align:right;">${itemCount} 点</td>
+                <td style="text-align:right; font-weight:bold;">¥${totalAmount.toLocaleString()}</td>
+            `;
+
+            // クリックイベントはController側で登録するため、行自体にデータを持たせるか、Callbackを呼ぶ設計にする
+            // ここではシンプルに、dataset IDを持たせる
+            tr.dataset.id = req.requestId;
+            this.listBody.appendChild(tr);
+        });
+    }
+
+    // =========================================
+    // 2. 詳細モーダル操作
+    // =========================================
+    openRequestModal(req, onCalculate, onDeleteItem) {
+        this.mReqId.textContent = req.requestId;
+        this.mCustName.textContent = req.customerName;
+        this.mDate.textContent = new Date(req.requestDate).toLocaleString();
+        
+        let status = req.status && req.status.trim() !== "" ? req.status : "未対応";
+        this.setupStatusOptions();
+        this.mStatusSelect.value = status;
+        
+        this.mAdminNote.value = req.internalMemo || req.adminNote || "";
+        // JS側で動的に追加したCustomerNote要素への対応
+        if(this.mCustomerNote) this.mCustomerNote.value = req.customerNote || "";
+
+        this.renderEditableItems(req, onCalculate, onDeleteItem);
+        this.updateTotalDisplay(req);
+        
+        this.reqModal.style.display = "flex";
+    }
+
+    closeRequestModal() {
+        this.reqModal.style.display = "none";
+    }
+
+    setupStatusOptions() {
+        this.mStatusSelect.innerHTML = `
+            <option value="未対応">未対応</option>
+            <option value="査定中">査定中</option>
+            <option value="保留">保留</option>
+            <option disabled>──────────</option>
+            <option value="成立">成立</option>
+            <option value="キャンセル">キャンセル</option>
+            <option value="キャンセル(返却)">キャンセル(返却)</option>
+            <option value="キャンセル(廃棄)">キャンセル(廃棄)</option>
+        `;
+    }
+
+    renderEditableItems(req, onCalculate, onDeleteItem) {
+        this.mItemList.innerHTML = "";
+        
+        // ヘッダー
+        const thRow = document.createElement("tr");
+        thRow.innerHTML = `
+            <th style="text-align:left;">商品名</th>
+            <th style="width:80px;">単価</th>
+            <th style="width:60px;">数量</th>
+            <th style="width:80px;">小計</th>
+            <th style="width:40px;"></th>
+        `;
+        this.mItemList.appendChild(thRow);
+
+        const itemsWithIndex = req.items.map((item, index) => ({ item, index }));
+        const hyogoGroup = itemsWithIndex.filter(x => x.item.destination === "兵庫");
+        const osakaGroup = itemsWithIndex.filter(x => x.item.destination !== "兵庫");
+
+        // 兵庫グループ描画
+        if (hyogoGroup.length > 0) {
+            const hRow = document.createElement("tr");
+            hRow.innerHTML = `<td colspan="5" style="background:#e8f0fe; font-weight:bold; color:#6610f2; padding:5px;">⚓ 兵庫納品分 (${hyogoGroup.length}件)</td>`;
+            this.mItemList.appendChild(hRow);
+            hyogoGroup.forEach(x => this.mItemList.appendChild(this._createEditableRow(x.item, x.index, onCalculate, onDeleteItem)));
+        }
+
+        // 大阪グループ描画
+        if (osakaGroup.length > 0) {
+            const oRow = document.createElement("tr");
+            oRow.innerHTML = `<td colspan="5" style="background:#fff3cd; font-weight:bold; color:#856404; padding:5px;">🏢 大阪納品分 (${osakaGroup.length}件)</td>`;
+            this.mItemList.appendChild(oRow);
+            osakaGroup.forEach(x => this.mItemList.appendChild(this._createEditableRow(x.item, x.index, onCalculate, onDeleteItem)));
+        }
+        
+        // 追加ボタン行
+        const trAdd = document.createElement("tr");
+        trAdd.innerHTML = `
+            <td colspan="5" style="text-align:center; padding-top:10px;">
+                <button class="btn-add-item-osaka" style="font-size:0.8rem; cursor:pointer; margin-right:10px; background:#fff3cd; border:1px solid #856404; color:#856404; padding:4px 8px; border-radius:4px;">＋ 大阪へ追加</button>
+                <button class="btn-add-item-hyogo" style="font-size:0.8rem; cursor:pointer; background:#e8f0fe; border:1px solid #6610f2; color:#6610f2; padding:4px 8px; border-radius:4px;">＋ 兵庫へ追加</button>
+            </td>`;
+        this.mItemList.appendChild(trAdd);
+    }
+
+    _createEditableRow(item, index, onCalculate, onDeleteItem) {
+        const tr = document.createElement("tr");
+        
+        const tdName = document.createElement("td");
+        const inputName = document.createElement("input");
+        inputName.type = "text";
+        inputName.value = item.name;
+        inputName.style.width = "95%";
+        inputName.onchange = (e) => onCalculate(index, "name", e.target.value);
+        tdName.appendChild(inputName);
+
+        const tdPrice = document.createElement("td");
+        const inputPrice = document.createElement("input");
+        inputPrice.type = "number";
+        inputPrice.value = item.price;
+        inputPrice.style.width = "70px";
+        inputPrice.onchange = (e) => onCalculate(index, "price", e.target.value);
+        tdPrice.appendChild(inputPrice);
+
+        const tdQty = document.createElement("td");
+        const inputQty = document.createElement("input");
+        inputQty.type = "number";
+        inputQty.value = item.qty;
+        inputQty.style.width = "50px";
+        inputQty.onchange = (e) => onCalculate(index, "qty", e.target.value);
+        tdQty.appendChild(inputQty);
+
+        const tdSub = document.createElement("td");
+        tdSub.style.textAlign = "right";
+        tdSub.textContent = (item.price * item.qty).toLocaleString();
+
+        const tdDel = document.createElement("td");
+        const btnDel = document.createElement("button");
+        btnDel.textContent = "×";
+        btnDel.style.color = "red";
+        btnDel.style.cursor = "pointer";
+        btnDel.onclick = () => onDeleteItem(index);
+        tdDel.appendChild(btnDel);
+
+        tr.appendChild(tdName);
+        tr.appendChild(tdPrice);
+        tr.appendChild(tdQty);
+        tr.appendChild(tdSub);
+        tr.appendChild(tdDel);
+
+        return tr;
+    }
+
+    updateTotalDisplay(req) {
+        const total = req.items.reduce((sum, item) => sum + (item.price * item.qty), 0);
+        this.mTotal.textContent = "¥" + total.toLocaleString();
+    }
+
+    // =========================================
+    // 3. マスタ管理描画
+    // =========================================
+    renderMasterList(list) {
+        this.masterBody.innerHTML = "";
+        if(!list || list.length === 0) {
+            this.masterBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">該当なし</td></tr>';
+            return;
+        }
+
+        list.forEach(item => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${item.id}</td>
+                <td>${item.maker}</td>
+                <td>${item.name}</td>
+                <td><span class="badge ${item.type==='純正'?'badge-success':'badge-secondary'}">${item.type}</span></td>
+                <td style="text-align:right; font-weight:bold;">¥${item.price.toLocaleString()}</td>
+                <td>${item.destination || "大阪"}</td>
+                <td style="text-align:center;">
+                    <button class="btn-edit-master" data-id="${item.id}" style="font-size:0.8rem; cursor:pointer;">編集</button>
+                    <button class="btn-del-master" data-id="${item.id}" style="font-size:0.8rem; cursor:pointer; color:red;">削除</button>
+                </td>
+            `;
+            this.masterBody.appendChild(tr);
+        });
+    }
+
+    openMasterModal(item = null) {
+        document.getElementById("km-modal-title").textContent = item ? "マスタ編集" : "新規追加";
+        document.getElementById("km-id").value = item ? item.id : "";
+        document.getElementById("km-maker").value = item ? item.maker : "";
+        document.getElementById("km-name").value = item ? item.name : "";
+        document.getElementById("km-type").value = item ? item.type : "純正";
+        document.getElementById("km-price").value = item ? item.price : 0;
+        document.getElementById("km-destination").value = item ? item.destination : "大阪";
+        this.masterModal.style.display = "flex";
+    }
+
+    closeMasterModal() {
+        this.masterModal.style.display = "none";
+    }
+}

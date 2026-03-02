@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注文履歴 - WEB受注システム</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* 履歴画面特有のスタイル */
+        .history-card {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        /* 検索ボックスのデザイン */
+        .search-area {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-area input {
+            flex-grow: 1;
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .search-area button {
+            width: 100px;
+            background-color: #6c757d;
+            font-weight: bold;
+        }
+
+        .search-area button:hover {
+            background-color: #5a6268;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="global-nav">
+        <a href="products.html" class="nav-logo">
+            <span>🚀 WEB受注システム</span>
+        </a>
+        <div class="nav-links">
+            <a href="announcements.html" class="nav-item" data-feature="announcements">お知らせ</a>
+            <a href="products.html" class="nav-item">商品一覧</a>
+            <a href="history.html" class="nav-item" style="color: #ffc107; border-bottom: 2px solid #ffc107;" data-feature="history">注文履歴</a>
+            <a href="kaitori.html" class="nav-item" data-feature="kaitori">💰 空カートリッジ買取</a>
+            <a href="cart.html" class="nav-item nav-cart" data-feature="cart">🛒 カート</a>
+            <a href="support.html" class="nav-item" data-feature="support">サポート</a>
+            <a href="https://www.e-kaisyu.jp/" target="_blank" style="background-color:#28a745; color:white;" data-feature="collection">♻️ 回収依頼</a>
+            <a href="account.html" class="nav-item">アカウント設定</a>
+            <a href="#" class="nav-item" id="logout-btn" style="color:#ff6b6b;">ログアウト</a>
+        </div>
+    </nav>
+    <div class="container">
+        <header style="margin-bottom: 20px;">
+            <h1 style="margin: 0;">📜 注文履歴・配送状況</h1>
+        </header>
+
+        <div class="search-area">
+            <input type="text" id="history-search-input" placeholder="商品名、注文ID、備考などで検索...">
+            <button id="history-search-btn">検索</button>
+        </div>
+
+        <div id="history-list-container">
+            <p style="text-align: center; color: #666;">履歴を読み込んでいます...</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="history.js"></script>
+</body>
+
+</html>

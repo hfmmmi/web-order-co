@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "updatedAt": null,
+  "display": {
+    "enabled": false,
+    "hiddenMessage": "仕入先直送のため在庫表示は行っておりません",
+    "showStocklessLabel": true,
+    "stocklessLabel": "仕入先直送",
+    "allowOrderingWhenZero": true,
+    "highlightThresholdMinutes": 180,
+    "warehousePresets": []
+  },
+  "adapters": []
+}

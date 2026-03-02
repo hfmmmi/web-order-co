@@ -1,0 +1,606 @@
+[
+    {
+      "requestId": 1767814808328,
+      "requestDate": "2026-01-07T19:40:08.328Z",
+      "customerId": "H015",
+      "customerName": "ひふみマネジメント株式会社",
+      "status": "キャンセル(廃棄)",
+      "items": [
+        {
+          "id": "K-1",
+          "maker": "Canon",
+          "name": "トナーカートリッジ 055H (ブラック)",
+          "price": 400,
+          "qty": 10,
+          "subtotal": 4000
+        }
+      ],
+      "note": "",
+      "adminNote": "NCI値上げのため顧客側がキャンセル",
+      "updatedAt": "2026-01-18T20:30:25.636Z",
+      "internalMemo": "NCI値上げのため顧客側がキャンセル",
+      "customerNote": ""
+    },
+    {
+      "requestId": 1767815279474,
+      "requestDate": "2026-01-07T19:47:59.474Z",
+      "customerId": "H015",
+      "customerName": "ひふみマネジメント株式会社",
+      "status": "保留",
+      "items": [
+        {
+          "id": "K-2",
+          "maker": "Canon",
+          "name": "トナーカートリッジ 335 (ブラック)",
+          "price": 400,
+          "qty": 5,
+          "subtotal": 2000
+        }
+      ],
+      "note": "",
+      "adminNote": "",
+      "updatedAt": "2026-01-07T20:16:17.499Z"
+    },
+    {
+      "requestId": 1767816952038,
+      "requestDate": "2026-01-07T20:15:52.038Z",
+      "customerId": "H015",
+      "customerName": "ひふみマネジメント株式会社",
+      "status": "成立",
+      "items": [
+        {
+          "id": "K-3",
+          "maker": "EPSON",
+          "name": "LPC3T35K (ブラック)",
+          "price": 300,
+          "qty": 3,
+          "subtotal": 900
+        },
+        {
+          "id": "K-4",
+          "maker": "EPSON",
+          "name": "LPC3T35C (シアン)",
+          "price": 300,
+          "qty": 3,
+          "subtotal": 900
+        }
+      ],
+      "note": "",
+      "adminNote": "",
+      "updatedAt": "2026-01-07T20:16:08.911Z"
+    },
+    {
+      "requestId": 1767899769274,
+      "requestDate": "2026-01-08T19:16:09.274Z",
+      "customerId": "H015",
+      "customerName": "ひふみマネジメント株式会社",
+      "status": "キャンセル(返却)",
+      "items": [
+        {
+          "id": "K-5",
+          "maker": "Brother",
+          "name": "TN-29J",
+          "price": 200,
+          "qty": 6,
+          "subtotal": 1200,
+          "destination": "兵庫"
+        },
+        {
+          "id": "K-9",
+          "maker": "Canon",
+          "name": "NPG-71 (ブラック)",
+          "price": 100,
+          "qty": 4,
+          "subtotal": 400,
+          "destination": "大阪"
+        },
+        {
+          "id": "K-8",
+          "maker": "Kyocera",
+          "name": "TK-8336K",
+          "price": 400,
+          "qty": 4,
+          "subtotal": 1600,
+          "destination": "兵庫"
+        },
+        {
+          "id": "K-7",
+          "maker": "RICOH",
+          "name": "SP トナー 4500H",
+          "price": 1000,
+          "qty": 3,
+          "subtotal": 3000,
+          "destination": "兵庫"
+        },
+        {
+          "id": "K-10",
+          "maker": "RICOH",
+          "name": "MP Pトナー C3503",
+          "price": 50,
+          "qty": 2,
+          "subtotal": 100,
+          "destination": "大阪"
+        },
+        {
+          "id": "K-6",
+          "maker": "RICOH",
+          "name": "MP Pトナー C3503",
+          "price": 400,
+          "qty": 4,
+          "subtotal": 1600,
+          "destination": "兵庫"
+        }
+      ],
+      "note": "",
+      "adminNote": "",
+      "updatedAt": "2026-01-18T20:30:21.028Z",
+      "internalMemo": "",
+      "customerNote": ""
+    },
+    {
+      "requestId": 1767900766253,
+      "requestDate": "2026-01-08T19:32:46.253Z",
+      "customerId": "H015",
+      "customerName": "ひふみマネジメント株式会社",
+      "status": "保留",
+      "items": [
+        {
+          "id": "K-1",
+          "maker": "Canon",
+          "name": "トナーカートリッジ 055H (ブラック)",
+          "price": 400,
+          "qty": 20,
+          "subtotal": 8000,
+          "destination": "兵庫"
+        }
+      ],
+      "note": "",
+      "adminNote": "",
+      "updatedAt": "2026-01-08T20:25:43.502Z"
+    },
+    {
+      "requestId": 1767900841194,
+      "requestDate": "2026-01-08T19:34:01.194Z",
+      "customerId": "H015",
+      "customerName": "ひふみマネジメント株式会社",
+      "status": "査定中",
+      "items": [
+        {
+          "id": "K-9",
+          "maker": "Canon",
+          "name": "NPG-71 (ブラック)",
+          "price": 100,
+          "qty": 10,
+          "subtotal": 1000,
+          "destination": "大阪"
+        }
+      ],
+      "note": ""
+    },
+    {
+      "requestId": 1767901003467,
+      "requestDate": "2026-01-08T19:36:43.467Z",
+      "customerId": "H015",
+      "customerName": "ひふみマネジメント株式会社",
+      "status": "査定中",
+      "items": [
+        {
+          "id": "K-10",
+          "maker": "RICOH",
+          "name": "MP Pトナー C3503",
+          "price": 50,
+          "qty": 10,
+          "subtotal": 500,
+          "destination": "大阪"
+        }
+      ],
+      "note": ""
+    },
+    {
+      "requestId": 1767901267888,
+      "requestDate": "2026-01-08T19:41:07.888Z",
+      "customerId": "H015",
+      "customerName": "ひふみマネジメント株式会社",
+      "status": "査定中",
+      "items": [
+        {
+          "id": "K-10",
+          "maker": "RICOH",
+          "name": "MP Pトナー C3503",
+          "price": 50,
+          "qty": 10,
+          "subtotal": 500,
+          "destination": "大阪"
+        }
+      ],
+      "note": ""
+    },
+    {
+      "requestId": 1767901328383,
+      "requestDate": "2026-01-08T19:42:08.383Z",
+      "customerId": "H015",
+      "customerName": "ひふみマネジメント株式会社",
+      "status": "査定中",
+      "items": [
+        {
+          "id": "K-1",
+          "maker": "Canon",
+          "name": "トナーカートリッジ 055H (ブラック)",
+          "price": 400,
+          "qty": 10,
+          "subtotal": 4000,
+          "destination": "兵庫"
+        },
+        {
+          "id": "K-3",
+          "maker": "EPSON",
+          "name": "LPC3T35K (ブラック)",
+          "price": 300,
+          "qty": 10,
+          "subtotal": 3000,
+          "destination": "兵庫"
+        }
+      ],
+      "note": ""
+    },
+    {
+      "requestId": 1767901592506,
+      "requestDate": "2026-01-08T19:46:32.506Z",
+      "customerId": "H015",
+      "customerName": "ひふみマネジメント株式会社",
+      "status": "査定中",
+      "items": [
+        {
+          "id": "K-1",
+          "maker": "Canon",
+          "name": "トナーカートリッジ 055H (ブラック)",
+          "price": 400,
+          "qty": 10,
+          "subtotal": 4000,
+          "destination": "兵庫"
+        }
+      ],
+      "note": ""
+    },
+    {
+      "requestId": 1767901904394,
+      "requestDate": "2026-01-08T19:51:44.394Z",
+      "customerId": "H015",
+      "customerName": "ひふみマネジメント株式会社",
+      "status": "査定中",
+      "items": [
+        {
+          "id": "K-1",
+          "maker": "Canon",
+          "name": "トナーカートリッジ 055H (ブラック)",
+          "price": 400,
+          "qty": 10,
+          "subtotal": 4000,
+          "destination": "兵庫"
+        }
+      ],
+      "note": ""
+    },
+    {
+      "requestId": 1767987608438,
+      "requestDate": "2026-01-09T19:40:08.441Z",
+      "customerId": "H015",
+      "customerName": "ひふみマネジメント株式会社",
+      "status": "成立",
+      "items": [
+        {
+          "id": "K-IMP-1767987528667-54",
+          "maker": "富士通",
+          "name": "LB322B",
+          "price": 100,
+          "qty": 10,
+          "subtotal": 1000,
+          "destination": "大阪"
+        },
+        {
+          "id": "K-IMP-1767987528667-53",
+          "maker": "brother",
+          "name": "TN299/299XL/299XXL",
+          "price": 200,
+          "qty": 10,
+          "subtotal": 2000,
+          "destination": "兵庫"
+        }
+      ],
+      "note": "",
+      "adminNote": "",
+      "updatedAt": "2026-01-09T20:12:06.169Z"
+    },
+    {
+      "requestId": 1767990463870,
+      "requestDate": "2026-01-09T20:27:43.870Z",
+      "customerId": "H015",
+      "customerName": "ひふみマネジメント株式会社",
+      "status": "成立",
+      "items": [
+        {
+          "id": "K-IMP-1767987528667-70",
+          "maker": "RICOH",
+          "name": "ｲﾏｼﾞｵ　ﾀｲﾌﾟ28",
+          "price": 100,
+          "qty": 90,
+          "subtotal": 9000,
+          "destination": "大阪"
+        },
+        {
+          "name": "P6500S",
+          "price": 30,
+          "qty": 1,
+          "subtotal": 30,
+          "destination": "大阪"
+        }
+      ],
+      "logistics": {
+        "hyogo": null,
+        "osaka": {
+          "boxCount": "1",
+          "carrier": "ヤマト運輸",
+          "tracking": "00001111",
+          "shipDate": "2026-01-10",
+          "status": "着荷待ち"
+        }
+      },
+      "note": "",
+      "adminNote": "ﾀｲﾌﾟ27は買取不可",
+      "updatedAt": "2026-01-09T21:19:19.821Z",
+      "internalMemo": "ﾀｲﾌﾟ27は買取不可",
+      "customerNote": "ﾀｲﾌﾟ27が10本含まれていたため90本で買取となります。"
+    },
+    {
+      "requestId": 1768767967528,
+      "requestDate": "2026-01-18T20:26:07.528Z",
+      "customerId": "H015",
+      "customerName": "ひふみマネジメント株式会社",
+      "status": "成立",
+      "items": [
+        {
+          "id": "K-IMP-1767987528667-0",
+          "maker": "CANON",
+          "name": "ｶｰﾄﾘｯｼﾞ056",
+          "price": 200,
+          "qty": 10,
+          "subtotal": 2000,
+          "destination": "兵庫"
+        }
+      ],
+      "logistics": {
+        "hyogo": {
+          "boxCount": "1",
+          "status": "回収手配待ち"
+        },
+        "osaka": null
+      },
+      "note": "",
+      "internalMemo": "",
+      "customerNote": "",
+      "adminNote": "",
+      "updatedAt": "2026-01-22T00:04:08.688Z"
+    },
+    {
+      "requestId": 1769544580304,
+      "requestDate": "2026-01-27T20:09:40.305Z",
+      "customerId": "H015",
+      "customerName": "ひふみマネジメント株式会社",
+      "status": "査定中",
+      "items": [
+        {
+          "id": "K-IMP-1767987528667-0",
+          "maker": "CANON",
+          "name": "ｶｰﾄﾘｯｼﾞ056",
+          "price": 200,
+          "qty": 3,
+          "subtotal": 600,
+          "destination": "兵庫"
+        },
+        {
+          "id": "K-IMP-1767987528667-1",
+          "maker": "CANON",
+          "name": "ｶｰﾄﾘｯｼﾞ057H",
+          "price": 200,
+          "qty": 3,
+          "subtotal": 600,
+          "destination": "兵庫"
+        },
+        {
+          "id": "K-IMP-1767987528667-58",
+          "maker": "NEC",
+          "name": "PR-L8600-12",
+          "price": 100,
+          "qty": 2,
+          "subtotal": 200,
+          "destination": "大阪"
+        },
+        {
+          "id": "K-IMP-1767987528667-59",
+          "maker": "NEC",
+          "name": "PR-L8700-11",
+          "price": 100,
+          "qty": 2,
+          "subtotal": 200,
+          "destination": "大阪"
+        },
+        {
+          "id": "K-IMP-1767987528667-60",
+          "maker": "NEC",
+          "name": "PR-L8700-12",
+          "price": 100,
+          "qty": 2,
+          "subtotal": 200,
+          "destination": "大阪"
+        }
+      ],
+      "logistics": {
+        "hyogo": {
+          "boxCount": "3",
+          "status": "回収手配待ち"
+        },
+        "osaka": {
+          "boxCount": "2",
+          "carrier": "ヤマト運輸",
+          "tracking": "123-456-789",
+          "shipDate": "2026-01-29",
+          "status": "着荷待ち"
+        }
+      },
+      "note": "",
+      "internalMemo": "",
+      "customerNote": ""
+    },
+    {
+      "requestId": 1769545974147,
+      "requestDate": "2026-01-27T20:32:54.147Z",
+      "customerId": "H015",
+      "customerName": "ひふみマネジメント株式会社",
+      "status": "査定中",
+      "items": [
+        {
+          "id": "K-IMP-1767987528667-0",
+          "maker": "CANON",
+          "name": "ｶｰﾄﾘｯｼﾞ056",
+          "price": 200,
+          "qty": 3,
+          "subtotal": 600,
+          "destination": "兵庫"
+        },
+        {
+          "id": "K-IMP-1767987528667-3",
+          "maker": "CANON",
+          "name": "ｶｰﾄﾘｯｼﾞ070",
+          "price": 100,
+          "qty": 10,
+          "subtotal": 1000,
+          "destination": "兵庫"
+        },
+        {
+          "id": "K-IMP-1767987528667-55",
+          "maker": "富士通",
+          "name": "LB323",
+          "price": 100,
+          "qty": 30,
+          "subtotal": 3000,
+          "destination": "大阪"
+        }
+      ],
+      "logistics": {
+        "hyogo": {
+          "boxCount": "1",
+          "status": "回収手配待ち"
+        },
+        "osaka": {
+          "boxCount": "1",
+          "carrier": "ヤマト運輸",
+          "tracking": "123",
+          "shipDate": "2026-01-30",
+          "status": "着荷待ち"
+        }
+      },
+      "note": "",
+      "internalMemo": "",
+      "customerNote": ""
+    },
+    {
+      "requestId": 1769740169941,
+      "requestDate": "2026-01-30T02:29:29.941Z",
+      "customerId": "H015",
+      "customerName": "ひふみマネジメント株式会社",
+      "status": "査定中",
+      "items": [
+        {
+          "id": "K-IMP-1767987528667-34",
+          "maker": "RICOH",
+          "name": "ﾄﾅｰP6500/6500H",
+          "price": 400,
+          "qty": 3,
+          "subtotal": 1200,
+          "destination": "兵庫"
+        },
+        {
+          "id": "K-IMP-1767987528667-52",
+          "maker": "brother",
+          "name": "DR32J",
+          "price": 100,
+          "qty": 3,
+          "subtotal": 300,
+          "destination": "兵庫"
+        },
+        {
+          "id": "K-IMP-1767987528667-53",
+          "maker": "brother",
+          "name": "TN299/299XL/299XXL",
+          "price": 200,
+          "qty": 2,
+          "subtotal": 400,
+          "destination": "兵庫"
+        },
+        {
+          "id": "K-IMP-1767987528667-54",
+          "maker": "富士通",
+          "name": "LB322B",
+          "price": 100,
+          "qty": 3,
+          "subtotal": 300,
+          "destination": "大阪"
+        },
+        {
+          "id": "K-IMP-1767987528667-58",
+          "maker": "NEC",
+          "name": "PR-L8600-12",
+          "price": 100,
+          "qty": 3,
+          "subtotal": 300,
+          "destination": "大阪"
+        }
+      ],
+      "logistics": {
+        "hyogo": {
+          "boxCount": "1",
+          "status": "回収手配待ち"
+        },
+        "osaka": {
+          "boxCount": "1",
+          "carrier": "大和運送",
+          "tracking": "123456",
+          "shipDate": "2026-01-30",
+          "status": "着荷待ち"
+        }
+      },
+      "note": "",
+      "internalMemo": "",
+      "customerNote": ""
+    },
+    {
+      "requestId": 1770061871153,
+      "requestDate": "2026-02-02T19:51:11.153Z",
+      "customerId": "H015",
+      "customerName": "ひふみマネジメント株式会社",
+      "status": "成立",
+      "items": [
+        {
+          "id": "K-IMP-1767987528667-0",
+          "maker": "CANON",
+          "name": "ｶｰﾄﾘｯｼﾞ056",
+          "price": 200,
+          "qty": 10,
+          "subtotal": 2000,
+          "destination": "兵庫"
+        }
+      ],
+      "logistics": {
+        "hyogo": {
+          "boxCount": "1",
+          "status": "回収手配待ち"
+        },
+        "osaka": null
+      },
+      "note": "",
+      "internalMemo": "",
+      "customerNote": "",
+      "adminNote": "",
+      "updatedAt": "2026-02-02T20:09:37.316Z"
+    }
+  ]

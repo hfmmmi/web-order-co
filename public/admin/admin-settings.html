@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>システム設定 - WEB受注システム</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        body { margin: 0; overflow: hidden; }
+        .admin-layout-wrapper { display: flex; height: 100vh; }
+        .admin-sidebar { width: 250px; background: #343a40; color: white; display: flex; flex-direction: column; flex-shrink: 0; }
+        .admin-main-content { flex-grow: 1; background: #f4f6f9; padding: 20px; overflow-y: auto; height: 100vh; box-sizing: border-box; }
+
+        .page-header { margin-bottom: 20px; border-bottom: 2px solid #dee2e6; padding-bottom: 10px; }
+        .admin-section { background: white; padding: 20px; border-radius: 5px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        .form-control { width: 100%; max-width: 500px; padding: 8px; box-sizing: border-box; border: 1px solid #ced4da; border-radius: 4px; }
+        textarea.form-control { min-height: 120px; font-family: monospace; }
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+        .feature-item { display: flex; align-items: center; gap: 8px; padding: 8px; background: #f8f9fa; border-radius: 4px; }
+        .feature-item input { width: 18px; height: 18px; cursor: pointer; }
+        .settings-tabs { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid #dee2e6; }
+        .settings-tabs button { padding: 10px 20px; border: none; background: #e9ecef; cursor: pointer; border-radius: 4px 4px 0 0; }
+        .settings-tabs button.active { background: white; border: 1px solid #dee2e6; border-bottom: 1px solid white; margin-bottom: -1px; font-weight: bold; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+        .hint { font-size: 0.85rem; color: #6c757d; margin-top: 4px; }
+        .announcement-item { border: 1px solid #dee2e6; border-radius: 4px; padding: 15px; margin-bottom: 15px; background: #f8f9fa; }
+        .announcement-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .announcement-item-header h4 { margin: 0; }
+        .announcement-controls { display: flex; gap: 10px; }
+        .announcement-form { display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid #dee2e6; }
+        .announcement-form.active { display: block; }
+        .form-row { display: flex; gap: 15px; margin-bottom: 15px; }
+        .form-row .form-group { flex: 1; }
+        .btn-small { padding: 6px 12px; font-size: 0.9rem; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+    </style>
+</head>
+<body>
+
+    <div class="admin-layout-wrapper">
+        <aside class="admin-sidebar"></aside>
+
+        <main class="admin-main-content">
+            <div class="page-header">
+                <h2>⚙️ システム設定 (System Configuration)</h2>
+                <p style="color: #666;">メール・機能のON/OFFを設定します。パスワードは環境変数 MAIL_PASSWORD で設定してください。</p>
+            </div>
+
+            <div class="settings-tabs">
+                <button type="button" class="tab-btn active" data-tab="mail">📧 メール</button>
+                <button type="button" class="tab-btn" data-tab="recaptcha">🔐 ログインCAPTCHA</button>
+                <button type="button" class="tab-btn" data-tab="features">🔘 機能ON/OFF</button>
+                <button type="button" class="tab-btn" data-tab="rank-names">🏷️ ランクの名前</button>
+                <button type="button" class="tab-btn" data-tab="announcements">📢 お知らせ・バナー</button>
+            </div>
+
+            <form id="settings-form">
+                <!-- メールタブ -->
+                <div id="tab-mail" class="tab-panel active">
+                    <div class="admin-section">
+                        <h3>受信先・送信元</h3>
+                        <div class="form-group">
+                            <label>受注通知先 (orderNotifyTo)</label>
+                            <input type="text" id="orderNotifyTo" class="form-control" placeholder="irikura2@hifumi-m.com">
+                        </div>
+                        <div class="form-group">
+                            <label>サポート通知先 (supportNotifyTo)</label>
+                            <input type="text" id="supportNotifyTo" class="form-control" placeholder="irikura2@hifumi-m.com">
+                        </div>
+                        <div class="form-group">
+                            <label>送信元 (from)</label>
+                            <input type="text" id="mailFrom" class="form-control" placeholder="'WEB受注システム' &lt;user@example.com&gt;">
+                            <span class="hint">表示名とメールアドレスを &lt;&gt; で囲んで指定</span>
+                        </div>
+                        <div class="form-group">
+                            <label>SMTPホスト (host)</label>
+                            <input type="text" id="smtpHost" class="form-control" placeholder="例: smtp.example.com（空欄ならGmail等のプリセット使用）">
+                        </div>
+                        <div style="display:flex; gap:15px;">
+                            <div class="form-group" style="flex:1;">
+                                <label>SMTPポート (port)</label>
+                                <input type="number" id="smtpPort" class="form-control" placeholder="587" style="max-width:120px;">
+                            </div>
+                            <div class="form-group" style="flex:1;">
+                                <label style="display:flex; align-items:center; gap:8px; margin-top:28px;">
+                                    <input type="checkbox" id="smtpSecure" value="1"> SSL/TLS (secure)
+                                </label>
+                                <span class="hint">465番ポートの場合はON</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>SMTPユーザー (user)</label>
+                            <input type="text" id="smtpUser" class="form-control" placeholder="メールアドレスまたはユーザー名">
+                        </div>
+                        <div class="form-group">
+                            <label>SMTPパスワード (password)</label>
+                            <input type="password" id="smtpPassword" class="form-control" placeholder="変更する場合のみ入力" autocomplete="new-password">
+                            <span class="hint" id="smtpPasswordHint">空欄のまま保存すると既存のパスワードを維持します</span>
+                        </div>
+                    </div>
+                    <div class="admin-section">
+                        <h3>メールテンプレート</h3>
+                        <div class="form-group">
+                            <label>受注確認の件名 (orderSubject)</label>
+                            <input type="text" id="orderSubject" class="form-control" placeholder="【受注確認】注文ID: {{orderId}}">
+                        </div>
+                        <div class="form-group">
+                            <label>受注確認の本文 (orderBody)</label>
+                            <textarea id="orderBody" class="form-control" placeholder="プレースホルダ: {{customerName}}, {{orderId}}, {{date}}, {{clientOrderNumber}}, {{deliveryDate}}, {{shipperInfo}}"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>サポート申請の件名 (supportSubject)</label>
+                            <input type="text" id="supportSubject" class="form-control" placeholder="【サポート申請】{{categoryLabel}} {{customerName}}様">
+                        </div>
+                        <div class="form-group">
+                            <label>サポート申請の本文 (supportBody)</label>
+                            <textarea id="supportBody" class="form-control" placeholder="プレースホルダ: {{ticketId}}, {{categoryLabel}}, {{customerName}}, {{customerId}}, {{date}}, {{orderId}}, {{customerPoNumber}}, {{detail}}"></textarea>
+                        </div>
+                        <hr style="margin:20px 0;">
+                        <h4>📨 招待・パスワード再設定メール（顧客宛）</h4>
+                        <div class="form-group">
+                            <label>初回招待の件名 (inviteSubject)</label>
+                            <input type="text" id="inviteSubject" class="form-control" placeholder="【WEB受注システム】初回ログインのご案内">
+                        </div>
+                        <div class="form-group">
+                            <label>初回招待の本文 (inviteBody)</label>
+                            <textarea id="inviteBody" class="form-control" placeholder="プレースホルダ: {{customerName}}, {{inviteUrl}}"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>パスワード再設定の件名 (passwordResetSubject)</label>
+                            <input type="text" id="passwordResetSubject" class="form-control" placeholder="【WEB受注システム】パスワード再設定のご案内">
+                        </div>
+                        <div class="form-group">
+                            <label>パスワード再設定の本文 (passwordResetBody)</label>
+                            <textarea id="passwordResetBody" class="form-control" placeholder="プレースホルダ: {{customerName}}, {{inviteUrl}}"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>パスワード変更完了通知の件名 (passwordChangedSubject)</label>
+                            <input type="text" id="passwordChangedSubject" class="form-control" placeholder="【WEB受注システム】パスワードが変更されました">
+                        </div>
+                        <div class="form-group">
+                            <label>パスワード変更完了通知の本文 (passwordChangedBody)</label>
+                            <textarea id="passwordChangedBody" class="form-control" placeholder="プレースホルダ: {{customerName}}, {{date}}"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ログインCAPTCHA（reCAPTCHA v2）タブ -->
+                <div id="tab-recaptcha" class="tab-panel">
+                    <div class="admin-section">
+                        <h3>reCAPTCHA v2（「私はロボットではありません」）</h3>
+                        <p class="hint" style="margin-bottom: 15px;">ログイン失敗が2回を超えると、3回目以降はCAPTCHAの入力が必須になります。Google reCAPTCHA のサイトキーとシークレットキーを取得して設定してください。未設定の場合はCAPTCHAは使用されません。</p>
+                        <div class="form-group">
+                            <label>サイトキー (siteKey) — 公開用</label>
+                            <input type="text" id="recaptchaSiteKey" class="form-control" placeholder="例: 6Lcxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label>シークレットキー (secretKey) — サーバー用・非公開</label>
+                            <input type="password" id="recaptchaSecretKey" class="form-control" placeholder="変更する場合のみ入力" autocomplete="new-password">
+                            <span class="hint" id="recaptchaSecretKeyHint">空欄のまま保存すると既存のシークレットキーを維持します</span>
+                        </div>
+                        <p class="hint"><a href="https://www.google.com/recaptcha/admin" target="_blank" rel="noopener">Google reCAPTCHA 管理コンソール</a>で「reCAPTCHA v2」の「チェックボックス」タイプのキーを登録してください。</p>
+                    </div>
+                </div>
+
+                <!-- 機能ON/OFFタブ -->
+                <div id="tab-features" class="tab-panel">
+                    <div class="admin-section">
+                        <h3>顧客向け機能</h3>
+                        <div class="feature-grid" id="features-customer"></div>
+                    </div>
+                    <div class="admin-section">
+                        <h3>管理画面機能</h3>
+                        <div class="feature-grid" id="features-admin"></div>
+                    </div>
+                </div>
+
+                <!-- ランクの名前タブ -->
+                <div id="tab-rank-names" class="tab-panel">
+                    <div class="admin-section">
+                        <h3>ランクの表示名</h3>
+                        <p class="hint" style="margin-bottom: 15px;">価格ランク（A, B, C…）の表示名を変更できます。顧客管理・価格設定のドロップダウンや価格表で使われます。空欄のままにするとランクID（A, B など）がそのまま表示されます。</p>
+                        <div id="rank-names-list" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:12px;"></div>
+                    </div>
+                </div>
+
+                <!-- お知らせタブ -->
+                <div id="tab-announcements" class="tab-panel">
+                    <div class="admin-section">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h3 style="margin: 0;">お知らせ・バナー管理</h3>
+                            <button type="button" id="btn-add-announcement" class="btn-success btn-small">➕ 新規追加</button>
+                        </div>
+                        <p style="color: #666; margin-bottom: 20px;">
+                            <strong>【注文に関するお知らせ】</strong>（バナー）: 配送遅延、休業前後の締め時間変更など、注文・発送に直接関係するお知らせのみ。商品一覧・注文履歴ページに表示されます。<br>
+                            <strong>【一般お知らせ】</strong>（お知らせページ）: その他の案内・ニュース。顧客画面の「お知らせ」ページに一覧表示されます。<br>
+                            開始日時・終了日時を設定すると、自動的に表示・非表示が切り替わります。<br>
+                            <strong style="color: #d9534f;">※お知らせを追加・編集したら、画面上部の「💾 設定を保存」ボタンを押すと、顧客画面に反映されます。</strong>
+                        </p>
+                        <div id="announcements-list"></div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <button type="submit" id="btn-save" style="background: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 4px; cursor: pointer; font-weight: bold;">💾 設定を保存</button>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script src="../js/admin-common.js"></script>
+    <script src="../js/admin-settings.js"></script>
+</body>
+</html>

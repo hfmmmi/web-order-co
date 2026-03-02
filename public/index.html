@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <title>WEB受注システム ログイン</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body class="body-login"> 
+        <div class="login-container">
+            <h1>WEB受注システム</h1>
+            
+            <div>
+                <label>ID:</label>
+                <input type="text" id="username-input">
+            </div>
+            
+            <div>
+                <label>パスワード:</label>
+                <input type="password" id="password-input">
+            </div>
+            
+            <button>ログイン</button>
+
+            <div id="recaptcha-wrap" class="recaptcha-wrap" style="display: none; margin-top: 12px;">
+                <div id="recaptcha-container"></div>
+            </div>
+
+            <div class="login-forgot-wrap">
+                <a href="#" id="forgot-password-link">パスワードをお忘れの方</a>
+            </div>
+        </div>
+
+        <!-- パスワード再設定申込モーダル -->
+        <div id="forgot-password-modal" class="modal-overlay" role="dialog" aria-labelledby="forgot-password-title">
+            <div class="modal-content" style="max-width: 400px;">
+                <div class="modal-header">
+                    <h2 id="forgot-password-title">パスワード再設定</h2>
+                    <button type="button" class="modal-close-btn" id="forgot-password-close" aria-label="閉じる">×</button>
+                </div>
+                <div class="modal-body">
+                    <p style="margin-bottom: 12px; font-size: 0.9em;">ご登録のログインIDまたはメールアドレスを入力してください。パスワード再設定用のリンクをお送りします。</p>
+                    <label for="forgot-password-input">ログインID または メールアドレス</label>
+                    <input type="text" id="forgot-password-input" placeholder="例: customer01 または mail@example.com" autocomplete="username">
+                    <button type="button" id="forgot-password-submit" style="margin-top: 12px;">送信する</button>
+                </div>
+            </div>
+        </div>
+        <script src="script.js"></script>
+    </body>
+</html>

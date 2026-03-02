@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>商品マスタ管理 - WEB受注システム</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        /* 管理画面レイアウト用ローカルスタイル */
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #f4f6f9;
+        }
+
+        .admin-layout-wrapper {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* ★削除: ここにあったサイドバー専用CSS (.sidebar-menu等) は
+           admin-common.js 化に伴い不要になったため削除しました。
+           メインコンテンツやフォームのスタイルは維持しています。
+        */
+
+        /* メインコンテンツ */
+        .admin-main-content {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        /* コンテンツブロック */
+        .page-header {
+            margin-bottom: 20px;
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 10px;
+        }
+
+        .admin-section {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        /* フォーム要素 */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+
+        /* テーブル */
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .admin-table th,
+        .admin-table td {
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .admin-table th {
+            background: #e9ecef;
+        }
+
+        .admin-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        /* ボタン */
+        .btn-primary {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        /* リスト (緊急停止機能用スタイルは維持) */
+        .blocked-list-container {
+            border: 1px solid #ced4da;
+            padding: 10px;
+            border-radius: 4px;
+            min-height: 50px;
+            background: #fdfdfd;
+        }
+        
+        .blocked-item {
+            display: inline-block;
+            background: #ffebee;
+            color: #c62828;
+            padding: 5px 10px;
+            margin: 2px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            border: 1px solid #ffcdd2;
+        }
+        
+        .blocked-item span {
+            margin-left: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-layout-wrapper">
+        <aside class="admin-sidebar"></aside>
+
+        <main class="admin-main-content">
+            <div class="page-header">
+                <h1>📦 商品マスタ管理</h1>
+                <p style="color:#666;">商品の登録、編集、および価格設定を行います。</p>
+            </div>
+
+            <div class="admin-section">
+                <h2>✏️ 商品の追加・編集</h2>
+                <form id="add-product-form" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <div class="form-group">
+                            <label>商品コード <span style="color:red">*</span></label>
+                            <input type="text" id="product-code" class="form-control" placeholder="例: PRD-001" required>
+                        </div>
+                        <div class="form-group">
+                            <label>商品名 <span style="color:red">*</span></label>
+                            <input type="text" id="product-name" class="form-control" placeholder="商品名を入力" required>
+                        </div>
+                        <div class="form-group">
+                            <label>メーカー</label>
+                            <input type="text" id="product-manufacturer" class="form-control" placeholder="例: Canon">
+                        </div>
+                        <div class="form-group">
+                            <label>カテゴリ/規格</label>
+                            <input type="text" id="product-category" class="form-control" placeholder="例: トナーカートリッジ">
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-group">
+                            <label>標準価格 (税抜)</label>
+                            <input type="number" id="product-price" class="form-control" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label>納期区分 (在庫状況)</label>
+                            <select id="product-stock" class="form-control">
+                                <option value="即納">即納 (在庫あり)</option>
+                                <option value="2-3営業日">2-3営業日</option>
+                                <option value="取寄">メーカー取寄</option>
+                                <option value="欠品中">欠品中</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>公開状態</label>
+                            <select id="product-active" class="form-control">
+                                <option value="true">公開</option>
+                                <option value="false">非公開</option>
+                            </select>
+                        </div>
+                        <div style="margin-top: 30px; text-align: right;">
+                            <button type="submit" id="add-btn" class="btn-primary">追加 / 保存</button>
+                            <button type="button" id="update-btn" class="btn-primary" style="background:#28a745; display:none;">更新反映</button>
+                            <button type="button" id="cancel-edit-btn" style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:4px; display:none;">キャンセル</button>
+                        </div>
+                    </div>
+                </form>
+
+                <hr style="margin: 30px 0;">
+
+                <div class="embedded-csv-area">
+                    <h3>📥 商品マスタ一括登録 (CSV/Excel)</h3>
+                    <div style="display:flex; gap:10px; align-items: center;">
+                        <input type="file" id="csv-file-input" accept=".csv, .xlsx, .xls">
+                        <button id="csv-upload-btn" style="background:#17a2b8; color:white; border:none; padding:8px 16px; border-radius:4px; cursor:pointer;">一括登録を実行</button>
+                    </div>
+                    <small style="color:#666;">※既存の商品コードは上書き更新されます。</small>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <h3>📋 登録済み商品リスト</h3>
+                    <div id="admin-product-list" style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd;">
+                        <div style="padding:20px; text-align:center;">読み込み中...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-section" style="border-top: 5px solid #17a2b8;">
+                <h2>📑 見積・特価データ管理</h2>
+                <p>販売管理システムから出力された「見積CSV」を取り込み、Webシステムに反映させます。</p>
+
+                <div style="background: #e3f2fd; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                    <h3 style="margin-top:0; color:#0d47a1;">📥 見積データの取込</h3>
+                    <div style="display:flex; gap:10px; align-items: center;">
+                        <input type="file" id="estimate-file-input" accept=".csv, .xlsx, .xls">
+                        <button id="estimate-upload-btn" class="btn-primary" style="background:#0d47a1;">見積データを取り込む</button>
+                    </div>
+                    <ul style="font-size:0.9rem; color:#555; margin-top:10px; margin-bottom:0;">
+                        <li>対応形式: 販売管理システムから出力されたCSV または Excel</li>
+                        <li>更新ルール: 既存の見積データは全てクリアされ、新しいファイルの内容で上書きされます。</li>
+                    </ul>
+                </div>
+
+                <div style="background: #ffebee; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                    <h3 style="margin-top:0; color:#c62828;">🗑️ メーカー別見積削除</h3>
+                    <p style="font-size:0.9rem;">定価改定などにより、特定のメーカーの既存見積データを<strong>完全に削除</strong>します。<br><span style="color:#c62828;">⚠️ この操作は取り消せません。削除前にバックアップを取ることを推奨します。</span></p>
+                    
+                    <div style="display:flex; gap:10px; margin-bottom:10px;">
+                        <input type="text" id="delete-manufacturer-input" class="form-control" style="width:300px;" placeholder="メーカー名を入力 (例: RICOH, OKI, CANON)">
+                        <button id="delete-manufacturer-btn" class="btn-primary" style="background:#c62828;">🗑️ 見積を削除</button>
+                    </div>
+                    <small style="color:#666;">※<strong>商品名</strong>に入力したメーカー名が含まれる見積がすべて削除されます（部分一致・大文字小文字区別なし）</small>
+                </div>
+
+                <div style="background: #fff3e0; padding: 15px; border-radius: 5px; border: 2px solid #ff9800;">
+                    <h3 style="margin-top:0; color:#e65100;">🗑️ 商品コード別見積削除</h3>
+                    <p style="font-size:0.9rem;">特定の商品コードを指定して見積データを<strong>完全に削除</strong>します。<br><span style="color:#e65100;">⚠️ この操作は取り消せません。</span></p>
+                    
+                    <!-- 個別入力エリア -->
+                    <div style="margin-bottom: 15px;">
+                        <label style="font-weight:bold; display:block; margin-bottom:5px;">📝 削除する商品コードを追加</label>
+                        <div style="display:flex; gap:10px;">
+                            <input type="text" id="delete-product-input" class="form-control" style="width:300px;" placeholder="商品コードを入力 (例: PRD-001)">
+                            <button id="add-delete-product-btn" class="btn-primary" style="background:#ff9800;">リストに追加</button>
+                        </div>
+                    </div>
+
+                    <!-- CSV一括読み込みエリア -->
+                    <div style="margin-bottom: 15px; padding:10px; background:#fffde7; border-radius:4px;">
+                        <label style="font-weight:bold; display:block; margin-bottom:5px;">📥 CSV一括読み込み</label>
+                        <div style="display:flex; gap:10px; align-items:center;">
+                            <input type="file" id="delete-product-csv-input" accept=".csv, .txt">
+                            <button id="import-delete-product-btn" class="btn-primary" style="background:#f57c00;">CSV取込</button>
+                        </div>
+                        <small style="color:#666;">※1列目に商品コードを記載したCSV/TXTファイル（ヘッダー行は除外されます）</small>
+                    </div>
+
+                    <!-- 削除予定リスト表示 -->
+                    <div style="margin-bottom: 10px;">
+                        <label style="font-weight:bold; display:block; margin-bottom:5px;">📋 削除予定の商品コード (<span id="delete-product-count">0</span>件)</label>
+                        <div id="delete-product-list" class="blocked-list-container" style="max-height:200px; overflow-y:auto;">
+                            <span style='color:#999;'>削除する商品コードを追加してください</span>
+                        </div>
+                    </div>
+
+                    <!-- 一括クリアと削除実行 -->
+                    <div style="display:flex; justify-content:space-between; margin-top: 10px;">
+                        <button id="clear-delete-product-btn" class="btn-danger" style="padding:8px 16px; background:#6c757d;">リストをクリア</button>
+                        <button id="exec-delete-product-btn" class="btn-primary" style="background:#c62828;">🗑️ 見積を削除実行</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-section" id="stock-management-section" style="border-top: 5px solid #20c997;">
+                <h2>📦 在庫連携・表示設定</h2>
+                <p style="color:#555;">在庫表示ON/OFF、CSV連携、手動調整をまとめて管理します。</p>
+
+                <div class="stock-grid" style="display:flex; flex-wrap:wrap; gap:20px; margin-bottom:20px;">
+                    <div class="stock-card" style="flex:1; min-width:280px; background:#f8f9fa; padding:15px; border-radius:6px; border:1px solid #dee2e6;">
+                        <h3 style="margin-top:0;">🖥️ 表示設定</h3>
+                        <label style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+                            <input type="checkbox" id="stock-display-toggle">
+                            商品一覧で在庫数を表示する
+                        </label>
+                        <div class="form-group">
+                            <label for="stock-hidden-message">非公開時メッセージ</label>
+                            <input type="text" id="stock-hidden-message" class="form-control" placeholder="例: 仕入先直送のため在庫非公開">
+                        </div>
+                        <div class="form-group">
+                            <label for="stock-stockless-label">在庫代替ラベル</label>
+                            <input type="text" id="stock-stockless-label" class="form-control" placeholder="例: 仕入先直送">
+                        </div>
+                        <label style="display:flex; align-items:center; gap:8px; margin:10px 0;">
+                            <input type="checkbox" id="stock-allow-zero">
+                            在庫0でも発注を許可する
+                        </label>
+                        <div class="form-group">
+                            <label for="stock-highlight-minutes">同期遅延アラート (分)</label>
+                            <input type="number" id="stock-highlight-minutes" class="form-control" min="15" value="180">
+                        </div>
+                        <div class="form-group" style="margin-top:14px; border-top:1px solid #dee2e6; padding-top:12px;">
+                            <label>📋 登録倉庫名（テンプレ・CSV取込で使用）</label>
+                            <p style="color:#666; font-size:0.85rem; margin:4px 0 8px 0;">倉庫コードと倉庫名を登録すると、テンプレDLのサンプルに反映されます。</p>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                                <span style="font-size:0.9rem; color:#555;">各倉庫の「コード」と「倉庫名」を登録してください</span>
+                                <button type="button" id="add-warehouse-preset" class="btn-primary" style="background:#6c757d; padding:4px 10px;">＋ 追加</button>
+                            </div>
+                            <div id="warehouse-preset-list" style="margin-top:8px;"></div>
+                        </div>
+                        <button id="stock-save-settings" class="btn-primary">設定を保存</button>
+                        <div id="stock-settings-status" style="margin-top:10px; font-size:0.9rem; color:#17a2b8;"></div>
+                    </div>
+
+                    <div class="stock-card" style="flex:1; min-width:280px; background:#f8f9fa; padding:15px; border-radius:6px; border:1px solid #dee2e6;">
+                        <h3 style="margin-top:0;">📥 在庫CSV/Excel取込</h3>
+                        <input type="file" id="stock-csv-input" accept=".csv,.xlsx,.xls" style="width:100%; margin-bottom:10px;">
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <button id="stock-import-btn" class="btn-primary" style="background:#17a2b8;">取込を実行</button>
+                            <button type="button" id="stock-template-btn" class="btn-primary" style="background:#6c757d;">テンプレDL</button>
+                        </div>
+                        <small style="color:#666;">対応形式: CSV / Excel（.xlsx, .xls） フォーマット: product_code,total_qty,warehouse_code,warehouse_qty,timestamp,publish,hidden_message</small>
+                        <div id="stock-import-status" style="margin-top:10px; font-size:0.9rem;"></div>
+                    </div>
+                </div>
+
+                <div class="admin-subsection" style="margin-bottom:25px;">
+                    <h3>📜 取込履歴</h3>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>日時</th>
+                                <th>アダプタ</th>
+                                <th>結果</th>
+                                <th>備考</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stock-history-body">
+                            <tr><td colspan="4" style="text-align:center; color:#888;">履歴を読み込み中...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="admin-subsection" style="background:#fff; border:1px solid #dee2e6; border-radius:6px; padding:15px;">
+                    <h3>🛠️ 手動在庫調整</h3>
+                    <form id="stock-manual-form">
+                        <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
+                            <div class="form-group" style="flex:1; min-width:180px;">
+                                <label for="manual-stock-code">商品コード</label>
+                                <input type="text" id="manual-stock-code" class="form-control" required>
+                            </div>
+                            <button type="button" id="load-stock-btn" class="btn-primary" style="height:38px;">現在庫を読み込む</button>
+                        </div>
+                        <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:10px;">
+                            <div class="form-group" style="flex:1; min-width:150px;">
+                                <label>合計在庫数</label>
+                                <input type="number" id="manual-total-qty" class="form-control" min="0" value="0">
+                            </div>
+                            <div class="form-group" style="flex:1; min-width:150px;">
+                                <label>引当済み</label>
+                                <input type="number" id="manual-reserved-qty" class="form-control" min="0" value="0">
+                            </div>
+                            <div class="form-group" style="flex:1; min-width:150px;">
+                                <label>公開状態</label>
+                                <select id="manual-publish" class="form-control">
+                                    <option value="true">在庫を表示する</option>
+                                    <option value="false">非公開（文言表示）</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>非公開時メッセージ</label>
+                            <input type="text" id="manual-hidden-message" class="form-control">
+                        </div>
+
+                        <label style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+                            <input type="checkbox" id="manual-lock-flag">
+                            手動ロック（自動同期から除外）
+                        </label>
+
+                        <div style="border:1px dashed #ccc; padding:10px; border-radius:4px; margin-bottom:15px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <h4 style="margin:0;">🏭 倉庫別在庫</h4>
+                                <button type="button" id="add-warehouse-row" class="btn-primary" style="background:#17a2b8; padding:4px 10px;">＋ 倉庫を追加</button>
+                            </div>
+                            <p style="color:#666; font-size:0.85rem; margin:6px 0 8px 0;">各倉庫のコード・倉庫名・数量を入力してください。</p>
+                            <div id="warehouse-list-header" style="display:none; gap:8px; margin-bottom:4px; padding:0 2px; font-size:0.85rem; color:#555;">
+                                <span style="width:100px; min-width:100px;">倉庫コード</span>
+                                <span style="flex:1; min-width:120px;">倉庫名</span>
+                                <span style="width:100px; min-width:80px; text-align:right;">数量</span>
+                                <span style="width:42px;"></span>
+                            </div>
+                            <div id="warehouse-list" style="margin-top:4px;">
+                                <div style="color:#888; font-size:0.9rem;">倉庫行を追加してください</div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-primary" style="background:#28a745;">在庫を保存する</button>
+                        <div id="manual-stock-status" style="margin-top:10px; font-size:0.9rem;"></div>
+                    </form>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="../js/admin-common.js"></script>
+    <script src="../js/admin-products.js"></script>
+</body>
+</html>

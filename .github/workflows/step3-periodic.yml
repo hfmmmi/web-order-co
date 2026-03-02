@@ -1,0 +1,38 @@
+# ステップ3: 負荷試験・flake監視の定期実行（週1回・日曜 3:00 UTC）
+name: Step3 Periodic
+
+on:
+  schedule:
+    - cron: "0 3 * * 0"
+  workflow_dispatch:
+
+jobs:
+  load-and-flake:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Start server (background)
+        run: |
+          NODE_ENV=test SESSION_SECRET=periodic-test node server.js &
+          sleep 5
+
+      - name: Load test (閾値チェックはスキップ・記録のみ)
+        run: npm run test:load
+        env:
+          LOAD_TEST_SKIP_THRESHOLD: "true"
+
+      - name: Flake check (API tests x3)
+        run: npm run test:flake
+        env:
+          NODE_ENV: test
+          SESSION_SECRET: periodic-test

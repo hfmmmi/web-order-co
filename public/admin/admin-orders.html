@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>受注管理 - WEB受注システム</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        /* 管理画面レイアウト (style.css移設推奨) */
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .admin-layout-wrapper {
+            display: flex;
+            height: 100vh;
+        }
+
+        .admin-sidebar {
+            width: 250px;
+            background: #343a40;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .admin-main-content {
+            flex-grow: 1;
+            background: #f4f6f9;
+            padding: 20px;
+            overflow-y: auto;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        /* 共通パーツ */
+        .page-header {
+            margin-bottom: 20px;
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 10px;
+        }
+
+        .admin-section {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        /* 検索ボックス内の調整 */
+        .input-with-clear {
+            position: relative;
+            width: 100%;
+        }
+
+        .clear-input-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #999;
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: none;
+            /* JSで制御 */
+        }
+
+        .input-with-clear input:not(:placeholder-shown)+.clear-input-btn {
+            display: block;
+        }
+
+        /* ★連携ステータスバッジ */
+        .badge-exported {
+            background-color: #28a745;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            border: 1px solid #28a745;
+        }
+
+        .badge-unexported {
+            background-color: #fff;
+            color: #dc3545;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            border: 1px solid #dc3545;
+            font-weight: bold;
+        }
+
+        /* ★ドラッグ＆ドロップエリアのスタイル */
+        .drop-area {
+            border: 3px dashed #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: #fafafa;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        /* ドラッグ中のハイライト */
+        .drop-area.highlight {
+            border-color: #007bff;
+            background-color: #e9f7ff;
+            color: #007bff;
+            transform: scale(1.01);
+        }
+
+        .drop-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .upload-status-msg {
+            margin-top: 10px;
+            font-weight: bold;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="admin-layout-wrapper">
+        <aside class="admin-sidebar"></aside>
+
+        <main class="admin-main-content">
+            <div class="page-header">
+                <h2>🛒 受注管理 (Order Fulfillment)</h2>
+            </div>
+
+            <div class="admin-section">
+                <h4 style="margin-top:0; color:#495057;">📂 出荷データ一括取込 (Import)</h4>
+                <div id="drop-area" class="drop-area">
+                    <span class="drop-icon">📤</span>
+                    <p style="margin: 0; font-size: 1.1rem; font-weight:bold;">ここにCSV / Excelファイルをドロップ</p>
+                    <p style="margin: 5px 0 0; font-size: 0.85rem; color: #999;">またはクリックしてファイルを選択</p>
+                    <input type="file" id="file-input" style="display: none;" accept=".csv, .xlsx, .xls">
+                    <div id="upload-status" class="upload-status-msg"></div>
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <div class="search-box"
+                    style="margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 5px; border: 1px solid #e9ecef;">
+
+                    <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-bottom: 10px;">
+                        <div>
+                            <label style="font-size:0.8rem; font-weight:bold; display:block;">ステータス</label>
+                            <select id="order-status-filter" style="padding: 6px; width: 120px;">
+                                <option value="">全ステータス</option>
+                                <option value="未発送">未発送</option>
+                                <option value="発送済">発送済</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem; font-weight:bold; display:block;">期間指定</label>
+                            <input type="date" id="filter-date-start" style="padding: 5px;" onclick="this.showPicker()">
+                            <span>～</span>
+                            <input type="date" id="filter-date-end" style="padding: 5px;" onclick="this.showPicker()">
+                        </div>
+                    </div>
+
+                    <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end;">
+                        <div style="flex-grow: 1; max-width: 250px;">
+                            <label style="font-size:0.8rem; font-weight:bold; color:#007bff;">① 得意先 (ID/社名)</label>
+                            <div class="input-with-clear">
+                                <input type="text" id="order-search-cust" placeholder="会社名を入力..."
+                                    list="order-customer-list"
+                                    style="width: 100%; box-sizing: border-box; border: 1px solid #ced4da; border-radius: 4px; padding: 8px;">
+                                <span class="clear-input-btn" id="clear-cust-btn">×</span>
+                            </div>
+                            <datalist id="order-customer-list"></datalist>
+                        </div>
+
+                        <span style="font-weight:bold; font-size:1.2rem; color:#6c757d; padding-bottom: 5px;">＋</span>
+
+                        <div style="flex-grow: 1; max-width: 250px;">
+                            <label style="font-size:0.8rem; font-weight:bold; color:#28a745;">② 商品 (コード/品名)</label>
+                            <div class="input-with-clear">
+                                <input type="text" id="order-search-prod" placeholder="商品名を入力..."
+                                    list="order-product-list"
+                                    style="width: 100%; box-sizing: border-box; border: 1px solid #ced4da; border-radius: 4px; padding: 8px;">
+                                <span class="clear-input-btn" id="clear-prod-btn">×</span>
+                            </div>
+                            <datalist id="order-product-list"></datalist>
+                        </div>
+
+                        <button id="order-search-btn"
+                            style="padding: 8px 20px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 3px; font-weight: bold;">
+                            検索
+                        </button>
+
+                        <div style="margin-left: auto; display: flex; gap: 10px; align-items: center;">
+                            <button id="btn-csv-unexported"
+                                style="padding: 8px 15px; cursor: pointer; background-color: #dc3545; color: white; border: none; border-radius: 3px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                                📤 未連携データ出力
+                            </button>
+                            <button id="btn-csv-search-result"
+                                style="padding: 8px 15px; cursor: pointer; background-color: #6c757d; color: white; border: none; border-radius: 3px; font-size: 0.9rem;">
+                                📥 検索結果DL(再)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="order-list-container">
+                    <p>データ読込中...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/admin-common.js"></script>
+    <script src="../js/admin-orders-view.js"></script>
+    <script src="../js/admin-orders.js?v=8.1"></script>
+</body>
+
+</html>

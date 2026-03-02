@@ -1,0 +1,6 @@
+{"runId":"url-access-debug","hypothesisId":"H1","location":"server.js:98","message":"session mode flags","data":{"nodeEnv":"","platform":"win32","isProduction":false,"isTest":false,"isWindowsDev":true},"timestamp":1770842481880}
+{"runId":"url-access-debug","hypothesisId":"H5","location":"server.js:239","message":"server listen callback","data":{"port":3000},"timestamp":1770842483625}
+{"runId":"url-access-debug","hypothesisId":"H1","location":"server.js:128","message":"session store selected","data":{"store":"memory-store","reason":"windows dev mode"},"timestamp":1770842482221}
+{"runId":"url-access-debug","hypothesisId":"H1","location":"server.js:98","message":"session mode flags","data":{"nodeEnv":"","platform":"win32","isProduction":false,"isTest":false,"isWindowsDev":true},"timestamp":1770842521540}
+{"runId":"url-access-debug","hypothesisId":"H5","location":"server.js:239","message":"server listen callback","data":{"port":3000},"timestamp":1770842521806}
+{"runId":"url-access-debug","hypothesisId":"H1","location":"server.js:128","message":"session store selected","data":{"store":"memory-store","reason":"windows dev mode"},"timestamp":1770842521567}

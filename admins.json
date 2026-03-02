@@ -1,0 +1,12 @@
+[
+  {
+    "adminId": "test-admin",
+    "password": "$2b$10$2Ap69zdplj7yfZF9FmtRPeOxxZHcAFyU73u0OiataQGX2YvhxuQG.",
+    "name": "テスト管理者"
+  },
+  {
+    "adminId": "admin",
+    "password": "$2b$10$o4tBGvWk9w0YtRnI.etB6OaBMB6HXvdG/ZqFvQ1C2NfNs0PjPsmlC",
+    "name": "システム管理者"
+  }
+]

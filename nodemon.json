@@ -1,0 +1,20 @@
+{
+  "ignore": [
+    "sessions/*",
+    "orders.json",
+    "products.json",
+    "customers.json",
+    "prices.json",
+    "rank_prices.json",
+    "kaitori_requests.json",
+    "kaitori_master.json",
+    "support_tickets.json",
+    "public/*"
+  ],
+  "watch": [
+    "server.js",
+    "routes/",
+    "utils/"
+  ],
+  "ext": "js,json"
+}

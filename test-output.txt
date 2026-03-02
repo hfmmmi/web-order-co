@@ -1,0 +1,3648 @@
+
+> web-order@1.0.0 test:api
+> jest tests/s-rank tests/a-rank tests/b-rank tests/risk-driven --runInBand --coverage
+
+FAIL tests/a-rank/coverage-auth-orders-admin.api.test.js (58.753 s)
+  笳・Console
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.error
+      admins.json 隱ｭ縺ｿ霎ｼ縺ｿ螟ｱ謨・ SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)
+          at JSON.parse (<anonymous>)
+          at parse (C:\Users\user\Desktop\program\web-order\routes\auth-api.js:357:30)
+
+      357 |             adminList = JSON.parse(data);
+      358 |         } catch (err) {
+    > 359 |             console.error("admins.json 隱ｭ縺ｿ霎ｼ縺ｿ螟ｱ謨・", err);
+          |                     ^
+      360 |             return res.json({ success: false, message: "邂｡逅・・B繧ｨ繝ｩ繝ｼ" });
+      361 |         }
+      362 |
+
+      at error (routes/auth-api.js:359:21)
+
+    console.error
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ繧ｨ繝ｩ繝ｼ Error: ENOENT
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\coverage-auth-orders-admin.api.test.js:65:43)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jest-mock\build\index.js:305:39
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\node_modules\jest-mock\build\index.js:312:13)
+          at Object.mockConstructor [as readFile] (C:\Users\user\Desktop\program\web-order\node_modules\jest-mock\build\index.js:102:19)
+          at readFile (C:\Users\user\Desktop\program\web-order\routes\auth-api.js:258:31)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+      322 |         }
+      323 |     } catch (error) {
+    > 324 |         console.error("鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ繧ｨ繝ｩ繝ｼ", error);
+          |                 ^
+      325 |         res.json({ success: false, message: "繧ｷ繧ｹ繝・Β繧ｨ繝ｩ繝ｼ" });
+      326 |     };
+      327 | });
+
+      at error (routes/auth-api.js:324:17)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.error
+      Account settings get error: Error: DB Error
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\coverage-auth-orders-admin.api.test.js:84:82)
+          at Promise.finally.completed (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:343:7)
+
+      556 |         })
+      557 |         .catch(err => {
+    > 558 |             console.error("Account settings get error:", err);
+          |                     ^
+      559 |             res.status(500).json({ message: "險ｭ螳壹・蜿門ｾ励↓螟ｱ謨励＠縺ｾ縺励◆" });
+      560 |         });
+      561 | });
+
+      at error (routes/auth-api.js:558:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.error
+      Account settings update error: Error: DB Error
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\coverage-auth-orders-admin.api.test.js:96:91)
+          at Promise.finally.completed (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:343:7)
+
+      572 |         })
+      573 |         .catch(err => {
+    > 574 |             console.error("Account settings update error:", err);
+          |                     ^
+      575 |             res.status(500).json({ message: "險ｭ螳壹・菫晏ｭ倥↓螟ｱ謨励＠縺ｾ縺励◆" });
+      576 |         });
+      577 | });
+
+      at error (routes/auth-api.js:574:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      莉｣逅・Ο繧ｰ繧､繝ｳ逕ｳ隲・ 繝・せ繝育ｮ｡逅・・竊・鬘ｧ螳｢ TEST001
+
+      at log (routes/admin-api.js:303:17)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.error
+      Proxy reject error: Error: EACCES
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\coverage-auth-orders-admin.api.test.js:135:43)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jest-mock\build\index.js:305:39
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\node_modules\jest-mock\build\index.js:312:13)
+          at Object.mockConstructor [as writeFile] (C:\Users\user\Desktop\program\web-order\node_modules\jest-mock\build\index.js:102:19)
+          at writeFile (C:\Users\user\Desktop\program\web-order\routes\auth-api.js:480:14)
+          at saveProxyRequestsAuth (C:\Users\user\Desktop\program\web-order\routes\auth-api.js:533:15)
+
+      534 |         res.json({ success: true, message: "蜊ｴ荳九＠縺ｾ縺励◆縲・ });
+      535 |     } catch (e) {
+    > 536 |         console.error("Proxy reject error:", e);
+          |                 ^
+      537 |         res.status(500).json({ message: "蜃ｦ逅・↓螟ｱ謨励＠縺ｾ縺励◆" });
+      538 |     }
+      539 | });
+
+      at error (routes/auth-api.js:536:17)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.error
+      Proxy approve error: Error: EACCES
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\coverage-auth-orders-admin.api.test.js:160:43)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jest-mock\build\index.js:305:39
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\node_modules\jest-mock\build\index.js:312:13)
+          at Object.mockConstructor [as writeFile] (C:\Users\user\Desktop\program\web-order\node_modules\jest-mock\build\index.js:102:19)
+          at writeFile (C:\Users\user\Desktop\program\web-order\routes\auth-api.js:480:14)
+          at saveProxyRequestsAuth (C:\Users\user\Desktop\program\web-order\routes\auth-api.js:518:15)
+
+      519 |         res.json({ success: true, message: "險ｱ蜿ｯ縺励∪縺励◆縲らｮ｡逅・・′莉｣逅・Ο繧ｰ繧､繝ｳ繧貞ｮ溯｡後〒縺阪∪縺吶・ });
+      520 |     } catch (e) {
+    > 521 |         console.error("Proxy approve error:", e);
+          |                 ^
+      522 |         res.status(500).json({ message: "蜃ｦ逅・↓螟ｱ謨励＠縺ｾ縺励◆" });
+      523 |     }
+      524 | });
+
+      at error (routes/auth-api.js:521:17)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.error
+      Invite Reset Error: Error: DB Error
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\coverage-auth-orders-admin.api.test.js:215:89)
+          at Promise.finally.completed (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:343:7)
+
+      867 |
+      868 |     } catch (error) {
+    > 869 |         console.error("Invite Reset Error:", error);
+          |                 ^
+      870 |         res.json({ success: false, message: "諡帛ｾ・畑繝ｪ繧ｻ繝・ヨ蜃ｦ逅・ｸｭ縺ｫ繧ｨ繝ｩ繝ｼ縺檎匱逕溘＠縺ｾ縺励◆" });
+      871 |     }
+      872 | });
+
+      at error (routes/auth-api.js:869:17)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.error
+      螻･豁ｴ蜿門ｾ励お繝ｩ繝ｼ Error: DB Error
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\coverage-auth-orders-admin.api.test.js:282:72)
+          at Promise.finally.completed (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:343:7)
+
+      72 |         res.json({ success: true, history: historyData });
+      73 |     } catch (error) {
+    > 74 |         console.error("螻･豁ｴ蜿門ｾ励お繝ｩ繝ｼ", error);
+         |                 ^
+      75 |         res.json({ success: false, message: "隱ｭ縺ｿ霎ｼ縺ｿ繧ｨ繝ｩ繝ｼ" });
+      76 |     }
+      77 | });
+
+      at error (routes/orders-api.js:74:17)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.error
+      驟埼∝ｱ･豁ｴ蜿門ｾ励お繝ｩ繝ｼ Error: DB Error
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\coverage-auth-orders-admin.api.test.js:292:72)
+          at Promise.finally.completed (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:343:7)
+
+      109 |         res.json({ success: true, list: uniqueHistory.slice(0, 50) });
+      110 |     } catch (error) {
+    > 111 |         console.error("驟埼∝ｱ･豁ｴ蜿門ｾ励お繝ｩ繝ｼ", error);
+          |                 ^
+      112 |         res.json({ success: false, message: "繧ｨ繝ｩ繝ｼ逋ｺ逕・ });
+      113 |     }
+      114 | });
+
+      at error (routes/orders-api.js:111:17)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.error
+      闕ｷ荳ｻ螻･豁ｴ蜿門ｾ励お繝ｩ繝ｼ Error: DB Error
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\coverage-auth-orders-admin.api.test.js:302:72)
+          at Promise.finally.completed (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:343:7)
+
+      146 |         res.json({ success: true, list: uniqueHistory.slice(0, 50) });
+      147 |     } catch (error) {
+    > 148 |         console.error("闕ｷ荳ｻ螻･豁ｴ蜿門ｾ励お繝ｩ繝ｼ", error);
+          |                 ^
+      149 |         res.json({ success: false, message: "繧ｨ繝ｩ繝ｼ逋ｺ逕・ });
+      150 |     }
+      151 | });
+
+      at error (routes/orders-api.js:148:17)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.error
+      豕ｨ譁・ｸ隕ｧ蜿門ｾ励お繝ｩ繝ｼ Error: DB Error
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\coverage-auth-orders-admin.api.test.js:312:72)
+          at Promise.finally.completed (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:343:7)
+
+      57 |         res.json({ success: true, orders });
+      58 |     } catch (error) {
+    > 59 |         console.error("豕ｨ譁・ｸ隕ｧ蜿門ｾ励お繝ｩ繝ｼ", error);
+         |                 ^
+      60 |         res.json({ success: false, message: "繝・・繧ｿ縺ｮ隱ｭ縺ｿ霎ｼ縺ｿ螟ｱ謨・ });
+      61 |     }
+      62 | });
+
+      at error (routes/orders-api.js:59:17)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.error
+      豕ｨ譁・ｿ晏ｭ倥お繝ｩ繝ｼ Error: 蝨ｨ蠎ｫ荳崎ｶｳ
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\coverage-auth-orders-admin.api.test.js:385:31)
+          at Promise.finally.completed (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:343:7) {
+        code: 'STOCK_SHORTAGE'
+      }
+
+      32 |         res.json({ success: true, orderId: newOrder.orderId });
+      33 |     } catch (error) {
+    > 34 |         console.error("豕ｨ譁・ｿ晏ｭ倥お繝ｩ繝ｼ", error);
+         |                 ^
+      35 |         if (error.code === "STOCK_SHORTAGE") {
+      36 |             res.json({ success: false, message: error.message || "蝨ｨ蠎ｫ荳崎ｶｳ縺ｮ縺溘ａ豕ｨ譁・〒縺阪∪縺帙ｓ" });
+      37 |         } else {
+
+      at error (routes/orders-api.js:34:17)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.error
+      豕ｨ譁・ｿ晏ｭ倥お繝ｩ繝ｼ Error: DB謗･邯壹お繝ｩ繝ｼ
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\coverage-auth-orders-admin.api.test.js:403:74)
+          at Promise.finally.completed (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:343:7)
+
+      32 |         res.json({ success: true, orderId: newOrder.orderId });
+      33 |     } catch (error) {
+    > 34 |         console.error("豕ｨ譁・ｿ晏ｭ倥お繝ｩ繝ｼ", error);
+         |                 ^
+      35 |         if (error.code === "STOCK_SHORTAGE") {
+      36 |             res.json({ success: false, message: error.message || "蝨ｨ蠎ｫ荳崎ｶｳ縺ｮ縺溘ａ豕ｨ譁・〒縺阪∪縺帙ｓ" });
+      37 |         } else {
+
+      at error (routes/orders-api.js:34:17)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.error
+      CSV繧ｨ繝ｩ繝ｼ Error: CSV逕滓・螟ｱ謨・          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\coverage-auth-orders-admin.api.test.js:493:23)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jest-mock\build\index.js:305:39
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\node_modules\jest-mock\build\index.js:312:13)
+          at Object.mockConstructor [as generateOrdersCsv] (C:\Users\user\Desktop\program\web-order\node_modules\jest-mock\build\index.js:102:19)
+          at generateOrdersCsv (C:\Users\user\Desktop\program\web-order\routes\orders-api.js:193:36)
+
+      203 |
+      204 |     } catch (e) {
+    > 205 |         console.error("CSV繧ｨ繝ｩ繝ｼ", e);
+          |                 ^
+      206 |         res.status(500).send("CSV繧ｨ繝ｩ繝ｼ");
+      207 |     }
+      208 | });
+
+      at error (routes/orders-api.js:205:17)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.error
+      Error: CSV繝代・繧ｹ螟ｱ謨・          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\coverage-auth-orders-admin.api.test.js:812:79)
+          at Promise.finally.completed (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:343:7)
+
+      197 |         res.json(result);
+      198 |     } catch (e) {
+    > 199 |         console.error(e);
+          |                 ^
+      200 |         res.json({ success: false, message: e.message });
+      201 |     }
+      202 | });
+
+      at error (routes/admin-api.js:199:17)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.error
+      Customer Fetch Error: Error: DB Error
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\coverage-auth-orders-admin.api.test.js:839:82)
+          at Promise.finally.completed (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:343:7)
+
+      217 |         res.json(result);
+      218 |     } catch (e) { 
+    > 219 |         console.error("Customer Fetch Error:", e);
+          |                 ^
+      220 |         res.status(500).json({ message: "蜿門ｾ怜､ｱ謨・ }); 
+      221 |     }
+      222 | });
+
+      at error (routes/admin-api.js:219:17)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.error
+      Manual reserve error: Error: 蝨ｨ蠎ｫ荳崎ｶｳ
+          at StockService.reserve (C:\Users\user\Desktop\program\web-order\services\stockService.js:224:27)
+          at C:\Users\user\Desktop\program\web-order\routes\admin-api.js:779:9 {
+        code: 'STOCK_SHORTAGE',
+        details: [ 'NO_MASTER_CODE: 蝨ｨ蠎ｫ繝槭せ繧ｿ縺ｪ縺・ ]
+      }
+
+      783 |         res.json({ success: true });
+      784 |     } catch (error) {
+    > 785 |         console.error("Manual reserve error:", error);
+          |                 ^
+      786 |         res.status(400).json({ success: false, message: error.message });
+      787 |     }
+      788 | });
+
+      at error (routes/admin-api.js:785:17)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.error
+      Manual reserve error: Error: 蝨ｨ蠎ｫ荳崎ｶｳ
+          at StockService.reserve (C:\Users\user\Desktop\program\web-order\services\stockService.js:224:27)
+          at C:\Users\user\Desktop\program\web-order\routes\admin-api.js:779:9 {
+        code: 'STOCK_SHORTAGE',
+        details: [ 'P001: 蝨ｨ蠎ｫ荳崎ｶｳ (蠢・ｦ・0 / 谿・)' ]
+      }
+
+      783 |         res.json({ success: true });
+      784 |     } catch (error) {
+    > 785 |         console.error("Manual reserve error:", error);
+          |                 ^
+      786 |         res.status(400).json({ success: false, message: error.message });
+      787 |     }
+      788 | });
+
+      at error (routes/admin-api.js:785:17)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.error
+      [PriceService] Load Error (prices.json): SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)
+          at JSON.parse (<anonymous>)
+          at PriceService.parse [as _loadJson] (C:\Users\user\Desktop\program\web-order\services\priceService.js:19:25)
+          at async Promise.all (index 0)
+          at PriceService.getCustomerPriceList (C:\Users\user\Desktop\program\web-order\services\priceService.js:128:44)
+          at C:\Users\user\Desktop\program\web-order\routes\admin-api.js:496:24
+
+      19 |             return JSON.parse(data);
+      20 |         } catch (error) {
+    > 21 |             console.error(`[PriceService] Load Error (${path.basename(filePath)}):`, error);
+         |                     ^
+      22 |             return []; // 繧ｨ繝ｩ繝ｼ譎ゅ・遨ｺ驟榊・縺ｾ縺溘・遨ｺ繧ｪ繝悶ず繧ｧ繧ｯ繝医ｒ霑斐☆
+      23 |         }
+      24 |     }
+
+      at PriceService.error [as _loadJson] (services/priceService.js:21:21)
+          at async Promise.all (index 0)
+      at PriceService.getCustomerPriceList (services/priceService.js:128:44)
+      at routes/admin-api.js:496:24
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.error
+      [StockService] read error (C:\Users\user\Desktop\program\web-order\stocks.json): SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)
+          at JSON.parse (<anonymous>)
+          at StockService.parse [as _readJson] (C:\Users\user\Desktop\program\web-order\services\stockService.js:52:25)
+          at StockService._readStocks (C:\Users\user\Desktop\program\web-order\services\stockService.js:65:22)
+          at StockService.getAllStocks (C:\Users\user\Desktop\program\web-order\services\stockService.js:99:16)
+          at C:\Users\user\Desktop\program\web-order\routes\admin-api.js:671:24
+
+      52 |             return JSON.parse(raw);
+      53 |         } catch (error) {
+    > 54 |             console.error(`[StockService] read error (${targetPath}):`, error);
+         |                     ^
+      55 |             return fallback;
+      56 |         }
+      57 |     }
+
+      at StockService.error [as _readJson] (services/stockService.js:54:21)
+      at StockService._readStocks (services/stockService.js:65:22)
+      at StockService.getAllStocks (services/stockService.js:99:16)
+      at routes/admin-api.js:671:24
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      [SpecialPrice] Deleted 0 estimates where productName contains: X
+
+      at Object.log [as deleteEstimatesByManufacturer] (services/specialPriceService.js:114:17)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.error
+      [CustomerService] Load Error: SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)
+          at JSON.parse (<anonymous>)
+          at CustomerService.parse [as _loadAll] (C:\Users\user\Desktop\program\web-order\services\customerService.js:17:25)
+          at CustomerService.searchCustomers (C:\Users\user\Desktop\program\web-order\services\customerService.js:37:22)
+          at CustomerService.getAllCustomers (C:\Users\user\Desktop\program\web-order\services\customerService.js:32:16)
+          at C:\Users\user\Desktop\program\web-order\routes\admin-api.js:216:24
+
+      17 |             return JSON.parse(data);
+      18 |         } catch (error) {
+    > 19 |             console.error("[CustomerService] Load Error:", error);
+         |                     ^
+      20 |             return []; // 繧ｨ繝ｩ繝ｼ譎ゅ・遨ｺ驟榊・繧定ｿ斐☆・医ヵ繧｡繧､繝ｫ縺後↑縺・ｴ蜷医↑縺ｩ・・      21 |         }
+      22 |     }
+
+      at CustomerService.error [as _loadAll] (services/customerService.js:19:21)
+      at CustomerService.searchCustomers (services/customerService.js:37:22)
+      at CustomerService.getAllCustomers (services/customerService.js:32:16)
+      at routes/admin-api.js:216:24
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      莉｣逅・Ο繧ｰ繧､繝ｳ逕ｳ隲・ 繝・せ繝育ｮ｡逅・・竊・鬘ｧ螳｢ TEST001
+
+      at log (routes/admin-api.js:303:17)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.error
+      Stock settings update error: Error: IO Error
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\coverage-auth-orders-admin.api.test.js:1424:81)
+          at Promise.finally.completed (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:343:7)
+
+      662 |         res.json({ success: true, config: saved });
+      663 |     } catch (error) {
+    > 664 |         console.error("Stock settings update error:", error);
+          |                 ^
+      665 |         res.status(500).json({ success: false, message: "險ｭ螳壹・菫晏ｭ倥↓螟ｱ謨励＠縺ｾ縺励◆" });
+      666 |     }
+      667 | });
+
+      at error (routes/admin-api.js:664:17)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.error
+      Stock settings fetch error: Error: Config Error
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\coverage-auth-orders-admin.api.test.js:1435:80)
+          at Promise.finally.completed (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:343:7)
+
+      643 |         });
+      644 |     } catch (error) {
+    > 645 |         console.error("Stock settings fetch error:", error);
+          |                 ^
+      646 |         res.status(500).json({ success: false, message: "險ｭ螳壹・蜿門ｾ励↓螟ｱ謨励＠縺ｾ縺励◆" });
+      647 |     }
+      648 | });
+
+      at error (routes/admin-api.js:645:17)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      [SpecialPrice] Deleted 0 estimates where productName contains: NonExistentMaker
+
+      at Object.log [as deleteEstimatesByManufacturer] (services/specialPriceService.js:114:17)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      [SpecialPrice] Deleted 0 estimates for 1 product codes.
+
+      at Object.log [as deleteEstimatesByProductCodes] (services/specialPriceService.js:135:17)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.error
+      Single stock fetch error: Error: IO Error
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\coverage-auth-orders-admin.api.test.js:1526:72)
+          at Promise.finally.completed (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:343:7)
+
+      812 |         res.json({ success: true, stock });
+      813 |     } catch (error) {
+    > 814 |         console.error("Single stock fetch error:", error);
+          |                 ^
+      815 |         res.status(500).json({ success: false, message: "蜿門ｾ励↓螟ｱ謨励＠縺ｾ縺励◆" });
+      816 |     }
+      817 | });
+
+      at error (routes/admin-api.js:814:17)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      [CSV Service] CSV蠖｢蠑上→縺励※蜃ｦ逅・＠縺ｾ縺・
+      at Object.log [as parseEstimatesData] (services/csvService.js:193:17)
+
+    console.log
+      [CSV Service] 讀懷・縺輔ｌ縺溘・繝・ム繝ｼ: [ '郢晏･繝｣郢拿x80郢晢ｽｼ1', '郢晏･繝｣郢拿x80郢晢ｽｼ2' ]
+
+      at Object.log [as parseEstimatesData] (services/csvService.js:216:13)
+
+    console.log
+      [CSV Service] 蛻励・繝・ヴ繝ｳ繧ｰ: {
+        estimateId: -1,
+        customerId: -1,
+        productCode: -1,
+        productName: -1,
+        price: -1,
+        validUntil: -1,
+        manufacturer: -1,
+        subject: -1
+      }
+
+      at Object.log [as parseEstimatesData] (services/csvService.js:250:13)
+
+    console.error
+      笶・蠢・亥・荳崎ｶｳ縲よ､懷・迥ｶ豕・ {
+        estimateId: -1,
+        customerId: -1,
+        productCode: -1,
+        productName: -1,
+        price: -1,
+        validUntil: -1,
+        manufacturer: -1,
+        subject: -1
+      }
+
+      252 |     // 蠢・亥・繝√ぉ繝・け・亥ｾ玲э蜈医さ繝ｼ繝峨∝膚蜩√さ繝ｼ繝峨∝腰萓｡縺梧怙菴朱剞蠢・ｦ・ｼ・      253 |     if (map.customerId === -1 || map.productCode === -1 || map.price === -1) {
+    > 254 |         console.error("笶・蠢・亥・荳崎ｶｳ縲よ､懷・迥ｶ豕・", map);
+          |                 ^
+      255 |         console.error("蠢・ｦ√↑蛻・ 蠕玲э蜈医さ繝ｼ繝・ 蝠・刀繧ｳ繝ｼ繝・ 蜊倅ｾ｡");
+      256 |         return [];
+      257 |     }
+
+      at Object.error [as parseEstimatesData] (services/csvService.js:254:17)
+      at Object.parseEstimatesData (tests/a-rank/coverage-auth-orders-admin.api.test.js:2079:45)
+
+    console.error
+      蠢・ｦ√↑蛻・ 蠕玲э蜈医さ繝ｼ繝・ 蝠・刀繧ｳ繝ｼ繝・ 蜊倅ｾ｡
+
+      253 |     if (map.customerId === -1 || map.productCode === -1 || map.price === -1) {
+      254 |         console.error("笶・蠢・亥・荳崎ｶｳ縲よ､懷・迥ｶ豕・", map);
+    > 255 |         console.error("蠢・ｦ√↑蛻・ 蠕玲э蜈医さ繝ｼ繝・ 蝠・刀繧ｳ繝ｼ繝・ 蜊倅ｾ｡");
+          |                 ^
+      256 |         return [];
+      257 |     }
+      258 |
+
+      at Object.error [as parseEstimatesData] (services/csvService.js:255:17)
+      at Object.parseEstimatesData (tests/a-rank/coverage-auth-orders-admin.api.test.js:2079:45)
+
+    console.log
+      [CSV Service] CSV蠖｢蠑上→縺励※蜃ｦ逅・＠縺ｾ縺・
+      at Object.log [as parseEstimatesData] (services/csvService.js:193:17)
+
+    console.log
+      笞・・Shift-JIS decoding issue. Retrying with UTF-8...
+
+      at Object.log [as parseEstimatesData] (services/csvService.js:200:21)
+
+    console.log
+      [CSV Service] 讀懷・縺輔ｌ縺溘・繝・ム繝ｼ: [ '隕狗ｩ咲分蜿ｷ', '蠕玲э蜈医さ繝ｼ繝・, '蝠・刀繧ｳ繝ｼ繝・, '蝠・刀蜷・, '蜊倅ｾ｡', '譛牙柑譛滄剞' ]
+
+      at Object.log [as parseEstimatesData] (services/csvService.js:216:13)
+
+    console.log
+      [CSV Service] 蛻励・繝・ヴ繝ｳ繧ｰ: {
+        estimateId: 0,
+        customerId: 1,
+        productCode: 2,
+        productName: 3,
+        price: 4,
+        validUntil: 5,
+        manufacturer: -1,
+        subject: -1
+      }
+
+      at Object.log [as parseEstimatesData] (services/csvService.js:250:13)
+
+    console.log
+      [CSV Service] 辟｡蜉ｹ縺ｪ鬘ｧ螳｢繧ｳ繝ｼ繝・0000遲・繧貞性繧 1 莉ｶ繧偵せ繧ｭ繝・・縺励∪縺励◆
+
+      at Object.log [as parseEstimatesData] (services/csvService.js:308:17)
+
+    console.log
+      [CSV Service] Parsed 1 estimates.
+
+      at Object.log [as parseEstimatesData] (services/csvService.js:310:13)
+
+    console.log
+      [SpecialPrice] Saved 1 records.
+
+      at Object.log [as saveEstimates] (services/specialPriceService.js:34:17)
+
+    console.warn
+      [Security] Customer TEST001 tried to access Estimate E100 belonging to another.
+
+      68 |
+      69 |         if (!isOwner) {
+    > 70 |             console.warn(`[Security] Customer ${customerId} tried to access Estimate ${estimateId} belonging to another.`);
+         |                     ^
+      71 |             // 莉紋ｺｺ縺ｮ隕狗ｩ咲分蜿ｷ繧貞・蜉帙＆繧後◆蝣ｴ蜷医・縲瑚ｩｲ蠖薙↑縺励阪→縺励※謖ｯ繧玖・縺・ｼ亥ｭ伜惠繧呈耳貂ｬ縺輔○縺ｪ縺・◆繧・ｼ・      72 |             return [];
+      73 |         }
+
+      at Object.warn [as getSpecialPrices] (services/specialPriceService.js:70:21)
+      at Object.<anonymous> (tests/a-rank/coverage-auth-orders-admin.api.test.js:2114:28)
+
+    console.log
+      [SpecialPrice] Deleted 1 estimates where productName contains: 繝｡繝ｼ繧ｫ繝ｼA
+
+      at Object.log [as deleteEstimatesByManufacturer] (services/specialPriceService.js:114:17)
+
+    console.log
+      [SpecialPrice] Deleted 1 estimates for 1 product codes.
+
+      at Object.log [as deleteEstimatesByProductCodes] (services/specialPriceService.js:135:17)
+
+    console.error
+      [CustomerService] Import Error: Error: Can't find end of central directory : is this a zip file ? If it is, see https://stuk.github.io/jszip/documentation/howto/read_zip.html
+          at ZipEntries.readEndOfCentral (C:\Users\user\Desktop\program\web-order\node_modules\jszip\lib\zipEntries.js:167:23)
+          at ZipEntries.load (C:\Users\user\Desktop\program\web-order\node_modules\jszip\lib\zipEntries.js:255:14)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jszip\lib\load.js:48:24
+          at XLSX.load (C:\Users\user\Desktop\program\web-order\node_modules\exceljs\lib\xlsx\xlsx.js:279:17)
+          at readToRowArrays (C:\Users\user\Desktop\program\web-order\utils\excelReader.js:13:5)
+          at CustomerService.importFromExcel (C:\Users\user\Desktop\program\web-order\services\customerService.js:116:30)
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\coverage-auth-orders-admin.api.test.js:2167:13)
+
+      161 |
+      162 |         } catch (error) {
+    > 163 |             console.error("[CustomerService] Import Error:", error);
+          |                     ^
+      164 |             // 繧ｨ繝ｩ繝ｼ繧呈兜縺偵※API蛛ｴ縺ｧ繧ｭ繝｣繝・メ縺輔○繧・      165 |             throw new Error("Excel繝輔ぃ繧､繝ｫ縺ｮ隱ｭ縺ｿ霎ｼ縺ｿ縺ｫ螟ｱ謨励＠縺ｾ縺励◆: " + error.message);
+      166 |         }
+
+      at CustomerService.error [as importFromExcel] (services/customerService.js:163:21)
+      at Object.<anonymous> (tests/a-rank/coverage-auth-orders-admin.api.test.js:2167:13)
+
+    console.error
+      [CustomerService] Import Error: Error: Can't find end of central directory : is this a zip file ? If it is, see https://stuk.github.io/jszip/documentation/howto/read_zip.html
+          at ZipEntries.readEndOfCentral (C:\Users\user\Desktop\program\web-order\node_modules\jszip\lib\zipEntries.js:167:23)
+          at ZipEntries.load (C:\Users\user\Desktop\program\web-order\node_modules\jszip\lib\zipEntries.js:255:14)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jszip\lib\load.js:48:24
+          at XLSX.load (C:\Users\user\Desktop\program\web-order\node_modules\exceljs\lib\xlsx\xlsx.js:279:17)
+          at readToRowArrays (C:\Users\user\Desktop\program\web-order\utils\excelReader.js:13:5)
+          at CustomerService.importFromExcel (C:\Users\user\Desktop\program\web-order\services\customerService.js:116:30)
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\coverage-auth-orders-admin.api.test.js:2215:32)
+
+      161 |
+      162 |         } catch (error) {
+    > 163 |             console.error("[CustomerService] Import Error:", error);
+          |                     ^
+      164 |             // 繧ｨ繝ｩ繝ｼ繧呈兜縺偵※API蛛ｴ縺ｧ繧ｭ繝｣繝・メ縺輔○繧・      165 |             throw new Error("Excel繝輔ぃ繧､繝ｫ縺ｮ隱ｭ縺ｿ霎ｼ縺ｿ縺ｫ螟ｱ謨励＠縺ｾ縺励◆: " + error.message);
+      166 |         }
+
+      at CustomerService.error [as importFromExcel] (services/customerService.js:163:21)
+      at Object.<anonymous> (tests/a-rank/coverage-auth-orders-admin.api.test.js:2215:32)
+
+    console.log
+      [CSV Service] Excel蠖｢蠑上→縺励※蜃ｦ逅・＠縺ｾ縺・
+      at Object.log [as parseEstimatesData] (services/csvService.js:178:17)
+
+    console.error
+      [CSV Service] Excel繝輔ぃ繧､繝ｫ縺ｮ隱ｭ縺ｿ霎ｼ縺ｿ縺ｫ螟ｱ謨・ End of data reached (data length = 2, asked index = 4). Corrupted zip ?
+
+      186 |             rows = jsonData.slice(1);
+      187 |         } catch (e) {
+    > 188 |             console.error("[CSV Service] Excel繝輔ぃ繧､繝ｫ縺ｮ隱ｭ縺ｿ霎ｼ縺ｿ縺ｫ螟ｱ謨・", e.message);
+          |                     ^
+      189 |             return [];
+      190 |         }
+      191 |     } else {
+
+      at Object.error [as parseEstimatesData] (services/csvService.js:188:21)
+      at Object.<anonymous> (tests/a-rank/coverage-auth-orders-admin.api.test.js:2235:28)
+
+    console.log
+      [CSV Service] Excel蠖｢蠑上→縺励※蜃ｦ逅・＠縺ｾ縺・
+      at Object.log [as parseEstimatesData] (services/csvService.js:178:17)
+
+    console.error
+      [CSV Service] Excel繝輔ぃ繧､繝ｫ縺ｮ隱ｭ縺ｿ霎ｼ縺ｿ縺ｫ螟ｱ謨・ End of data reached (data length = 2, asked index = 4). Corrupted zip ?
+
+      186 |             rows = jsonData.slice(1);
+      187 |         } catch (e) {
+    > 188 |             console.error("[CSV Service] Excel繝輔ぃ繧､繝ｫ縺ｮ隱ｭ縺ｿ霎ｼ縺ｿ縺ｫ螟ｱ謨・", e.message);
+          |                     ^
+      189 |             return [];
+      190 |         }
+      191 |     } else {
+
+      at Object.error [as parseEstimatesData] (services/csvService.js:188:21)
+      at Object.<anonymous> (tests/a-rank/coverage-auth-orders-admin.api.test.js:2247:28)
+
+    console.error
+      [ProductService] Import Error: Error: Can't find end of central directory : is this a zip file ? If it is, see https://stuk.github.io/jszip/documentation/howto/read_zip.html
+          at ZipEntries.readEndOfCentral (C:\Users\user\Desktop\program\web-order\node_modules\jszip\lib\zipEntries.js:167:23)
+          at ZipEntries.load (C:\Users\user\Desktop\program\web-order\node_modules\jszip\lib\zipEntries.js:255:14)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jszip\lib\load.js:48:24
+          at XLSX.load (C:\Users\user\Desktop\program\web-order\node_modules\exceljs\lib\xlsx\xlsx.js:279:17)
+          at readToRowArrays (C:\Users\user\Desktop\program\web-order\utils\excelReader.js:13:5)
+          at ProductService.importFromExcel (C:\Users\user\Desktop\program\web-order\services\productService.js:67:30)
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\coverage-auth-orders-admin.api.test.js:2278:13)
+
+      125 |
+      126 |         } catch (error) {
+    > 127 |             console.error("[ProductService] Import Error:", error);
+          |                     ^
+      128 |             throw error;
+      129 |         }
+      130 |     }
+
+      at ProductService.error [as importFromExcel] (services/productService.js:127:21)
+      at Object.<anonymous> (tests/a-rank/coverage-auth-orders-admin.api.test.js:2278:13)
+
+    console.error
+      [ProductService] Import Error: Error: Can't find end of central directory : is this a zip file ? If it is, see https://stuk.github.io/jszip/documentation/howto/read_zip.html
+          at ZipEntries.readEndOfCentral (C:\Users\user\Desktop\program\web-order\node_modules\jszip\lib\zipEntries.js:167:23)
+          at ZipEntries.load (C:\Users\user\Desktop\program\web-order\node_modules\jszip\lib\zipEntries.js:255:14)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jszip\lib\load.js:48:24
+          at XLSX.load (C:\Users\user\Desktop\program\web-order\node_modules\exceljs\lib\xlsx\xlsx.js:279:17)
+          at readToRowArrays (C:\Users\user\Desktop\program\web-order\utils\excelReader.js:13:5)
+          at ProductService.importFromExcel (C:\Users\user\Desktop\program\web-order\services\productService.js:67:30)
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\coverage-auth-orders-admin.api.test.js:2296:28)
+
+      125 |
+      126 |         } catch (error) {
+    > 127 |             console.error("[ProductService] Import Error:", error);
+          |                     ^
+      128 |             throw error;
+      129 |         }
+      130 |     }
+
+      at ProductService.error [as importFromExcel] (services/productService.js:127:21)
+      at Object.<anonymous> (tests/a-rank/coverage-auth-orders-admin.api.test.js:2296:28)
+
+  笳・A繝ｩ繝ｳ繧ｯ: 繧ｫ繝舌Ξ繝・ず謾ｹ蝟・ｼ・uth/orders/admin・・窶ｺ admin-api 窶ｺ customerService.importFromExcel 縺ｯ inputEmail 縺檎ｩｺ縺ｮ蝣ｴ蜷医・ email 繧呈峩譁ｰ縺励↑縺・ｼ域里蟄倬｡ｧ螳｢・・
+    Excel繝輔ぃ繧､繝ｫ縺ｮ隱ｭ縺ｿ霎ｼ縺ｿ縺ｫ螟ｱ謨励＠縺ｾ縺励◆: Can't find end of central directory : is this a zip file ? If it is, see https://stuk.github.io/jszip/documentation/howto/read_zip.html
+
+      163 |             console.error("[CustomerService] Import Error:", error);
+      164 |             // 繧ｨ繝ｩ繝ｼ繧呈兜縺偵※API蛛ｴ縺ｧ繧ｭ繝｣繝・メ縺輔○繧・    > 165 |             throw new Error("Excel繝輔ぃ繧､繝ｫ縺ｮ隱ｭ縺ｿ霎ｼ縺ｿ縺ｫ螟ｱ謨励＠縺ｾ縺励◆: " + error.message);
+          |                   ^
+      166 |         }
+      167 |     }
+      168 |
+
+      at CustomerService.importFromExcel (services/customerService.js:165:19)
+      at Object.<anonymous> (tests/a-rank/coverage-auth-orders-admin.api.test.js:2215:32)
+
+  笳・A繝ｩ繝ｳ繧ｯ: 繧ｫ繝舌Ξ繝・ず謾ｹ蝟・ｼ・uth/orders/admin・・窶ｺ admin-api 窶ｺ csvService.parseEstimatesData 縺ｯ Excel 蠖｢蠑擾ｼ・lsx 諡｡蠑ｵ蟄撰ｼ峨〒蜃ｦ逅・☆繧・
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 1
+    Received: 0
+
+      2235 |             const result = await csvService.parseEstimatesData(buffer, "test.xlsx");
+      2236 |             expect(Array.isArray(result)).toBe(true);
+    > 2237 |             expect(result.length).toBe(1);
+           |                                   ^
+      2238 |             expect(result[0].customerId).toBe("TEST001");
+      2239 |             excelReader.readToRowArrays.mockRestore();
+      2240 |         });
+
+      at Object.toBe (tests/a-rank/coverage-auth-orders-admin.api.test.js:2237:35)
+
+  笳・A繝ｩ繝ｳ繧ｯ: 繧ｫ繝舌Ξ繝・ず謾ｹ蝟・ｼ・uth/orders/admin・・窶ｺ admin-api 窶ｺ productService.importFromExcel 縺ｯ rawPrice 縺・OPEN 縺ｮ縺ｨ縺・basePrice 繧・0 縺ｫ縺吶ｋ
+
+    Can't find end of central directory : is this a zip file ? If it is, see https://stuk.github.io/jszip/documentation/howto/read_zip.html
+
+      11 | async function readToRowArrays(buffer, options = {}) {
+      12 |     const workbook = new ExcelJS.Workbook();
+    > 13 |     await workbook.xlsx.load(buffer);
+         |     ^
+      14 |     const sheet = options.sheetName
+      15 |         ? workbook.getWorksheet(options.sheetName) || workbook.worksheets[options.sheetIndex ?? 0]
+      16 |         : workbook.worksheets[options.sheetIndex ?? 0];
+
+      at ZipEntries.readEndOfCentral (node_modules/jszip/lib/zipEntries.js:167:23)
+      at ZipEntries.load (node_modules/jszip/lib/zipEntries.js:255:14)
+      at node_modules/jszip/lib/load.js:48:24
+      at XLSX.load (node_modules/exceljs/lib/xlsx/xlsx.js:279:17)
+      at readToRowArrays (utils/excelReader.js:13:5)
+      at ProductService.importFromExcel (services/productService.js:67:30)
+      at Object.<anonymous> (tests/a-rank/coverage-auth-orders-admin.api.test.js:2296:28)
+
+PASS tests/b-rank/products-api-boundaries.api.test.js (12.718 s)
+  笳・Console
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.error
+      Product Load Error: SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)
+          at JSON.parse (<anonymous>)
+          at parse (C:\Users\user\Desktop\program\web-order\routes\products-api.js:139:35)
+
+      186 |
+      187 |     } catch (error) {
+    > 188 |         console.error("Product Load Error:", error);
+          |                 ^
+      189 |         res.status(500).json({ message: "蝠・刀繝・・繧ｿ縺ｮ隱ｭ縺ｿ霎ｼ縺ｿ縺ｫ螟ｱ謨励＠縺ｾ縺励◆" });
+      190 |     }
+      191 | });
+
+      at error (routes/products-api.js:188:17)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.error
+      Product Load Error: SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)
+          at JSON.parse (<anonymous>)
+          at parse (C:\Users\user\Desktop\program\web-order\routes\products-api.js:137:36)
+
+      186 |
+      187 |     } catch (error) {
+    > 188 |         console.error("Product Load Error:", error);
+          |                 ^
+      189 |         res.status(500).json({ message: "蝠・刀繝・・繧ｿ縺ｮ隱ｭ縺ｿ霎ｼ縺ｿ縺ｫ螟ｱ謨励＠縺ｾ縺励◆" });
+      190 |     }
+      191 | });
+
+      at error (routes/products-api.js:188:17)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.error
+      Product Load Error: Error: 蝨ｨ蠎ｫ隱ｭ霎ｼ螟ｱ謨・          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\b-rank\products-api-boundaries.api.test.js:193:72)
+          at Promise.finally.completed (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:343:7)
+
+      186 |
+      187 |     } catch (error) {
+    > 188 |         console.error("Product Load Error:", error);
+          |                 ^
+      189 |         res.status(500).json({ message: "蝠・刀繝・・繧ｿ縺ｮ隱ｭ縺ｿ霎ｼ縺ｿ縺ｫ螟ｱ謨励＠縺ｾ縺励◆" });
+      190 |     }
+      191 | });
+
+      at error (routes/products-api.js:188:17)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.error
+      Product Load Error: Error: 險ｭ螳夊ｪｭ霎ｼ螟ｱ謨・          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\b-rank\products-api-boundaries.api.test.js:204:78)
+          at Promise.finally.completed (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:343:7)
+
+      186 |
+      187 |     } catch (error) {
+    > 188 |         console.error("Product Load Error:", error);
+          |                 ^
+      189 |         res.status(500).json({ message: "蝠・刀繝・・繧ｿ縺ｮ隱ｭ縺ｿ霎ｼ縺ｿ縺ｫ螟ｱ謨励＠縺ｾ縺励◆" });
+      190 |     }
+      191 | });
+
+      at error (routes/products-api.js:188:17)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.error
+      SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)
+          at JSON.parse (<anonymous>)
+          at parse (C:\Users\user\Desktop\program\web-order\routes\products-api.js:428:36)
+
+      452 |
+      453 |     } catch (error) {
+    > 454 |         console.error(error);
+          |                 ^
+      455 |         res.status(500).send("CSV逕滓・繧ｨ繝ｩ繝ｼ");
+      456 |     }
+      457 | });
+
+      at error (routes/products-api.js:454:17)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.error
+      Cart Detail Error: SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)
+          at JSON.parse (<anonymous>)
+          at parse (C:\Users\user\Desktop\program\web-order\routes\products-api.js:282:36)
+
+      307 |
+      308 |     } catch (e) {
+    > 309 |         console.error("Cart Detail Error:", e);
+          |                 ^
+      310 |         res.status(500).json({ success: false, message: "Server Error" });
+      311 |     }
+      312 | });
+
+      at error (routes/products-api.js:309:17)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.error
+      Estimate Search Error: SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)
+          at JSON.parse (<anonymous>)
+          at parse (C:\Users\user\Desktop\program\web-order\routes\products-api.js:217:36)
+
+      255 |
+      256 |     } catch (error) {
+    > 257 |         console.error("Estimate Search Error:", error);
+          |                 ^
+      258 |         res.status(500).json({ message: "隕狗ｩ阪ョ繝ｼ繧ｿ縺ｮ讀懃ｴ｢荳ｭ縺ｫ繧ｨ繝ｩ繝ｼ縺檎匱逕溘＠縺ｾ縺励◆" });
+      259 |     }
+      260 | });
+
+      at error (routes/products-api.js:257:17)
+
+PASS tests/b-rank/support-api-boundaries.api.test.js (7.411 s)
+  笳・Console
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.error
+      繝｡繝ｼ繝ｫ騾∽ｿ｡螟ｱ謨・ Error: SMTP Error
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\b-rank\support-api-boundaries.api.test.js:138:67)
+          at Promise.finally.completed (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:343:7)
+
+      57 |         // 邂｡逅・・∈縺ｮ繝｡繝ｼ繝ｫ騾夂衍・郁ｨｭ螳壹・繝ｼ繧ｹ繝ｻ髱槫酔譛滂ｼ・      58 |         mailService.sendSupportNotification(ticketData).catch((e) => {
+    > 59 |             console.error("繝｡繝ｼ繝ｫ騾∽ｿ｡螟ｱ謨・", e);
+         |                     ^
+      60 |         });
+      61 |
+      62 |         res.json({ success: true, message: "逕ｳ隲九ｒ蜿励￠莉倥￠縺ｾ縺励◆" });
+
+      at error (routes/support-api.js:59:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.error
+      繧ｵ繝昴・繝育筏隲九お繝ｩ繝ｼ Error: EACCES
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\b-rank\support-api-boundaries.api.test.js:156:39)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jest-mock\build\index.js:305:39
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\node_modules\jest-mock\build\index.js:312:13)
+          at Object.mockConstructor [as writeFile] (C:\Users\user\Desktop\program\web-order\node_modules\jest-mock\build\index.js:102:19)
+          at writeFile (C:\Users\user\Desktop\program\web-order\routes\support-api.js:55:18)
+
+      62 |         res.json({ success: true, message: "逕ｳ隲九ｒ蜿励￠莉倥￠縺ｾ縺励◆" });
+      63 |     } catch (error) {
+    > 64 |         console.error("繧ｵ繝昴・繝育筏隲九お繝ｩ繝ｼ", error);
+         |                 ^
+      65 |         res.status(500).json({ success: false, message: "繧ｵ繝ｼ繝舌・繧ｨ繝ｩ繝ｼ" });
+      66 |     }
+      67 | });
+
+      at error (routes/support-api.js:64:17)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.error
+      譖ｴ譁ｰ繧ｨ繝ｩ繝ｼ SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)
+          at JSON.parse (<anonymous>)
+          at parse (C:\Users\user\Desktop\program\web-order\routes\support-api.js:141:28)
+
+      173 |         }
+      174 |     } catch (error) {
+    > 175 |         console.error("譖ｴ譁ｰ繧ｨ繝ｩ繝ｼ", error);
+          |                 ^
+      176 |         res.status(500).json({ success: false, message: "譖ｴ譁ｰ螟ｱ謨・ });
+      177 |     }
+      178 | });
+
+      at error (routes/support-api.js:175:17)
+
+PASS tests/s-rank/auth-security.api.test.js
+  笳・Console
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST001
+
+      at log (routes/auth-api.js:320:21)
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST001
+
+      at log (routes/auth-api.js:320:21)
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST001
+
+      at log (routes/auth-api.js:320:21)
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST001
+
+      at log (routes/auth-api.js:320:21)
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST001
+
+      at log (routes/auth-api.js:320:21)
+
+    console.log
+      邂｡逅・・ヱ繧ｹ繝ｯ繝ｼ繝我ｸ堺ｸ閾ｴ: test-admin
+
+      at log (routes/auth-api.js:442:21)
+
+    console.log
+      邂｡逅・・ヱ繧ｹ繝ｯ繝ｼ繝我ｸ堺ｸ閾ｴ: test-admin
+
+      at log (routes/auth-api.js:442:21)
+
+    console.log
+      邂｡逅・・ヱ繧ｹ繝ｯ繝ｼ繝我ｸ堺ｸ閾ｴ: test-admin
+
+      at log (routes/auth-api.js:442:21)
+
+    console.log
+      邂｡逅・・ヱ繧ｹ繝ｯ繝ｼ繝我ｸ堺ｸ閾ｴ: test-admin
+
+      at log (routes/auth-api.js:442:21)
+
+    console.log
+      邂｡逅・・ヱ繧ｹ繝ｯ繝ｼ繝我ｸ堺ｸ閾ｴ: test-admin
+
+      at log (routes/auth-api.js:442:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST002
+
+      at log (routes/auth-api.js:320:21)
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST002
+
+      at log (routes/auth-api.js:320:21)
+
+    console.log
+      [request-password-reset] Sent reset link to TEST001
+
+      at log (routes/auth-api.js:823:21)
+
+    console.log
+      [request-password-reset] Sent reset link to TEST001
+
+      at log (routes/auth-api.js:823:21)
+
+    console.log
+      [request-password-reset] Sent reset link to TEST001
+
+      at log (routes/auth-api.js:823:21)
+
+    console.log
+      [request-password-reset] Sent reset link to TEST001
+
+      at log (routes/auth-api.js:823:21)
+
+    console.log
+      [request-password-reset] Sent reset link to TEST001
+
+      at log (routes/auth-api.js:823:21)
+
+    console.log
+      繝代せ繝ｯ繝ｼ繝牙・險ｭ螳壼ｮ御ｺ・ｼ磯｡ｧ螳｢逕ｳ霎ｼ・・ TEST001
+
+      at log (routes/auth-api.js:679:21)
+
+PASS tests/s-rank/session-fixation-and-rate-limit-boundary.api.test.js
+  笳・Console
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: TEST001)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: true)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      莉｣逅・Ο繧ｰ繧､繝ｳ逕ｳ隲・ 繝・せ繝育ｮ｡逅・・竊・鬘ｧ螳｢ TEST001
+
+      at log (routes/admin-api.js:303:17)
+
+    console.log
+      莉｣逅・Ο繧ｰ繧､繝ｳ: 繝・せ繝育ｮ｡逅・・竊・鬘ｧ螳｢ TEST001
+
+      at log (routes/admin-api.js:399:21)
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST001
+
+      at log (routes/auth-api.js:320:21)
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST001
+
+      at log (routes/auth-api.js:320:21)
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST001
+
+      at log (routes/auth-api.js:320:21)
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST001
+
+      at log (routes/auth-api.js:320:21)
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST001
+
+      at log (routes/auth-api.js:320:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      [request-password-reset] Sent reset link to TEST001
+
+      at log (routes/auth-api.js:823:21)
+
+    console.log
+      [request-password-reset] Sent reset link to TEST001
+
+      at log (routes/auth-api.js:823:21)
+
+    console.log
+      [request-password-reset] Sent reset link to TEST001
+
+      at log (routes/auth-api.js:823:21)
+
+    console.log
+      [request-password-reset] Sent reset link to TEST001
+
+      at log (routes/auth-api.js:823:21)
+
+    console.log
+      [request-password-reset] Sent reset link to TEST001
+
+      at log (routes/auth-api.js:823:21)
+
+    console.log
+      [request-password-reset] Sent reset link to TEST001
+
+      at log (routes/auth-api.js:823:21)
+
+PASS tests/s-rank/login-failure-alert-mail.api.test.js
+  笳・Console
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST001
+
+      at log (routes/auth-api.js:320:21)
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST001
+
+      at log (routes/auth-api.js:320:21)
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST001
+
+      at log (routes/auth-api.js:320:21)
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST001
+
+      at log (routes/auth-api.js:320:21)
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST001
+
+      at log (routes/auth-api.js:320:21)
+
+    console.log
+      邂｡逅・・ヱ繧ｹ繝ｯ繝ｼ繝我ｸ堺ｸ閾ｴ: test-admin
+
+      at log (routes/auth-api.js:442:21)
+
+    console.log
+      邂｡逅・・ヱ繧ｹ繝ｯ繝ｼ繝我ｸ堺ｸ閾ｴ: test-admin
+
+      at log (routes/auth-api.js:442:21)
+
+    console.log
+      邂｡逅・・ヱ繧ｹ繝ｯ繝ｼ繝我ｸ堺ｸ閾ｴ: test-admin
+
+      at log (routes/auth-api.js:442:21)
+
+    console.log
+      邂｡逅・・ヱ繧ｹ繝ｯ繝ｼ繝我ｸ堺ｸ閾ｴ: test-admin
+
+      at log (routes/auth-api.js:442:21)
+
+    console.log
+      邂｡逅・・ヱ繧ｹ繝ｯ繝ｼ繝我ｸ堺ｸ閾ｴ: test-admin
+
+      at log (routes/auth-api.js:442:21)
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST001
+
+      at log (routes/auth-api.js:320:21)
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST001
+
+      at log (routes/auth-api.js:320:21)
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST001
+
+      at log (routes/auth-api.js:320:21)
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST001
+
+      at log (routes/auth-api.js:320:21)
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST001
+
+      at log (routes/auth-api.js:320:21)
+
+FAIL tests/a-rank/stock-adapters-boundaries.unit.test.js
+  笳・stockAdapters 蠅・阜繝ｻ繧ｨ繝ｩ繝ｼ蛻・ｲ・窶ｺ CsvAdapter 窶ｺ normalize 縺ｯ Excel 繝輔ぃ繧､繝ｫ・・lsx 諡｡蠑ｵ蟄撰ｼ峨〒 parseExcelToRecords 繧貞他縺ｶ
+
+    End of data reached (data length = 2, asked index = 4). Corrupted zip ?
+
+      11 | async function readToRowArrays(buffer, options = {}) {
+      12 |     const workbook = new ExcelJS.Workbook();
+    > 13 |     await workbook.xlsx.load(buffer);
+         |     ^
+      14 |     const sheet = options.sheetName
+      15 |         ? workbook.getWorksheet(options.sheetName) || workbook.worksheets[options.sheetIndex ?? 0]
+      16 |         : workbook.worksheets[options.sheetIndex ?? 0];
+
+      at NodeBufferReader.checkIndex (node_modules/jszip/lib/reader/DataReader.js:26:19)
+      at NodeBufferReader.checkOffset (node_modules/jszip/lib/reader/DataReader.js:17:14)
+      at NodeBufferReader.readData (node_modules/jszip/lib/reader/NodeBufferReader.js:14:10)
+      at NodeBufferReader.readString (node_modules/jszip/lib/reader/DataReader.js:75:49)
+      at ZipEntries.isSignature (node_modules/jszip/lib/zipEntries.js:39:37)
+      at ZipEntries.readEndOfCentral (node_modules/jszip/lib/zipEntries.js:164:35)
+      at ZipEntries.load (node_modules/jszip/lib/zipEntries.js:255:14)
+      at node_modules/jszip/lib/load.js:48:24
+      at XLSX.load (node_modules/exceljs/lib/xlsx/xlsx.js:279:17)
+      at readToRowArrays (utils/excelReader.js:13:5)
+      at readToObjects (utils/excelReader.js:34:18)
+      at parseExcelToRecords (services/stockAdapters/csvAdapter.js:22:12)
+      at CsvAdapter.normalize (services/stockAdapters/csvAdapter.js:74:23)
+      at Object.<anonymous> (tests/a-rank/stock-adapters-boundaries.unit.test.js:92:28)
+
+  笳・stockAdapters 蠅・阜繝ｻ繧ｨ繝ｩ繝ｼ蛻・ｲ・窶ｺ CsvAdapter 窶ｺ normalize 縺ｯ Excel 繝舌ャ繝輔ぃ・医・繧ｸ繝・け繝翫Φ繝舌・・峨〒 parseExcelToRecords 繧貞他縺ｶ
+
+    Corrupted zip: can't find end of central directory
+
+      11 | async function readToRowArrays(buffer, options = {}) {
+      12 |     const workbook = new ExcelJS.Workbook();
+    > 13 |     await workbook.xlsx.load(buffer);
+         |     ^
+      14 |     const sheet = options.sheetName
+      15 |         ? workbook.getWorksheet(options.sheetName) || workbook.worksheets[options.sheetIndex ?? 0]
+      16 |         : workbook.worksheets[options.sheetIndex ?? 0];
+
+      at ZipEntries.readEndOfCentral (node_modules/jszip/lib/zipEntries.js:170:23)
+      at ZipEntries.load (node_modules/jszip/lib/zipEntries.js:255:14)
+      at node_modules/jszip/lib/load.js:48:24
+      at XLSX.load (node_modules/exceljs/lib/xlsx/xlsx.js:279:17)
+      at readToRowArrays (utils/excelReader.js:13:5)
+      at readToObjects (utils/excelReader.js:34:18)
+      at parseExcelToRecords (services/stockAdapters/csvAdapter.js:22:12)
+      at CsvAdapter.normalize (services/stockAdapters/csvAdapter.js:74:23)
+      at Object.<anonymous> (tests/a-rank/stock-adapters-boundaries.unit.test.js:106:28)
+
+PASS tests/a-rank/kaitori-api.api.test.js (8.843 s)
+  笳・Console
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.error
+      螻･豁ｴ蜿門ｾ励お繝ｩ繝ｼ SyntaxError: Unexpected token 'o', "not json" is not valid JSON
+          at JSON.parse (<anonymous>)
+          at parse (C:\Users\user\Desktop\program\web-order\routes\kaitori-api.js:237:34)
+
+      240 |
+      241 |     } catch (error) {
+    > 242 |         console.error("螻･豁ｴ蜿門ｾ励お繝ｩ繝ｼ", error);
+          |                 ^
+      243 |         res.json([]);
+      244 |     }
+      245 | });
+
+      at error (routes/kaitori-api.js:242:17)
+
+PASS tests/b-rank/step3-load-test-and-perflog.api.test.js (7.708 s)
+  笳・Console
+
+    console.log
+      繧ｵ繝ｼ繝舌・襍ｷ蜍輔＠縺ｾ縺励◆縲・http://localhost:3999
+
+      at Server.log (server.js:192:17)
+
+    console.log
+      FLAM騾｣謳ｺ讖溯・: 貅門ｙ螳御ｺ・
+      at Server.log (server.js:193:17)
+
+    console.log
+      [StockPoller] 襍ｷ蜍輔＠縺ｾ縺励◆
+
+      at StockPoller.log [as start] (jobs/stockPoller.js:15:17)
+
+    console.error
+      [customer-auth-log] read error: Unexpected end of JSON input
+
+      86 |             list = JSON.parse(data);
+      87 |         } catch (e) {
+    > 88 |             if (e.code !== "ENOENT") console.error("[customer-auth-log] read error:", e.message);
+         |                                              ^
+      89 |         }
+      90 |         if (!Array.isArray(list)) list = [];
+      91 |         list.push(row);
+
+      at error (routes/auth-api.js:88:46)
+
+    console.log
+      繧ｵ繝ｼ繝舌・襍ｷ蜍輔＠縺ｾ縺励◆縲・http://localhost:3999
+
+      at Server.log (server.js:192:17)
+
+    console.log
+      FLAM騾｣謳ｺ讖溯・: 貅門ｙ螳御ｺ・
+      at Server.log (server.js:193:17)
+
+    console.log
+      [StockPoller] 襍ｷ蜍輔＠縺ｾ縺励◆
+
+      at StockPoller.log [as start] (jobs/stockPoller.js:15:17)
+
+PASS tests/a-rank/cors-configuration.api.test.js
+PASS tests/a-rank/security-boundaries.api.test.js
+  笳・Console
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      莉｣逅・Ο繧ｰ繧､繝ｳ逕ｳ隲・ 繝・せ繝育ｮ｡逅・・竊・鬘ｧ螳｢ TEST001
+
+      at log (routes/admin-api.js:303:17)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+PASS tests/s-rank/session-cookie-security.api.test.js
+  笳・Console
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+PASS tests/a-rank/shipment-concurrency.api.test.js
+  笳・Console
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+PASS tests/a-rank/server-env-behavior.api.test.js
+  笳・Console
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+PASS tests/s-rank/request-validation.api.test.js
+  笳・Console
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+PASS tests/b-rank/stock-visibility-combinations.api.test.js
+  笳・Console
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+PASS tests/a-rank/json-corruption-recovery.api.test.js
+  笳・Console
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST001
+
+      at log (routes/auth-api.js:320:21)
+
+    console.log
+      [request-password-reset] Sent reset link to TEST001
+
+      at log (routes/auth-api.js:823:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      莉｣逅・Ο繧ｰ繧､繝ｳ逕ｳ隲・ 繝・せ繝育ｮ｡逅・・竊・鬘ｧ螳｢ TEST001
+
+      at log (routes/admin-api.js:303:17)
+
+PASS tests/b-rank/order-estimate-message.api.test.js
+  笳・Console
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+PASS tests/s-rank/auth-audit-log.api.test.js
+  笳・Console
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST001
+
+      at log (routes/auth-api.js:320:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      邂｡逅・・ヱ繧ｹ繝ｯ繝ｼ繝我ｸ堺ｸ閾ｴ: test-admin
+
+      at log (routes/auth-api.js:442:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+PASS tests/a-rank/captcha-required-response.api.test.js
+  笳・Console
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST002
+
+      at log (routes/auth-api.js:320:21)
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST002
+
+      at log (routes/auth-api.js:320:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST002
+
+      at log (routes/auth-api.js:320:21)
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST002
+
+      at log (routes/auth-api.js:320:21)
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST002
+
+      at log (routes/auth-api.js:320:21)
+
+PASS tests/a-rank/critical-flows.api.test.js
+  笳・Console
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+PASS tests/b-rank/operations.api.test.js
+  笳・Console
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+PASS tests/a-rank/proxy-logout-restore.api.test.js
+  笳・Console
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST002 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: TEST002)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      莉｣逅・Ο繧ｰ繧､繝ｳ逕ｳ隲・ 繝・せ繝育ｮ｡逅・・竊・鬘ｧ螳｢ TEST001
+
+      at log (routes/admin-api.js:303:17)
+
+    console.log
+      莉｣逅・Ο繧ｰ繧､繝ｳ: 繝・せ繝育ｮ｡逅・・竊・鬘ｧ螳｢ TEST001
+
+      at log (routes/admin-api.js:399:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      莉｣逅・Ο繧ｰ繧､繝ｳ逕ｳ隲・ 繝・せ繝育ｮ｡逅・・竊・鬘ｧ螳｢ TEST001
+
+      at log (routes/admin-api.js:303:17)
+
+    console.log
+      莉｣逅・Ο繧ｰ繧､繝ｳ: 繝・せ繝育ｮ｡逅・・竊・鬘ｧ螳｢ TEST001
+
+      at log (routes/admin-api.js:399:21)
+
+PASS tests/risk-driven/features-visibility-regression.api.test.js
+  笳・Console
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+PASS tests/b-rank/upload-boundaries.api.test.js
+  笳・Console
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.error
+      Kaitori parse-excel error: Error: Can't find end of central directory : is this a zip file ? If it is, see https://stuk.github.io/jszip/documentation/howto/read_zip.html
+          at ZipEntries.readEndOfCentral (C:\Users\user\Desktop\program\web-order\node_modules\jszip\lib\zipEntries.js:167:23)
+          at ZipEntries.load (C:\Users\user\Desktop\program\web-order\node_modules\jszip\lib\zipEntries.js:255:14)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jszip\lib\load.js:48:24
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at XLSX.load (C:\Users\user\Desktop\program\web-order\node_modules\exceljs\lib\xlsx\xlsx.js:279:17)
+          at readToRowArrays (C:\Users\user\Desktop\program\web-order\utils\excelReader.js:13:5)
+          at Object.readToObjects (C:\Users\user\Desktop\program\web-order\utils\excelReader.js:34:18)
+          at C:\Users\user\Desktop\program\web-order\routes\admin-api.js:731:22
+
+      732 |         res.json({ success: true, data });
+      733 |     } catch (err) {
+    > 734 |         console.error("Kaitori parse-excel error:", err);
+          |                 ^
+      735 |         res.status(500).json({ success: false, message: "Excel縺ｮ隱ｭ縺ｿ霎ｼ縺ｿ縺ｫ螟ｱ謨励＠縺ｾ縺励◆: " + (err.message || "") });
+      736 |     }
+      737 | });
+
+      at error (routes/admin-api.js:734:17)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      [CSV Service] CSV蠖｢蠑上→縺励※蜃ｦ逅・＠縺ｾ縺・
+      at Object.log [as parseEstimatesData] (services/csvService.js:193:17)
+
+    console.log
+      [CSV Service] 讀懷・縺輔ｌ縺溘・繝・ム繝ｼ: [ 'this', 'is', 'not', 'valid', 'estimate' ]
+
+      at Object.log [as parseEstimatesData] (services/csvService.js:216:13)
+
+    console.log
+      [CSV Service] 蛻励・繝・ヴ繝ｳ繧ｰ: {
+        estimateId: -1,
+        customerId: -1,
+        productCode: -1,
+        productName: -1,
+        price: -1,
+        validUntil: -1,
+        manufacturer: -1,
+        subject: -1
+      }
+
+      at Object.log [as parseEstimatesData] (services/csvService.js:250:13)
+
+    console.error
+      笶・蠢・亥・荳崎ｶｳ縲よ､懷・迥ｶ豕・ {
+        estimateId: -1,
+        customerId: -1,
+        productCode: -1,
+        productName: -1,
+        price: -1,
+        validUntil: -1,
+        manufacturer: -1,
+        subject: -1
+      }
+
+      252 |     // 蠢・亥・繝√ぉ繝・け・亥ｾ玲э蜈医さ繝ｼ繝峨∝膚蜩√さ繝ｼ繝峨∝腰萓｡縺梧怙菴朱剞蠢・ｦ・ｼ・      253 |     if (map.customerId === -1 || map.productCode === -1 || map.price === -1) {
+    > 254 |         console.error("笶・蠢・亥・荳崎ｶｳ縲よ､懷・迥ｶ豕・", map);
+          |                 ^
+      255 |         console.error("蠢・ｦ√↑蛻・ 蠕玲э蜈医さ繝ｼ繝・ 蝠・刀繧ｳ繝ｼ繝・ 蜊倅ｾ｡");
+      256 |         return [];
+      257 |     }
+
+      at Object.error [as parseEstimatesData] (services/csvService.js:254:17)
+      at parseEstimatesData (routes/admin-api.js:572:45)
+      at Layer.handleRequest (node_modules/router/lib/layer.js:152:17)
+      at next (node_modules/router/lib/route.js:157:13)
+      at next (routes/admin-api.js:73:5)
+      at Layer.handleRequest (node_modules/router/lib/layer.js:152:17)
+      at next (node_modules/router/lib/route.js:157:13)
+      at Route.dispatch (node_modules/router/lib/route.js:117:3)
+      at handle (node_modules/router/index.js:435:11)
+      at Layer.handleRequest (node_modules/router/lib/layer.js:152:17)
+      at node_modules/router/index.js:295:15
+      at processParams (node_modules/router/index.js:582:12)
+      at next (node_modules/router/index.js:291:5)
+      at Function.handle (node_modules/router/index.js:186:3)
+      at router (node_modules/router/index.js:60:12)
+      at Layer.handleRequest (node_modules/router/lib/layer.js:152:17)
+      at trimPrefix (node_modules/router/index.js:342:13)
+      at node_modules/router/index.js:297:9
+      at processParams (node_modules/router/index.js:582:12)
+      at next (node_modules/router/index.js:291:5)
+      at node_modules/router/index.js:688:15
+      at next (node_modules/router/index.js:276:14)
+      at Function.handle (node_modules/router/index.js:186:3)
+      at router (node_modules/router/index.js:60:12)
+      at Layer.handleRequest (node_modules/router/lib/layer.js:152:17)
+      at trimPrefix (node_modules/router/index.js:342:13)
+      at node_modules/router/index.js:297:9
+      at processParams (node_modules/router/index.js:582:12)
+      at next (node_modules/router/index.js:291:5)
+      at next (server.js:176:5)
+      at Layer.handleRequest (node_modules/router/lib/layer.js:152:17)
+      at trimPrefix (node_modules/router/index.js:342:13)
+      at node_modules/router/index.js:297:9
+      at processParams (node_modules/router/index.js:582:12)
+      at next (node_modules/router/index.js:291:5)
+      at serveStatic (node_modules/serve-static/index.js:74:16)
+      at Layer.handleRequest (node_modules/router/lib/layer.js:152:17)
+      at trimPrefix (node_modules/router/index.js:342:13)
+      at node_modules/router/index.js:297:9
+      at processParams (node_modules/router/index.js:582:12)
+      at next (node_modules/router/index.js:291:5)
+      at node_modules/express-fileupload/lib/processMultipart.js:175:9
+
+    console.error
+      蠢・ｦ√↑蛻・ 蠕玲э蜈医さ繝ｼ繝・ 蝠・刀繧ｳ繝ｼ繝・ 蜊倅ｾ｡
+
+      253 |     if (map.customerId === -1 || map.productCode === -1 || map.price === -1) {
+      254 |         console.error("笶・蠢・亥・荳崎ｶｳ縲よ､懷・迥ｶ豕・", map);
+    > 255 |         console.error("蠢・ｦ√↑蛻・ 蠕玲э蜈医さ繝ｼ繝・ 蝠・刀繧ｳ繝ｼ繝・ 蜊倅ｾ｡");
+          |                 ^
+      256 |         return [];
+      257 |     }
+      258 |
+
+      at Object.error [as parseEstimatesData] (services/csvService.js:255:17)
+      at parseEstimatesData (routes/admin-api.js:572:45)
+      at Layer.handleRequest (node_modules/router/lib/layer.js:152:17)
+      at next (node_modules/router/lib/route.js:157:13)
+      at next (routes/admin-api.js:73:5)
+      at Layer.handleRequest (node_modules/router/lib/layer.js:152:17)
+      at next (node_modules/router/lib/route.js:157:13)
+      at Route.dispatch (node_modules/router/lib/route.js:117:3)
+      at handle (node_modules/router/index.js:435:11)
+      at Layer.handleRequest (node_modules/router/lib/layer.js:152:17)
+      at node_modules/router/index.js:295:15
+      at processParams (node_modules/router/index.js:582:12)
+      at next (node_modules/router/index.js:291:5)
+      at Function.handle (node_modules/router/index.js:186:3)
+      at router (node_modules/router/index.js:60:12)
+      at Layer.handleRequest (node_modules/router/lib/layer.js:152:17)
+      at trimPrefix (node_modules/router/index.js:342:13)
+      at node_modules/router/index.js:297:9
+      at processParams (node_modules/router/index.js:582:12)
+      at next (node_modules/router/index.js:291:5)
+      at node_modules/router/index.js:688:15
+      at next (node_modules/router/index.js:276:14)
+      at Function.handle (node_modules/router/index.js:186:3)
+      at router (node_modules/router/index.js:60:12)
+      at Layer.handleRequest (node_modules/router/lib/layer.js:152:17)
+      at trimPrefix (node_modules/router/index.js:342:13)
+      at node_modules/router/index.js:297:9
+      at processParams (node_modules/router/index.js:582:12)
+      at next (node_modules/router/index.js:291:5)
+      at next (server.js:176:5)
+      at Layer.handleRequest (node_modules/router/lib/layer.js:152:17)
+      at trimPrefix (node_modules/router/index.js:342:13)
+      at node_modules/router/index.js:297:9
+      at processParams (node_modules/router/index.js:582:12)
+      at next (node_modules/router/index.js:291:5)
+      at serveStatic (node_modules/serve-static/index.js:74:16)
+      at Layer.handleRequest (node_modules/router/lib/layer.js:152:17)
+      at trimPrefix (node_modules/router/index.js:342:13)
+      at node_modules/router/index.js:297:9
+      at processParams (node_modules/router/index.js:582:12)
+      at next (node_modules/router/index.js:291:5)
+      at node_modules/express-fileupload/lib/processMultipart.js:175:9
+
+PASS tests/a-rank/proxy-login-expiry.api.test.js
+  笳・Console
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      莉｣逅・Ο繧ｰ繧､繝ｳ逕ｳ隲・ 繝・せ繝育ｮ｡逅・・竊・鬘ｧ螳｢ TEST001
+
+      at log (routes/admin-api.js:303:17)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      莉｣逅・Ο繧ｰ繧､繝ｳ逕ｳ隲・ 繝・せ繝育ｮ｡逅・・竊・鬘ｧ螳｢ TEST001
+
+      at log (routes/admin-api.js:303:17)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      莉｣逅・Ο繧ｰ繧､繝ｳ逕ｳ隲・ 繝・せ繝育ｮ｡逅・・竊・鬘ｧ螳｢ TEST001
+
+      at log (routes/admin-api.js:303:17)
+
+PASS tests/a-rank/invite-mail-failure.api.test.js
+  笳・Console
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.error
+      [request-password-reset] Mail send failed: EAUTH
+
+      819 |             delete resetTokens[customerId];
+      820 |             await fs.writeFile(RESET_TOKENS_PATH, JSON.stringify(resetTokens, null, 2));
+    > 821 |             console.error("[request-password-reset] Mail send failed:", sent.message);
+          |                     ^
+      822 |         } else {
+      823 |             console.log(`[request-password-reset] Sent reset link to ${customerId}`);
+      824 |         }
+
+      at error (routes/auth-api.js:821:21)
+
+PASS tests/a-rank/proxy-request-concurrency.api.test.js
+  笳・Console
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 隨ｬ莠檎ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      莉｣逅・Ο繧ｰ繧､繝ｳ逕ｳ隲・ 繝・せ繝育ｮ｡逅・・竊・鬘ｧ螳｢ TEST001
+
+      at log (routes/admin-api.js:303:17)
+
+    console.log
+      莉｣逅・Ο繧ｰ繧､繝ｳ逕ｳ隲・ 隨ｬ莠檎ｮ｡逅・・竊・鬘ｧ螳｢ TEST001
+
+      at log (routes/admin-api.js:303:17)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      莉｣逅・Ο繧ｰ繧､繝ｳ逕ｳ隲・ 繝・せ繝育ｮ｡逅・・竊・鬘ｧ螳｢ TEST001
+
+      at log (routes/admin-api.js:303:17)
+
+    console.log
+      莉｣逅・Ο繧ｰ繧､繝ｳ逕ｳ隲・ 繝・せ繝育ｮ｡逅・・竊・鬘ｧ螳｢ TEST001
+
+      at log (routes/admin-api.js:303:17)
+
+PASS tests/b-rank/product-cart-and-announcements.api.test.js
+  笳・Console
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+PASS tests/a-rank/reset-token-single-use-and-expiry.api.test.js
+  笳・Console
+
+    console.log
+      繝代せ繝ｯ繝ｼ繝牙・險ｭ螳壼ｮ御ｺ・ｼ磯｡ｧ螳｢逕ｳ霎ｼ・・ TEST001
+
+      at log (routes/auth-api.js:679:21)
+
+PASS tests/s-rank/session-timeout.api.test.js
+  笳・Console
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      竢ｳ Session Expired: User TEST001
+
+      at log (server.js:130:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: TEST001)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      竢ｳ Session Expired: User TEST001
+
+      at log (server.js:130:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+PASS tests/a-rank/invite-token-expiry-and-single-use.api.test.js
+  笳・Console
+
+    console.log
+      繝代せ繝ｯ繝ｼ繝牙・譛溯ｨｭ螳壼ｮ御ｺ・ TEST001
+
+      at log (routes/auth-api.js:728:21)
+
+PASS tests/a-rank/announcements-category.api.test.js
+PASS tests/a-rank/public-settings-contract.api.test.js
+  笳・Console
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+PASS tests/s-rank/logout-cookie-clear.api.test.js
+  笳・Console
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.error
+      [customer-auth-log] read error: Unexpected end of JSON input
+
+      86 |             list = JSON.parse(data);
+      87 |         } catch (e) {
+    > 88 |             if (e.code !== "ENOENT") console.error("[customer-auth-log] read error:", e.message);
+         |                                              ^
+      89 |         }
+      90 |         if (!Array.isArray(list)) list = [];
+      91 |         list.push(row);
+
+      at error (routes/auth-api.js:88:46)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.error
+      [admin-auth-log] read error: Unexpected end of JSON input
+
+      61 |             list = JSON.parse(data);
+      62 |         } catch (e) {
+    > 63 |             if (e.code !== "ENOENT") console.error("[admin-auth-log] read error:", e.message);
+         |                                              ^
+      64 |         }
+      65 |         if (!Array.isArray(list)) list = [];
+      66 |         list.push(row);
+
+      at error (routes/auth-api.js:63:46)
+
+PASS tests/a-rank/proxy-and-public-settings.api.test.js
+  笳・Console
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      莉｣逅・Ο繧ｰ繧､繝ｳ逕ｳ隲・ 繝・せ繝育ｮ｡逅・・竊・鬘ｧ螳｢ TEST001
+
+      at log (routes/admin-api.js:303:17)
+
+    console.log
+      莉｣逅・Ο繧ｰ繧､繝ｳ: 繝・せ繝育ｮ｡逅・・竊・鬘ｧ螳｢ TEST001
+
+      at log (routes/admin-api.js:399:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      莉｣逅・Ο繧ｰ繧､繝ｳ逕ｳ隲・ 繝・せ繝育ｮ｡逅・・竊・鬘ｧ螳｢ TEST001
+
+      at log (routes/admin-api.js:303:17)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+PASS tests/b-rank/shipping-import-concurrency.api.test.js
+  笳・Console
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+PASS tests/s-rank/customers.api.test.js
+  笳・Console
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+PASS tests/a-rank/import-orders-concurrency.api.test.js
+  笳・Console
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+PASS tests/a-rank/order-concurrency.api.test.js
+  笳・Console
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+PASS tests/risk-driven/regression-risk.api.test.js
+  笳・Console
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+PASS tests/b-rank/stock-service-sync.api.test.js
+PASS tests/a-rank/recaptcha-verify-failure.api.test.js
+  笳・Console
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST001
+
+      at log (routes/auth-api.js:320:21)
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST001
+
+      at log (routes/auth-api.js:320:21)
+
+PASS tests/s-rank/auth-audit-log-corruption.api.test.js
+  笳・Console
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.error
+      [admin-auth-log] read error: Expected property name or '}' in JSON at position 1 (line 1 column 2)
+
+      61 |             list = JSON.parse(data);
+      62 |         } catch (e) {
+    > 63 |             if (e.code !== "ENOENT") console.error("[admin-auth-log] read error:", e.message);
+         |                                              ^
+      64 |         }
+      65 |         if (!Array.isArray(list)) list = [];
+      66 |         list.push(row);
+
+      at error (routes/auth-api.js:63:46)
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST001
+
+      at log (routes/auth-api.js:320:21)
+
+    console.error
+      [customer-auth-log] read error: Expected property name or '}' in JSON at position 1 (line 1 column 2)
+
+      86 |             list = JSON.parse(data);
+      87 |         } catch (e) {
+    > 88 |             if (e.code !== "ENOENT") console.error("[customer-auth-log] read error:", e.message);
+         |                                              ^
+      89 |         }
+      90 |         if (!Array.isArray(list)) list = [];
+      91 |         list.push(row);
+
+      at error (routes/auth-api.js:88:46)
+
+PASS tests/a-rank/recaptcha-sitekey-unset.api.test.js
+PASS tests/b-rank/step3-performance-monitoring.api.test.js
+  笳・Console
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST001
+
+      at log (routes/auth-api.js:320:21)
+
+PASS tests/a-rank/auth-api-captcha-verify-failure.api.test.js
+  笳・Console
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST002
+
+      at log (routes/auth-api.js:320:21)
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST002
+
+      at log (routes/auth-api.js:320:21)
+
+PASS tests/risk-driven/admin-api-authz-regression.api.test.js
+  笳・Console
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+PASS tests/a-rank/sanitize-admin-name.api.test.js
+  笳・Console
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: Proxy<script>"'& (CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      莉｣逅・Ο繧ｰ繧､繝ｳ逕ｳ隲・ Proxyscript 竊・鬘ｧ螳｢ TEST001
+
+      at log (routes/admin-api.js:303:17)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+PASS tests/s-rank/admin-settings.api.test.js
+  笳・Console
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+PASS tests/s-rank/auth-audit-and-lock-reset.api.test.js
+  笳・Console
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST001
+
+      at log (routes/auth-api.js:320:21)
+
+    console.log
+      繝ｭ繧ｰ繧､繝ｳ螟ｱ謨・ TEST001
+
+      at log (routes/auth-api.js:320:21)
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+PASS tests/s-rank/password-changed-notification-failure.api.test.js
+  笳・Console
+
+    console.log
+      繝代せ繝ｯ繝ｼ繝牙・險ｭ螳壼ｮ御ｺ・ｼ磯｡ｧ螳｢逕ｳ霎ｼ・・ TEST001
+
+      at log (routes/auth-api.js:679:21)
+
+    console.error
+      [request-password-reset] 螟画峩螳御ｺ・夂衍騾∽ｿ｡螟ｱ謨・ Error: SMTP temporary failure
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\s-rank\password-changed-notification-failure.api.test.js:38:81)
+          at Promise.finally.completed (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+          at _callCircusTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+          at _runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:857:11)
+          at run (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+          at jestAdapter (C:\Users\user\Desktop\program\web-order\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:275:16)
+          at runTest (C:\Users\user\Desktop\program\web-order\node_modules\jest-runner\build\index.js:343:7)
+
+      681 |             const customer = await customerService.getCustomerById(id);
+      682 |             if (customer && customer.email) {
+    > 683 |                 mailService.sendPasswordChangedNotification(customer).catch(err => console.error("[request-password-reset] 螟画峩螳御ｺ・夂衍騾∽ｿ｡螟ｱ謨・", err));
+          |                                                                                            ^
+      684 |             }
+      685 |             return res.json({ success: true, message: "繝代せ繝ｯ繝ｼ繝峨ｒ螟画峩縺励∪縺励◆縲ゅΟ繧ｰ繧､繝ｳ縺励※縺上□縺輔＞縲・ });
+      686 |         }
+
+      at error (routes/auth-api.js:683:92)
+
+PASS tests/b-rank/announcements-date-filtering.api.test.js
+  笳・Console
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+PASS tests/s-rank/auth.api.test.js
+  笳・Console
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+    console.log
+      笘・ｮ｡逅・・Ο繧ｰ繧､繝ｳ謌仙粥: 繝・せ繝育ｮ｡逅・・(CustomerStatus: null)
+
+      at log (routes/auth-api.js:413:21)
+
+PASS tests/a-rank/csp-headers.api.test.js
+PASS tests/s-rank/orders.api.test.js
+  笳・Console
+
+    console.log
+      鬘ｧ螳｢繝ｭ繧ｰ繧､繝ｳ謌仙粥: TEST001 (AdminStatus: false)
+
+      at log (routes/auth-api.js:299:21)
+
+PASS tests/a-rank/excel-reader.unit.test.js
+PASS tests/a-rank/validate-middleware.api.test.js
+PASS tests/a-rank/mail-service-send-paths.unit.test.js
+  笳・Console
+
+    console.log
+      [Mail] Sent confirmation for OrderID: ORD-001
+
+      at Object.log [as sendOrderConfirmation] (services/mailService.js:61:17)
+
+    console.log
+      [Mail] Sent support notification for Ticket: T1
+
+      at Object.log [as sendSupportNotification] (services/mailService.js:102:17)
+
+    console.error
+      [Mail Error] 騾∽ｿ｡螟ｱ謨・ Error: SMTP Error
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\mail-service-send-paths.unit.test.js:75:51)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jest-mock\build\index.js:305:39
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\node_modules\jest-mock\build\index.js:312:13)
+          at Object.mockConstructor (C:\Users\user\Desktop\program\web-order\node_modules\jest-mock\build\index.js:102:19)
+          at createTransport (C:\Users\user\Desktop\program\web-order\services\mailService.js:12:31)
+          at Object.sendOrderConfirmation (C:\Users\user\Desktop\program\web-order\services\mailService.js:52:29)
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\mail-service-send-paths.unit.test.js:84:24)
+
+      62 |         return true;
+      63 |     } catch (error) {
+    > 64 |         console.error("[Mail Error] 騾∽ｿ｡螟ｱ謨・", error);
+         |                 ^
+      65 |         return false;
+      66 |     }
+      67 | }
+
+      at Object.error [as sendOrderConfirmation] (services/mailService.js:64:17)
+      at Object.<anonymous> (tests/a-rank/mail-service-send-paths.unit.test.js:84:24)
+
+    console.log
+      [Mail] Sent invite to C1 (c1@test)
+
+      at Object.log [as sendInviteEmail] (services/mailService.js:151:17)
+
+    console.log
+      [Mail] Sent admin login-failure alert for admin1
+
+      at Object.log [as sendLoginFailureAlert] (services/mailService.js:263:21)
+
+    console.error
+      [Mail Error] 繧ｵ繝昴・繝磯夂衍騾∽ｿ｡螟ｱ謨・ Error: SMTP Error
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\mail-service-send-paths.unit.test.js:190:51)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jest-mock\build\index.js:305:39
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\node_modules\jest-mock\build\index.js:312:13)
+          at Object.mockConstructor (C:\Users\user\Desktop\program\web-order\node_modules\jest-mock\build\index.js:102:19)
+          at createTransport (C:\Users\user\Desktop\program\web-order\services\mailService.js:12:31)
+          at Object.sendSupportNotification (C:\Users\user\Desktop\program\web-order\services\mailService.js:95:29)
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\mail-service-send-paths.unit.test.js:202:24)
+
+      103 |         return true;
+      104 |     } catch (error) {
+    > 105 |         console.error("[Mail Error] 繧ｵ繝昴・繝磯夂衍騾∽ｿ｡螟ｱ謨・", error);
+          |                 ^
+      106 |         return false;
+      107 |     }
+      108 | }
+
+      at Object.error [as sendSupportNotification] (services/mailService.js:105:17)
+      at Object.<anonymous> (tests/a-rank/mail-service-send-paths.unit.test.js:202:24)
+
+    console.error
+      [Mail Error] 諡帛ｾ・Γ繝ｼ繝ｫ騾∽ｿ｡螟ｱ謨・ Error: EAUTH
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\mail-service-send-paths.unit.test.js:216:65)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jest-mock\build\index.js:305:39
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\node_modules\jest-mock\build\index.js:312:13)
+          at Object.mockConstructor (C:\Users\user\Desktop\program\web-order\node_modules\jest-mock\build\index.js:102:19)
+          at createTransport (C:\Users\user\Desktop\program\web-order\services\mailService.js:12:31)
+          at Object.sendInviteEmail (C:\Users\user\Desktop\program\web-order\services\mailService.js:144:29)
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\mail-service-send-paths.unit.test.js:227:24) {
+        code: 'EAUTH'
+      }
+
+      152 |         return { success: true };
+      153 |     } catch (error) {
+    > 154 |         console.error("[Mail Error] 諡帛ｾ・Γ繝ｼ繝ｫ騾∽ｿ｡螟ｱ謨・", error);
+          |                 ^
+      155 |         if (error.code === "EAUTH" || (error.message && error.message.includes("Missing credentials"))) {
+      156 |             const isProduction = process.env.NODE_ENV === "production";
+      157 |             return {
+
+      at Object.error [as sendInviteEmail] (services/mailService.js:154:17)
+      at Object.<anonymous> (tests/a-rank/mail-service-send-paths.unit.test.js:227:24)
+
+    console.error
+      [Mail Error] 繝代せ繝ｯ繝ｼ繝牙､画峩騾夂衍騾∽ｿ｡螟ｱ謨・ Error: SMTP Error
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\mail-service-send-paths.unit.test.js:241:51)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jest-mock\build\index.js:305:39
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\node_modules\jest-mock\build\index.js:312:13)
+          at Object.mockConstructor (C:\Users\user\Desktop\program\web-order\node_modules\jest-mock\build\index.js:102:19)
+          at createTransport (C:\Users\user\Desktop\program\web-order\services\mailService.js:12:31)
+          at Object.sendPasswordChangedNotification (C:\Users\user\Desktop\program\web-order\services\mailService.js:194:29)
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\mail-service-send-paths.unit.test.js:249:24)
+
+      202 |         return { success: true };
+      203 |     } catch (error) {
+    > 204 |         console.error("[Mail Error] 繝代せ繝ｯ繝ｼ繝牙､画峩騾夂衍騾∽ｿ｡螟ｱ謨・", error);
+          |                 ^
+      205 |         return { success: false, message: error.message || "繝｡繝ｼ繝ｫ騾∽ｿ｡縺ｫ螟ｱ謨励＠縺ｾ縺励◆" };
+      206 |     }
+      207 | }
+
+      at Object.error [as sendPasswordChangedNotification] (services/mailService.js:204:17)
+      at Object.<anonymous> (tests/a-rank/mail-service-send-paths.unit.test.js:249:24)
+
+    console.error
+      [Mail Error] 繝ｭ繧ｰ繧､繝ｳ螟ｱ謨鈴夂衍騾∽ｿ｡螟ｱ謨・ Error: SMTP Error
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\mail-service-send-paths.unit.test.js:261:51)
+          at C:\Users\user\Desktop\program\web-order\node_modules\jest-mock\build\index.js:305:39
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\node_modules\jest-mock\build\index.js:312:13)
+          at Object.mockConstructor (C:\Users\user\Desktop\program\web-order\node_modules\jest-mock\build\index.js:102:19)
+          at createTransport (C:\Users\user\Desktop\program\web-order\services\mailService.js:12:31)
+          at Object.sendLoginFailureAlert (C:\Users\user\Desktop\program\web-order\services\mailService.js:256:33)
+          at Object.<anonymous> (C:\Users\user\Desktop\program\web-order\tests\a-rank\mail-service-send-paths.unit.test.js:270:24)
+
+      266 |         return false;
+      267 |     } catch (error) {
+    > 268 |         console.error("[Mail Error] 繝ｭ繧ｰ繧､繝ｳ螟ｱ謨鈴夂衍騾∽ｿ｡螟ｱ謨・", error);
+          |                 ^
+      269 |         return false;
+      270 |     }
+      271 | }
+
+      at Object.error [as sendLoginFailureAlert] (services/mailService.js:268:17)
+      at Object.<anonymous> (tests/a-rank/mail-service-send-paths.unit.test.js:270:24)
+
+PASS tests/a-rank/price-calc.unit.test.js
+PASS tests/a-rank/settings-service-apply-template.unit.test.js
+PASS tests/a-rank/login-failure-alert-template.unit.test.js
+  笳・Console
+
+    console.log
+      [Mail] Sent login-failure alert to customer TEST001
+
+      at Object.log [as sendLoginFailureAlert] (services/mailService.js:239:21)
+
+-------------------------|---------|----------|---------|---------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+File                     | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                                                                                                                   
+-------------------------|---------|----------|---------|---------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+All files                |   84.62 |    66.51 |   89.18 |   86.82 |                                                                                                                                                                                                     
+ middlewares             |   91.66 |    70.83 |     100 |   91.66 |                                                                                                                                                                                                     
+  validate.js            |   91.66 |    70.83 |     100 |   91.66 | 42,65,88                                                                                                                                                                                            
+ routes                  |   84.89 |    69.08 |   87.17 |   86.51 |                                                                                                                                                                                                     
+  admin-api.js           |   82.59 |     62.6 |      96 |   83.13 | 190,197,258,266,280-281,289,294,309-310,334,342,360-362,402-407,434-435,457-468,482,519-520,538-543,549-556,576-583,596,605-606,615,624-625,674-675,683-699,719-720,744-745,752,768-769,801-802,812 
+  auth-api.js            |   83.72 |    68.37 |    80.3 |   85.68 | 71,96,203,306-307,345-350,365-367,376-378,416-419,427-428,447-448,485,492-494,499,505,528,546,550-555,565,570-571,646,649,652,661,675,693,711,731-736,750,765,789,828-829,839,844,852-866           
+  kaitori-api.js         |   92.08 |    77.77 |     100 |   90.75 | 29,49-50,90,99-100,147-148,178,201,223                                                                                                                                                              
+  orders-api.js          |   87.12 |    70.73 |   88.88 |   93.18 | 243-244,273-274,283,291-296,324,335                                                                                                                                                                 
+  products-api.js        |   82.38 |    67.83 |   78.37 |   84.21 | 220-246,279,330-331,406-407,425,429-451                                                                                                                                                             
+  support-api.js         |   92.85 |    82.43 |     100 |   94.59 | 22,107-108,119                                                                                                                                                                                      
+ services                |   85.13 |    66.38 |   94.63 |   88.28 |                                                                                                                                                                                                     
+  csvService.js          |   74.28 |    57.73 |   92.85 |    76.4 | 18,90-155,181-186,206-207                                                                                                                                                                           
+  customerService.js     |   71.28 |     52.3 |   94.44 |   73.03 | 118-160                                                                                                                                                                                             
+  mailService.js         |   95.65 |    65.68 |     100 |   95.55 | 164,201-202,266                                                                                                                                                                                     
+  orderService.js        |   91.78 |     74.5 |   96.36 |   97.86 | 281,434,464-465,471                                                                                                                                                                                 
+  priceService.js        |   94.01 |    70.73 |     100 |   96.11 | 69-70,104-105                                                                                                                                                                                       
+  productService.js      |   46.57 |    15.62 |   64.28 |   47.69 | 18-19,60-61,69-124                                                                                                                                                                                  
+  settingsService.js     |      90 |    75.67 |    90.9 |   91.66 | 135,187,224-225,286,298,301                                                                                                                                                                         
+  specialPriceService.js |   98.18 |     62.5 |     100 |     100 | 56,78-81,107                                                                                                                                                                                        
+  stockService.js        |   93.97 |    76.11 |     100 |   98.64 | 44,110                                                                                                                                                                                              
+ services/stockAdapters  |   72.78 |    52.33 |   53.84 |   73.52 |                                                                                                                                                                                                     
+  baseAdapter.js         |   86.66 |    70.58 |      60 |   86.66 | 30-31                                                                                                                                                                                               
+  csvAdapter.js          |   89.24 |    79.36 |     100 |   91.56 | 32-36,58-62,121                                                                                                                                                                                     
+  index.js               |   58.33 |        0 |       0 |   58.33 | 14-19                                                                                                                                                                                               
+  manualAdapter.js       |   28.57 |        0 |       0 |   28.57 | 5-12                                                                                                                                                                                                
+  restAdapter.js         |      10 |        0 |       0 |   10.52 | 5-52                                                                                                                                                                                                
+ utils                   |   92.72 |    78.72 |     100 |     100 |                                                                                                                                                                                                     
+  excelReader.js         |   91.83 |    73.68 |     100 |     100 | 15,17-21,40-48,66                                                                                                                                                                                   
+  priceCalc.js           |     100 |      100 |     100 |     100 |                                                                                                                                                                                                     
+-------------------------|---------|----------|---------|---------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Summary of all failing tests
+FAIL tests/a-rank/coverage-auth-orders-admin.api.test.js (58.753 s)
+  笳・A繝ｩ繝ｳ繧ｯ: 繧ｫ繝舌Ξ繝・ず謾ｹ蝟・ｼ・uth/orders/admin・・窶ｺ admin-api 窶ｺ customerService.importFromExcel 縺ｯ inputEmail 縺檎ｩｺ縺ｮ蝣ｴ蜷医・ email 繧呈峩譁ｰ縺励↑縺・ｼ域里蟄倬｡ｧ螳｢・・
+    Excel繝輔ぃ繧､繝ｫ縺ｮ隱ｭ縺ｿ霎ｼ縺ｿ縺ｫ螟ｱ謨励＠縺ｾ縺励◆: Can't find end of central directory : is this a zip file ? If it is, see https://stuk.github.io/jszip/documentation/howto/read_zip.html
+
+      163 |             console.error("[CustomerService] Import Error:", error);
+      164 |             // 繧ｨ繝ｩ繝ｼ繧呈兜縺偵※API蛛ｴ縺ｧ繧ｭ繝｣繝・メ縺輔○繧・    > 165 |             throw new Error("Excel繝輔ぃ繧､繝ｫ縺ｮ隱ｭ縺ｿ霎ｼ縺ｿ縺ｫ螟ｱ謨励＠縺ｾ縺励◆: " + error.message);
+          |                   ^
+      166 |         }
+      167 |     }
+      168 |
+
+      at CustomerService.importFromExcel (services/customerService.js:165:19)
+      at Object.<anonymous> (tests/a-rank/coverage-auth-orders-admin.api.test.js:2215:32)
+
+  笳・A繝ｩ繝ｳ繧ｯ: 繧ｫ繝舌Ξ繝・ず謾ｹ蝟・ｼ・uth/orders/admin・・窶ｺ admin-api 窶ｺ csvService.parseEstimatesData 縺ｯ Excel 蠖｢蠑擾ｼ・lsx 諡｡蠑ｵ蟄撰ｼ峨〒蜃ｦ逅・☆繧・
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 1
+    Received: 0
+
+      2235 |             const result = await csvService.parseEstimatesData(buffer, "test.xlsx");
+      2236 |             expect(Array.isArray(result)).toBe(true);
+    > 2237 |             expect(result.length).toBe(1);
+           |                                   ^
+      2238 |             expect(result[0].customerId).toBe("TEST001");
+      2239 |             excelReader.readToRowArrays.mockRestore();
+      2240 |         });
+
+      at Object.toBe (tests/a-rank/coverage-auth-orders-admin.api.test.js:2237:35)
+
+  笳・A繝ｩ繝ｳ繧ｯ: 繧ｫ繝舌Ξ繝・ず謾ｹ蝟・ｼ・uth/orders/admin・・窶ｺ admin-api 窶ｺ productService.importFromExcel 縺ｯ rawPrice 縺・OPEN 縺ｮ縺ｨ縺・basePrice 繧・0 縺ｫ縺吶ｋ
+
+    Can't find end of central directory : is this a zip file ? If it is, see https://stuk.github.io/jszip/documentation/howto/read_zip.html
+
+      11 | async function readToRowArrays(buffer, options = {}) {
+      12 |     const workbook = new ExcelJS.Workbook();
+    > 13 |     await workbook.xlsx.load(buffer);
+         |     ^
+      14 |     const sheet = options.sheetName
+      15 |         ? workbook.getWorksheet(options.sheetName) || workbook.worksheets[options.sheetIndex ?? 0]
+      16 |         : workbook.worksheets[options.sheetIndex ?? 0];
+
+      at ZipEntries.readEndOfCentral (node_modules/jszip/lib/zipEntries.js:167:23)
+      at ZipEntries.load (node_modules/jszip/lib/zipEntries.js:255:14)
+      at node_modules/jszip/lib/load.js:48:24
+      at XLSX.load (node_modules/exceljs/lib/xlsx/xlsx.js:279:17)
+      at readToRowArrays (utils/excelReader.js:13:5)
+      at ProductService.importFromExcel (services/productService.js:67:30)
+      at Object.<anonymous> (tests/a-rank/coverage-auth-orders-admin.api.test.js:2296:28)
+
+FAIL tests/a-rank/stock-adapters-boundaries.unit.test.js
+  笳・stockAdapters 蠅・阜繝ｻ繧ｨ繝ｩ繝ｼ蛻・ｲ・窶ｺ CsvAdapter 窶ｺ normalize 縺ｯ Excel 繝輔ぃ繧､繝ｫ・・lsx 諡｡蠑ｵ蟄撰ｼ峨〒 parseExcelToRecords 繧貞他縺ｶ
+
+    End of data reached (data length = 2, asked index = 4). Corrupted zip ?
+
+      11 | async function readToRowArrays(buffer, options = {}) {
+      12 |     const workbook = new ExcelJS.Workbook();
+    > 13 |     await workbook.xlsx.load(buffer);
+         |     ^
+      14 |     const sheet = options.sheetName
+      15 |         ? workbook.getWorksheet(options.sheetName) || workbook.worksheets[options.sheetIndex ?? 0]
+      16 |         : workbook.worksheets[options.sheetIndex ?? 0];
+
+      at NodeBufferReader.checkIndex (node_modules/jszip/lib/reader/DataReader.js:26:19)
+      at NodeBufferReader.checkOffset (node_modules/jszip/lib/reader/DataReader.js:17:14)
+      at NodeBufferReader.readData (node_modules/jszip/lib/reader/NodeBufferReader.js:14:10)
+      at NodeBufferReader.readString (node_modules/jszip/lib/reader/DataReader.js:75:49)
+      at ZipEntries.isSignature (node_modules/jszip/lib/zipEntries.js:39:37)
+      at ZipEntries.readEndOfCentral (node_modules/jszip/lib/zipEntries.js:164:35)
+      at ZipEntries.load (node_modules/jszip/lib/zipEntries.js:255:14)
+      at node_modules/jszip/lib/load.js:48:24
+      at XLSX.load (node_modules/exceljs/lib/xlsx/xlsx.js:279:17)
+      at readToRowArrays (utils/excelReader.js:13:5)
+      at readToObjects (utils/excelReader.js:34:18)
+      at parseExcelToRecords (services/stockAdapters/csvAdapter.js:22:12)
+      at CsvAdapter.normalize (services/stockAdapters/csvAdapter.js:74:23)
+      at Object.<anonymous> (tests/a-rank/stock-adapters-boundaries.unit.test.js:92:28)
+
+  笳・stockAdapters 蠅・阜繝ｻ繧ｨ繝ｩ繝ｼ蛻・ｲ・窶ｺ CsvAdapter 窶ｺ normalize 縺ｯ Excel 繝舌ャ繝輔ぃ・医・繧ｸ繝・け繝翫Φ繝舌・・峨〒 parseExcelToRecords 繧貞他縺ｶ
+
+    Corrupted zip: can't find end of central directory
+
+      11 | async function readToRowArrays(buffer, options = {}) {
+      12 |     const workbook = new ExcelJS.Workbook();
+    > 13 |     await workbook.xlsx.load(buffer);
+         |     ^
+      14 |     const sheet = options.sheetName
+      15 |         ? workbook.getWorksheet(options.sheetName) || workbook.worksheets[options.sheetIndex ?? 0]
+      16 |         : workbook.worksheets[options.sheetIndex ?? 0];
+
+      at ZipEntries.readEndOfCentral (node_modules/jszip/lib/zipEntries.js:170:23)
+      at ZipEntries.load (node_modules/jszip/lib/zipEntries.js:255:14)
+      at node_modules/jszip/lib/load.js:48:24
+      at XLSX.load (node_modules/exceljs/lib/xlsx/xlsx.js:279:17)
+      at readToRowArrays (utils/excelReader.js:13:5)
+      at readToObjects (utils/excelReader.js:34:18)
+      at parseExcelToRecords (services/stockAdapters/csvAdapter.js:22:12)
+      at CsvAdapter.normalize (services/stockAdapters/csvAdapter.js:74:23)
+      at Object.<anonymous> (tests/a-rank/stock-adapters-boundaries.unit.test.js:106:28)
+
+
+Test Suites: 2 failed, 60 passed, 62 total
+Tests:       5 failed, 431 passed, 436 total
+Snapshots:   0 total
+Time:        209.177 s, estimated 276 s
+Ran all test suites matching tests/s-rank|tests/a-rank|tests/b-rank|tests/risk-driven.

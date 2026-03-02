@@ -1,0 +1,2564 @@
+[
+  {
+    "customerId": "11",
+    "password": "$2b$10$VOixVkUNTvFrqNoshaLaXuatjtSPRPAlfdLCsi/6bhcTvOh2AUGX2",
+    "customerName": "ハイブリード株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "A001",
+    "password": "$2b$10$ldKf/fIMlVOw5XdOF0ndiuDIbnnGDRI2PcRH.jcC6S8UYBNTWl9AO",
+    "customerName": "アシスト福井株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "A002",
+    "password": "$2b$10$jdflZEZ1ccgObfrxs3RV8O825jsdAizMF5QrPoSlMNMfupo.bsBtS",
+    "customerName": "株式会社AJC",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "A003",
+    "password": "$2b$10$Vs/tNE6gbr2SUEyAjWO/Yemx/3uzyhHrBUPYUNsAuZtR3T2XDp.k2",
+    "customerName": "株式会社アイティワン",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "A004",
+    "password": "$2b$10$DCAfguanC8GVf8e9pbS9rOWACT4ULWKB5mHB0EXv/.uxwmwuQR9xa",
+    "customerName": "[前入金]有限会社アクティブ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "A005",
+    "password": "$2b$10$0qWDa2jHkbF39fdBIraZ9eDuKdziU9N7o7AGSoMbcMh1zVwh/jSQ.",
+    "customerName": "株式会社アサヒ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "A006",
+    "password": "$2b$10$LGHfUQOTwxIf8wiNz7S0J.qo/tqIBHGqIyVIt44t04bgqWL1Jhxhy",
+    "customerName": "アイバーズ合同会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "A007",
+    "password": "$2b$10$sl8Afd5VaH9piot0IhSbiODYuaioiLX5jTKhY7n5Kfl4YsKhvgIT2",
+    "customerName": "株式会社アルファーワン",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "A008",
+    "password": "$2b$10$Jqja2bDURG/mcsFYWD28kur3L1yVF295GqxHDPfz5OjtLdV1IzJQ.",
+    "customerName": "株式会社アサヒジム",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "A009",
+    "password": "$2b$10$mk2gevQn3xwnBod/Udg6Gu6TncmAVG2/.z..GbFTJ6vAzofgpZSyO",
+    "customerName": "株式会社アトム商会",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "A010",
+    "password": "$2b$10$C3QMIfFhs9nafXTXov9iSeOwNdsquX3IHXui19OXV9WjIak.AjmyK",
+    "customerName": "株式会社旭堂",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "A011",
+    "password": "$2b$10$5wIXuN6WiLMy..uj8XczAejBLYRfeyfoPpzVCrh6aaYdjXhLrzkAm",
+    "customerName": "株式会社あづま商事",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "A012",
+    "password": "$2b$10$lIXX5XYy545UU6GaeVie0uT4NLs2PzTbTDD0bHB6qoLlEJ8r6PgmW",
+    "customerName": "有限会社アーチワールド",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "A013",
+    "password": "$2b$10$A7y4lNebl75dxZxYm2nAi.INKwXwzCBrVHzkJvHxOrTfEMYy0T.16",
+    "customerName": "有限会社在田商店",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "A014",
+    "password": "$2b$10$lnvCrqLmCnYrglTj4Hc9euiZJ/wrm2RU.jAW3Of4pxCImbr./rmMG",
+    "customerName": "有限会社アヴュー",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "A015",
+    "password": "$2b$10$om.K36Qmp318BbrDmB23T.SSoDyVPhZfaxvhCtuQvNkDRJCYr3UGK",
+    "customerName": "株式会社アクト",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "A016",
+    "password": "$2b$10$aG9JxOmGPDwd2vSAWNyl2OgWt4S9OTsedj820W79TopkUJOeiWhUG",
+    "customerName": "有限会社天草第一事務機",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "A017",
+    "password": "$2b$10$nhrs59RdPdaMZIOVHyHd.uhgCh7TZl0Z3GfWZyCap3uJQIS/JaKmi",
+    "customerName": "株式会社旭川事務器",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "A018",
+    "password": "$2b$10$BU5zOaGBcD1wtE.V6.s6KOiPzqWA49iECCp5aDoRlvZRCEsT5jdDW",
+    "customerName": "株式会社アイビス",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "A019",
+    "password": "$2b$10$v7czc3z1JKsgakzy/fY7j.NK8QaPr9zmsXwirb5qXjZh7Bxox5nDq",
+    "customerName": "株式会社アイコー",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "A020",
+    "password": "$2b$10$oYc/YSoNU5r3MEws5C8gVOsx7uthyW38Jht8LfsJLPmMcKEPx792u",
+    "customerName": "株式会社アクティ鳥取",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "A021",
+    "password": "$2b$10$qK6avEFyIXHiR8l6mC0o5ujGJ1xh6dY3W/YeTuWhD8kSR5a6nLX3q",
+    "customerName": "有限会社アステック",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "A022",
+    "password": "$2b$10$DhpDzC4WpJgeP4w5W1Ed.uSc5aOsayL10XL32vMIQ56wRXgY.TFyq",
+    "customerName": "浅野堂",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "A023",
+    "password": "$2b$10$rYmE.UicWj6W3XNlLKyMM.gmYPm0/dDL4aT/qJnEOSgvS6CatsMey",
+    "customerName": "有限会社アーバンネット",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "B001",
+    "password": "$2b$10$PiQEbEnH3YjYZOw2aB2Q1OE8k7hgnV3OL9XbeSBAaVGjeSIB0yJuq",
+    "customerName": "株式会社文盛堂",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "B002",
+    "password": "$2b$10$9Kad2hwf7q/yGY56fX0WTuj6Tp3YTN1Ziwp.y218iDaSMIgH1Bb/e",
+    "customerName": "[廃業]有限会社文久ビジネス",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "B003",
+    "password": "$2b$10$lfpRmiIN/LqR7EKfzYBzA.u93gzPqxlV/ASiAPXTQia2Vgy5apnFq",
+    "customerName": "文秀堂株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "B004",
+    "password": "$2b$10$xC.J7mfQCm1AAQAJ2GyV/.QAmqgSsQPTR.1owZn1FD7M7o/KeR0Ne",
+    "customerName": "文具センターテラカワ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "B005",
+    "password": "$2b$10$C/OI.y3ON4xX/H7ZOICv5.v4De1RHdlIZeeYP.EcGvuawNSKeb/XC",
+    "customerName": "株式会社ビブラ愛媛",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "B006",
+    "password": "$2b$10$whYuUBV9rBZVvmrn7.lhQO09ZLZKFl5L7O6xloV/Ec4.1UL8LRwVS",
+    "customerName": "株式会社ブンヤ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "B007",
+    "password": "$2b$10$Ha8ZvlDuu2DKohB.l3cv8O.T08kAjPq4ehTYlfSNgqRB9q.rNrxfi",
+    "customerName": "有限会社文苑堂事務機",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "B008",
+    "password": "$2b$10$16hVTV7WsDcTS7kq4jI92uwljs0l/I.LTzNA9Cmy8RuGyPChnwtne",
+    "customerName": "有限会社文化堂",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "C001",
+    "password": "$2b$10$p6r8G/L9oLXFeCmY5U7/Mu4Gat.I1aBIruuW2qsLJR3RuTm4Mf7rm",
+    "customerName": "株式会社出先(シーエス宮崎)",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "C002",
+    "password": "$2b$10$z6i1x9dr5g86voB9.veS3OEwp4bMTc7QknDBT65iYysISiTItfAby",
+    "customerName": "[前入金]中央サトー株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "C003",
+    "password": "$2b$10$Me4T4KIORVqnX3v1h703hedqeK3c3TDSEwNjAz0QPtr1E8/KRswXC",
+    "customerName": "千陽商会",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "D001",
+    "password": "$2b$10$/BIGtCrViVe4WXqNPSuyfuyOmsfF27.QnRoMfbyLa8knlkUMS7wgC",
+    "customerName": "株式会社データサポート　金沢営業所",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "D002",
+    "password": "$2b$10$jMG4Qhf0p2UptpHvp2jUSej4YYrlE4VCpMl5ld2uLcpcIxHSHRJym",
+    "customerName": "株式会社第一事務機",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "D003",
+    "password": "$2b$10$2qAmB9dhZQgUX5IvXjVrPOi.EA6cFv1XA5ISgKNlH5PI0.hYmsm5m",
+    "customerName": "株式会社ディーエムリサーチセンター 九州営業所",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "D004",
+    "password": "$2b$10$qT2DakYQwBkZUaZi4emAyOtNHs3g2WDL2jqSd62/EA9bI69WSZCFm",
+    "customerName": "大和事務機",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "D005",
+    "password": "$2b$10$mB4mcslniuXZsl/l36NxauB9cwUWlfecQiaxYr5vAlK5lkoUgxpUG",
+    "customerName": "道拓興産株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "D006",
+    "password": "$2b$10$lY/Ku3oKfWyBCPmMHQ0FruuNJqAASH4vfl2cidlrIkuWGzjyX9Ev2",
+    "customerName": "株式会社デジタルソリューションズ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "D007",
+    "password": "$2b$10$sj1nvHuGItF.DxNE4X4tx.Yg.Q6wEyNERLDiWVz/JFLY6VA0elnuG",
+    "customerName": "株式会社第一",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "D008",
+    "password": "$2b$10$E78eTKO2W2iIAK6Accoia.M7Xo/0Z024owErjGDQ8G6NAGP6BML9u",
+    "customerName": "株式会社ダイイチ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "E001",
+    "password": "$2b$10$DZsV/KfLifumAxiYcqFW8uZy4P6mroYWGMO7ze7EH4Qwf/f0BJdDC",
+    "customerName": "株式会社Eテラス",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "E002",
+    "password": "$2b$10$LXT8Dtb1vLt2DjDCvMvoHubUXJKWzAA0Rn88/N75MpvpOwJi0e1Iq",
+    "customerName": "エム・シー通商株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "E003",
+    "password": "$2b$10$bXUTSOs2kwxd3E9Es8q0auQrG3i952u8yC8zu7Zp8l1F5c8GEPkfS",
+    "customerName": "エネックス株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "E004",
+    "password": "$2b$10$N5XwHvkXCx50KHpzii3Yf.8Z6zSxkwBAd3BntziL2rwqQ4iRztxby",
+    "customerName": "株式会社エスティーアオキ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "E005",
+    "password": "$2b$10$SZy0IEPji1oQgSG9vvSP8OYxKplMdheSnR0xaLca5DwgtwKGftRly",
+    "customerName": "株式会社エコマネージ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "E006",
+    "password": "$2b$10$HjUCDu/6q2UxqK8aw7jEfeqzyIuHFDE0ay8I.XFRfpYAdBBI5flJS",
+    "customerName": "株式会社栄進堂　旭川営業所",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "E007",
+    "password": "$2b$10$AvHPU2.1p/Vohl2uBRMrlOKXBFVBE1fDZwbnsjGTama5VnI/DOmuK",
+    "customerName": "有限会社エフビクスパートナーズ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "E008",
+    "password": "$2b$10$9.7WF1rz8FExT4mZm3J0f.3HOjtpQHDm31LEf5Vi3JZDb/IMytnsq",
+    "customerName": "株式会社エムケービジネス",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "E009",
+    "password": "$2b$10$a0cMEzplcjpxVzkRSIsmeeGSZ5J8ftQaBpzZZ1JmVYQHs62lemNBq",
+    "customerName": "有限会社エム・ピー・ピー",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "E010",
+    "password": "$2b$10$AufDkiIvXXdgVCUIBGJ8Be32j22M5m9MaJ61E.nOIXUHWgRA4FtR2",
+    "customerName": "株式会社エンジョイワークス",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "E011",
+    "password": "$2b$10$CrQXhYv9deslaIQDZFuU8OGcyAv6PHfk3KsxWb/bpT5l2I65GgNEe",
+    "customerName": "株式会社エス・ティフィールド",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "E012",
+    "password": "$2b$10$xy6gALovokSkelHevfjIFuBp9OtLHPpz.Ai/hpqExlBkaEc./87ue",
+    "customerName": "株式会社栄進堂　本社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "E013",
+    "password": "$2b$10$ZtlL43MGQiurMV1obKMH2els4QcDtXw268P8VUwK/jbKEWqvDwkT6",
+    "customerName": "株式会社エルストリーム",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "EA001",
+    "password": "$2b$10$c78/mln4p67Bl/WBvzbrW.SFW.kU8/1NxRXB8C2zSgiBCl8MmiLJe",
+    "customerName": "アルプスシステム株式会社",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EA002",
+    "password": "$2b$10$FG.LFZcqwfP9JDzaC/qyJenIfH0bwTRln4wH6U3LSYbZREa2kb1eG",
+    "customerName": "有限会社アイソトープ　窪田薬局",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EA003",
+    "password": "$2b$10$x2NOzRnXgUiTYEEyyEfzdeZ0T3k3NSv3NGBOcrIUa3VlZyAZAijPK",
+    "customerName": "アート梱包運輸株式会社",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EA004",
+    "password": "$2b$10$.xK7CCtOnw5LWZicb6i1YOgkScinYas2XxIykuwPL4rSp3wJSGcsa",
+    "customerName": "浅間エンジニアリング株式会社",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EA005",
+    "password": "$2b$10$dgNp9FdmJOetw.AOPZQ2AeIILFFToGjRk/Ikjbgut0rK54YuuxwuK",
+    "customerName": "アスザックフーズ株式会社",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EA006",
+    "password": "$2b$10$QTzamXst1lMRi6cstwS.MOUqUYlhCVp/IvoX6T242qos4D93XoCam",
+    "customerName": "有限会社アオキビルド",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EA007",
+    "password": "$2b$10$g5O5MnhUuxnToQB24mjia.vAtIpLnvOxtE7/kUY5YolYLG.1FU/rq",
+    "customerName": "社会福祉法人安曇野市社会福祉協議会",
+    "priceRank": ""
+  },
+  {
+    "customerId": "ED001",
+    "password": "$2b$10$Sf0mRls2jsfq5O4HF5ud4uGvrhALHb1C/dFrgjHkDROWUHVnWpbuy",
+    "customerName": "第一学校給食センター",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EE001",
+    "password": "$2b$10$hhsSP.nzjqGkC3cmEKSZfeTjCB.jUCc2hAW2v5QFFxiUBbyk8MdBa",
+    "customerName": "有限会社永商",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EE002",
+    "password": "$2b$10$OpkPVPZzzQKrUvwPfZdxuObN69ur6gk0ULnRS2Xff6ijcg0HcwKWy",
+    "customerName": "株式会社エナキス",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EF001",
+    "password": "$2b$10$b30MjyR4S4oWMuEKihvn4OO2J8Tp674Kalc09wTxIo.UHb/OZsFB.",
+    "customerName": "ファミリー・サービス・エイコー株式会社",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EF002",
+    "password": "$2b$10$n9OcFy4C803EDfw1LVJOaekjim8wbyp/XgX7.A6VSBigGJhPRIms2",
+    "customerName": "株式会社フレシード信州",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EG001",
+    "password": "$2b$10$bqxbjlKVMeqsd3b4Vzv55Og0gBwPC5sY3QVyhQrHgOk4Ihd12IMOu",
+    "customerName": "株式会社ガリレオ",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EH001",
+    "password": "$2b$10$UV33BCKCSbHwtqh2umim0ugED4JUlYdiCUYiMdT5iK/pECiRKYNmO",
+    "customerName": "株式会社ヒーテック",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EI001",
+    "password": "$2b$10$zc97NHLeDatJ0dO8FP2t5uYaTNS9/94nrLFHpuuUNdYpfEQaaKG9a",
+    "customerName": "一之瀬歯科医院",
+    "priceRank": ""
+  },
+  {
+    "customerId": "ei002",
+    "password": "$2b$10$crOYQe1QJGmjnPg0iKFB2.FTlxpI9YEu1SVac4.htltQoqD0Wi.dq",
+    "customerName": "株式会社井上",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EK001",
+    "password": "$2b$10$xdv.lsN/XWYHQqQMv7FDfeK5ls3/g865qfoBanXwQV1VToOsWADZO",
+    "customerName": "社会医療法人恵仁会",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EK002",
+    "password": "$2b$10$nireV0Rw.Xk7dcOcNNykM.mKY/wybnFSqWP1uvZBI39L5B31aMf9S",
+    "customerName": "浅間南麓こもろ医療センター",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EK003",
+    "password": "$2b$10$/DfcEiUGnwUn.AD4r6/eEOfUDF7V.nVdg4sCcr4qLhSqo1EkITc2S",
+    "customerName": "光葉スチール株式会社",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EK004",
+    "password": "$2b$10$wcVyKI15DwVKFJ3g8RHZF.Q6ShGDVLITe6KWp.zJpSQvSl0hiV.3K",
+    "customerName": "株式会社きらぼし銀行　滝野川事務センター",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EK005",
+    "password": "$2b$10$C0sG4izd6OhFBLR3KugiPeoZvMbsGh/2Oix6XuhPlqJJ7825S70qS",
+    "customerName": "株式会社キャステク",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EK006",
+    "password": "$2b$10$giKJdYopLPiJN9gQqi3U1eH7dYlREX6IsbzzYCYV9NOBJNG99dlb.",
+    "customerName": "株式会社カウベルエンジニアリング",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EK007",
+    "password": "$2b$10$doiY9WTDdIkLvzgS1jPdyOtDm.SPpqr7lIAWK8oJKjoGnz/Dg0CYa",
+    "customerName": "長野県工科短期大学校",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EK008",
+    "password": "$2b$10$OyhSzo8OK9ew3EMKtqzE6OOmAUo5nXNye6Hw7pFJw/GXDzk6eOm1K",
+    "customerName": "共栄医科器械株式会社",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EK009",
+    "password": "$2b$10$6Yc.Pa4xF6TsWCItwjj1gO1gr.8cxr4pULQsU.9322ve1aSlvrxiq",
+    "customerName": "協立工業株式会社",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EM001",
+    "password": "$2b$10$RuS1DiV7sE./rB5OEWnDNOJt6iwi5G8F1HPCmL9N5y3sW7YeKUQBy",
+    "customerName": "マリモ電子工業株式会社",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EM002",
+    "password": "$2b$10$stFXpx5m3/cBVxUMva4Im.mfv0xhTPPT8YqS2RIm.Jw9s4fe5noJ6",
+    "customerName": "水野商工株式会社",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EM003",
+    "password": "$2b$10$189fbe12zxg0XSJ9FH7s9u6zcTRvpAp855jfDTz9TH2lnMs.vxwl6",
+    "customerName": "株式会社宮下商店",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EM004",
+    "password": "$2b$10$MiqcwNA4Uzk7sawvWeEYG.PS3.jdZNf4VrUBs9YyXNqr0Bd9WvFTy",
+    "customerName": "有限会社三石製作所",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EM005",
+    "password": "$2b$10$hTOsUZBAdwcwrUc5lPDMCePeyamGhG2GWG.2LBq0dRbo6NeEhbo2y",
+    "customerName": "株式会社森角建材店",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EM006",
+    "password": "$2b$10$lWN46uCzT6zRLaIB1lUFfu375xsA0rxru.W6.NoV5UbaUnxQXg6K6",
+    "customerName": "ますや有限会社",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EM007",
+    "password": "$2b$10$.mcxJD4v0Vp2qyDVZrd3vu8Ltz60kZ1u1k/qqaKaLsswWFy8HYA2S",
+    "customerName": "有限会社松村建築設計事務所",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EM008",
+    "password": "$2b$10$GJjOoWSSJGKv/1quQduXFe1j1PjgM4tLEV2h0eqvMeF94wIrifV8S",
+    "customerName": "株式会社ミクロ化学",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EM009",
+    "password": "$2b$10$0/qwoG31dV44p1zq1JsrY.CNTsudLL5.Yba7AwSaBhO9LEn.lGLcy",
+    "customerName": "株式会社宮本鉄筋",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EN001",
+    "password": "$2b$10$.dCiLyyyNhdCN/nk.2xKKO.e5LBe3Z/K2pix6ySmLnhpawc1b3CLq",
+    "customerName": "株式会社長野汎用計器製作所",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EN002",
+    "password": "$2b$10$o7bSMA4YgQtxzU.HEFEPKOwD3omEaE6dldTjjd1hSf9.GyZqeIngC",
+    "customerName": "株式会社日商工営",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EN003",
+    "password": "$2b$10$8Qhi7OyJpTUZzdswJayM9ek8GCNWZCvdOEikDBQ3ylkCkOlll7zXG",
+    "customerName": "株式会社長野サンヨーフーズ",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EN004",
+    "password": "$2b$10$6RM1gwMOJSGm6z9QEk/.wOYjNSF9aHBzh1ah71KZh6d6LGaUFReBa",
+    "customerName": "株式会社長野大﨑製作所",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EN005",
+    "password": "$2b$10$q0whKKe2U2LbkKovDz/10OTCXtgI.BToKxAyz.611BSm/S/po2auC",
+    "customerName": "有限会社中村鉄工所",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EN006",
+    "password": "$2b$10$JQyzPW.zINP1UJ4Gw5HP0.G/DLzbQmo6tsaPa.cs69LAbteZGtHvu",
+    "customerName": "株式会社中澤精密",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EN007",
+    "password": "$2b$10$fSy66..TU/RXvelm8g3SDOlVfwaEI.415QJ8I.lbBhh33ye82fu5C",
+    "customerName": "DMノバフォーム株式会社",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EN008",
+    "password": "$2b$10$aSoO3PzpPd1AaojfDUH/M.W00UJBM7hV3MCKK06lioM2bfan2iOVC",
+    "customerName": "株式会社中島製作所",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EN009",
+    "password": "$2b$10$P0y/4ndwalJbZN7nCbFzCe5pafgkHMmU8QQg3jWUB7VMMG8BZcZ1W",
+    "customerName": "上田市立中塩田小学校",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EN010",
+    "password": "$2b$10$X6NKF0VDxnl08W1YZY2v0.K34sJxLbC2sQ3dIt5IUKgB.jtY.KsdS",
+    "customerName": "日軽松尾株式会社",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EN011",
+    "password": "$2b$10$rOFanhW4VWffCuH3E7SfpOIOVOC8q6tLLsvPCuLv82q4ouc4st13S",
+    "customerName": "株式会社長野読売IS",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EO001",
+    "password": "$2b$10$rcFeE10BfUsxu43r9z/Fy.3zuU0BeW4Qn8EZZvOz3axYuXTE7TnyS",
+    "customerName": "株式会社オンリーライス",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EO002",
+    "password": "$2b$10$ihKQgyAsafApeWuR79kCpeG2OKC6f8BoQtAWnmp.0XXgjnsbKivPK",
+    "customerName": "株式会社岡田製作所",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EO003",
+    "password": "$2b$10$VEQPHOrPWMoc3KhUkwxiYOu8yV3bTD0zzE5LFj/hJrzGgXw6pRcwW",
+    "customerName": "尾美樹脂工業有限会社",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EO004",
+    "password": "$2b$10$Ms6JSqcZiX1doq7NZXvn6eg3ScCd3Jz8visHvSP1L4c04RYHpJh5C",
+    "customerName": "有限会社小田切工業",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EO005",
+    "password": "$2b$10$WbF61NMYVNaW5wxp3iZdxOEu70wBJBNBbEQ.NF3zqAx/EygWdb.2q",
+    "customerName": "大和田工業株式会社",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EO006",
+    "password": "$2b$10$aYxFreR1zVY.NdL.wMClNuam6tj04prlnCa/P0KNT1tjH3NpD0abC",
+    "customerName": "株式会社おおつき",
+    "priceRank": ""
+  },
+  {
+    "customerId": "ER001",
+    "password": "$2b$10$NbttuNlhdUtOEL/Rx70vPeYJ8JWylIR33J5cG.sp17EVJk0fZ7OES",
+    "customerName": "医療法人緑風会",
+    "priceRank": ""
+  },
+  {
+    "customerId": "ER002",
+    "password": "$2b$10$toSDPCEDwZm2YMTuxlJgNe0MZbhQ3fjX.Umj9Ak.6knFqmRkCfTwq",
+    "customerName": "立信精機株式会社",
+    "priceRank": ""
+  },
+  {
+    "customerId": "ES001",
+    "password": "$2b$10$XF2kFiP68RicKhIrEn2DUuCetBhBq6kDhNFSLvFUyLWw6Z7pNq7m6",
+    "customerName": "医療法人清泰会 ﾒﾝﾀﾙｻﾎﾟｰﾄそよかぜ病院",
+    "priceRank": ""
+  },
+  {
+    "customerId": "ES002",
+    "password": "$2b$10$YOEC/eSUPNg7EtzuJniqFO9kIyjMnDeCbUY7BUxvufdhccPHf2ZNy",
+    "customerName": "長野県厚生農業協同組合連合会　佐久医療センター",
+    "priceRank": ""
+  },
+  {
+    "customerId": "ES003",
+    "password": "$2b$10$3BZLIjGCZcPxStoFFnCzMOTmslcULC.zs60IlnUEgg9jfjHtaX3EC",
+    "customerName": "しなの鉄道株式会社",
+    "priceRank": ""
+  },
+  {
+    "customerId": "ES004",
+    "password": "$2b$10$gh3wo4vqr7uT9WH8rlhOJ.8YxiyYdrwf5L3Iv8tdFcMQfIsPuKgbC",
+    "customerName": "諏訪梱包運輸株式会社",
+    "priceRank": ""
+  },
+  {
+    "customerId": "ES005",
+    "password": "$2b$10$yXlozOFvHbaF.qcivXE3yOuKPMsECfUOOymY5bGuvPh.yBQ3jsE6.",
+    "customerName": "株式会社真田",
+    "priceRank": ""
+  },
+  {
+    "customerId": "ES006",
+    "password": "$2b$10$/oGzMdcxEA4.48tj.f5PAuqpiQnzcS/feT3TphVZzTi4t7ER./FE6",
+    "customerName": "株式会社桜井製作所",
+    "priceRank": ""
+  },
+  {
+    "customerId": "ES007",
+    "password": "$2b$10$7dkNRHwVUbafyJkce0LI4uKLQqQfq51MoHn88qXWXLZ/Rk8Dph5Rm",
+    "customerName": "学校法人上田煌桜学園　さくら国際高等学校",
+    "priceRank": ""
+  },
+  {
+    "customerId": "ES008",
+    "password": "$2b$10$P.93/tM8O10o.mhCUeof4uczvrzpnn.4QDWh.wn1yOUFft4hMj.FW",
+    "customerName": "上田市立塩田西小学校",
+    "priceRank": ""
+  },
+  {
+    "customerId": "ES009",
+    "password": "$2b$10$eECsAexF4D8ufkgR3422r.sGDE30.tdyCKqeYqeYfax/.QS1OErSi",
+    "customerName": "生活協同組合コープながの",
+    "priceRank": ""
+  },
+  {
+    "customerId": "ES010",
+    "password": "$2b$10$Nah4uQ4VhgUw.iUZboS8P.fJy32A.7NDNCJAsqz5/KwqCoJk9PygW",
+    "customerName": "有限会社サンプラスチック",
+    "priceRank": ""
+  },
+  {
+    "customerId": "ES011",
+    "password": "$2b$10$diUYzpGQBKWk7LBGx.zPvOh7bMoJrtpsFo7RCNknEQnF5Mh8GtGGu",
+    "customerName": "信濃ワイン株式会社",
+    "priceRank": ""
+  },
+  {
+    "customerId": "ET001",
+    "password": "$2b$10$0zCZun1aJTOSMbbtaB8SNOwXkpxT2gRSMjCHag/Bd9ZBIhPk.qyZy",
+    "customerName": "東信医療生活協同組合　上田生協診療所",
+    "priceRank": ""
+  },
+  {
+    "customerId": "ET002",
+    "password": "$2b$10$DbbOJxyGy0GzhHruJ.SjB.d.hsO6vuCTuXa.65sPnlc8Hzdfa7snC",
+    "customerName": "株式会社東信公害研究所",
+    "priceRank": ""
+  },
+  {
+    "customerId": "ET003",
+    "password": "$2b$10$qNkChGwQ5zJ13mxDxycRi.ZUp4Sz0kB4883A2qn4QWxgwBwvAbpwu",
+    "customerName": "東信日軽株式会社",
+    "priceRank": ""
+  },
+  {
+    "customerId": "ET004",
+    "password": "$2b$10$8IE.R1KPfw6NGMiJT0GeUu0BnL3R5HJtYrH.jAFVwOV0VlCoCN9/a",
+    "customerName": "有限会社天文館",
+    "priceRank": ""
+  },
+  {
+    "customerId": "ET005",
+    "password": "$2b$10$dukDa5BfqOsLqNofDfimIeDIWwDTV34XNRqPB30yYBP/d7RpSVTFO",
+    "customerName": "株式会社高嶺商会",
+    "priceRank": ""
+  },
+  {
+    "customerId": "ET006",
+    "password": "$2b$10$tz1CCF/ZxhLsG.QxM4188OP91iPAyjWzofbxkjvBXEpo71uANrv0u",
+    "customerName": "トーワ金属株式会社",
+    "priceRank": ""
+  },
+  {
+    "customerId": "ET007",
+    "password": "$2b$10$f33EPDzqumrRuDHlq9HbBeqDkD3kNGgeus9Jigw5MScDYr0Cbe8om",
+    "customerName": "千曲錦酒造株式会社",
+    "priceRank": ""
+  },
+  {
+    "customerId": "ET009",
+    "password": "$2b$10$Iwcv0RAje2u4GsGtYlGqaOpZXYf6Y.VqFlamiEk.L5mIZZ6O9o1c2",
+    "customerName": "株式会社タナカ",
+    "priceRank": ""
+  },
+  {
+    "customerId": "ET010",
+    "password": "$2b$10$lJ3et3qMG5EayFDVkLGT/u1f005nY9EMqp5o7PUWsBoSeb8oxYDtO",
+    "customerName": "株式会社タスク",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EU001",
+    "password": "$2b$10$qF06yYhgPxP.49EgI/Fo/eqTpgZJT1s4VEf.MLGbvlzPXXZnAGMai",
+    "customerName": "医療法人健静会 上田病院",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EU002",
+    "password": "$2b$10$qoa8mgIXdalT/mGiZslQv.72WUoi5hsOxfuEPsTowPPoCQFoVUdRG",
+    "customerName": "有限会社ウスザワ",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EU003",
+    "password": "$2b$10$kjbbs2yhhisbFETwH55uv.bbr6onkCCxNh9cLbSmynlQeNfHtdMf6",
+    "customerName": "学校法人北野学園　上田短期大学",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EY001",
+    "password": "$2b$10$Vhsg0R/daXdTEYsiyJvGh.x53ai5RzS3QsrmQIebNYg1Y9S/FQGYu",
+    "customerName": "株式会社ヤジマ",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EY002",
+    "password": "$2b$10$K5gNECTCGrFm3AOM8JLSBOzy1eCk85Q91fLA.KUI98QlNceiMHJbq",
+    "customerName": "三和タジマ株式会社 埼玉工場 佐久製造課",
+    "priceRank": ""
+  },
+  {
+    "customerId": "EY003",
+    "password": "$2b$10$Ep58hHmONq8Yn1RpKss5H.1cebZnOzY069v04NNGPCSReoUGFCEIu",
+    "customerName": "医療法人悠紀会 ナカジマ外科病院",
+    "priceRank": ""
+  },
+  {
+    "customerId": "F001",
+    "password": "$2b$10$UqleGxliS8qtrRoh2.iJXOVF0z2J1mQ/Rh0IHPPwegPj.Xzgvilee",
+    "customerName": "株式会社二口オフィス",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "F002",
+    "password": "$2b$10$DI6LTB85wYkRAamYgt6BaefnNF7vB008ql6vYGmrWPIZNJr5SZSQu",
+    "customerName": "有限会社藤澤",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "F003",
+    "password": "$2b$10$ZbFWkAq8QBN8V2mVELX2rur/rVrihKx65/f9SR5jpxmxpgGlu5ENW",
+    "customerName": "株式会社ふくやま",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "F004",
+    "password": "$2b$10$/mf2SLql8kKUoY.Ep4sXUumEOvadK3vV1rmLVKCgleU6/vCdfxAf6",
+    "customerName": "合同会社ファテー商会",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "F005",
+    "password": "$2b$10$bEk0Tg3OlpSSnKMxCGQ2Z.NZYJytkMwuElj4jPG5rmH4UpzVfT54.",
+    "customerName": "株式会社フロンティア",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "F006",
+    "password": "$2b$10$GjRNxegNucT6cpzXSWzeB.fbCvoqfwDH1Z.l.r5lVZM6/94ddlmUq",
+    "customerName": "有限会社不二美",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "F007",
+    "password": "$2b$10$V2xjtgIBdIw0m9cmZsChz.PvJsS3s47wGfF.Dw7PoNH81xBVU.HgC",
+    "customerName": "株式会社フジコー",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "F008",
+    "password": "$2b$10$8KAhF9nVoKTY2Dwk/3TPx.UFyrU8dYy8Lj5ngBlchLJ.mXzpfaCVy",
+    "customerName": "株式会社ふくやま(ひふみｻﾌﾟﾗｲ)",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "G001",
+    "password": "$2b$10$QR0MQJOFItNI1oYrLIMmrecxlEgUzmF.zNfmyWnawiEMwShnqam1q",
+    "customerName": "グランコーヨー株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "G002",
+    "password": "$2b$10$bluuzNfIebmsq5/3jXAOV.KXCYbwKnZ2S1D38hwrTJOBsZ927kh5K",
+    "customerName": "有限会社学遊舎",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "H001",
+    "password": "$2b$10$jpggNygR/L.mFRlanUmFH.Bh.kq7s2fLv5Zp7998whi1p2i.7a2sO",
+    "customerName": "畑八開発株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "H002",
+    "password": "$2b$10$splUNppg7gxuOoTgSeUfa.X/JDMDEHmqqvjIOGOFgm0hHLL6WXJFm",
+    "customerName": "ハイブリッド・サービス株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "H003",
+    "password": "$2b$10$OPtG8zdrEL6bHt1H.BPRrOzwKgfBBO2v1jRdkrO6wkP8IvZa2m.nu",
+    "customerName": "合資会社ほんぼ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "H004",
+    "password": "$2b$10$y258.5SVot36JXuMQDlI0uagYRIwvcr.tUwothDOcW6XvklgODq4.",
+    "customerName": "株式会社邦文堂",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "H005",
+    "password": "$2b$10$qwUoBA0L74ecyJMmmY5jH.X2.YdtYwmtlYUFLbnNjDf1ko0x.KyDS",
+    "customerName": "ハナワ事務機有限会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "H006",
+    "password": "$2b$10$6H5/h4cfm0vm.j6PVyDUueEW1lmMLvgFVlP7ip5JsI/ja38aqG8IG",
+    "customerName": "姫路情報機器",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "H007",
+    "password": "$2b$10$lJvK0bPWGdhGBlPnj9ca/Og2Ei7x8Vjf00IPp8tZZJ63lGQJlRoZK",
+    "customerName": "有限会社鳳琳堂ビジネス",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "H008",
+    "password": "$2b$10$4wfou9KH0d.dVvKYWGK3aezYI9KCsDlKXmmX.22gK.Xu7UB2WT/1G",
+    "customerName": "有限会社ハヤシ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "H009",
+    "password": "$2b$10$hPSSqJoGoul1d5/xTB/l2eoXKFhyBZliNmVxuuaZd3kqhSTZ3AP/y",
+    "customerName": "株式会社浜田商事",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "H010",
+    "password": "$2b$10$4UWMKzpp4wN9.GTA2UAki.RWFo0EnxMe9e4Rw6AXu67UNckGxtavS",
+    "customerName": "株式会社細野事務器",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "H011",
+    "password": "$2b$10$6Fih/Nd/0qA9FiwruNc8Ruly62G4J8iAaQAQLqqL1Nw7FxKR1Muqi",
+    "customerName": "ヒューマントレジャー",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "H012",
+    "password": "$2b$10$IN4izsBajVMh3gZh2E.kK.jzKhAH9rrECCLc7/MG768QbLO3lMQcO",
+    "customerName": "有限会社ハイドリー",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "H013",
+    "password": "$2b$10$LRu0/8t0E.8zU2dlakgVMuuoaJinecLZe3BuFeRdq5Q7RzQqixtrC",
+    "customerName": "ハイテックサービス株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "H014",
+    "password": "$2b$10$p8RWQRy02vcNhq4QhKutWeYx8/GQHt6iOpNHx.Yx48UEPFzbW8vEG",
+    "customerName": "[倒産]ハモダ株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "H015",
+    "password": "$2b$10$XuMfbzyjm2.aabQi8iawfuY1fq8jZ.zq3SfRKJPdjdYRcSz4IO7I2",
+    "customerName": "ひふみマネジメント株式会社",
+    "priceRank": "B"
+  },
+  {
+    "customerId": "H016",
+    "password": "$2b$10$tl4Fv6CzS7ZSsFKogOodWe8jztfP37MWYZ5OFoxFSt4A1ZOq89v4i",
+    "customerName": "株式会社博文堂事務機店",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "H017",
+    "password": "$2b$10$Ktlbr3LE7MYkrgSOcxXziO4mhKW2FtU.om5d65nFR.RflTsJVq1/.",
+    "customerName": "ヒカリ通信機システム株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "H018",
+    "password": "$2b$10$Bsfc6hiwtav.Id/lqqOn2On5BVuHckE3WAFPvpe6kyGrgqivHVPWO",
+    "customerName": "株式会社宝月堂文具店",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "H019",
+    "password": "$2b$10$CSoMd4jIrMqWU1OvyluCqudMTPlfu2MuG2XS1kAXAenIBuXH5023i",
+    "customerName": "有限会社ヒカリ事務機",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "H020",
+    "password": "$2b$10$o/21OvkAany6kEyT/17HhuM1Q2f3.hJLID6rZkyfWBQeDkz.65zuO",
+    "customerName": "株式会社ヒライヤ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "H021",
+    "password": "$2b$10$h8yksTRKXCOqHS133Nr1Duw8GhRYF7GbAbUw4N20GLFvlrFrNCyGO",
+    "customerName": "[前入金]有限会社冨士原文宝堂",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "H022",
+    "password": "$2b$10$vtHlHsS4bSst95oyNK/1sOi0E61EzZzjo1mc6Bur5p7z4d5xgNwJm",
+    "customerName": "広沢商事株式会社 ｵﾌｨｽ家具環境部",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "H023",
+    "password": "$2b$10$zYGQajM/vYIJoTaEcG2ijOxM9boGUv6YuKa32eQnW8Q9Wr8titW/a",
+    "customerName": "株式会社畑十商店",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "H024",
+    "password": "$2b$10$TzJsiUMSJngsFBArZWRNiOFZPT6ddNqTuKyHZIRHapd6rltf91DPG",
+    "customerName": "迫屋・文照堂",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "I001",
+    "password": "$2b$10$5Jw3ZaEMn.uKT3L9nc8U7OLeotzR9SUzt0Q2il1T2XadrT9ypJUOu",
+    "customerName": "株式会社伊藤商会",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "I002",
+    "password": "$2b$10$9HtGXJxbgdINGeohWRprIOqDPT2/0TIG3CUenPqb0XrsO41bzGtK6",
+    "customerName": "[廃業]有限会社伊勢万",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "I003",
+    "password": "$2b$10$YuUiYT/rc7iZvCKwMjRXtu2mwpBGmq/gzMdd78akh9dkv1/IK6JDq",
+    "customerName": "有限会社インターフェイス",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "I004",
+    "password": "$2b$10$oxjG9HYc8Q9IjTrabTebj.lJ4Fii0eMguAfKdJBg26dzJ5oyb3qUO",
+    "customerName": "いづみ文具株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "I005",
+    "password": "$2b$10$7FNDDjHtXF8Nf.VQYJSYWOxsH/OyklydFfg3TXBEHwW0JUn5Bbdjq",
+    "customerName": "アイシーテック株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "I006",
+    "password": "$2b$10$AoWNYh.VZIBmWnRbZAqUZuKyehXX0keMOOn1yTIjfmya6UOoliOpm",
+    "customerName": "イバラ事務機",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "I007",
+    "password": "$2b$10$QbA7Dhda52D8mEAU0tr.OeFdfLF3l989cXNnB.NJAUwWoAsnkhdLi",
+    "customerName": "株式会社i-Link",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "I008",
+    "password": "$2b$10$1FrS4NSNTk8ard.2r38FlOnczOErz6ReFx6nhMcuspE8ar83aeP1e",
+    "customerName": "株式会社イナリオフィスプラザ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "I009",
+    "password": "$2b$10$qmoV8Xzj2WckJNtjacSe1ehf6ZAp9cVYATxfNwyULrmG1cku7NjtG",
+    "customerName": "有限会社一番館",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "I010",
+    "password": "$2b$10$rxMs2d0XaI.7T92/AyUHweHFbhCwjyW.HDWYLRSDEM.0QK6VHHgwi",
+    "customerName": "イト電商事株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "I011",
+    "password": "$2b$10$btv38Ktxby8pMobxlQXg4ezhIGBhJMaIu904Ct2o.oneYvwJZzdWW",
+    "customerName": "株式会社いけだ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "I012",
+    "password": "$2b$10$PAkT0nwFSaq.pMt5LeM6IOx9qoodZfz4G5C26ypYx5/MpmU7EJseC",
+    "customerName": "株式会社インフォシステム",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "I013",
+    "password": "$2b$10$TMH4UZUT5VMfg7b8B2HGGO5pq4UnUSprQBYCubSWGGOeiHAh9jzDy",
+    "customerName": "株式会社泉谷",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "I014",
+    "password": "$2b$10$lpDyKrnXku3zZ98X0RQLBOP0HsptsqL9b.bt74PFvJdWaJV00/H8K",
+    "customerName": "株式会社泉川電機商会",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "I015",
+    "password": "$2b$10$VdNupN3R3prCj21tKxTGQO1MhWLhDdsvzO9bw2eIOYa3QRGKwD3dy",
+    "customerName": "株式会社イオタオーエーシステム",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "I016",
+    "password": "$2b$10$wUbMkcmSQmUH2bl/hfsdsO2qhCDoTYrCB0ncYj4aYv1Vq8WuPOKOO",
+    "customerName": "井口商店",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "I017",
+    "password": "$2b$10$b00bQA3yEVuucaT6Dw1c/u8f6jHG32G.UI.GZ2w61JTBVl/OVBGXW",
+    "customerName": "株式会社井村電気商会",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "I018",
+    "password": "$2b$10$EQxq9FF9yEERqmjSnsi.S.V.FlFed.u.AisUmpt9O/nfjncBWGFEm",
+    "customerName": "[前入金]株式会社一哉",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "I019",
+    "password": "$2b$10$Ns90fP/VZOVj23Btwywhh.1TVkYxFKfEHaYhp2Ojmn2pu8Dl/wCtW",
+    "customerName": "石橋事務機販売有限会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "I020",
+    "password": "$2b$10$vqWMwDav/s2XxIBLiLYq9OGTEIh/Logs5FC4leQznR7VtbTnMEsLS",
+    "customerName": "有限会社イトウ屋",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "I021",
+    "password": "$2b$10$zVdn2w8UZ4bK49OFV4fiCuCcFWDGPyQg3WkQr7HdrMUIPGQVYTcZW",
+    "customerName": "株式会社イナリオフィスプラザ　三次営業所",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "I022",
+    "password": "$2b$10$nMUjmxYrBl28ofhK9Ocf4.eYzIANgJUB2HaoeYEgZU44pbOO3Xo6i",
+    "customerName": "有限会社礒商会",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "I023",
+    "password": "$2b$10$I8.ggxjhlmYMEtBq7ohbTequrNzzELCIx6/hfiVq1hXGmiwKc/kHG",
+    "customerName": "i-office",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "I024",
+    "password": "$2b$10$XTf.3Eoq1Oucc/9dlXIdg.onhc.dSrlGWkwX7yqqZMBvkNRFY0UKu",
+    "customerName": "【随時コード】株式会社泉川電機商会",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "J001",
+    "password": "$2b$10$01LOqBVe6/ZLeOYUmuXG1.J03oNaPHx61WM.0PrFFYSv0HVhcZkIS",
+    "customerName": "株式会社事務機ｾﾝﾀｰ青光社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "J002",
+    "password": "$2b$10$cXs8DOhy0PgfkIrVVrT1EuANODhjECQlhSA0jSQIzopSQiG55mRce",
+    "customerName": "有限会社ジムコ広島",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "J003",
+    "password": "$2b$10$DcDQMA0AOTH9SbrXb2PUgOTiS6w1W6wlEtB.xJYQ2u1eUOBXl4DLe",
+    "customerName": "株式会社ジョイント",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "J004",
+    "password": "$2b$10$sgktWc6ib98kemNKMdRH1.PcNJuWH1n00p5hg9oxQYXEtWsYXLeyK",
+    "customerName": "株式会社ジムオール",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K001",
+    "password": "$2b$10$D/iLXbgpkHuGvjnSCak75.BP7gYzLQqMLx5GLxGliQVXhaLrTFHjm",
+    "customerName": "キープグリーン株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K002",
+    "password": "$2b$10$0oEf665MUXu.9QOyL/OfMeDZyoLTAxbBLoALGDgnk0v62G2cvNS76",
+    "customerName": "株式会社光陽",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K003",
+    "password": "$2b$10$MqGcpzptTKy2rizaknYcyuSIuQTeYhIj4cj/s6mzVsAVum/O9HJSW",
+    "customerName": "勝見事務機販売株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K004",
+    "password": "$2b$10$CBh9urff9aSZeWXvsTqz.e9Bz5FZX0/6gG95MldyejHiIG7u/Oy7q",
+    "customerName": "有限会社近藤金庫店",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K005",
+    "password": "$2b$10$8KpXPNTmHG7UZA9Zd9MTqed//4.wFr3EGkk6/GpH60Y4rkUmG7Q52",
+    "customerName": "株式会社かなまる",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K006",
+    "password": "$2b$10$mQvZ1tmEyw12XmazXK1tjO27lZ88J5p.ejMO9Yxx1Y9lqyIDRmFS6",
+    "customerName": "株式会社カサモ関口商店",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K007",
+    "password": "$2b$10$B4D5WMbwt8vdVGeyKfXry.mkGIirqt4iqv4EfeXdjzEm4tzXp6Rjy",
+    "customerName": "有限会社ケーエムシステム",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K008",
+    "password": "$2b$10$2NVWCe.jHAvIxeAhk8H4x.EBqFyap.nUSC4WwSD3/WbD4RI5YqOoe",
+    "customerName": "株式会社小林平和堂",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K009",
+    "password": "$2b$10$JSNqs20Suyjc0kJMuYBorOfBjKWUZQ28YmmF8rTXIjb0Jt2nWlqdC",
+    "customerName": "くきなみ商事株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K010",
+    "password": "$2b$10$xv/z.xYBO/cVOrhSOz3Dp.MihbhqUirzxw60vEPjZNRe2SdWn1NOW",
+    "customerName": "有限会社熊忠 松島営業所",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K011",
+    "password": "$2b$10$nsQcyH.J36/5zpfbDujItubPXVvqNfKfw6FcB3UIqN5JVaFAT5zFu",
+    "customerName": "株式会社紙弘",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K012",
+    "password": "$2b$10$b7A9Io.PkF0lAoIe3le4jeqvwpidU2sI.NSQWDO3m6axOPNaaA7T2",
+    "customerName": "株式会社KDI",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K013",
+    "password": "$2b$10$hoBaIoeNxp/s2m.ZfrIjiuYmBAH53cohrOwoeW6uI8SZNGHTTYxVC",
+    "customerName": "有限会社教材事務機センター",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K014",
+    "password": "$2b$10$GRtLapPCnZMQAALKTZW.o.mjsA7nIBEj6I05YeA1yU.QlV0yh4Wuq",
+    "customerName": "株式会社コーケン社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K015",
+    "password": "$2b$10$Dl3mCNCPdQjLKwU.Bmkyse9gcp7KTPHRV2kkihwALLz52RbMgcY3W",
+    "customerName": "株式会社釘本文理堂",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K016",
+    "password": "$2b$10$1mVXhl/uYA3S3L4UhbF9rOKpv21S0dSOHSp8/4P4yqdPUMV1HxR6.",
+    "customerName": "株式会社カルタン",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K017",
+    "password": "$2b$10$Kr0Jg4flu3EY54oy8pMXluJ194voXmw/JU.fXutSBIm/lFp3cwde6",
+    "customerName": "株式会社ケー・ライズ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K018",
+    "password": "$2b$10$u8funB/2f9xLcRUU5gvzhuNj.4ogS0vK4LZWgWWh3j/d7WQC17ZWi",
+    "customerName": "株式会社國島屋",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K019",
+    "password": "$2b$10$Wh2L5hhfGxeVm/UvUiLlGel8nC9ChZcZgI0etbR1tFDEtxkiRFqsm",
+    "customerName": "ケイダッシュ株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K020",
+    "password": "$2b$10$IZSIMYWyOvGSzD9vjaqR.exvYPAXUmR/cSDFvLtXs.n9VfqSzwIR6",
+    "customerName": "有限会社クラフトワーク",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K021",
+    "password": "$2b$10$2RUh8yCYkDXHd24kJDtIaur1GyIExPncwM/cUy/0mhiFF0rgQi.Tq",
+    "customerName": "株式会社金ペン堂",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K022",
+    "password": "$2b$10$ZwMp36wOSBeWNh7YhYclC.OXEwzqoIEahDva9ncqNgKjGZScLustK",
+    "customerName": "株式会社上磯事務器",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K023",
+    "password": "$2b$10$XwihX11uE5IjmcICc1VX9.ZrbWEeko5jbiRFEHtajuCr4kwfl4JlO",
+    "customerName": "[前入金]有限会社きたの",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K024",
+    "password": "$2b$10$gRQUse6PGUp4IEax6NAPHO.hwJweholF7cK65DAilJbDNNLHLdAbC",
+    "customerName": "株式会社カタナヤ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K025",
+    "password": "$2b$10$iKVOs728k6GAWlSLpzYlIOJWmfHOc9rofHcvkehLsW8yR.jlwbcJ.",
+    "customerName": "株式会社コスモオフィスサポート",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K026",
+    "password": "$2b$10$DM/b643Z4Krirxt2L1qaeOnKxP2QydYR/Lt2blYo7wsRyVjVpM3uW",
+    "customerName": "金城ネクスト株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K027",
+    "password": "$2b$10$AfCeJasTKOP8W49B1iN.oOlLfP4B8H2v7ct7v2OOtCFg6wn2swWXq",
+    "customerName": "有限会社キタガワ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K028",
+    "password": "$2b$10$1i.lFHNe.q65otNRaog28uF0wP8qjBRdJgF1IGz2IHHyjOzQu0mkO",
+    "customerName": "株式会社教育設備シマダ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K029",
+    "password": "$2b$10$AWOT7hPFYYnJw2FFkU2xmeAbzXVA1tNAkHaURVEyvwhSIYRBzSKIe",
+    "customerName": "有限会社協栄事務センター",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K030",
+    "password": "$2b$10$FzubgbN8bfnB9mFre9XPuuTWOwSfZVoUTA/lS8w9Nc5kuXCyjafMu",
+    "customerName": "有限会社くさかり",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K031",
+    "password": "$2b$10$HuKgbVXtiNIz10VbGUoBbekED3Mu.H8KnbfAzNyqkw29s0Rmaa7xa",
+    "customerName": "キムラ文具OA販売",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K032",
+    "password": "$2b$10$ntlra7dWLqBmMv3qxc1dIuLdWhnUJEsYvyULUr1whrPFR3OrSzG.G",
+    "customerName": "株式会社荒文堂",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K033",
+    "password": "$2b$10$ii76r7.1uhv7I6IV4P.M/.yan9j1rJm8pXT4b2ATtT0RhsNuxAoZG",
+    "customerName": "株式会社シー・アイ・エー",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K034",
+    "password": "$2b$10$F3hplKJmndbr8P4SI9e9aeuJdTiO9vJTVlVj.LCmqHSUOsi/3kTNu",
+    "customerName": "株式会社金居商店",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K035",
+    "password": "$2b$10$ffhjW4cLorOzfUTh4FvkheYRbY8sHzDoe9irdTOZagv493R7mXv7e",
+    "customerName": "合資会社錦尚堂",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K036",
+    "password": "$2b$10$/F7dl96NePXu0AHWLWC4T.O9kGsnoeLObHKJEE2CITs6dy1XjvSou",
+    "customerName": "株式会社高知事務機",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K037",
+    "password": "$2b$10$3ILTaTZ/VfEDO0zlBlD06.e3JfKOt/DNPo32TzFq0DsJGkmErWtz.",
+    "customerName": "カシヨ商事株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K038",
+    "password": "$2b$10$R7aKSiHH.M8bzYOSW9lUKegnwltCBTGZ3xDeWXmiYHPTFQqcphR.W",
+    "customerName": "株式会社貴志",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "K039",
+    "password": "$2b$10$KHz6Ho17gZfoZLZwDY.s/.bJWIJvclXky6lrWRdvnldLwnjE8oPbO",
+    "customerName": "合同会社カモン",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "L001",
+    "password": "$2b$10$ArLuM8idpYaNK9exZeAb7ujFVwPxCSC4Ml2sp0lXhTYcGljGp0ruC",
+    "customerName": "ライブネット株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "L002",
+    "password": "$2b$10$Q.LLnnDlvpGKHmNOULcsAenD8v05AZsqPR7Fbj.ZPkBZAiH58fu9O",
+    "customerName": "株式会社リスコビジネス",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M001",
+    "password": "$2b$10$wdBYyJAoRN8CElpZwhm1KOYgB7hJHjlIJ55ax4HtN.BbSxvYRmBf2",
+    "customerName": "有限会社丸栄商事",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M002",
+    "password": "$2b$10$BxR5AYozbwF6azrC8GUYoOj940KFKmo4/N9RHWu5LDIEMO2/Yuebi",
+    "customerName": "株式会社マッハ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M003",
+    "password": "$2b$10$QTE3DfaXz.Tat.gflpMUqOm6cwK2d.3TX6mSxNi9tCOahPh6UuUWG",
+    "customerName": "株式会社ミヤギ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M004",
+    "password": "$2b$10$JlMwaCfLTq6DpMv7oAZE.emwFTLYu9PaFzKUrBsOR6/NeAMRSyY4C",
+    "customerName": "株式会社メデクス",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M005",
+    "password": "$2b$10$kNyGDpvQ/lx4BEIT4aPhXOruKKkjvLE3Nk.NnQBu//7ZzCVyWzb/K",
+    "customerName": "株式会社正木",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M006",
+    "password": "$2b$10$OXu2PG82l8yinbgNHH3gZ.0sayIOnt8pq/vM/XQaeLNI2RJXlUHDy",
+    "customerName": "株式会社MID",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M007",
+    "password": "$2b$10$mLgaBZuQ94QPnqF5G0WWNuVJIRvwuUfC76kxlYPtfaarslz.NLqeS",
+    "customerName": "【経費用】有限会社丸栄商事",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M008",
+    "password": "$2b$10$0KUboOI0M.K5ck85BRuL2OGqMozfo6QA6Tyzv8GuKUY4lGwi.Shpu",
+    "customerName": "有限会社マルオカ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M009",
+    "password": "$2b$10$d.5HS5HWJr56nLmK4.migurGmXMc1w.W4R/8u7dumPiwFDa.7TA/K",
+    "customerName": "株式会社マルミヤ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M010",
+    "password": "$2b$10$ze7Xi3tETAU1Cp16sG73rewvmb8NotLD09UQL9QyjjA1XLBIpdeh2",
+    "customerName": "株式会社前橋大気堂",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M011",
+    "password": "$2b$10$MZQlEheBhyZgL18ROSQGBeE.ye69/pB4Rx05HQKN1AzKczKT6ktGq",
+    "customerName": "株式会社ムツミ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M012",
+    "password": "$2b$10$vWREz5jmCxoy6Rm06Jif7ehp24jXUGVJqgq10kg0Suz5ebB8QTVMq",
+    "customerName": "合同会社守谷商事",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M013",
+    "password": "$2b$10$mVY6ykLfdvNQ5MMPRC2IVe6hWIy9WQTStOdTzbue1dUmBeTKD9/6G",
+    "customerName": "株式会社マルニ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M014",
+    "password": "$2b$10$PiFvkCoyclSskog47NQZK.PX/izR/0Y63QG7EXUpGm0YGGsabdgCa",
+    "customerName": "ミナイ事務機販売株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M015",
+    "password": "$2b$10$nGsrEt2KmLW.v/UWniHzpud6fu3D4Kpqoq0KM43qx6BoDnGQ2eAgS",
+    "customerName": "有限会社マインドビジネス",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M016",
+    "password": "$2b$10$TFtZU.JyY0OsR7jQjD4WFO558n5BEsD5bun.PItFVN0zxTfRQmptS",
+    "customerName": "株式会社村山事務器",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M017",
+    "password": "$2b$10$Vqp.tQM2yfscEySGSJcKEuitTetJi16JFvKFV/XDyizRNS4BD9ATa",
+    "customerName": "有限会社水口企業",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M018",
+    "password": "$2b$10$qULE4wyGE/4Xs5ApLV6SfOtYJ9l8RqIPHJ9E.XuGeOeAqDtxc4oui",
+    "customerName": "マニワ事務機",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M019",
+    "password": "$2b$10$KJmsLwqm0W1rwXKjIm1Qp.fs3NgGRpZ7J2o.uW4sM5GJgCUSk6tKu",
+    "customerName": "有限会社三宅事務機",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M020",
+    "password": "$2b$10$g39vZ4q62MtsBXOcHUkCLeg1s4j11nTQC1w.Qh/O.3Mn7JdhLaXYS",
+    "customerName": "株式会社まつみ商会",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M021",
+    "password": "$2b$10$tBDWNxtQzHNuVbXkMb5zB.sGpJP1cZGQEm8j/62t25CVG6vQ9tsIK",
+    "customerName": "有限会社丸高 マルタカ商事",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M022",
+    "password": "$2b$10$DALjwyONEN7VB0833bWOCOv5UXf8KcNBHUUkn0y.cRpGOzfYj766C",
+    "customerName": "宮野木機工株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M023",
+    "password": "$2b$10$fZYwTOqFuWpS9r8D3Gm2/ucaAQOQZQUK7vNYqPSBgKNwl6QVIvYKK",
+    "customerName": "三岡商事株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M024",
+    "password": "$2b$10$DgAXbhfzP89YDPpPUZoOL.fhqXqXsDm5iCbvR/xn7TimqGI3Hdz8O",
+    "customerName": "有限会社室中文苑堂",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M025",
+    "password": "$2b$10$R/9Khftxk7I7KC4cXBcLiuhSmYYcKhvZXqukOkQApVbkwRQF0hLZ6",
+    "customerName": "株式会社丸一タバタ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M026",
+    "password": "$2b$10$tXmKbquwuomh3pAMln9DJe71l9YGbOqGjrUV/OPz.UIEO.5WA3H9W",
+    "customerName": "株式会社マルベックシステム",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M027",
+    "password": "$2b$10$JYPTkqVuPRq5NFCRm/9zGePdqqCbUqwAU4oQMQpikmfk/ocHQ31q2",
+    "customerName": "有限会社マールビジネスカンパニ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M028",
+    "password": "$2b$10$wt982AdrYGtZ8F7pD4M5Wel.yInbwH4ZOFfD6Cq/ZzhbBmuCtMvna",
+    "customerName": "松尾商事株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M029",
+    "password": "$2b$10$unYA3DcRTSZGj1Gc8mBtc.iN545sWB5QnpoGts2PzByllFZeIhSAW",
+    "customerName": "株式会社前川商店",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M030",
+    "password": "$2b$10$.pf.SGb7PEa6tK2NjfAKO.wvSR8TlHXfE.9f50j0d6geUnRD7UETC",
+    "customerName": "メディア株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M031",
+    "password": "$2b$10$ppSP2lhOpI/FkvoSaXiHS.VXaOKQI462r5/GZfRC5T/cQN6ICfeP.",
+    "customerName": "有限会社円尾商店",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "M032",
+    "password": "$2b$10$RTXMYi9OrgLpVfEfY6Y4JOUBaWLEoAh05pBdd.NiYogIcdf3b6k6G",
+    "customerName": "株式会社メディコス",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "N001",
+    "password": "$2b$10$y2s7J0N28ar7UYQtqkjhReUC1WTnNALKWmOV2bluGbWpXIgcUPV8e",
+    "customerName": "有限会社中川商会",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "N002",
+    "password": "$2b$10$DGBKdTHR5wCAz6gR8lBP0OT5.6LgM7B4EYyajFTezXq6308KlAEKy",
+    "customerName": "中村事務機販売株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "N003",
+    "password": "$2b$10$lWlv1CFp0QX4rNun.fdAGu3XzbLP.N7SJHh34jpCbAc2BnlRyX2d6",
+    "customerName": "株式会社ネクスト",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "N004",
+    "password": "$2b$10$.XsVIsgX6X3ibIFwiLgT7OCswHlPrFzY0pujuFuY.NkHl89UPpSnq",
+    "customerName": "日本ナインスター株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "N005",
+    "password": "$2b$10$IV2IMqATPbfaUWHMGGxOeOlZebX0f2m0y4dlvvU805IaTIn20Ej9a",
+    "customerName": "株式会社ネットエース",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "N006",
+    "password": "$2b$10$K2nFXloZhTwuA1LZoAuRv.XUWYKflNMPRfMnepVr4GU27U0rId4Gm",
+    "customerName": "株式会社ナカガワ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "N007",
+    "password": "$2b$10$69VOlnEWHY24aFvOTXQto.OMOC1eNGByyCdrhNmOmbN11lVGoJN7C",
+    "customerName": "ナダ商事株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "N008",
+    "password": "$2b$10$oG/9zu9h0zFl7lCwuqev9eRwGldlFONDatplvwupB9wka5pU3iHyu",
+    "customerName": "有限会社ネコス長崎",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "N009",
+    "password": "$2b$10$HcYTgV4WoUfNIY3oJZAI1eEilC8QGgb95AO2zOdH0a3mFgus6SI72",
+    "customerName": "株式会社中万本店",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "N010",
+    "password": "$2b$10$qy152ttJeNFuAJ9Zjtoq6ulFOJWd5/9I3YdZFt0KoyzoeZcWx.JZe",
+    "customerName": "株式会社長島文宝堂",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "N011",
+    "password": "$2b$10$bzSAurjXkLwXoxoXEZaknOCybFCWX.FVE7GCeCbtRK9L6JKLaD2Dy",
+    "customerName": "NEICS合同会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "N012",
+    "password": "$2b$10$aqEGqQp7qD5GqAMbCmEG7uyNwFV4/rwco4t9Fwhdy02tHUc7cJ2BK",
+    "customerName": "日商器材株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "N013",
+    "password": "$2b$10$Bq3gq9nipYRIdOwyZ147Ve04HsXAPhnabVRRaBPE6NNLK8tCKpD4.",
+    "customerName": "株式会社日本ポイントサービス",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "N014",
+    "password": "$2b$10$I76wUo.6aKPqnkLzyda8meLBn1XYf7ehMTwFQodOSg4QNgjYwntK6",
+    "customerName": "[廃業]日本アイワシステム株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "N015",
+    "password": "$2b$10$aSwW/1.rbuwm61NRoHXNwuEiDcW6SpoJ.VlXploGig3SHpce2gtCu",
+    "customerName": "株式会社ﾅｶﾉ商会",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "N016",
+    "password": "$2b$10$WzBHnXcFYEjseXF0PeA1ou/5A1mK1dRkO22E1jWRjAGyF70hyu55m",
+    "customerName": "有限会社ナガノコミュニケーションシステムズ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "N017",
+    "password": "$2b$10$rVw6v050TvjCsbMBrQvuROAxEMJN2u0dkLzN.507gE32tNg7418nO",
+    "customerName": "有限会社ノアック",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "N018",
+    "password": "$2b$10$7rPi4ojWxMyaAF9bWsCWO.KIy1UBa.M4Uuw0INlHZTcUZcLjG1S0a",
+    "customerName": "有限会社ニチエイ事務機販売サービス",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "N019",
+    "password": "$2b$10$xy5k/EK7WnAImarbCQJ.a.3ZQGKrb2jmbxuSW3ZItEo0mYVD7qJ0u",
+    "customerName": "有限会社ニシイ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "N020",
+    "password": "$2b$10$3V0TQzfjS9jj1GdzfhVs0.8zdPQ5JK2AJ3XuZzpTYi4BgYYEpXLsu",
+    "customerName": "エヌユーケイアイ株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "N021",
+    "password": "$2b$10$wxDjd5eyExxmxOagiiL25ORhpFhAv.JE507hcYaLtjp8HqcoEIGwm",
+    "customerName": "エヌシーアイ販売株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "N022",
+    "password": "$2b$10$oZOJP7nuZHMOAeHsacrbgOiAGb9nhjnFfQ5A/KJkGKJ3sfnROShI2",
+    "customerName": "長崎事務設備販売株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "O001",
+    "password": "$2b$10$FRUvxlOXUL1KX6jld7my2ODdQ6yLObwf.2CiaCiPXvgvcvbyJt/AK",
+    "customerName": "有限会社オムテップ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "O002",
+    "password": "$2b$10$Uc3U/qUY4bC4jpVrtP4z0eNDs9ZMoqQ39pb0Mjqi2IWoEdpCPEb9y",
+    "customerName": "有限会社奥山文具店",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "O003",
+    "password": "$2b$10$c7668vaETMojOslFTDsxyOYH4QHq3R0.LwDV8C/DLkuv6OFh8PsPi",
+    "customerName": "株式会社オフィスサポートBP",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "O004",
+    "password": "$2b$10$jCCYv0t/cGEKzausggq8XO7ocYIvwnLzmHwdMt1rHUjWHcpKiFYWi",
+    "customerName": "有限会社奥州ネット",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "O005",
+    "password": "$2b$10$rlRe6.uiVhVDGEkF4tRgoOOeiCUsVm0S9pRsXX4ewk.WK6y36IkdK",
+    "customerName": "株式会社大前",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "O006",
+    "password": "$2b$10$cIUjAaTjiCGExCbssDvOOuoq5NbgbvcLpaTsmWGvsQk8eq2lta/DO",
+    "customerName": "オルテム株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "O007",
+    "password": "$2b$10$wCKKRJq9Bwe6/v.A7zi3SO/sZpyMDc1ykUjfqUwAiO2gN1lXcjufK",
+    "customerName": "株式会社OAサプライ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "O008",
+    "password": "$2b$10$SzofjhFMnTOjYyDvJFCb/ez86JuNniw79CgcbHITN3N/sq9QEi.oq",
+    "customerName": "株式会社小椋",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "O009",
+    "password": "$2b$10$H34IlyExefLbPhL4GJypUOmWHo0X/1nNkyq.GzYejYBVs/PLHZi8i",
+    "customerName": "有限会社オフィス東武",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "O010",
+    "password": "$2b$10$H2hebzWuS0AKxg2d60hHKO5QD1pM7wkG5lU.9XqFxM3V29bSCen9i",
+    "customerName": "オンダ文具店",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "O011",
+    "password": "$2b$10$EYmMVN4c7POW2Aqw9jVFD.pL9C/IDhAc860B9dxMcZrxEYBBJWXUi",
+    "customerName": "株式会社オーイシ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "O012",
+    "password": "$2b$10$PngM8AJq7piy5MEhUOR3xuI7Nfi3C168BSuDLNok09FxBvjFbWdQG",
+    "customerName": "オフィスHIRO株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "O013",
+    "password": "$2b$10$JBV8vE4VuesHfSntSOmtCeWWG9pGAXxUuK.fibyM8mtF5XVajC0wu",
+    "customerName": "岡本産業株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "O014",
+    "password": "$2b$10$djMySKdhTyHKkPpTE4bJme5e6bkpDqO0bV0XQRm2QV88TdzacAxHC",
+    "customerName": "株式会社オフィスジャパン",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "O015",
+    "password": "$2b$10$HbAMI6AchVgM9uAT0LILjuZfOExvZBSVct3tSVEX3C2XtBLLIm8r.",
+    "customerName": "オルファー株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "O016",
+    "password": "$2b$10$NlWmUj3pxJUCzFwmOr1YAOxtT6jACnPhE1NDjm9VqpiNkUR8bj1Be",
+    "customerName": "株式会社オフィスサプライ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "O017",
+    "password": "$2b$10$lapwudUg/CJX0bmpEj/NfuwzCD5hCsV0IAZoMIs9rXAwwVKiXra32",
+    "customerName": "株式会社オフィスジャパン第2機器工場",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "O018",
+    "password": "$2b$10$xag4fCBjrQZYNsWITbaOJuxigH0Q/PGqwwDjkiadwnBOgZJ/.my.G",
+    "customerName": "株式会社落合商会",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "O019",
+    "password": "$2b$10$0BuI2wqOulfEz.xrYAI2P.pWj17NN2kzBAP4C.tLJARrOdi0Hk3pW",
+    "customerName": "株式会社オーシャンサプライ東北",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "O020",
+    "password": "$2b$10$awzO8LeaTUtAbrS47QVbfeh.ulEhXCIH2W1smgK3oG/pWBrDLFFpe",
+    "customerName": "株式会社OAテック",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "P001",
+    "password": "$2b$10$EHvliOC9qt7u6v3eYZUv.eWDtljq/j./rc.XIWVv2dfME88SHO3wK",
+    "customerName": "株式会社プロス",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "R001",
+    "password": "$2b$10$oiOpd8tdJLAs.JzU4wa2Ue7aVco4rovj6A6faNcpZRro6KfAHc/d.",
+    "customerName": "株式会社レジスタ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "R002",
+    "password": "$2b$10$krunWxGyQsLCL4rdgXTKEui74lOqUZR3kytAN.c2c53R8MlARkg8y",
+    "customerName": "有限会社リンカー情報システム",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "R003",
+    "password": "$2b$10$MaX12rIL32SPF/M9rFykKeDsRHTVOgZPD3bAF7f.mCJ0IN84.LDUu",
+    "customerName": "株式会社リーアルネット",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "R004",
+    "password": "$2b$10$B00HcGN5TzFUv8OhpuQF.OxTKPoWy4vqBD76uFQlYwKU6V3GQv4MW",
+    "customerName": "株式会社リンテック",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S001",
+    "password": "$2b$10$0iyik65.TxFOhz6KkXf03OjJIvVSsc0HPd55d7iZ7OPc8SXEQLyGO",
+    "customerName": "株式会社鈴富",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S002",
+    "password": "$2b$10$Gwcx3ZiolJ4eAYcnK18SgeN96zH5MD6nTkNb2NyJT2ZALfrpdPyY2",
+    "customerName": "株式会社新月堂",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S003",
+    "password": "$2b$10$k/nf/qJc6zhNmy1IjdkSduKpZbSbZDhgW0f2Sek12BdbBKrS3wOli",
+    "customerName": "有限会社正文堂",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S004",
+    "password": "$2b$10$o5f9Ljs6Se.sv6XlTsbcO.P/MaXwuHhbibQ8tCr1kvPNEcDp52F4K",
+    "customerName": "四国事務機株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S005",
+    "password": "$2b$10$t0dvfqI3L7XtDkg9uZ3D4eImRi/UYtbV.R/xjT9iKCmkLg76nfsrG",
+    "customerName": "株式会社シンコウビジネスサポート",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S006",
+    "password": "$2b$10$ZyeQvjPYDN2OXNUqye1Qa.Y9dPIvPzQDppI1YCWJP6laseJs41OQm",
+    "customerName": "有限会社すずきや",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S007",
+    "password": "$2b$10$EMjgKa3VwqL/Acsg0tQcIOipTOio26zCIpDR/Aut6Bh4nDoJKvzr.",
+    "customerName": "株式会社サンテックトナー",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S008",
+    "password": "$2b$10$bYVm3gdq/nZto7aiJpRCjOzPZ1JJpTKcYPxIAK13TjAQEO/BqpW4y",
+    "customerName": "有限会社シオヤ文具",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S009",
+    "password": "$2b$10$fVhYiLm5vsbvWLBtUXP.QOwdXzuz8PULFs4gKwBKlYJFgbUsBPG8q",
+    "customerName": "有限会社サンセイトレーディング",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S010",
+    "password": "$2b$10$/izvxJEzxBNt5HFuAAZlhuDeaOOqo564Upm8rhqy3t/J54azBy.5W",
+    "customerName": "株式会社スカイビジネス",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S011",
+    "password": "$2b$10$W5oUeX7twDyZgrnxfgfJPuzTWjnTVQYAi4wJA0A3I4ebO.qw1buXW",
+    "customerName": "株式会社サーパスオフィス",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S012",
+    "password": "$2b$10$dFY6iupl7aOyWhDR7AsQ/eDGAjVcn5fvs9aGy2k7KZJ5uAV2WiHRO",
+    "customerName": "株式会社信交社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S013",
+    "password": "$2b$10$Aru4iENai4Ul5qLg1vTr3OKwDGjqJgdEpHftkSIE3pC31ugl/5RzK",
+    "customerName": "株式会社三和商会",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S014",
+    "password": "$2b$10$XGZXtjAn67.PQdYEOziWGucZOoZTek0L/eXqUPI9XumhPAk9/I36G",
+    "customerName": "エスピーメディアテック株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S015",
+    "password": "$2b$10$NmLjPA9.rIMlb2jOmmnfm.3IPDbMocCYm1dBYNrQEmyvr.EStjDrS",
+    "customerName": "株式会社SKY",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S016",
+    "password": "$2b$10$PHT9CVmj33rt0eHAr20gyOggKMSp88NSzwk8VhB3LCNJOBEht/ZxK",
+    "customerName": "有限会社サンシステム",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S017",
+    "password": "$2b$10$/Svvs465GAO7Mgq1aeHA2eioJ4qaDO5lG2zqbmd3.mSghtkV8h3ka",
+    "customerName": "株式会社システム・コア",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S018",
+    "password": "$2b$10$.3d7u2TMPbQvKuGcYgsAsOWQ0BRTbsN.FaSL3rmlxiSYRy2LzvSX.",
+    "customerName": "サカタケムテック株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S019",
+    "password": "$2b$10$aEcIN3zB1juYJMqiGAr9Beg/Z1wsB4msx7OnfLegZ639QVcWVYDVi",
+    "customerName": "ソフトビジネス",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S020",
+    "password": "$2b$10$ci/YosOMWqTpZuPOEUHDWOr3DFfdOIsoamEj.vcWZGLf90igORk0.",
+    "customerName": "株式会社ソアーズ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S021",
+    "password": "$2b$10$YWfnUdEYbgvsEJqvc9CGqeEneDx5sZQc2N9Ec..DOXnyfx//OyoeS",
+    "customerName": "株式会社ソコロシステムズ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S022",
+    "password": "$2b$10$8.5LXI8VTt7MUDnI65Xj1.N4/AVi0Z1vtSOfTG0mGXhoc0IsFvE0K",
+    "customerName": "株式会社三栄事務機",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S023",
+    "password": "$2b$10$S1KwVOIYbTDsVvGbNZVWFeBXETqvl53Tz5olNmJ0VQtHqhP6GP/QO",
+    "customerName": "株式会社山河",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S024",
+    "password": "$2b$10$DgxiKp1VxZlT3GzbYn4mgOLr6ABJOVolsbb/fYZPRB83XLWYjE8T6",
+    "customerName": "有限会社サトウ事務機器",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S025",
+    "password": "$2b$10$DUzpTmIsfYKKcO9Koux9ae.kU/Y0NFJ9tUzLyKgpD/jqEUbWbpmlm",
+    "customerName": "サンライズソフト株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S026",
+    "password": "$2b$10$hZ8mdp5Gn6K.RHV0xjJEIuq1qsfOvF1jMafEwqKpgLHzDKrexNNjm",
+    "customerName": "株式会社スジヤ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S027",
+    "password": "$2b$10$8HMsVKMex264d5cfhRuAkOIc5qB.iaMGZCFcvYChevZPspHiervRK",
+    "customerName": "株式会社サンワ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S028",
+    "password": "$2b$10$tCgUqrVjiPlZm6gxm.8Lo.JqCIcq2zg1iomMrMxgDxMiMSR2xsriK",
+    "customerName": "有限会社サプライプラニング",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S029",
+    "password": "$2b$10$F1K1YF3nUsN5Mfdd.vTfc.BADwbe4gX9NBrF8C6h8g3KgUN43CBpC",
+    "customerName": "サンコー株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S030",
+    "password": "$2b$10$0Lxjo8tP4x9fEXjYeiJzYOjeZnRUN622Y3Ka62Rq6br.ogjiJoU2m",
+    "customerName": "有限会社秀峰堂",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S031",
+    "password": "$2b$10$uJQpdlLutR21pSDeIq9K5OEQTqIF5heR6yl4muNnDgTDm8HmO7G5e",
+    "customerName": "株式会社瀬利宗助商店",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S032",
+    "password": "$2b$10$.a1GTsYfEQPQDPc2unB/V.fVKaXBC0Fk05S9hzwbOyoxtgOydkrkm",
+    "customerName": "株式会社シー・ビー・エス",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S033",
+    "password": "$2b$10$AQBjxc3civZqElv8gAUjXuOk5gMcleme8pax136GctXRZts27VKjO",
+    "customerName": "株式会社昇建",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S034",
+    "password": "$2b$10$ncjk28P9Jmc3T3ZRT7U1cOjQawNEN0u0eU/XmYxC4u/LFhld/UlnK",
+    "customerName": "株式会社S.I.T",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S035",
+    "password": "$2b$10$THaNG2d4qXHw9dKtia42tOQCTkHmfszXqtMgYvyVkfp9sxYSd8Kg2",
+    "customerName": "セラフィム・ワン株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S036",
+    "password": "$2b$10$7TBuQEYhEdVJx69SDDiL7eWn47vreeCb20jzlRypF8J.0cqVBNozO",
+    "customerName": "株式会社 島村謄文堂",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S037",
+    "password": "$2b$10$HCjLfe4fstl1XCFs6ItlFOQc3hK/B8YXX8tFRD6iUtgYBHR0hMNpq",
+    "customerName": "ソック株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S038",
+    "password": "$2b$10$bP5oshhtNjHhnwEzVRLITe/7hKHwwnVraMroytQSPsxMXw1NXXUbS",
+    "customerName": "株式会社桜田商事",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S039",
+    "password": "$2b$10$lN7HRnhlqeWQKCVnWBgRu.bvQjMV2EFHU07VYWPMXcwMJVhvCMXLG",
+    "customerName": "埼北オーエー機器株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S040",
+    "password": "$2b$10$FaKJrVWX7P1yPQ6/fUbPfuK9ttWdPf5L6NawCtfmVQhXQnh19YcY2",
+    "customerName": "スタープラチナ株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S041",
+    "password": "$2b$10$eDxBLF1r1S2r4Hie0mXpR.V6Zve1hy/pST3mpn9yohN1P1OsouMwi",
+    "customerName": "有限会社サンケイ商会",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S042",
+    "password": "$2b$10$OD1B8SByrJwsLzymvNaE7.aSSEHppWMizmfLZcluwyHbcDl1VvlOq",
+    "customerName": "有限会社後志教材事務機販売",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S043",
+    "password": "$2b$10$qrddMVJrNt4TjcMPBy3Lz.rsqNBfx3o7Wr.FgkWSDe/EFms4.b/xq",
+    "customerName": "株式会社セラビ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "S045",
+    "password": "$2b$10$qVpYJ7ZTgq3deVAQ4/nTheJCGexQKAt5S5.uWuL5KbBzZnv.cHKCq",
+    "customerName": "株式会社セントメイ企画",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T001",
+    "password": "$2b$10$.kNb8FOWsk7fyF.ODfq//u4cSBcnQeIh5S9GVL6lKAslk8ZZztu/q",
+    "customerName": "株式会社田中紙店",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T002",
+    "password": "$2b$10$rlBBqtXYfxgrLiLR6mTpg.0uptzZt5kLjUko9/3MRkOyDWuVOqfRa",
+    "customerName": "株式会社タナシン",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T003",
+    "password": "$2b$10$X3CDE1N2whaMxkOFFYyzW.xsFzXNdzRabjEgj2N8.1TQBOdCe/PAa",
+    "customerName": "武正株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T004",
+    "password": "$2b$10$wP2P9Eb4rgIEcRYzMwuSj.2Fywgb.4LtpHSIi6XfPRljCgZIsEb3S",
+    "customerName": "東横システム株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T005",
+    "password": "$2b$10$fD9yGeB29ek.fQ7pFYTxWek9Ssj7szE/5JNmY/45rIyP/6Pn3hQny",
+    "customerName": "有限会社トナーサポート",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T006",
+    "password": "$2b$10$T6X34Xb.S1o3mHMGdhVnpOMT0lIVS/GF0VsgCaD3ylZlHV/T3ZdMC",
+    "customerName": "株式会社東京堂",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T007",
+    "password": "$2b$10$yIeqTi7q5AF5YsBPEBGba.GsBfi.Tqo4wb6Y6yLY1HoYwT0HBDJAi",
+    "customerName": "[使用不可]株式会社武中産業",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T008",
+    "password": "$2b$10$O6RziYx7gAuNzYrsSmCA3.RRJ9HUtJjbWt0FITeq0RcDFGhhBJleu",
+    "customerName": "東北計算機",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T009",
+    "password": "$2b$10$Fcz55o.bn6wSl.WS0.VAc.NPKKfQak.Ns2NWZnpZ2suCFdO5G9gd2",
+    "customerName": "株式会社たけのうち電器",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T010",
+    "password": "$2b$10$XJDqjq5bJ.zSN2LSLFEe7Ocm32matB5yXIWE1VMRNf0BbilLeY3xi",
+    "customerName": "株式会社東葛幸文堂",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T011",
+    "password": "$2b$10$xSJflJEmsaZsj.j9KSGh0.aRlnO.SlhdMmeR.6VtxwcOg3Cg/bPlW",
+    "customerName": "株式会社ティーオーシステム",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T012",
+    "password": "$2b$10$.i5btz0xgQ02itwoFypLBOyHCvCTc1uJ3mWITv3rXbmvUItdtgWk2",
+    "customerName": "有限会社トップス",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T013",
+    "password": "$2b$10$x/uOcASdEDORiQp2rLcK..tZZA/4YG5QZAGot9T6IpqmIXMJb9Smq",
+    "customerName": "土江文具店",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T014",
+    "password": "$2b$10$sXdRIoWRg5lf5yNdF6/JvutgZngEZW.ehpiyWQX8couYlr0cSmW3W",
+    "customerName": "株式会社タナシン(経費用)",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T015",
+    "password": "$2b$10$JovYgKvwkDlvJwBOcljMp.EMw0ntaP11B.ZJXTtYhV1o6S0A4qOWO",
+    "customerName": "有限会社タキエ商事",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T016",
+    "password": "$2b$10$jb4xr02a5jSWIwKJLEFGOOZ.ODYHUxw.CxGr9oos5c3q73gauXQym",
+    "customerName": "株式会社東邦ビジネスサプライ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T017",
+    "password": "$2b$10$.4ncRRjWpah2wOBDsQKkLOyQPaRnHx3xLkxYcgWs4hrPBT5FbSlKW",
+    "customerName": "株式会社武中産業",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T018",
+    "password": "$2b$10$lnCZ9mKrTEgxmx6d2VptQuhSQciAG5fMXSyroB1MDDjSYkFT4dRfq",
+    "customerName": "豊印商事",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T019",
+    "password": "$2b$10$WS3tmHUlT.vk6ZLYY1LKbeYFL/4bOiDAMZ9/xxpIdnLrN49y0OdeG",
+    "customerName": "株式会社タケヤ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T020",
+    "password": "$2b$10$.eenof57grH50o/kqsnsteJg81Y6rk9grg5AS8tVUbd.9/bNejsG6",
+    "customerName": "大成文具",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T021",
+    "password": "$2b$10$.yfdY61L2zj49VLocx6uGuaO9iVgF52V1uw/.oTRrAZfyOyOyu4tS",
+    "customerName": "高橋正株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T022",
+    "password": "$2b$10$HIGdmCff5mAAysrPwtFHluFdJuL9nwtFvF1/2AkeT4Htw6VZcNmpG",
+    "customerName": "有限会社津南印刷商事",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T023",
+    "password": "$2b$10$py2xusQuXsO4ePbYzqszFuIFARkgKc4iQcLL31pWNinWp6io9Jnca",
+    "customerName": "株式会社ティ・エス・エス",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T024",
+    "password": "$2b$10$NjX0L66LjDmC0UOU8NX7XuUJosulx7yyUnrHQR/W/H0m3kEsj7Xjm",
+    "customerName": "有限会社東和ヘルメス",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T025",
+    "password": "$2b$10$6ehbVNYFEklPUo9JOILUXeQbaqNAmtoLX1jxICR212vhPkZEwLumy",
+    "customerName": "タネダオフィスシステム株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T026",
+    "password": "$2b$10$.9I3IQJx4ygsMQI6e7I.ReWtwJmI.bAva.cjBcXGDBy4dCj2dnNzG",
+    "customerName": "株式会社トライス",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T027",
+    "password": "$2b$10$7Io0a3OqL/D4helKt4W5meq/XSeeWTdnhaD62BwwkDqDvRvJqGOcm",
+    "customerName": "谷為事務機株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T028",
+    "password": "$2b$10$Ay9JhAPag0ei8vXGYmhMcOHSQH43dSGxzCSAX2G.TqVDneEvVcSwa",
+    "customerName": "株式会社タハラオフィスプランニング",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T029",
+    "password": "$2b$10$YWpXdbo2LRgFoTAdjh6KT.TzGqb/PIfiUR13WmphxKXk7ZPmsIykW",
+    "customerName": "株式会社髙修",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T030",
+    "password": "$2b$10$kjc6ZIuph1gdgozVjmU2ru/VdqMJae57b4p6TRepKUUd5ZAut56SO",
+    "customerName": "株式会社とみや",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T031",
+    "password": "$2b$10$uWmKMemYjM9oJiSW/PDtTOFWayDCOr5vIx6Hf6MKLxppDY7i162ie",
+    "customerName": "有限会社高銀商店",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T032",
+    "password": "$2b$10$OsysdHMem.CsV5wYxUa9o.CDBsNtjZ/2yB3M6fgC4XaOsGSRDqn0K",
+    "customerName": "株式会社タカギ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T033",
+    "password": "$2b$10$7W/E/cxnSF.zIUtJ7JdA.O8bFo/witn0gUP3Wq4RFFRDh9LTn06tu",
+    "customerName": "株式会社舘野オフィスサービス",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "T034",
+    "password": "$2b$10$.xric4DvJxQA9ElemAaQZekm2QochTRXvvn0.erGDt3a4Lv6G7N2y",
+    "customerName": "株式会社高塚文具",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "U001",
+    "password": "$2b$10$CPyCluObVSkTdS5tARhJzudq1C7D3xIiXXFbVrDyB4vg44wEPJqNO",
+    "customerName": "有限会社上野城山堂",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "U002",
+    "password": "$2b$10$Oj6KelgvrWeyhzwVBfPRMO/yYHNlOK0u9Sx0LKBYJCBXWASf.I8Eq",
+    "customerName": "株式会社UNISON LINK",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "U003",
+    "password": "$2b$10$8O0bd84FqrLzVlWQwaMGjOIhePU7B4BzJCoCMSup8PVryZANVtXZa",
+    "customerName": "ウォークメディア株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "W001",
+    "password": "$2b$10$i3/BTBdBlXU9As3RxPuFfuv6q0CapWW8YTAG2.038LpCDt9RWmjJC",
+    "customerName": "株式会社ワールドコミュニケーションズ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "W002",
+    "password": "$2b$10$FeVYIoOhS8t34e95mGvsgehpH4Zl3lxpobVMrWVpZCyBgWo6k1wN2",
+    "customerName": "株式会社West Japan System",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "W003",
+    "password": "$2b$10$HTu80kk3D6hcT7KDgd5tMu/XAj1MTlYAOL2hvFMxeMCzrluUJ2VIm",
+    "customerName": "株式会社ワカヤマ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "W004",
+    "password": "$2b$10$oD.4AzhyWEaWXuvCR.lNsu2i2wAYYcSS9EP7obEWaCeoPk2pFyWIy",
+    "customerName": "有限会社和田事務機",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "Y001",
+    "password": "$2b$10$321y/c/r7yuGg68yYhRhIOqimIkkWfvOwQi/sIJbp8w7fguoH2Sta",
+    "customerName": "株式会社祐文堂",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "Y002",
+    "password": "$2b$10$kQOS99ELl9.dQF4VE8T4PeO25W3KNDMyRlHGEyWbkQD..gnWp2qBe",
+    "customerName": "株式会社ヤブキ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "Y003",
+    "password": "$2b$10$fYQKqj/KkshkWnNHITGUfeqfhB6k6iQLDeRHv36fS8hRfIJLPGbsq",
+    "customerName": "株式会社山田事務機",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "Y004",
+    "password": "$2b$10$7PDmycA0YXGLvZ6Eo8Tkdubn1hxi5H7abX9Eplf7posesbBLd8gJ6",
+    "customerName": "株式会社山本商会",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "Y005",
+    "password": "$2b$10$neMqG30XgGHYdOJEjUtoUO1sKN9upec2dSwHvgxxM0jYSP1ABT18W",
+    "customerName": "山崎事務機株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "Y006",
+    "password": "$2b$10$Ap3JGEnXhfZKqOunxBIHGuz90U/uhZBlfsahQ1Lz.6dW0NpH4BiPC",
+    "customerName": "有限会社山中",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "Y007",
+    "password": "$2b$10$O/bVFojgnorZmMGWPICDmeYd1ahO7SzsUI.B0ujExOX6xFokGyjMC",
+    "customerName": "株式会社ヤマサ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "Y008",
+    "password": "$2b$10$RiPWEpm5sSjMwFbyMEXIe.Fl4Nq0oV7PAekCtPWdU4CYdgumYo9xO",
+    "customerName": "株式会社山内商会",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "Y009",
+    "password": "$2b$10$44479jH7mYwhx0821BlhOOzGFVANGyQOPJx473yxB5hoJnfzuNxmS",
+    "customerName": "株式会社ワイエスカスタマ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "Y010",
+    "password": "$2b$10$S.dqenAjeyhmpIcLrXvLYewW3do5z2Pzuphgg1uHagmw2fSPIQTEC",
+    "customerName": "株式会社ヤマス",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "Y011",
+    "password": "$2b$10$X1BEAnmudHZLobZAJltZBeHQ1MDVI4.951p4ZxB.tfCP.TFRFWDI6",
+    "customerName": "ヤマモト株式会社",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "Y012",
+    "password": "$2b$10$z105mBeVbDwbLw7YLDqS4.y6Xv1nxuDMo92HdKhSyiE/ZLeXtPwwa",
+    "customerName": "株式会社山田",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "Y013",
+    "password": "$2b$10$4qP7jIcyfJAJlnt3pKPIoeoPUuFpPiRjy35z876Zqy.7JdsMonJ0m",
+    "customerName": "株式会社山中躍仙堂",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "Y014",
+    "password": "$2b$10$4EEqyt86Jmm0CpmHoA1By.OJOI3YR58ZOA85Q6oHT2TCM36bgvQl6",
+    "customerName": "株式会社有隣堂 公共・文教営業本部",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "Y015",
+    "password": "$2b$10$ghj9HZ6O97YEs5gbDbSrf.jRfsLtKWztWScViPD8jRXRoRPTyNONi",
+    "customerName": "株式会社大和屋",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "Y016",
+    "password": "$2b$10$MweXNDv15j.hxtUq/.hxZetCnZQd7qkvdiMOIvOKGm2rEjAHMI8WK",
+    "customerName": "株式会社有隣堂 藤沢営業所",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "Y017",
+    "password": "$2b$10$NV3MLZ/EUHKlx1eR63b8fuehGBA./3AL7GlG/V0XmeJZy.aQsV5YO",
+    "customerName": "ヤオマツ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "Y018",
+    "password": "$2b$10$dpa09HbWW3d3hK9TSZPdbu2VNcPVoqHyEFkzWVVuYr0diPexTfXvG",
+    "customerName": "パソコン屋ゆめ工房",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "Y019",
+    "password": "$2b$10$mmX1HbXey8SKHFcZEn7rIOyhcvf6o6Z86eLgrJBTCDxz9mkuZGG7K",
+    "customerName": "株式会社ヨシヅカ",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "Y020",
+    "password": "$2b$10$Bs0R9CfuBEkxIjlck3gVwu5zPeGTivbK0xR/UqvqvPITJ789/MJZ6",
+    "customerName": "萬屋紙店",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "Y022",
+    "password": "$2b$10$Pjve5kGf29xPCFdk6La7guoHrYvxtKZxHQB3a9EVVD/.w6fOXUoyK",
+    "customerName": "有限会社山中　柳井店",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "Y023",
+    "password": "$2b$10$i3tjOYVCDLfWz1D7afWpd.EZIf2Y4f9XZKVmUBDkkVKqykTTPZjaW",
+    "customerName": "有限会社山中　周南店",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "Y024",
+    "password": "$2b$10$crqkpl8qHGggRTcSbBhN3.atrxmqy5sY1RoF08HRdYRdUD58ompJG",
+    "customerName": "有限会社山中　岩国店",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "Y025",
+    "password": "$2b$10$8WzogxYhOXt.jUe5yU2GEuvg1GCN8WVS2/NjiWDrzv/xmbjrbr8jy",
+    "customerName": "有限会社ヤマイチ文具",
+    "priceRank": "A"
+  },
+  {
+    "customerId": "Y026",
+    "password": "$2b$10$DZBaeCjJkpVJQOjregSYeumPwqKTdoCQWYSEFz1AtpDVgH12KEHF6",
+    "customerName": "ユニフレックス株式会社",
+    "priceRank": "A"
+  }
+]

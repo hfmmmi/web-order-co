@@ -1,0 +1,4222 @@
+[
+    {
+      "orderId": 1762462949380,
+      "orderDate": "2025-11-06T21:02:29.380Z",
+      "customerId": "testuser2",
+      "items": [
+        {
+          "code": "P-001",
+          "quantity": 1
+        },
+        {
+          "code": "P-002",
+          "quantity": 2
+        },
+        {
+          "code": "P-003",
+          "quantity": 3
+        },
+        {
+          "code": "P-004",
+          "quantity": 4
+        }
+      ],
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1762462976208,
+      "orderDate": "2025-11-06T21:02:56.208Z",
+      "customerId": "testuser2",
+      "items": [
+        {
+          "code": "P-001",
+          "quantity": 9
+        }
+      ],
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1762585572926,
+      "orderDate": "2025-11-08T07:06:12.926Z",
+      "customerId": "testuser2",
+      "items": [
+        {
+          "code": "P-001",
+          "quantity": 1
+        }
+      ],
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1762585614990,
+      "orderDate": "2025-11-08T07:06:54.990Z",
+      "customerId": "testuser2",
+      "items": [
+        {
+          "code": "P-001",
+          "quantity": 4
+        }
+      ],
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1762585871805,
+      "orderDate": "2025-11-08T07:11:11.805Z",
+      "customerId": "testuser2",
+      "items": [
+        {
+          "code": "P-001",
+          "quantity": 1
+        }
+      ],
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1762978526168,
+      "orderDate": "2025-11-12T20:15:26.168Z",
+      "customerId": "testuser2",
+      "items": [
+        {
+          "code": "P-001",
+          "quantity": 3
+        },
+        {
+          "code": "P-002",
+          "quantity": 2
+        },
+        {
+          "code": "P-003",
+          "quantity": 1
+        },
+        {
+          "code": "P-004",
+          "quantity": 1
+        }
+      ],
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1763752362151,
+      "orderDate": "2025-11-21T19:12:42.151Z",
+      "customerId": "testuser2",
+      "items": [
+        {
+          "code": "P-003",
+          "quantity": 3
+        }
+      ],
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1764618592149,
+      "orderDate": "2025-12-01T19:49:52.149Z",
+      "customerId": "testuser2",
+      "items": [
+        {
+          "code": "P-003",
+          "quantity": 1
+        },
+        {
+          "code": "P-004",
+          "quantity": 2
+        },
+        {
+          "code": "4200H",
+          "quantity": 3
+        },
+        {
+          "code": "P-00122",
+          "quantity": 4
+        },
+        {
+          "code": "P-001111",
+          "quantity": 5
+        }
+      ],
+      "deliveryInfo": {
+        "date": "2025-12-03",
+        "address": "長野県上田市保野1039-13",
+        "note": "AM着希望　納品書不要"
+      },
+      "status": "発送済",
+      "deliveryCompany": "佐川",
+      "trackingNumber": "111122223333",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1764660063891,
+      "orderDate": "2025-12-02T07:21:03.891Z",
+      "customerId": "testuser2",
+      "items": [
+        {
+          "code": "TEST-0033",
+          "quantity": 1
+        },
+        {
+          "code": "TEST-0022",
+          "quantity": 2
+        },
+        {
+          "code": "TEST-0011",
+          "quantity": 3
+        }
+      ],
+      "deliveryInfo": {
+        "date": "2025-12-04",
+        "address": "長野県上田市保野1039-13",
+        "note": ""
+      },
+      "status": "発送済",
+      "deliveryCompany": "ヤマト",
+      "trackingNumber": "123456789",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1764891932831,
+      "orderDate": "2025-12-04T23:45:32.831Z",
+      "customerId": "testuser2",
+      "items": [
+        {
+          "code": "P-003",
+          "quantity": 100
+        }
+      ],
+      "deliveryInfo": {
+        "date": "2025-12-08",
+        "address": "ブラジルブラジルブラジルブラジルブラジルブラジル",
+        "note": "イタリアイタリアイタリアイタリア"
+      },
+      "status": "発送済",
+      "deliveryCompany": "やまざる急便",
+      "trackingNumber": "0000111122229999",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1764963478212,
+      "orderDate": "2025-12-05T19:37:58.212Z",
+      "customerId": "testuser2",
+      "items": [
+        {
+          "code": "P-004",
+          "quantity": 100
+        }
+      ],
+      "deliveryInfo": {
+        "date": "2025-12-08",
+        "address": "長野県上田市保野ブラジルブラジル",
+        "note": "AM"
+      },
+      "status": "発送済",
+      "deliveryCompany": "禿げやま運輸",
+      "trackingNumber": "123456789",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1765087250725,
+      "orderDate": "2025-12-07T06:00:50.725Z",
+      "customerId": "testuser2",
+      "items": [
+        {
+          "code": "4200H",
+          "quantity": 100
+        }
+      ],
+      "deliveryInfo": {
+        "date": "2025-12-08",
+        "address": "長野県上田市保野1039-13",
+        "note": "am"
+      },
+      "status": "発送済",
+      "deliveryCompany": "やまやま運輸",
+      "trackingNumber": "0000111122223333",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1765136935281,
+      "orderDate": "2025-12-07T19:48:55.281Z",
+      "customerId": "testuser2",
+      "items": [
+        {
+          "code": "P-00122",
+          "quantity": 100
+        }
+      ],
+      "deliveryInfo": {
+        "date": "2025-12-09",
+        "address": "長野県上田市保野1039-13",
+        "note": "111"
+      },
+      "status": "発送済",
+      "deliveryCompany": "クリスマス運輸",
+      "trackingNumber": "000111222",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1765223987214,
+      "orderDate": "2025-12-08T19:59:47.214Z",
+      "customerId": "testuser2",
+      "items": [
+        {
+          "code": "P-001111",
+          "quantity": 100
+        }
+      ],
+      "deliveryInfo": {
+        "date": "2025-12-10",
+        "address": "長野県上田市保野1039-13",
+        "note": "なし"
+      },
+      "status": "発送済",
+      "deliveryCompany": "禿げたか運輸",
+      "trackingNumber": "00112233",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1765483270479,
+      "orderDate": "2025-12-11T20:01:10.479Z",
+      "customerId": "testuser2",
+      "items": [
+        {
+          "code": "P-00311",
+          "name": "すごい商品CCC",
+          "price": 30000,
+          "quantity": 100
+        }
+      ],
+      "deliveryInfo": {
+        "date": "2025-12-15",
+        "address": "長野県上田市保野1039-13",
+        "note": "am"
+      },
+      "status": "発送済",
+      "deliveryCompany": "早朝運輸",
+      "trackingNumber": "123456789",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1765485386219,
+      "orderDate": "2025-12-11T20:36:26.219Z",
+      "customerId": "testuser2",
+      "items": [
+        {
+          "code": "TEST-0022",
+          "name": "CSVテスト商品Bb",
+          "price": 1000,
+          "quantity": 100
+        }
+      ],
+      "deliveryInfo": {
+        "date": "2025-12-15",
+        "address": "長野県上田市保野1039-13",
+        "note": ""
+      },
+      "status": "未発送",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1765619884572,
+      "orderDate": "2025-12-13T09:58:04.572Z",
+      "customerId": "testuser2",
+      "items": [
+        {
+          "code": "P-001",
+          "name": "トナーカートリッジ 055H (ブラック)",
+          "price": 900,
+          "quantity": 100
+        }
+      ],
+      "deliveryInfo": {
+        "date": "2025-12-15",
+        "address": "長野県上田市保野1039-13",
+        "note": "ooo"
+      },
+      "status": "未発送",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1765658517751,
+      "orderDate": "2025-12-13T20:41:57.751Z",
+      "customerId": "testuser2",
+      "items": [
+        {
+          "code": "P-002",
+          "name": "トナーカートリッジ 055H (ブラック) リサイクル",
+          "price": 6000,
+          "quantity": 100
+        }
+      ],
+      "deliveryInfo": {
+        "date": "2025-12-15",
+        "address": "山梨県南アルプス市中野",
+        "note": "11"
+      },
+      "status": "未発送",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1765831113251,
+      "orderDate": "2025-12-15T20:38:33.251Z",
+      "customerId": "testuser2",
+      "items": [
+        {
+          "code": "P-004",
+          "name": "IPSiO SP トナー C840H ブラック 汎用品",
+          "price": 1,
+          "quantity": 200
+        },
+        {
+          "code": "P-001",
+          "name": "トナーカートリッジ 055H (ブラック)",
+          "price": 900,
+          "quantity": 10
+        }
+      ],
+      "deliveryInfo": {
+        "date": "2025-12-17",
+        "address": "長野県上田市保野1039-13",
+        "note": "あああ"
+      },
+      "status": "未発送",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1766000183473,
+      "orderDate": "2025-12-17T19:36:23.473Z",
+      "customerId": "testuser2",
+      "items": [
+        {
+          "code": "4200H",
+          "name": "SP トナー 4200H",
+          "price": 35000,
+          "quantity": 1
+        }
+      ],
+      "deliveryInfo": {
+        "date": "",
+        "address": "",
+        "note": ""
+      },
+      "status": "未発送",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1766000198727,
+      "orderDate": "2025-12-17T19:36:38.727Z",
+      "customerId": "testuser2",
+      "items": [
+        {
+          "code": "TEST-005",
+          "name": "TK-8336K",
+          "price": 14000,
+          "quantity": 1
+        }
+      ],
+      "deliveryInfo": {
+        "date": "",
+        "address": "",
+        "note": ""
+      },
+      "status": "未発送",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1766000889887,
+      "orderDate": "2025-12-17T19:48:09.887Z",
+      "customerId": "testuser2",
+      "items": [
+        {
+          "code": "P-001",
+          "name": "トナーカートリッジ 055H (ブラック)",
+          "price": 900,
+          "quantity": 100
+        }
+      ],
+      "deliveryInfo": {
+        "date": "",
+        "address": "長野県",
+        "note": ""
+      },
+      "status": "未発送",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1766002301905,
+      "orderDate": "2025-12-17T20:11:41.905Z",
+      "customerId": "testuser2",
+      "items": [
+        {
+          "code": "P-001",
+          "name": "トナーカートリッジ 055H (ブラック)",
+          "price": 900,
+          "quantity": 2
+        }
+      ],
+      "deliveryInfo": {
+        "date": "",
+        "address": "山梨県南アルプス市中野",
+        "note": ""
+      },
+      "status": "未発送",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1766002435440,
+      "orderDate": "2025-12-17T20:13:55.440Z",
+      "customerId": "testuser2",
+      "items": [
+        {
+          "code": "P-001",
+          "name": "トナーカートリッジ 055H (ブラック)",
+          "price": 900,
+          "quantity": 2
+        },
+        {
+          "code": "P-003",
+          "name": "IPSiO SP トナー C840H ブラック",
+          "price": 2,
+          "quantity": 1
+        }
+      ],
+      "deliveryInfo": {
+        "date": "",
+        "address": "長野県上田市保野",
+        "note": ""
+      },
+      "status": "未発送",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1766181003827,
+      "orderDate": "2025-12-19T21:50:03.827Z",
+      "customerId": "testuser2",
+      "items": [
+        {
+          "code": "P-001",
+          "name": "トナーカートリッジ 055H (ブラック)",
+          "price": 900,
+          "quantity": 10
+        }
+      ],
+      "deliveryInfo": {
+        "date": "2025-12-22",
+        "address": "山梨県南アルプス市中野",
+        "note": "あああ"
+      },
+      "status": "未発送",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1766261205990,
+      "orderDate": "2025-12-20T20:06:45.990Z",
+      "customerId": "testuser2",
+      "items": [
+        {
+          "code": "P-003",
+          "name": "IPSiO SP トナー C840H ブラック",
+          "price": 2,
+          "quantity": 100
+        }
+      ],
+      "deliveryInfo": {
+        "date": "2025-12-22",
+        "zip": "3861321",
+        "tel": "0268-75-2815",
+        "address": "長野県上田市保野103-13",
+        "name": "ひふみマネジメント株式会社",
+        "note": "am\n (宛名: ひふみマネジメント株式会社, TEL: 0268-75-2815)"
+      },
+      "status": "未発送",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1766264704046,
+      "orderDate": "2025-12-20T21:05:04.046Z",
+      "customerId": "testuser2",
+      "items": [
+        {
+          "code": "P-001",
+          "name": "トナーカートリッジ 055H (ブラック)",
+          "price": 900,
+          "quantity": 100
+        }
+      ],
+      "deliveryInfo": {
+        "date": "2025-12-22",
+        "zip": "3861321",
+        "tel": "0268-75-2815",
+        "address": "長野県上田市保野103-13",
+        "name": "ひふみマネジメント株式会社",
+        "note": " (宛名: ひふみマネジメント株式会社, TEL: 0268-75-2815)"
+      },
+      "status": "未発送",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1766264744744,
+      "orderDate": "2025-12-20T21:05:44.744Z",
+      "customerId": "testuser2",
+      "items": [
+        {
+          "code": "P-001",
+          "name": "トナーカートリッジ 055H (ブラック)",
+          "price": 900,
+          "quantity": 100
+        }
+      ],
+      "deliveryInfo": {
+        "date": "2025-12-22",
+        "zip": "4000316",
+        "tel": "055",
+        "address": "山梨県南アルプス市中野1111",
+        "name": "マサパートナーズ",
+        "note": " (宛名: マサパートナーズ, TEL: 055)"
+      },
+      "status": "未発送",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1767642996897,
+      "orderDate": "2026-01-05T19:56:36.897Z",
+      "customerId": "H015",
+      "items": [
+        {
+          "code": "J6400S",
+          "name": "RICOH ﾄﾅｰｶｰﾄﾘｯｼﾞ6400S【600574】2本入り (純正)",
+          "price": 0,
+          "quantity": 2
+        },
+        {
+          "code": "315253",
+          "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ針 ﾀｲﾌﾟN 5000針×2個/箱  315253 (純正)",
+          "price": 3200,
+          "quantity": 1
+        },
+        {
+          "code": "319167",
+          "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ ｶｰﾄﾘｯｼﾞ ﾀｲﾌﾟV 5000 319167 3251638 (純正)",
+          "price": 2400,
+          "quantity": 1
+        }
+      ],
+      "deliveryInfo": {
+        "date": "最短",
+        "zip": "3861321",
+        "tel": "0268752815",
+        "address": "長野県上田市保野1039-13",
+        "name": "ひふみマネジメント株式会社",
+        "note": " (宛名: ひふみマネジメント株式会社, TEL: 0268752815)"
+      },
+      "status": "未発送",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1767643032554,
+      "orderDate": "2026-01-05T19:57:12.554Z",
+      "customerId": "H015",
+      "items": [
+        {
+          "code": "J6400S",
+          "name": "RICOH ﾄﾅｰｶｰﾄﾘｯｼﾞ6400S【600574】2本入り (純正)",
+          "price": 0,
+          "quantity": 1
+        }
+      ],
+      "deliveryInfo": {
+        "date": "最短",
+        "zip": "3861321",
+        "tel": "0268752815",
+        "address": "長野県上田市保野1039-13",
+        "name": "ひふみマネジメント株式会社",
+        "note": " (宛名: ひふみマネジメント株式会社, TEL: 0268752815)"
+      },
+      "status": "未発送",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1767643092922,
+      "orderDate": "2026-01-05T19:58:12.922Z",
+      "customerId": "H015",
+      "items": [
+        {
+          "code": "J4500S",
+          "name": "RICOH SPトナー4500S（２本入り） (純正)",
+          "price": 0,
+          "quantity": 1
+        }
+      ],
+      "deliveryInfo": {
+        "date": "最短",
+        "zip": "3861321",
+        "tel": "0268752815",
+        "address": "長野県上田市保野1039-13",
+        "name": "ひふみマネジメント株式会社",
+        "note": " (宛名: ひふみマネジメント株式会社, TEL: 0268752815)"
+      },
+      "status": "未発送",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1767643328771,
+      "orderDate": "2026-01-05T20:02:08.771Z",
+      "customerId": "H015",
+      "items": [
+        {
+          "code": "J6400S",
+          "name": "RICOH ﾄﾅｰｶｰﾄﾘｯｼﾞ6400S【600574】2本入り (純正)",
+          "price": 35280,
+          "quantity": 1
+        }
+      ],
+      "deliveryInfo": {
+        "date": "最短",
+        "zip": "3861321",
+        "tel": "0268752815",
+        "address": "長野県上田市保野1039-13",
+        "name": "ひふみマネジメント株式会社",
+        "note": " (宛名: ひふみマネジメント株式会社, TEL: 0268752815)"
+      },
+      "status": "発送済",
+      "deliveryCompany": "運送",
+      "trackingNumber": "0000000",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1767727129884,
+      "orderDate": "2026-01-06T19:18:49.884Z",
+      "customerId": "H015",
+      "items": [
+        {
+          "code": "J6400S",
+          "name": "RICOH ﾄﾅｰｶｰﾄﾘｯｼﾞ6400S【600574】2本入り (純正)",
+          "price": 28000,
+          "quantity": 1
+        }
+      ],
+      "deliveryInfo": {
+        "date": "最短",
+        "zip": "3861321",
+        "tel": "0268752815",
+        "address": "長野県上田市保野1039-13",
+        "name": "ひふみマネジメント株式会社",
+        "note": " (宛名: ひふみマネジメント株式会社, TEL: 0268752815)"
+      },
+      "status": "発送済",
+      "deliveryCompany": "佐川",
+      "trackingNumber": "000111222",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1767812571069,
+      "orderDate": "2026-01-07T19:02:51.069Z",
+      "customerId": "H015",
+      "items": [
+        {
+          "code": "NB042",
+          "name": "CANON 汎用品 ﾄﾅｰｶｰﾄﾘｯｼﾞ 042 (汎用)",
+          "price": 33300,
+          "quantity": 1
+        }
+      ],
+      "deliveryInfo": {
+        "date": "最短",
+        "zip": "3861321",
+        "tel": "0268752815",
+        "address": "長野県上田市保野1039-13",
+        "name": "ひふみマネジメント株式会社",
+        "note": " (宛名: ひふみマネジメント株式会社, TEL: 0268752815)"
+      },
+      "status": "発送済",
+      "deliveryCompany": "ヤマト",
+      "trackingNumber": "000111222",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1768250758655,
+      "orderDate": "2026-01-12T20:45:58.655Z",
+      "customerId": "H015",
+      "items": [
+        {
+          "code": "J6400S",
+          "name": "RICOH ﾄﾅｰｶｰﾄﾘｯｼﾞ6400S【600574】2本入り (純正)",
+          "price": 28000,
+          "quantity": 1
+        }
+      ],
+      "deliveryInfo": {
+        "date": "最短",
+        "zip": "3861321",
+        "tel": "0268752815",
+        "address": "長野県上田市保野1039-13",
+        "name": "ひふみマネジメント株式会社",
+        "note": " (宛名: ひふみマネジメント株式会社, TEL: 0268752815)"
+      },
+      "status": "発送済",
+      "shipments": [
+        {
+          "shipmentId": 1768508508748,
+          "shippedDate": "2026-01-15T20:21:48.748Z",
+          "deliveryCompany": "",
+          "trackingNumber": "",
+          "deliveryDate": "",
+          "deliveryDateUnknown": true,
+          "items": [
+            {
+              "code": "J6400S",
+              "name": "RICOH ﾄﾅｰｶｰﾄﾘｯｼﾞ6400S【600574】2本入り (純正)",
+              "quantity": 1
+            }
+          ]
+        }
+      ],
+      "deliveryCompany": "",
+      "trackingNumber": "",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1768263656336,
+      "orderDate": "2026-01-13T00:20:56.336Z",
+      "customerId": "H015",
+      "items": [
+        {
+          "code": "J4500S",
+          "name": "RICOH SPトナー4500S（２本入り） (純正)",
+          "price": 32000,
+          "quantity": 1
+        }
+      ],
+      "deliveryInfo": {
+        "date": "最短",
+        "zip": "3861321",
+        "tel": "0268752815",
+        "address": "長野県上田市保野1039-13",
+        "name": "ひふみマネジメント株式会社",
+        "note": " (宛名: ひふみマネジメント株式会社, TEL: 0268752815)",
+        "clientOrderNumber": "654321",
+        "shipper": {
+          "zip": "3861321",
+          "address": "上田市保野1039-13",
+          "name": "出荷ひふみマネジメント株式会社",
+          "tel": "0268752815"
+        }
+      },
+      "status": "発送済",
+      "shipments": [
+        {
+          "shipmentId": 1768508493452,
+          "shippedDate": "2026-01-15T20:21:33.452Z",
+          "deliveryCompany": "",
+          "trackingNumber": "",
+          "deliveryDate": "",
+          "deliveryDateUnknown": true,
+          "items": [
+            {
+              "code": "J4500S",
+              "name": "RICOH SPトナー4500S（２本入り） (純正)",
+              "quantity": 1
+            }
+          ]
+        }
+      ],
+      "deliveryCompany": "",
+      "trackingNumber": "",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1768334166208,
+      "orderDate": "2026-01-13T19:56:06.208Z",
+      "customerId": "H015",
+      "items": [
+        {
+          "code": "00000014",
+          "name": "EPSON A3モノクロページプリンター LP-S3250",
+          "price": 25000,
+          "quantity": 1
+        }
+      ],
+      "deliveryInfo": {
+        "date": "2026-01-14",
+        "zip": "4000316",
+        "tel": "0552821111",
+        "address": "山梨県南アルプス市中野11111111",
+        "name": "池田クリニック",
+        "note": " (宛名: 池田クリニック, TEL: 0552821111)",
+        "clientOrderNumber": "7531",
+        "shipper": {
+          "zip": "386",
+          "address": "上田市保野1039-13",
+          "name": "ひふみマネジメント株式会社",
+          "tel": "0268752815"
+        }
+      },
+      "status": "発送済",
+      "deliveryCompany": "メーカー便",
+      "trackingNumber": "メーカー便のため送り状番号無し",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1768337046148,
+      "orderDate": "2026-01-13T20:44:06.148Z",
+      "customerId": "H015",
+      "items": [
+        {
+          "code": "319167",
+          "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ ｶｰﾄﾘｯｼﾞ ﾀｲﾌﾟV 5000 319167 3251638 (純正)",
+          "price": 2400,
+          "quantity": 5
+        }
+      ],
+      "deliveryInfo": {
+        "date": "2026/01/15",
+        "zip": "3861321",
+        "tel": "11111111",
+        "address": "長野県上田市保野1039-13",
+        "name": "株式会社エルストリーム",
+        "note": " (宛名: 株式会社エルストリーム, TEL: 11111111) [一部出荷済:新ID(1768337085090)]",
+        "clientOrderNumber": "97521",
+        "shipper": {
+          "zip": "3861321",
+          "address": "長野県上田市保野1039-13",
+          "name": "ひふみマネジメント株式会社",
+          "tel": "0268752815"
+        },
+        "dateUnknown": false
+      },
+      "status": "発送済",
+      "shipments": [
+        {
+          "shipmentId": 1768337425916,
+          "shippedDate": "2026-01-13T20:50:25.916Z",
+          "deliveryCompany": "佐川",
+          "trackingNumber": "123456",
+          "deliveryDate": "2026/01/15",
+          "deliveryDateUnknown": false,
+          "items": [
+            {
+              "code": "319167",
+              "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ ｶｰﾄﾘｯｼﾞ ﾀｲﾌﾟV 5000 319167 3251638 (純正)",
+              "quantity": 3
+            }
+          ]
+        },
+        {
+          "shipmentId": 1768337709330,
+          "shippedDate": "2026-01-13T20:55:09.330Z",
+          "deliveryCompany": "ヤマト",
+          "trackingNumber": "123456789",
+          "deliveryDate": "2026/01/16",
+          "deliveryDateUnknown": false,
+          "items": [
+            {
+              "code": "319167",
+              "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ ｶｰﾄﾘｯｼﾞ ﾀｲﾌﾟV 5000 319167 3251638 (純正)",
+              "quantity": 2
+            }
+          ]
+        }
+      ],
+      "deliveryCompany": "ヤマト",
+      "trackingNumber": "123456789",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1768337085090,
+      "orderDate": "2026-01-13T20:44:06.148Z",
+      "customerId": "H015",
+      "items": [
+        {
+          "code": "319167",
+          "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ ｶｰﾄﾘｯｼﾞ ﾀｲﾌﾟV 5000 319167 3251638 (純正)",
+          "price": 2400,
+          "quantity": 5
+        }
+      ],
+      "deliveryInfo": {
+        "date": "2026/01/15",
+        "zip": "3861321",
+        "tel": "11111111",
+        "address": "長野県上田市保野1039-13",
+        "name": "株式会社エルストリーム",
+        "note": " (宛名: 株式会社エルストリーム, TEL: 11111111) [分割出荷:元ID(1768337046148)]",
+        "clientOrderNumber": "97521",
+        "shipper": {
+          "zip": "3861321",
+          "address": "長野県上田市保野1039-13",
+          "name": "ひふみマネジメント株式会社",
+          "tel": "0268752815"
+        },
+        "dateUnknown": true
+      },
+      "status": "発送済",
+      "deliveryCompany": "ヤマト",
+      "trackingNumber": "123456",
+      "trackingNote": "元注文 1768337046148 からの分割出荷",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1768338661841,
+      "orderDate": "2026-01-13T21:11:01.841Z",
+      "customerId": "H015",
+      "items": [
+        {
+          "code": "J6400S",
+          "name": "RICOH ﾄﾅｰｶｰﾄﾘｯｼﾞ6400S【600574】2本入り (純正)",
+          "price": 28000,
+          "quantity": 1
+        },
+        {
+          "code": "319167",
+          "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ ｶｰﾄﾘｯｼﾞ ﾀｲﾌﾟV 5000 319167 3251638 (純正)",
+          "price": 2400,
+          "quantity": 5
+        },
+        {
+          "code": "J4500S",
+          "name": "RICOH SPトナー4500S（２本入り） (純正)",
+          "price": 32000,
+          "quantity": 3
+        }
+      ],
+      "deliveryInfo": {
+        "date": "",
+        "zip": "3861321",
+        "tel": "22233645",
+        "address": "長野県上田市保野1039-13",
+        "name": "株式会社hfm",
+        "note": " (宛名: 株式会社hfm, TEL: 22233645)",
+        "clientOrderNumber": "8521",
+        "shipper": {
+          "zip": "386",
+          "address": "上田市保野1039-13",
+          "name": "ひふみマネジメント株式会社",
+          "tel": "0268752815"
+        },
+        "dateUnknown": true
+      },
+      "status": "発送済",
+      "shipments": [
+        {
+          "shipmentId": 1768338708572,
+          "shippedDate": "2026-01-13T21:11:48.572Z",
+          "deliveryCompany": "ヤマト",
+          "trackingNumber": "123456789",
+          "deliveryDate": "2026/01/15",
+          "deliveryDateUnknown": false,
+          "items": [
+            {
+              "code": "J6400S",
+              "name": "RICOH ﾄﾅｰｶｰﾄﾘｯｼﾞ6400S【600574】2本入り (純正)",
+              "quantity": 1
+            }
+          ]
+        },
+        {
+          "shipmentId": 1768338730539,
+          "shippedDate": "2026-01-13T21:12:10.539Z",
+          "deliveryCompany": "佐川",
+          "trackingNumber": "987654321",
+          "deliveryDate": "2026/01/15",
+          "deliveryDateUnknown": false,
+          "items": [
+            {
+              "code": "319167",
+              "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ ｶｰﾄﾘｯｼﾞ ﾀｲﾌﾟV 5000 319167 3251638 (純正)",
+              "quantity": 2
+            }
+          ]
+        },
+        {
+          "shipmentId": 1768338783109,
+          "shippedDate": "2026-01-13T21:13:03.109Z",
+          "deliveryCompany": "メーカー便",
+          "trackingNumber": "メーカー便のため送り状番号無し",
+          "deliveryDate": "2026/01/16",
+          "deliveryDateUnknown": false,
+          "items": [
+            {
+              "code": "J4500S",
+              "name": "RICOH SPトナー4500S（２本入り） (純正)",
+              "quantity": 2
+            }
+          ]
+        },
+        {
+          "shipmentId": 1768339193460,
+          "shippedDate": "2026-01-13T21:19:53.460Z",
+          "deliveryCompany": "ヤマト",
+          "trackingNumber": "123456",
+          "deliveryDate": "",
+          "deliveryDateUnknown": false,
+          "items": [
+            {
+              "code": "319167",
+              "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ ｶｰﾄﾘｯｼﾞ ﾀｲﾌﾟV 5000 319167 3251638 (純正)",
+              "quantity": 3
+            }
+          ]
+        },
+        {
+          "shipmentId": 1768339193462,
+          "shippedDate": "2026-01-13T21:19:53.461Z",
+          "deliveryCompany": "佐川",
+          "trackingNumber": "654321",
+          "deliveryDate": "",
+          "deliveryDateUnknown": false,
+          "items": [
+            {
+              "code": "J4500S",
+              "name": "RICOH SPトナー4500S（２本入り） (純正)",
+              "quantity": 1
+            }
+          ]
+        }
+      ],
+      "deliveryCompany": "佐川",
+      "trackingNumber": "654321",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1768508130599,
+      "orderDate": "2026-01-15T20:15:30.599Z",
+      "customerId": "H015",
+      "items": [
+        {
+          "code": "J6400S",
+          "name": "RICOH ﾄﾅｰｶｰﾄﾘｯｼﾞ6400S【600574】2本入り (純正)",
+          "price": 28000,
+          "quantity": 1
+        },
+        {
+          "code": "319167",
+          "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ ｶｰﾄﾘｯｼﾞ ﾀｲﾌﾟV 5000 319167 3251638 (純正)",
+          "price": 2400,
+          "quantity": 1
+        },
+        {
+          "code": "J4500S",
+          "name": "RICOH SPトナー4500S（２本入り） (純正)",
+          "price": 32000,
+          "quantity": 1
+        },
+        {
+          "code": "00000014",
+          "name": "EPSON A3モノクロページプリンター LP-S3250",
+          "price": 25000,
+          "quantity": 1
+        },
+        {
+          "code": "315253",
+          "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ針 ﾀｲﾌﾟN 5000針×2個/箱  315253 (純正)",
+          "price": 3200,
+          "quantity": 1
+        },
+        {
+          "code": "NB042",
+          "name": "CANON 汎用品 ﾄﾅｰｶｰﾄﾘｯｼﾞ 042 (汎用)",
+          "price": 33300,
+          "quantity": 1
+        },
+        {
+          "code": "JPFI703BK",
+          "name": "CANON PFI-703 BK ﾌﾞﾗｯｸ (純正)",
+          "price": 35300,
+          "quantity": 1
+        },
+        {
+          "code": "JPFI703C",
+          "name": "CANON PFI-703 C ｼｱﾝ (純正)",
+          "price": 35300,
+          "quantity": 1
+        },
+        {
+          "code": "JPFI703M",
+          "name": "CANON PFI-703 M ﾏｾﾞﾝﾀ (純正)",
+          "price": 35300,
+          "quantity": 1
+        },
+        {
+          "code": "JPFI703MBK",
+          "name": "CANON PFI-703 MBK ﾏｯﾄﾌﾞﾗｯｸ (純正)",
+          "price": 36500,
+          "quantity": 1
+        },
+        {
+          "code": "JPFI703Y",
+          "name": "CANON PFI-703 Y ｲｴﾛｰ (純正)",
+          "price": 35300,
+          "quantity": 1
+        },
+        {
+          "code": "JPFI706B",
+          "name": "CANON ｲﾝｸﾀﾝｸ PFI-706B ﾌﾞﾙｰ (純正)",
+          "price": 36500,
+          "quantity": 1
+        },
+        {
+          "code": "JPFI706BK",
+          "name": "CANON ｲﾝｸﾀﾝｸ PFI-706BK ﾌﾞﾗｯｸ (純正)",
+          "price": 36500,
+          "quantity": 1
+        },
+        {
+          "code": "JPFI706C",
+          "name": "CANON ｲﾝｸﾀﾝｸ PFI-706C ｼｱﾝ (純正)",
+          "price": 36500,
+          "quantity": 1
+        },
+        {
+          "code": "JPFI706G",
+          "name": "CANON ｲﾝｸﾀﾝｸ PFI-706G ｸﾞﾘｰﾝ (純正)",
+          "price": 36500,
+          "quantity": 1
+        },
+        {
+          "code": "JPFI706GY",
+          "name": "CANON ｲﾝｸﾀﾝｸ PFI-706GY ｸﾞﾚｰ (純正)",
+          "price": 36500,
+          "quantity": 1
+        },
+        {
+          "code": "JPRL3C75011",
+          "name": "NEC PR-L3C750-11 Y (純正)",
+          "price": 47200,
+          "quantity": 1
+        },
+        {
+          "code": "JPRL3C75012",
+          "name": "NEC PR-L3C750-12 M (純正)",
+          "price": 47200,
+          "quantity": 1
+        },
+        {
+          "code": "JPRL3C75013",
+          "name": "NEC PR-L3C750-13 C (純正)",
+          "price": 47200,
+          "quantity": 1
+        },
+        {
+          "code": "JPRL3C75014",
+          "name": "NEC PR-L3C750-14 BK (純正)",
+          "price": 46800,
+          "quantity": 1
+        },
+        {
+          "code": "JPRL3C750C31",
+          "name": "NEC PR-L3C750-31　ﾄﾞﾗﾑ (純正)",
+          "price": 52600,
+          "quantity": 1
+        },
+        {
+          "code": "JPRL3C750C33",
+          "name": "NEC PR-L3C750-33 (純正)",
+          "price": 6600,
+          "quantity": 1
+        },
+        {
+          "code": "JPRL4600SP",
+          "name": "NEC PR-L4600-SP (純正)",
+          "price": 6000,
+          "quantity": 1
+        },
+        {
+          "code": "JPRL4C15011",
+          "name": "NEC PR-L4C150-11 ｲｴﾛｰ (純正)",
+          "price": 9400,
+          "quantity": 1
+        },
+        {
+          "code": "JPRL4C15012",
+          "name": "NEC PR-L4C150-12 ﾏｾﾞﾝﾀ (純正)",
+          "price": 9400,
+          "quantity": 1
+        },
+        {
+          "code": "JPRL4C15013",
+          "name": "NEC PR-L4C150-13 ｼｱﾝ (純正)",
+          "price": 9400,
+          "quantity": 1
+        },
+        {
+          "code": "JSC1M11",
+          "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC1M11 ﾏｾﾞﾝﾀ (純正)",
+          "price": 7600,
+          "quantity": 1
+        },
+        {
+          "code": "JSC1M35",
+          "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC1M35 ﾏｾﾞﾝﾀ (純正)",
+          "price": 19700,
+          "quantity": 1
+        },
+        {
+          "code": "JSC1M70",
+          "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC1M70 ﾏｾﾞﾝﾀ (純正)",
+          "price": 31800,
+          "quantity": 1
+        },
+        {
+          "code": "JSC1MB",
+          "name": "EPSON ﾒﾝﾃﾅﾝｽﾎﾞｯｸｽ SC1MB (純正)",
+          "price": 7000,
+          "quantity": 1
+        },
+        {
+          "code": "JSC1MB11",
+          "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC1MB11 ﾏｯﾄﾌﾞﾗｯｸ (純正)",
+          "price": 7600,
+          "quantity": 1
+        },
+        {
+          "code": "JSC1MB35",
+          "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC1MB35 ﾏｯﾄﾌﾞﾗｯｸ (純正)",
+          "price": 19700,
+          "quantity": 1
+        },
+        {
+          "code": "JSC1MB70",
+          "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC1MB70 ﾏｯﾄﾌﾞﾗｯｸ (純正)",
+          "price": 31800,
+          "quantity": 1
+        },
+        {
+          "code": "JSC1Y11",
+          "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC1Y11 ｲｴﾛｰ (純正)",
+          "price": 7600,
+          "quantity": 1
+        },
+        {
+          "code": "JSC1Y35",
+          "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC1Y35 ｲｴﾛｰ (純正)",
+          "price": 19700,
+          "quantity": 1
+        },
+        {
+          "code": "JSC1Y70",
+          "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC1Y70 ｲｴﾛｰ (純正)",
+          "price": 31800,
+          "quantity": 1
+        },
+        {
+          "code": "JSC27Y70",
+          "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC27Y70 (純正)",
+          "price": 31800,
+          "quantity": 1
+        },
+        {
+          "code": "JSC305BK",
+          "name": "RICOH MP ｽﾎﾟｯﾄﾄﾅｰ C305 BK (純正)",
+          "price": 12000,
+          "quantity": 1
+        },
+        {
+          "code": "JSC305C",
+          "name": "RICOH MP ｽﾎﾟｯﾄﾄﾅｰ C305C ｼｱﾝ (純正)",
+          "price": 4000,
+          "quantity": 1
+        },
+        {
+          "code": "JSC305M",
+          "name": "RICOH MP ｽﾎﾟｯﾄﾄﾅｰ C305M ﾏｾﾞﾝﾀ (純正)",
+          "price": 4000,
+          "quantity": 1
+        },
+        {
+          "code": "JSC305Y",
+          "name": "RICOH MP ｽﾎﾟｯﾄﾄﾅｰ C305Y ｲｴﾛｰ (純正)",
+          "price": 4000,
+          "quantity": 1
+        },
+        {
+          "code": "JSC8BK70",
+          "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC8BK70 ﾌｫﾄﾌﾞﾗｯｸ (純正)",
+          "price": 25500,
+          "quantity": 1
+        },
+        {
+          "code": "JSC8DGY70",
+          "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC8DGY70 ﾀﾞｰｸｸﾞﾚｰ (純正)",
+          "price": 25500,
+          "quantity": 1
+        },
+        {
+          "code": "JSC9LC35A",
+          "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC9LC35A ﾗｲﾄｼｱﾝ (純正)",
+          "price": 12100,
+          "quantity": 1
+        },
+        {
+          "code": "JSC9LC70A",
+          "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC9LC70A ﾗｲﾄｼｱﾝ (純正)",
+          "price": 20400,
+          "quantity": 1
+        },
+        {
+          "code": "JSC9LGY35A",
+          "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC9LGY35A ﾗｲﾄｸﾞﾚｰ (純正)",
+          "price": 12100,
+          "quantity": 1
+        },
+        {
+          "code": "JSC9LGY70A",
+          "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC9LGY70A ﾗｲﾄｸﾞﾚｰ (純正)",
+          "price": 20400,
+          "quantity": 1
+        },
+        {
+          "code": "JSC9MB",
+          "name": "EPSON ﾒﾝﾃﾅﾝｽﾎﾞｯｸｽ SC9MB (純正)",
+          "price": 7000,
+          "quantity": 1
+        },
+        {
+          "code": "JSC9MB15",
+          "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC9MB15 ﾏｯﾄﾌﾞﾗｯｸ (純正)",
+          "price": 7900,
+          "quantity": 1
+        },
+        {
+          "code": "JSC9MB35A",
+          "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC9MB35A ﾏｯﾄﾌﾞﾗｯｸ (純正)",
+          "price": 12100,
+          "quantity": 1
+        },
+        {
+          "code": "JSC9MB70A",
+          "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC9MB70A ﾏｯﾄﾌﾞﾗｯｸ (純正)",
+          "price": 20400,
+          "quantity": 1
+        },
+        {
+          "code": "JSC9OR15",
+          "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC9OR15 ｵﾚﾝｼﾞ (純正)",
+          "price": 7900,
+          "quantity": 1
+        },
+        {
+          "code": "JSC9OR35A",
+          "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC9OR35A ｵﾚﾝｼﾞ (純正)",
+          "price": 12100,
+          "quantity": 1
+        }
+      ],
+      "deliveryInfo": {
+        "date": "",
+        "zip": "3861321",
+        "tel": "fadvbabdfbv011442101245",
+        "address": "長野県上田市保野1039-13",
+        "name": "株式会社ｈｈｈｈｆｆｆｆｍｍｍｍ",
+        "note": " (宛名: 株式会社ｈｈｈｈｆｆｆｆｍｍｍｍ, TEL: fadvbabdfbv011442101245)",
+        "clientOrderNumber": "青梅市役所単契",
+        "shipper": {
+          "zip": "205-001",
+          "address": "東京都",
+          "name": "株式会社アサヒ",
+          "tel": "0425554045"
+        },
+        "dateUnknown": true
+      },
+      "status": "発送済",
+      "shipments": [
+        {
+          "shipmentId": 1768508283534,
+          "shippedDate": "2026-01-15T20:18:03.534Z",
+          "deliveryCompany": "ヤマト",
+          "trackingNumber": "123456789",
+          "deliveryDate": "",
+          "deliveryDateUnknown": true,
+          "items": [
+            {
+              "code": "J6400S",
+              "name": "RICOH ﾄﾅｰｶｰﾄﾘｯｼﾞ6400S【600574】2本入り (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JPFI703M",
+              "name": "CANON PFI-703 M ﾏｾﾞﾝﾀ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JPFI703MBK",
+              "name": "CANON PFI-703 MBK ﾏｯﾄﾌﾞﾗｯｸ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JPFI703Y",
+              "name": "CANON PFI-703 Y ｲｴﾛｰ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JPFI706B",
+              "name": "CANON ｲﾝｸﾀﾝｸ PFI-706B ﾌﾞﾙｰ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JPFI706BK",
+              "name": "CANON ｲﾝｸﾀﾝｸ PFI-706BK ﾌﾞﾗｯｸ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JPFI706C",
+              "name": "CANON ｲﾝｸﾀﾝｸ PFI-706C ｼｱﾝ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JPFI706G",
+              "name": "CANON ｲﾝｸﾀﾝｸ PFI-706G ｸﾞﾘｰﾝ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JPFI706GY",
+              "name": "CANON ｲﾝｸﾀﾝｸ PFI-706GY ｸﾞﾚｰ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JPRL3C75011",
+              "name": "NEC PR-L3C750-11 Y (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JPRL3C75012",
+              "name": "NEC PR-L3C750-12 M (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JPRL3C75013",
+              "name": "NEC PR-L3C750-13 C (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JPRL3C75014",
+              "name": "NEC PR-L3C750-14 BK (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JPRL3C750C31",
+              "name": "NEC PR-L3C750-31　ﾄﾞﾗﾑ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JPRL3C750C33",
+              "name": "NEC PR-L3C750-33 (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JPRL4600SP",
+              "name": "NEC PR-L4600-SP (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JPRL4C15011",
+              "name": "NEC PR-L4C150-11 ｲｴﾛｰ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JPRL4C15012",
+              "name": "NEC PR-L4C150-12 ﾏｾﾞﾝﾀ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JPRL4C15013",
+              "name": "NEC PR-L4C150-13 ｼｱﾝ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JSC1M11",
+              "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC1M11 ﾏｾﾞﾝﾀ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JSC1M35",
+              "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC1M35 ﾏｾﾞﾝﾀ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JSC1M70",
+              "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC1M70 ﾏｾﾞﾝﾀ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JSC1MB",
+              "name": "EPSON ﾒﾝﾃﾅﾝｽﾎﾞｯｸｽ SC1MB (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JSC1MB11",
+              "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC1MB11 ﾏｯﾄﾌﾞﾗｯｸ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JSC1MB35",
+              "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC1MB35 ﾏｯﾄﾌﾞﾗｯｸ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JSC1MB70",
+              "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC1MB70 ﾏｯﾄﾌﾞﾗｯｸ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JSC1Y11",
+              "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC1Y11 ｲｴﾛｰ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JSC1Y35",
+              "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC1Y35 ｲｴﾛｰ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JSC1Y70",
+              "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC1Y70 ｲｴﾛｰ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JSC27Y70",
+              "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC27Y70 (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JSC305BK",
+              "name": "RICOH MP ｽﾎﾟｯﾄﾄﾅｰ C305 BK (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JSC305C",
+              "name": "RICOH MP ｽﾎﾟｯﾄﾄﾅｰ C305C ｼｱﾝ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JSC305M",
+              "name": "RICOH MP ｽﾎﾟｯﾄﾄﾅｰ C305M ﾏｾﾞﾝﾀ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JSC305Y",
+              "name": "RICOH MP ｽﾎﾟｯﾄﾄﾅｰ C305Y ｲｴﾛｰ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JSC8BK70",
+              "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC8BK70 ﾌｫﾄﾌﾞﾗｯｸ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JSC8DGY70",
+              "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC8DGY70 ﾀﾞｰｸｸﾞﾚｰ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JSC9LC35A",
+              "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC9LC35A ﾗｲﾄｼｱﾝ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JSC9LC70A",
+              "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC9LC70A ﾗｲﾄｼｱﾝ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JSC9LGY35A",
+              "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC9LGY35A ﾗｲﾄｸﾞﾚｰ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JSC9LGY70A",
+              "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC9LGY70A ﾗｲﾄｸﾞﾚｰ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JSC9MB",
+              "name": "EPSON ﾒﾝﾃﾅﾝｽﾎﾞｯｸｽ SC9MB (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JSC9MB15",
+              "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC9MB15 ﾏｯﾄﾌﾞﾗｯｸ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JSC9MB35A",
+              "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC9MB35A ﾏｯﾄﾌﾞﾗｯｸ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JSC9MB70A",
+              "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC9MB70A ﾏｯﾄﾌﾞﾗｯｸ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JSC9OR15",
+              "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC9OR15 ｵﾚﾝｼﾞ (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "JSC9OR35A",
+              "name": "EPSON ｲﾝｸｶｰﾄﾘｯｼﾞ SC9OR35A ｵﾚﾝｼﾞ (純正)",
+              "quantity": 1
+            }
+          ]
+        },
+        {
+          "shipmentId": 1768508383358,
+          "shippedDate": "2026-01-15T20:19:43.358Z",
+          "deliveryCompany": "佐川",
+          "trackingNumber": "123456789",
+          "deliveryDate": "",
+          "deliveryDateUnknown": true,
+          "items": [
+            {
+              "code": "319167",
+              "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ ｶｰﾄﾘｯｼﾞ ﾀｲﾌﾟV 5000 319167 3251638 (純正)",
+              "quantity": 1
+            }
+          ]
+        },
+        {
+          "shipmentId": 1768508383359,
+          "shippedDate": "2026-01-15T20:19:43.358Z",
+          "deliveryCompany": "福山",
+          "trackingNumber": "123456789",
+          "deliveryDate": "",
+          "deliveryDateUnknown": true,
+          "items": [
+            {
+              "code": "J4500S",
+              "name": "RICOH SPトナー4500S（２本入り） (純正)",
+              "quantity": 1
+            }
+          ]
+        },
+        {
+          "shipmentId": 1768508383360,
+          "shippedDate": "2026-01-15T20:19:43.358Z",
+          "deliveryCompany": "松岡満",
+          "trackingNumber": "123456789",
+          "deliveryDate": "",
+          "deliveryDateUnknown": true,
+          "items": [
+            {
+              "code": "00000014",
+              "name": "EPSON A3モノクロページプリンター LP-S3250",
+              "quantity": 1
+            }
+          ]
+        },
+        {
+          "shipmentId": 1768508383361,
+          "shippedDate": "2026-01-15T20:19:43.358Z",
+          "deliveryCompany": "メーカー便",
+          "trackingNumber": "送り状番号無し",
+          "deliveryDate": "",
+          "deliveryDateUnknown": true,
+          "items": [
+            {
+              "code": "315253",
+              "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ針 ﾀｲﾌﾟN 5000針×2個/箱  315253 (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "NB042",
+              "name": "CANON 汎用品 ﾄﾅｰｶｰﾄﾘｯｼﾞ 042 (汎用)",
+              "quantity": 1
+            }
+          ]
+        },
+        {
+          "shipmentId": 1768508383362,
+          "shippedDate": "2026-01-15T20:19:43.358Z",
+          "deliveryCompany": "久留米運送",
+          "trackingNumber": "123456789",
+          "deliveryDate": "",
+          "deliveryDateUnknown": true,
+          "items": [
+            {
+              "code": "JPFI703BK",
+              "name": "CANON PFI-703 BK ﾌﾞﾗｯｸ (純正)",
+              "quantity": 1
+            }
+          ]
+        },
+        {
+          "shipmentId": 1768508383363,
+          "shippedDate": "2026-01-15T20:19:43.358Z",
+          "deliveryCompany": "",
+          "trackingNumber": "",
+          "deliveryDate": "",
+          "deliveryDateUnknown": true,
+          "items": [
+            {
+              "code": "JPFI703C",
+              "name": "CANON PFI-703 C ｼｱﾝ (純正)",
+              "quantity": 1
+            }
+          ]
+        }
+      ],
+      "deliveryCompany": "",
+      "trackingNumber": "",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1768508945293,
+      "orderDate": "2026-01-15T20:29:05.293Z",
+      "customerId": "H015",
+      "items": [
+        {
+          "code": "J6400S",
+          "name": "RICOH ﾄﾅｰｶｰﾄﾘｯｼﾞ6400S【600574】2本入り (純正)",
+          "price": 28000,
+          "quantity": 1
+        },
+        {
+          "code": "319167",
+          "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ ｶｰﾄﾘｯｼﾞ ﾀｲﾌﾟV 5000 319167 3251638 (純正)",
+          "price": 2400,
+          "quantity": 1
+        },
+        {
+          "code": "J4500S",
+          "name": "RICOH SPトナー4500S（２本入り） (純正)",
+          "price": 32000,
+          "quantity": 1
+        }
+      ],
+      "deliveryInfo": {
+        "date": "2026/01/19",
+        "zip": "4000316",
+        "tel": "0552821111",
+        "address": "山梨県南アルプス市中野11111111",
+        "name": "池田クリニック",
+        "note": " (宛名: 池田クリニック, TEL: 0552821111)",
+        "clientOrderNumber": "12356",
+        "shipper": {
+          "zip": "3861321",
+          "address": "上田市保野1039-13",
+          "name": "ひふみマネジメント株式会社",
+          "tel": "0268752815"
+        },
+        "dateUnknown": false
+      },
+      "status": "発送済",
+      "shipments": [
+        {
+          "shipmentId": 1768509004227,
+          "shippedDate": "2026-01-15T20:30:04.227Z",
+          "deliveryCompany": "ヤマト",
+          "trackingNumber": "123456",
+          "deliveryDate": "2026/01/30",
+          "deliveryDateUnknown": false,
+          "items": [
+            {
+              "code": "J6400S",
+              "name": "RICOH ﾄﾅｰｶｰﾄﾘｯｼﾞ6400S【600574】2本入り (純正)",
+              "quantity": 1
+            }
+          ]
+        },
+        {
+          "shipmentId": 1768509059032,
+          "shippedDate": "2026-01-15T20:30:59.032Z",
+          "deliveryCompany": "ヤマト",
+          "trackingNumber": "123456",
+          "deliveryDate": "2026/01/20",
+          "deliveryDateUnknown": false,
+          "items": [
+            {
+              "code": "319167",
+              "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ ｶｰﾄﾘｯｼﾞ ﾀｲﾌﾟV 5000 319167 3251638 (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "J4500S",
+              "name": "RICOH SPトナー4500S（２本入り） (純正)",
+              "quantity": 1
+            }
+          ]
+        }
+      ],
+      "deliveryCompany": "ヤマト",
+      "trackingNumber": "123456",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1768509437494,
+      "orderDate": "2026-01-15T20:37:17.494Z",
+      "customerId": "H015",
+      "items": [
+        {
+          "code": "J6400S",
+          "name": "RICOH ﾄﾅｰｶｰﾄﾘｯｼﾞ6400S【600574】2本入り (純正)",
+          "price": 28000,
+          "quantity": 1
+        },
+        {
+          "code": "319167",
+          "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ ｶｰﾄﾘｯｼﾞ ﾀｲﾌﾟV 5000 319167 3251638 (純正)",
+          "price": 2400,
+          "quantity": 1
+        },
+        {
+          "code": "J4500S",
+          "name": "RICOH SPトナー4500S（２本入り） (純正)",
+          "price": 32000,
+          "quantity": 1
+        }
+      ],
+      "deliveryInfo": {
+        "date": "最短",
+        "zip": "3861321",
+        "tel": "11111111",
+        "address": "長野県上田市保野1039-13",
+        "name": "株式会社エルストリーム",
+        "note": " (宛名: 株式会社エルストリーム, TEL: 11111111)",
+        "clientOrderNumber": "123456",
+        "shipper": {
+          "zip": "3861321",
+          "address": "上田市保野1039-13",
+          "name": "ひふみマネジメント株式会社",
+          "tel": "0268752815"
+        }
+      },
+      "status": "発送済",
+      "shipments": [
+        {
+          "shipmentId": 1768509482173,
+          "shippedDate": "2026-01-15T20:38:02.173Z",
+          "deliveryCompany": "ヤマト",
+          "trackingNumber": "123456",
+          "deliveryDate": "2026/01/26",
+          "deliveryDateUnknown": false,
+          "items": [
+            {
+              "code": "J6400S",
+              "name": "RICOH ﾄﾅｰｶｰﾄﾘｯｼﾞ6400S【600574】2本入り (純正)",
+              "quantity": 1
+            }
+          ]
+        },
+        {
+          "shipmentId": 1768509530966,
+          "shippedDate": "2026-01-15T20:38:50.966Z",
+          "deliveryCompany": "佐川",
+          "trackingNumber": "123456",
+          "deliveryDate": "2026/01/20",
+          "deliveryDateUnknown": false,
+          "items": [
+            {
+              "code": "319167",
+              "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ ｶｰﾄﾘｯｼﾞ ﾀｲﾌﾟV 5000 319167 3251638 (純正)",
+              "quantity": 1
+            }
+          ]
+        },
+        {
+          "shipmentId": 1768509530967,
+          "shippedDate": "2026-01-15T20:38:50.966Z",
+          "deliveryCompany": "日通",
+          "trackingNumber": "123456",
+          "deliveryDate": "",
+          "deliveryDateUnknown": true,
+          "items": [
+            {
+              "code": "J4500S",
+              "name": "RICOH SPトナー4500S（２本入り） (純正)",
+              "quantity": 1
+            }
+          ]
+        }
+      ],
+      "deliveryCompany": "日通",
+      "trackingNumber": "123456",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1768509849128,
+      "orderDate": "2026-01-15T20:44:09.128Z",
+      "customerId": "H015",
+      "items": [
+        {
+          "code": "J6400S",
+          "name": "RICOH ﾄﾅｰｶｰﾄﾘｯｼﾞ6400S【600574】2本入り (純正)",
+          "price": 28000,
+          "quantity": 1
+        },
+        {
+          "code": "319167",
+          "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ ｶｰﾄﾘｯｼﾞ ﾀｲﾌﾟV 5000 319167 3251638 (純正)",
+          "price": 2400,
+          "quantity": 1
+        },
+        {
+          "code": "J4500S",
+          "name": "RICOH SPトナー4500S（２本入り） (純正)",
+          "price": 32000,
+          "quantity": 1
+        }
+      ],
+      "deliveryInfo": {
+        "date": "2026/01/19",
+        "zip": "4000316",
+        "tel": "0552821111",
+        "address": "山梨県南アルプス市中野11111111",
+        "name": "池田クリニック",
+        "note": " (宛名: 池田クリニック, TEL: 0552821111)",
+        "clientOrderNumber": "123456",
+        "shipper": {
+          "zip": "205-001",
+          "address": "東京都",
+          "name": "株式会社アサヒ",
+          "tel": "0425554045"
+        },
+        "dateUnknown": false
+      },
+      "status": "発送済",
+      "shipments": [
+        {
+          "shipmentId": 1768509931192,
+          "shippedDate": "2026-01-15T20:45:31.192Z",
+          "deliveryCompany": "ヤマト",
+          "trackingNumber": "123456",
+          "deliveryDate": "2026/01/19",
+          "deliveryDateUnknown": false,
+          "items": [
+            {
+              "code": "J6400S",
+              "name": "RICOH ﾄﾅｰｶｰﾄﾘｯｼﾞ6400S【600574】2本入り (純正)",
+              "quantity": 1
+            }
+          ]
+        },
+        {
+          "shipmentId": 1768509977145,
+          "shippedDate": "2026-01-15T20:46:17.145Z",
+          "deliveryCompany": "佐川",
+          "trackingNumber": "123456",
+          "deliveryDate": "2026/01/19",
+          "deliveryDateUnknown": false,
+          "items": [
+            {
+              "code": "319167",
+              "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ ｶｰﾄﾘｯｼﾞ ﾀｲﾌﾟV 5000 319167 3251638 (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "J4500S",
+              "name": "RICOH SPトナー4500S（２本入り） (純正)",
+              "quantity": 1
+            }
+          ]
+        }
+      ],
+      "deliveryCompany": "佐川",
+      "trackingNumber": "123456",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1768510605752,
+      "orderDate": "2026-01-15T20:56:45.752Z",
+      "customerId": "H015",
+      "items": [
+        {
+          "code": "J6400S",
+          "name": "RICOH ﾄﾅｰｶｰﾄﾘｯｼﾞ6400S【600574】2本入り (純正)",
+          "price": 28000,
+          "quantity": 1
+        },
+        {
+          "code": "319167",
+          "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ ｶｰﾄﾘｯｼﾞ ﾀｲﾌﾟV 5000 319167 3251638 (純正)",
+          "price": 2400,
+          "quantity": 1
+        },
+        {
+          "code": "J4500S",
+          "name": "RICOH SPトナー4500S（２本入り） (純正)",
+          "price": 32000,
+          "quantity": 1
+        },
+        {
+          "code": "00000014",
+          "name": "EPSON A3モノクロページプリンター LP-S3250",
+          "price": 25000,
+          "quantity": 1
+        }
+      ],
+      "deliveryInfo": {
+        "date": "2026/01/20",
+        "zip": "3861321",
+        "tel": "0268752815",
+        "address": "長野県上田市保野1039-13",
+        "name": "ひふみマネジメント株式会社",
+        "note": " (宛名: ひふみマネジメント株式会社, TEL: 0268752815)",
+        "clientOrderNumber": "789456",
+        "shipper": {
+          "zip": "205-001",
+          "address": "上田市保野1039-13",
+          "name": "ひふみマネジメント株式会社",
+          "tel": "0268752815"
+        },
+        "dateUnknown": false
+      },
+      "status": "発送済",
+      "shipments": [
+        {
+          "shipmentId": 1768510692483,
+          "shippedDate": "2026-01-15T20:58:12.483Z",
+          "deliveryCompany": "ヤマト",
+          "trackingNumber": "123456",
+          "deliveryDate": "2026/01/20",
+          "deliveryDateUnknown": false,
+          "items": [
+            {
+              "code": "J6400S",
+              "name": "RICOH ﾄﾅｰｶｰﾄﾘｯｼﾞ6400S【600574】2本入り (純正)",
+              "quantity": 1
+            }
+          ]
+        },
+        {
+          "shipmentId": 1768510692484,
+          "shippedDate": "2026-01-15T20:58:12.483Z",
+          "deliveryCompany": "佐川",
+          "trackingNumber": "789456",
+          "deliveryDate": "2026/01/20",
+          "deliveryDateUnknown": false,
+          "items": [
+            {
+              "code": "319167",
+              "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ ｶｰﾄﾘｯｼﾞ ﾀｲﾌﾟV 5000 319167 3251638 (純正)",
+              "quantity": 1
+            }
+          ]
+        },
+        {
+          "shipmentId": 1768510733411,
+          "shippedDate": "2026-01-15T20:58:53.412Z",
+          "deliveryCompany": "福山",
+          "trackingNumber": "789-14789-1456-123",
+          "deliveryDate": "",
+          "deliveryDateUnknown": true,
+          "items": [
+            {
+              "code": "J4500S",
+              "name": "RICOH SPトナー4500S（２本入り） (純正)",
+              "quantity": 1
+            },
+            {
+              "code": "00000014",
+              "name": "EPSON A3モノクロページプリンター LP-S3250",
+              "quantity": 1
+            }
+          ]
+        }
+      ],
+      "deliveryCompany": "福山",
+      "trackingNumber": "789-14789-1456-123",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1768511170129,
+      "orderDate": "2026-01-15T21:06:10.129Z",
+      "customerId": "H015",
+      "items": [
+        {
+          "code": "J6400S",
+          "name": "RICOH ﾄﾅｰｶｰﾄﾘｯｼﾞ6400S【600574】2本入り (純正)",
+          "price": 28000,
+          "quantity": 1
+        },
+        {
+          "code": "319167",
+          "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ ｶｰﾄﾘｯｼﾞ ﾀｲﾌﾟV 5000 319167 3251638 (純正)",
+          "price": 2400,
+          "quantity": 1
+        },
+        {
+          "code": "J4500S",
+          "name": "RICOH SPトナー4500S（２本入り） (純正)",
+          "price": 32000,
+          "quantity": 1
+        }
+      ],
+      "deliveryInfo": {
+        "date": "最短",
+        "zip": "3861321",
+        "tel": "fadvbabdfbv011442101245",
+        "address": "長野県上田市保野1039-13",
+        "name": "株式会社ｈｈｈｈｆｆｆｆｍｍｍｍ",
+        "note": " (宛名: 株式会社ｈｈｈｈｆｆｆｆｍｍｍｍ, TEL: fadvbabdfbv011442101245)",
+        "clientOrderNumber": "987654",
+        "shipper": {
+          "zip": "3861321",
+          "address": "上田市保野1039-13",
+          "name": "出荷ひふみマネジメント株式会社",
+          "tel": "0268752815"
+        }
+      },
+      "status": "一部発送",
+      "shipments": [
+        {
+          "shipmentId": 1768511200573,
+          "shippedDate": "2026-01-15T21:06:40.573Z",
+          "deliveryCompany": "佐川",
+          "trackingNumber": "122456",
+          "deliveryDate": "2026/01/19",
+          "deliveryDateUnknown": false,
+          "items": [
+            {
+              "code": "J6400S",
+              "name": "RICOH ﾄﾅｰｶｰﾄﾘｯｼﾞ6400S【600574】2本入り (純正)",
+              "quantity": 1
+            }
+          ]
+        }
+      ],
+      "deliveryCompany": "佐川",
+      "trackingNumber": "122456",
+      "exported_at": "2026-01-22T19:23:42.314Z"
+    },
+    {
+      "orderId": 1769022663155,
+      "orderDate": "2026-01-21T19:11:03.155Z",
+      "customerId": "H015",
+      "items": [
+        {
+          "code": "J046HBK",
+          "name": "CANON ﾄﾅｰｶｰﾄﾘｯｼﾞ046H BK　1254C003 (純正)",
+          "price": 22300,
+          "quantity": 2
+        },
+        {
+          "code": "JCE254A",
+          "name": "HP ﾄﾅｰｺﾚｸｼｮﾝﾕﾆｯﾄ CE254A (純正)",
+          "price": 3218,
+          "quantity": 2
+        }
+      ],
+      "deliveryInfo": {
+        "date": "最短",
+        "zip": "3861321",
+        "tel": "11111111",
+        "address": "長野県上田市保野1039-13",
+        "name": "株式会社エルストリーム",
+        "note": " (宛名: 株式会社エルストリーム, TEL: 11111111)",
+        "clientOrderNumber": "102030",
+        "shipper": {
+          "zip": "4000316",
+          "address": "山梨県南アルプス市中野",
+          "name": "マサパートナーズ",
+          "tel": "0552222222"
+        }
+      },
+      "status": "発送済",
+      "shipments": [
+        {
+          "shipmentId": 1769457712338,
+          "shippedDate": "2026-01-26T20:01:52.338Z",
+          "deliveryCompany": "",
+          "trackingNumber": "",
+          "deliveryDate": "",
+          "deliveryDateUnknown": false,
+          "items": [
+            {
+              "code": "J046HBK",
+              "name": "CANON ﾄﾅｰｶｰﾄﾘｯｼﾞ046H BK　1254C003 (純正)",
+              "quantity": 2
+            },
+            {
+              "code": "JCE254A",
+              "name": "HP ﾄﾅｰｺﾚｸｼｮﾝﾕﾆｯﾄ CE254A (純正)",
+              "quantity": 2
+            }
+          ]
+        }
+      ],
+      "exported_at": "2026-01-26T19:46:06.502Z",
+      "deliveryCompany": "",
+      "trackingNumber": ""
+    },
+    {
+      "orderId": 1769115043500,
+      "orderDate": "2026-01-22T20:50:43.500Z",
+      "customerId": "H015",
+      "items": [
+        {
+          "code": "J6400S",
+          "name": "RICOH ﾄﾅｰｶｰﾄﾘｯｼﾞ6400S【600574】2本入り (純正)",
+          "price": 28000,
+          "quantity": 2
+        },
+        {
+          "code": "319167",
+          "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ ｶｰﾄﾘｯｼﾞ ﾀｲﾌﾟV 5000 319167 3251638 (純正)",
+          "price": 2400,
+          "quantity": 2
+        },
+        {
+          "code": "J4500S",
+          "name": "RICOH SPトナー4500S（２本入り） (純正)",
+          "price": 32000,
+          "quantity": 2
+        },
+        {
+          "code": "00000014",
+          "name": "EPSON A3モノクロページプリンター LP-S3250",
+          "price": 25000,
+          "quantity": 1
+        }
+      ],
+      "deliveryInfo": {
+        "date": "最短",
+        "zip": "4000316",
+        "tel": "0552821111",
+        "address": "山梨県南アルプス市中野11111111",
+        "name": "池田クリニック",
+        "note": " (宛名: 池田クリニック, TEL: 0552821111)",
+        "clientOrderNumber": "発注NO.クリニック池",
+        "shipper": {
+          "zip": "4000316",
+          "address": "山梨県南アルプス市中野",
+          "name": "マサパートナーズ",
+          "tel": "0552222222"
+        }
+      },
+      "status": "発送済",
+      "shipments": [
+        {
+          "shipmentId": 1769457706582,
+          "shippedDate": "2026-01-26T20:01:46.582Z",
+          "deliveryCompany": "",
+          "trackingNumber": "",
+          "deliveryDate": "",
+          "deliveryDateUnknown": false,
+          "items": [
+            {
+              "code": "J6400S",
+              "name": "RICOH ﾄﾅｰｶｰﾄﾘｯｼﾞ6400S【600574】2本入り (純正)",
+              "quantity": 2
+            },
+            {
+              "code": "319167",
+              "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ ｶｰﾄﾘｯｼﾞ ﾀｲﾌﾟV 5000 319167 3251638 (純正)",
+              "quantity": 2
+            },
+            {
+              "code": "J4500S",
+              "name": "RICOH SPトナー4500S（２本入り） (純正)",
+              "quantity": 2
+            },
+            {
+              "code": "00000014",
+              "name": "EPSON A3モノクロページプリンター LP-S3250",
+              "quantity": 1
+            }
+          ]
+        }
+      ],
+      "exported_at": "2026-01-26T20:20:59.664Z",
+      "deliveryCompany": "",
+      "trackingNumber": ""
+    },
+    {
+      "orderId": "61381",
+      "id": "61381",
+      "customerId": "S006",
+      "customerName": "有限会社すずきや",
+      "deliveryInfo": {
+        "name": "有限会社すずきや",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "JLPB3T32V",
+          "name": "EPSON LPB3T32V 環境推進ﾄﾅｰ",
+          "price": 39330,
+          "quantity": 1
+        }
+      ],
+      "totalAmount": 39330,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.841Z"
+    },
+    {
+      "orderId": "61382",
+      "id": "61382",
+      "customerId": "I004",
+      "customerName": "いづみ文具株式会社",
+      "deliveryInfo": {
+        "name": "いづみ文具株式会社",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "JPRL9560C16",
+          "name": "NEC PR-L9560C-16 大容量ｲｴﾛｰ ﾄﾅｰｶｰﾄﾘｯｼﾞ",
+          "price": 17992,
+          "quantity": 1
+        },
+        {
+          "code": "JPRL9560C17",
+          "name": "NEC PR-L9560C-17 大容量ﾏｾﾞﾝﾀ ﾄﾅｰｶｰﾄﾘｯｼﾞ",
+          "price": 17992,
+          "quantity": 1
+        }
+      ],
+      "totalAmount": 35984,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.841Z"
+    },
+    {
+      "orderId": "61383",
+      "id": "61383",
+      "customerId": "S008",
+      "customerName": "有限会社シオヤ文具",
+      "deliveryInfo": {
+        "name": "有限会社シオヤ文具",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "JCT203363",
+          "name": "XEROX CT203363 ﾄﾅｰｶｰﾄﾘｯｼﾞ",
+          "price": 23908,
+          "quantity": 3
+        },
+        {
+          "code": "JCT203363",
+          "name": "XEROX CT203363 ﾄﾅｰｶｰﾄﾘｯｼﾞ",
+          "price": 23908,
+          "quantity": 9
+        },
+        {
+          "code": "JCT351229",
+          "name": "XEROX CT351229 ﾄﾞﾗﾑｶｰﾄﾘｯｼﾞ",
+          "price": 21500,
+          "quantity": 5
+        },
+        {
+          "code": "D",
+          "name": "※現在、出荷元の倉庫が逼迫しているため、回答納期より遅れが生じる可能性がございます。予めご容赦ください。",
+          "price": 0,
+          "quantity": 0
+        }
+      ],
+      "totalAmount": 394396,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.842Z"
+    },
+    {
+      "orderId": "61384",
+      "id": "61384",
+      "customerId": "K009",
+      "customerName": "くきなみ商事株式会社",
+      "deliveryInfo": {
+        "name": "くきなみ商事株式会社",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "JTN28J",
+          "name": "brother  ﾄﾅｰｶｰﾄﾘｯｼﾞTN-28J",
+          "price": 6246,
+          "quantity": 2
+        },
+        {
+          "code": "JTN291M",
+          "name": "brother  ﾄﾅｰｶｰﾄﾘｯｼﾞ  TN-291M",
+          "price": 6732,
+          "quantity": 2
+        },
+        {
+          "code": "JTN291C",
+          "name": "brother  ﾄﾅｰｶｰﾄﾘｯｼﾞ  TN-291C",
+          "price": 6732,
+          "quantity": 1
+        },
+        {
+          "code": "JTN291Y",
+          "name": "brother  ﾄﾅｰｶｰﾄﾘｯｼﾞ  TN-291Y",
+          "price": 6732,
+          "quantity": 1
+        }
+      ],
+      "totalAmount": 39420,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.842Z"
+    },
+    {
+      "orderId": "61385",
+      "id": "61385",
+      "customerId": "E008",
+      "customerName": "株式会社エムケービジネス",
+      "deliveryInfo": {
+        "name": "株式会社エムケービジネス",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "JTNR-C3LK2",
+          "name": "OKI TNR-C3LK2（大容量）",
+          "price": 16929,
+          "quantity": 2
+        }
+      ],
+      "totalAmount": 33858,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.842Z"
+    },
+    {
+      "orderId": "61386",
+      "id": "61386",
+      "customerId": "K012",
+      "customerName": "株式会社KDI",
+      "deliveryInfo": {
+        "name": "株式会社KDI",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "JP500DR",
+          "name": "RICOH ﾄﾞﾗﾑ P500　【514205】",
+          "price": 11576,
+          "quantity": 1
+        },
+        {
+          "code": "D",
+          "name": "※現在、出荷元の倉庫が逼迫しているため、回答納期より遅れが生じる可能性がございます。予めご容赦ください。",
+          "price": 0,
+          "quantity": 0
+        }
+      ],
+      "totalAmount": 11576,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.842Z"
+    },
+    {
+      "orderId": "61387",
+      "id": "61387",
+      "customerId": "A019",
+      "customerName": "株式会社アイコー",
+      "deliveryInfo": {
+        "name": "株式会社アイコー",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "JDR-C3BK",
+          "name": "OKI DR-C3BK",
+          "price": 10866,
+          "quantity": 1
+        },
+        {
+          "code": "JDR-C3BC",
+          "name": "OKI DR-C3BC",
+          "price": 10866,
+          "quantity": 1
+        },
+        {
+          "code": "JDR-C3BM",
+          "name": "OKI DR-C3BM",
+          "price": 11181,
+          "quantity": 1
+        },
+        {
+          "code": "JDR-C3BY",
+          "name": "OKI DR-C3BY",
+          "price": 10866,
+          "quantity": 1
+        }
+      ],
+      "totalAmount": 43779,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.842Z"
+    },
+    {
+      "orderId": "61388",
+      "id": "61388",
+      "customerId": "T024",
+      "customerName": "有限会社東和ヘルメス",
+      "deliveryInfo": {
+        "name": "有限会社東和ヘルメス",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "JTN299Y",
+          "name": "brother ﾄﾅｰｶｰﾄﾘｯｼﾞ TN-299Y",
+          "price": 6566,
+          "quantity": 1
+        }
+      ],
+      "totalAmount": 6566,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.842Z"
+    },
+    {
+      "orderId": "61389",
+      "id": "61389",
+      "customerId": "K035",
+      "customerName": "合資会社錦尚堂",
+      "deliveryInfo": {
+        "name": "合資会社錦尚堂",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "J337VP",
+          "name": "CANON ﾄﾅｰｶｰﾄﾘｯｼﾞ337VP 【9435B005】",
+          "price": 12517,
+          "quantity": 2
+        }
+      ],
+      "totalAmount": 25034,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.842Z"
+    },
+    {
+      "orderId": "61390",
+      "id": "61390",
+      "customerId": "S035",
+      "customerName": "セラフィム・ワン株式会社",
+      "deliveryInfo": {
+        "name": "セラフィム・ワン株式会社",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "RCT202054",
+          "name": "ﾘｻｲｸﾙﾄﾅｰ CT202054 ﾌﾞﾗｯｸ",
+          "price": 5500,
+          "quantity": 1
+        },
+        {
+          "code": "RCT202056",
+          "name": "ﾘｻｲｸﾙﾄﾅｰ CT202056 ﾏｾﾞﾝﾀ",
+          "price": 5500,
+          "quantity": 1
+        },
+        {
+          "code": "RCT202057",
+          "name": "ﾘｻｲｸﾙﾄﾅｰ CT202057 ｲｴﾛｰ",
+          "price": 5500,
+          "quantity": 1
+        },
+        {
+          "code": "UNKNOWN-637",
+          "name": "※1/26着 佐川：360376453010",
+          "price": 0,
+          "quantity": 0
+        }
+      ],
+      "totalAmount": 16500,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.842Z"
+    },
+    {
+      "orderId": "61391",
+      "id": "61391",
+      "customerId": "E012",
+      "customerName": "株式会社栄進堂　本社",
+      "deliveryInfo": {
+        "name": "株式会社栄進堂　本社",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "F9J81A",
+          "name": "HP HP729 F9J81A ﾌﾟﾘﾝﾄﾍｯﾄﾞ",
+          "price": 36920,
+          "quantity": 1
+        },
+        {
+          "code": "J3WX30A",
+          "name": "HP HP728B 3WX30A ﾌﾞﾗｯｸ 300ml",
+          "price": 17028,
+          "quantity": 1
+        },
+        {
+          "code": "D",
+          "name": "※現在、出荷元の倉庫が逼迫しているため、回答納期より遅れが生じる可能性がございます。予めご容赦ください。",
+          "price": 0,
+          "quantity": 0
+        }
+      ],
+      "totalAmount": 53948,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.842Z"
+    },
+    {
+      "orderId": "61392",
+      "id": "61392",
+      "customerId": "A001",
+      "customerName": "アシスト福井株式会社",
+      "deliveryInfo": {
+        "name": "アシスト福井株式会社",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "JCT203114",
+          "name": "XEROX CT203114 ﾄﾅｰｶｰﾄﾘｯｼﾞ",
+          "price": 18322,
+          "quantity": 1
+        }
+      ],
+      "totalAmount": 18322,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.842Z"
+    },
+    {
+      "orderId": "61393",
+      "id": "61393",
+      "customerId": "O007",
+      "customerName": "株式会社OAサプライ",
+      "deliveryInfo": {
+        "name": "株式会社OAサプライ",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "JPRL720012",
+          "name": "NEC PR-L7200-12 ﾄﾅｰｶｰﾄﾘｯｼﾞ",
+          "price": 35584,
+          "quantity": 1
+        }
+      ],
+      "totalAmount": 35584,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.842Z"
+    },
+    {
+      "orderId": "61394",
+      "id": "61394",
+      "customerId": "E012",
+      "customerName": "株式会社栄進堂　本社",
+      "deliveryInfo": {
+        "name": "株式会社栄進堂　本社",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "JTC-C3BY2",
+          "name": "OKI TC-C3BY2",
+          "price": 18853,
+          "quantity": 2
+        },
+        {
+          "code": "JTC-C3BM2",
+          "name": "OKI TC-C3BM2",
+          "price": 18853,
+          "quantity": 2
+        },
+        {
+          "code": "JTC-C3BC2",
+          "name": "OKI TC-C3BC2",
+          "price": 18853,
+          "quantity": 2
+        },
+        {
+          "code": "JTC-C3BK2",
+          "name": "OKI TC-C3BK2",
+          "price": 17642,
+          "quantity": 2
+        },
+        {
+          "code": "UNKNOWN-770",
+          "name": "※1/28着 西濃：009-819-0304",
+          "price": 0,
+          "quantity": 0
+        }
+      ],
+      "totalAmount": 148402,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.842Z"
+    },
+    {
+      "orderId": "61395",
+      "id": "61395",
+      "customerId": "S036",
+      "customerName": "株式会社 島村謄文堂",
+      "deliveryInfo": {
+        "name": "株式会社 島村謄文堂",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "JDR24J",
+          "name": "brother ﾄﾞﾗﾑｶｰﾄﾘｯｼﾞ DR-24J",
+          "price": 8883,
+          "quantity": 1
+        }
+      ],
+      "totalAmount": 8883,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.842Z"
+    },
+    {
+      "orderId": "61396",
+      "id": "61396",
+      "customerId": "B005",
+      "customerName": "株式会社ビブラ愛媛",
+      "deliveryInfo": {
+        "name": "株式会社ビブラ愛媛",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "JTNR-C4KY1",
+          "name": "OKI TNR-C4KY1",
+          "price": 8061,
+          "quantity": 1
+        },
+        {
+          "code": "JTNR-C4KM1",
+          "name": "OKI TNR-C4KM1",
+          "price": 8061,
+          "quantity": 1
+        },
+        {
+          "code": "UNKNOWN-327",
+          "name": "※1/26着 西濃：0091787311",
+          "price": 0,
+          "quantity": 0
+        }
+      ],
+      "totalAmount": 16122,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.842Z"
+    },
+    {
+      "orderId": "61397",
+      "id": "61397",
+      "customerId": "A019",
+      "customerName": "株式会社アイコー",
+      "deliveryInfo": {
+        "name": "株式会社アイコー",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "JTC-C3BC1",
+          "name": "OKI TC-C3BC1",
+          "price": 11394,
+          "quantity": 1
+        },
+        {
+          "code": "JTC-C3BY1",
+          "name": "OKI TC-C3BY1",
+          "price": 11394,
+          "quantity": 1
+        },
+        {
+          "code": "D",
+          "name": "※現在、出荷元の倉庫が逼迫しているため、回答納期より遅れが生じる可能性がございます。予めご容赦ください。",
+          "price": 0,
+          "quantity": 0
+        }
+      ],
+      "totalAmount": 22788,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.842Z"
+    },
+    {
+      "orderId": "61398",
+      "id": "61398",
+      "customerId": "F005",
+      "customerName": "株式会社フロンティア",
+      "deliveryInfo": {
+        "name": "株式会社フロンティア",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "JTC-C4AK2",
+          "name": "OKI TC-C4AK2",
+          "price": 8316,
+          "quantity": 1
+        },
+        {
+          "code": "D",
+          "name": "※現在、出荷元の倉庫が逼迫しているため、回答納期より遅れが生じる可能性がございます。予めご容赦ください。",
+          "price": 0,
+          "quantity": 0
+        }
+      ],
+      "totalAmount": 8316,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.842Z"
+    },
+    {
+      "orderId": "61399",
+      "id": "61399",
+      "customerId": "K001",
+      "customerName": "キープグリーン株式会社",
+      "deliveryInfo": {
+        "name": "キープグリーン株式会社",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "J01098",
+          "name": "ｱﾌﾟﾃｨ 01098 M643/653用ｶｾｯﾄﾘﾎﾞﾝ 1個+詰替えﾘﾎﾞﾝ4個ｾｯﾄ 1箱",
+          "price": 17567,
+          "quantity": 0
+        }
+      ],
+      "totalAmount": 0,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.842Z"
+    },
+    {
+      "orderId": "61400",
+      "id": "61400",
+      "customerId": "K001",
+      "customerName": "キープグリーン株式会社",
+      "deliveryInfo": {
+        "name": "キープグリーン株式会社",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "JDR-C3BK",
+          "name": "OKI DR-C3BK",
+          "price": 10787,
+          "quantity": 1
+        },
+        {
+          "code": "JDR-C3BY",
+          "name": "OKI DR-C3BY",
+          "price": 10787,
+          "quantity": 1
+        },
+        {
+          "code": "JDR-C3BC",
+          "name": "OKI DR-C3BC",
+          "price": 10787,
+          "quantity": 1
+        }
+      ],
+      "totalAmount": 32361,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.842Z"
+    },
+    {
+      "orderId": "61401",
+      "id": "61401",
+      "customerId": "Y002",
+      "customerName": "株式会社ヤブキ",
+      "deliveryInfo": {
+        "name": "株式会社ヤブキ",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "JEC4200H",
+          "name": "RICOH ECﾄﾅｰｶﾄﾘｯｼﾞ4200H　【308637】",
+          "price": 30957,
+          "quantity": 1
+        }
+      ],
+      "totalAmount": 30957,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.842Z"
+    },
+    {
+      "orderId": "61402",
+      "id": "61402",
+      "customerId": "U003",
+      "customerName": "ウォークメディア株式会社",
+      "deliveryInfo": {
+        "name": "ウォークメディア株式会社",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "J312",
+          "name": "CANON ﾄﾅｰｶｰﾄﾘｯｼﾞ 312 【1870B003】",
+          "price": 4928,
+          "quantity": 1
+        }
+      ],
+      "totalAmount": 4928,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.842Z"
+    },
+    {
+      "orderId": "61403",
+      "id": "61403",
+      "customerId": "H022",
+      "customerName": "広沢商事株式会社 ｵﾌｨｽ家具環境部",
+      "deliveryInfo": {
+        "name": "広沢商事株式会社 ｵﾌｨｽ家具環境部",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "J045HBK",
+          "name": "CANON ﾄﾅｰｶｰﾄﾘｯｼﾞ045H BK　1246C003",
+          "price": 7250,
+          "quantity": 2
+        },
+        {
+          "code": "J045HY",
+          "name": "CANON ﾄﾅｰｶｰﾄﾘｯｼﾞ045H Y　1243C003",
+          "price": 8413,
+          "quantity": 2
+        },
+        {
+          "code": "CAN",
+          "name": "※CANON直送のため納期確認中",
+          "price": 0,
+          "quantity": 0
+        }
+      ],
+      "totalAmount": 31326,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.842Z"
+    },
+    {
+      "orderId": "61404",
+      "id": "61404",
+      "customerId": "K001",
+      "customerName": "キープグリーン株式会社",
+      "deliveryInfo": {
+        "name": "キープグリーン株式会社",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "JTN62JXL",
+          "name": "brother ﾄﾅｰｶｰﾄﾘｯｼﾞ TN-62JXL",
+          "price": 17454,
+          "quantity": 1
+        }
+      ],
+      "totalAmount": 17454,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.842Z"
+    },
+    {
+      "orderId": "61405",
+      "id": "61405",
+      "customerId": "S027",
+      "customerName": "株式会社サンワ",
+      "deliveryInfo": {
+        "name": "株式会社サンワ",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "JTC-C3BK2",
+          "name": "OKI TC-C3BK2",
+          "price": 17266,
+          "quantity": 1
+        },
+        {
+          "code": "JTC-C3BC2",
+          "name": "OKI TC-C3BC2",
+          "price": 18451,
+          "quantity": 1
+        },
+        {
+          "code": "JTC-C3BM2",
+          "name": "OKI TC-C3BM2",
+          "price": 18451,
+          "quantity": 1
+        },
+        {
+          "code": "JTC-C3BY2",
+          "name": "OKI TC-C3BY2",
+          "price": 18451,
+          "quantity": 1
+        },
+        {
+          "code": "UNKNOWN-676",
+          "name": "※1/26着 日通：4740-5801-6283",
+          "price": 0,
+          "quantity": 0
+        }
+      ],
+      "totalAmount": 72619,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.842Z"
+    },
+    {
+      "orderId": "61406",
+      "id": "61406",
+      "customerId": "K001",
+      "customerName": "キープグリーン株式会社",
+      "deliveryInfo": {
+        "name": "キープグリーン株式会社",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "JTN62J",
+          "name": "brother ﾄﾅｰｶｰﾄﾘｯｼﾞ TN-62J",
+          "price": 12025,
+          "quantity": 1
+        }
+      ],
+      "totalAmount": 12025,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.842Z"
+    },
+    {
+      "orderId": "61407",
+      "id": "61407",
+      "customerId": "K024",
+      "customerName": "株式会社カタナヤ",
+      "deliveryInfo": {
+        "name": "株式会社カタナヤ",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "J054BK",
+          "name": "CANON ﾄﾅｰｶｰﾄﾘｯｼﾞ054 BK 【3024C003】",
+          "price": 5198,
+          "quantity": 2
+        }
+      ],
+      "totalAmount": 10396,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.842Z"
+    },
+    {
+      "orderId": "61408",
+      "id": "61408",
+      "customerId": "S024",
+      "customerName": "有限会社サトウ事務機器",
+      "deliveryInfo": {
+        "name": "有限会社サトウ事務機器",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "JC310HC",
+          "name": "RICOH  SPﾄﾅｰｶｰﾄﾘｯｼﾞC310H ｼｱﾝ 【308501】 純正品",
+          "price": 11022,
+          "quantity": 1
+        },
+        {
+          "code": "JC310HM",
+          "name": "RICOH  SPﾄﾅｰｶｰﾄﾘｯｼﾞC310H ﾏｾﾞﾝﾀ 【308502】 純正品",
+          "price": 11022,
+          "quantity": 1
+        },
+        {
+          "code": "UNKNOWN-566",
+          "name": "※1/28着 佐川急便：4427-4143-0342",
+          "price": 0,
+          "quantity": 0
+        }
+      ],
+      "totalAmount": 22044,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.842Z"
+    },
+    {
+      "orderId": "61409",
+      "id": "61409",
+      "customerId": "Y020",
+      "customerName": "萬屋紙店",
+      "deliveryInfo": {
+        "name": "萬屋紙店",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "JAER100-A4",
+          "name": "αｴｺﾍﾟｰﾊﾟｰ ﾀｲﾌﾟR100 A4 1箱(500×5冊)  AER100-A4 再生紙/白色度68%",
+          "price": 1970,
+          "quantity": 12
+        },
+        {
+          "code": "D",
+          "name": "※現在、出荷元の倉庫が逼迫しているため、回答納期より遅れが生じる可能性がございます。予めご容赦ください。",
+          "price": 0,
+          "quantity": 0
+        }
+      ],
+      "totalAmount": 23640,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.842Z"
+    },
+    {
+      "orderId": "61410",
+      "id": "61410",
+      "customerId": "ei002",
+      "customerName": "株式会社井上",
+      "deliveryInfo": {
+        "name": "株式会社井上",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "R054HK",
+          "name": "ﾘｻｲｸﾙﾄﾅｰ 054H BK",
+          "price": 6000,
+          "quantity": 2
+        }
+      ],
+      "totalAmount": 12000,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.842Z"
+    },
+    {
+      "orderId": "61411",
+      "id": "61411",
+      "customerId": "N008",
+      "customerName": "有限会社ネコス長崎",
+      "deliveryInfo": {
+        "name": "有限会社ネコス長崎",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "J3M55012",
+          "name": "NEC PR-L3M550-12 ﾄﾅｰｶｰﾄﾘｯｼﾞ",
+          "price": 32430,
+          "quantity": 15
+        },
+        {
+          "code": "J3M55031",
+          "name": "NEC PR-L3M550-31 ﾄﾞﾗﾑｶｰﾄﾘｯｼﾞ",
+          "price": 15318,
+          "quantity": 2
+        },
+        {
+          "code": "JSP6400DR",
+          "name": "RICOH SPﾄﾞﾗﾑﾕﾆｯﾄ6400  【512684】",
+          "price": 9163,
+          "quantity": 2
+        },
+        {
+          "code": "D",
+          "name": "※現在、出荷元の倉庫が逼迫しているため、回答納期より遅れが生じる可能性がございます。予めご容赦ください。",
+          "price": 0,
+          "quantity": 0
+        }
+      ],
+      "totalAmount": 535412,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.842Z"
+    },
+    {
+      "orderId": "61412",
+      "id": "61412",
+      "customerId": "K004",
+      "customerName": "有限会社近藤金庫店",
+      "deliveryInfo": {
+        "name": "有限会社近藤金庫店",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "JTNR-C3LC2",
+          "name": "OKI TNR-C3LC2（大容量）",
+          "price": 18323,
+          "quantity": 1
+        },
+        {
+          "code": "JIDC3LY",
+          "name": "OKI ID-C3LY",
+          "price": 12459,
+          "quantity": 1
+        }
+      ],
+      "totalAmount": 30782,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.843Z"
+    },
+    {
+      "orderId": "61413",
+      "id": "61413",
+      "customerId": "ES004",
+      "customerName": "諏訪梱包運輸株式会社",
+      "deliveryInfo": {
+        "name": "諏訪梱包運輸株式会社",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "R535012",
+          "name": "ﾘｻｲｸﾙﾄﾅｰ PR-L5350-12",
+          "price": 5400,
+          "quantity": 2
+        },
+        {
+          "code": "UNKNOWN-463",
+          "name": "※回収日…1/27 佐川急便にて(お届けとは別便になります)",
+          "price": 0,
+          "quantity": 0
+        }
+      ],
+      "totalAmount": 10800,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.843Z"
+    },
+    {
+      "orderId": "61414",
+      "id": "61414",
+      "customerId": "I008",
+      "customerName": "株式会社イナリオフィスプラザ",
+      "deliveryInfo": {
+        "name": "株式会社イナリオフィスプラザ",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "JCT203207",
+          "name": "XEROX CT203207 ﾌﾞﾗｯｸ",
+          "price": 24170,
+          "quantity": 1
+        },
+        {
+          "code": "JCT203208",
+          "name": "XEROX CT203208 ｼｱﾝ",
+          "price": 17065,
+          "quantity": 1
+        },
+        {
+          "code": "JCT203209",
+          "name": "XEROX CT203209 ﾏｾﾞﾝﾀ",
+          "price": 17065,
+          "quantity": 1
+        },
+        {
+          "code": "JCT203210",
+          "name": "XEROX CT203210 ｲｴﾛｰ",
+          "price": 17065,
+          "quantity": 1
+        },
+        {
+          "code": "UNKNOWN-475",
+          "name": "※1/27着 佐川急便：4427-4143-0364",
+          "price": 0,
+          "quantity": 0
+        }
+      ],
+      "totalAmount": 75365,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.843Z"
+    },
+    {
+      "orderId": "61415",
+      "id": "61415",
+      "customerId": "I008",
+      "customerName": "株式会社イナリオフィスプラザ",
+      "deliveryInfo": {
+        "name": "株式会社イナリオフィスプラザ",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "JCT202464",
+          "name": "XEROX CT202464 ｼｱﾝ2本",
+          "price": 18200,
+          "quantity": 1
+        }
+      ],
+      "totalAmount": 18200,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.843Z"
+    },
+    {
+      "orderId": "61416",
+      "id": "61416",
+      "customerId": "M001",
+      "customerName": "有限会社丸栄商事",
+      "deliveryInfo": {
+        "name": "有限会社丸栄商事",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "R335C",
+          "name": "ﾘｻｲｸﾙﾄﾅｰ 335 ｼｱﾝ",
+          "price": 5400,
+          "quantity": 1
+        },
+        {
+          "code": "R335M",
+          "name": "ﾘｻｲｸﾙﾄﾅｰ 335 ﾏｾﾞﾝﾀ",
+          "price": 5400,
+          "quantity": 1
+        },
+        {
+          "code": "R335Y",
+          "name": "ﾘｻｲｸﾙﾄﾅｰ 335 ｲｴﾛｰ",
+          "price": 5400,
+          "quantity": 1
+        },
+        {
+          "code": "UNKNOWN-341",
+          "name": "※1/27着 佐川：4909-7162-7952",
+          "price": 0,
+          "quantity": 0
+        }
+      ],
+      "totalAmount": 16200,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.843Z"
+    },
+    {
+      "orderId": "61417",
+      "id": "61417",
+      "customerId": "A019",
+      "customerName": "株式会社アイコー",
+      "deliveryInfo": {
+        "name": "株式会社アイコー",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "JTC-C3BK2",
+          "name": "OKI TC-C3BK2",
+          "price": 17266,
+          "quantity": 2
+        },
+        {
+          "code": "JTC-C3BC2",
+          "name": "OKI TC-C3BC2",
+          "price": 18451,
+          "quantity": 1
+        },
+        {
+          "code": "UNKNOWN-977",
+          "name": "※1/27着 日通：4740-5801-7786",
+          "price": 0,
+          "quantity": 0
+        }
+      ],
+      "totalAmount": 52983,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.843Z"
+    },
+    {
+      "orderId": "61418",
+      "id": "61418",
+      "customerId": "M017",
+      "customerName": "有限会社水口企業",
+      "deliveryInfo": {
+        "name": "有限会社水口企業",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "J3M53012",
+          "name": "NEC PR-L3M530-12 ﾄﾅｰｶｰﾄﾘｯｼﾞ",
+          "price": 28912,
+          "quantity": 4
+        },
+        {
+          "code": "RLPB3T29",
+          "name": "ﾘｻｲｸﾙﾄﾅｰ LPB3T29",
+          "price": 3000,
+          "quantity": 3
+        },
+        {
+          "code": "J326",
+          "name": "CANON ﾄﾅｰｶｰﾄﾘｯｼﾞ 326　3483B003",
+          "price": 6451,
+          "quantity": 1
+        },
+        {
+          "code": "JPRL3C75014",
+          "name": "NEC PR-L3C750-14 BK",
+          "price": 32526,
+          "quantity": 1
+        },
+        {
+          "code": "JPRL3C750C33",
+          "name": "NEC PR-L3C750-33",
+          "price": 4587,
+          "quantity": 1
+        },
+        {
+          "code": "JC840HM",
+          "name": "RICOH  SPﾄﾅｰ ﾏｾﾞﾝﾀﾞ C840H【600635】",
+          "price": 26380,
+          "quantity": 1
+        },
+        {
+          "code": "JC840HI",
+          "name": "RICOH  廃ﾄﾅｰﾎﾞﾄﾙ　C840【513663】",
+          "price": 1573,
+          "quantity": 1
+        },
+        {
+          "code": "JPFI120MBK",
+          "name": "CANON ｲﾝｸﾀﾝｸ PFI-120MBK ﾏｯﾄﾌﾞﾗｯｸ",
+          "price": 7217,
+          "quantity": 1
+        },
+        {
+          "code": "JPFI120C",
+          "name": "CANON ｲﾝｸﾀﾝｸ PFI-120C ｼｱﾝ",
+          "price": 7217,
+          "quantity": 1
+        },
+        {
+          "code": "JPFI120M",
+          "name": "CANON ｲﾝｸﾀﾝｸ PFI-120M ﾏｾﾞﾝﾀ",
+          "price": 7217,
+          "quantity": 1
+        },
+        {
+          "code": "JPFI120Y",
+          "name": "CANON ｲﾝｸﾀﾝｸ PFI-120Y ｲｴﾛｰ",
+          "price": 7217,
+          "quantity": 1
+        },
+        {
+          "code": "D",
+          "name": "※現在、出荷元の倉庫が逼迫しているため、回答納期より遅れが生じる可能性がございます。予めご容赦ください。",
+          "price": 0,
+          "quantity": 0
+        }
+      ],
+      "totalAmount": 225033,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.843Z"
+    },
+    {
+      "orderId": "61419",
+      "id": "61419",
+      "customerId": "A019",
+      "customerName": "株式会社アイコー",
+      "deliveryInfo": {
+        "name": "株式会社アイコー",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "JDR-C3BM",
+          "name": "OKI DR-C3BM",
+          "price": 10866,
+          "quantity": 1
+        },
+        {
+          "code": "JDR-C3BY",
+          "name": "OKI DR-C3BY",
+          "price": 10866,
+          "quantity": 1
+        },
+        {
+          "code": "JTC-C3BK2",
+          "name": "OKI TC-C3BK2",
+          "price": 17266,
+          "quantity": 1
+        },
+        {
+          "code": "UNKNOWN-463",
+          "name": "※1/27着 日通：4740-5801-7786",
+          "price": 0,
+          "quantity": 0
+        }
+      ],
+      "totalAmount": 38998,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.843Z"
+    },
+    {
+      "orderId": "61420",
+      "id": "61420",
+      "customerId": "Y020",
+      "customerName": "萬屋紙店",
+      "deliveryInfo": {
+        "name": "萬屋紙店",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "JC840HK",
+          "name": "RICOH  SPﾄﾅｰ ﾌﾞﾗｯｸ C840H【600637】",
+          "price": 28187,
+          "quantity": 2
+        },
+        {
+          "code": "JC840HC",
+          "name": "RICOH  SPﾄﾅｰ ｼｱﾝ C840H【600634】",
+          "price": 26749,
+          "quantity": 1
+        }
+      ],
+      "totalAmount": 83123,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.843Z"
+    },
+    {
+      "orderId": "61421",
+      "id": "61421",
+      "customerId": "EA007",
+      "customerName": "社会福祉法人安曇野市社会福祉協議会",
+      "deliveryInfo": {
+        "name": "社会福祉法人安曇野市社会福祉協議会",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "JP500H",
+          "name": "RICOH ﾄﾅｰP500H　【514204】",
+          "price": 34580,
+          "quantity": 1
+        }
+      ],
+      "totalAmount": 34580,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.843Z"
+    },
+    {
+      "orderId": "61422",
+      "id": "61422",
+      "customerId": "Y007",
+      "customerName": "株式会社ヤマサ",
+      "deliveryInfo": {
+        "name": "株式会社ヤマサ",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "JIPC8500HBK",
+          "name": "RICOH IP C8500H BK 600722",
+          "price": 29880,
+          "quantity": 1
+        }
+      ],
+      "totalAmount": 29880,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.843Z"
+    },
+    {
+      "orderId": "61423",
+      "id": "61423",
+      "customerId": "S024",
+      "customerName": "有限会社サトウ事務機器",
+      "deliveryInfo": {
+        "name": "有限会社サトウ事務機器",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "JPC6000HBK",
+          "name": "RICOH P C6000H BK 600683",
+          "price": 12577,
+          "quantity": 1
+        },
+        {
+          "code": "JPC6000HC",
+          "name": "RICOH P C6000H C 600684",
+          "price": 11239,
+          "quantity": 1
+        },
+        {
+          "code": "JPC6000HM",
+          "name": "RICOH P C6000H M 600685",
+          "price": 11239,
+          "quantity": 1
+        },
+        {
+          "code": "JPC6000HY",
+          "name": "RICOH P C6000H Y 600686",
+          "price": 11239,
+          "quantity": 1
+        },
+        {
+          "code": "UNKNOWN-57",
+          "name": "※1/27着 ヤマト：345564743624",
+          "price": 0,
+          "quantity": 0
+        }
+      ],
+      "totalAmount": 46294,
+      "status": "発送済",
+      "orderDate": "2026-01-23T09:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:35:45.843Z",
+      "shipments": [
+        {
+          "shipmentId": 1769456185969,
+          "shippedDate": "2026-01-26T19:36:25.969Z",
+          "deliveryCompany": "ｐｐｐ",
+          "trackingNumber": "111",
+          "deliveryDate": "2026/01/28",
+          "deliveryDateUnknown": false,
+          "items": [
+            {
+              "code": "JPC6000HBK",
+              "name": "RICOH P C6000H BK 600683",
+              "quantity": 1
+            },
+            {
+              "code": "JPC6000HC",
+              "name": "RICOH P C6000H C 600684",
+              "quantity": 1
+            },
+            {
+              "code": "JPC6000HM",
+              "name": "RICOH P C6000H M 600685",
+              "quantity": 1
+            },
+            {
+              "code": "JPC6000HY",
+              "name": "RICOH P C6000H Y 600686",
+              "quantity": 1
+            }
+          ]
+        }
+      ],
+      "deliveryCompany": "ｐｐｐ",
+      "trackingNumber": "111"
+    },
+    {
+      "orderId": "00061484",
+      "id": "00061484",
+      "customerId": "H015",
+      "customerName": "ひふみマネジメント株式会社",
+      "deliveryInfo": {
+        "name": "ひふみマネジメント株式会社",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "J046HBK",
+          "name": "CANON ﾄﾅｰｶｰﾄﾘｯｼﾞ046H BK　1254C003 (純正)",
+          "price": 22300,
+          "quantity": 2
+        },
+        {
+          "code": "JCE254A",
+          "name": "HP ﾄﾅｰｺﾚｸｼｮﾝﾕﾆｯﾄ CE254A (純正)",
+          "price": 3218,
+          "quantity": 2
+        }
+      ],
+      "totalAmount": 51036,
+      "status": "発送済",
+      "orderDate": "2026-01-22T00:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:59:32.704Z"
+    },
+    {
+      "orderId": "00061485",
+      "id": "00061485",
+      "customerId": "H015",
+      "customerName": "ひふみマネジメント株式会社",
+      "deliveryInfo": {
+        "name": "ひふみマネジメント株式会社",
+        "note": "外部取込データ"
+      },
+      "items": [
+        {
+          "code": "J6400S",
+          "name": "RICOH ﾄﾅｰｶｰﾄﾘｯｼﾞ6400S【600574】2本入り (純正)",
+          "price": 28000,
+          "quantity": 2
+        },
+        {
+          "code": "319167",
+          "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ ｶｰﾄﾘｯｼﾞ ﾀｲﾌﾟV 5000 319167 3251638 (純正)",
+          "price": 2400,
+          "quantity": 2
+        },
+        {
+          "code": "J4500S",
+          "name": "RICOH SPトナー4500S（２本入り） (純正)",
+          "price": 32000,
+          "quantity": 2
+        },
+        {
+          "code": "00000014",
+          "name": "EPSON A3モノクロページプリンター LP-S3250",
+          "price": 25000,
+          "quantity": 1
+        }
+      ],
+      "totalAmount": 149800,
+      "status": "発送済",
+      "orderDate": "2026-01-23T00:00:00.000Z",
+      "source": "external",
+      "exported_at": "2026-01-26T19:59:32.705Z"
+    },
+    {
+      "orderId": 1769460153072,
+      "orderDate": "2026-01-26T20:42:33.072Z",
+      "customerId": "H015",
+      "items": [
+        {
+          "code": "315253",
+          "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ針 ﾀｲﾌﾟN 5000針×2個/箱  315253 (純正)",
+          "price": 3200,
+          "quantity": 10
+        }
+      ],
+      "deliveryInfo": {
+        "date": "2026/01/28",
+        "zip": "3861321",
+        "tel": "22233645",
+        "address": "長野県上田市保野1039-13",
+        "name": "株式会社hfm",
+        "note": " (宛名: 株式会社hfm, TEL: 22233645)",
+        "clientOrderNumber": "123",
+        "shipper": {
+          "zip": "205-001",
+          "address": "東京都",
+          "name": "株式会社アサヒ",
+          "tel": "0425554045"
+        },
+        "dateUnknown": false
+      },
+      "status": "一部発送",
+      "shipments": [
+        {
+          "shipmentId": 1769462024975,
+          "shippedDate": "2026-01-26T21:13:44.975Z",
+          "deliveryCompany": "ヤマト",
+          "trackingNumber": "0123456",
+          "deliveryDate": "2026/01/28",
+          "deliveryDateUnknown": false,
+          "items": [
+            {
+              "code": "315253",
+              "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ針 ﾀｲﾌﾟN 5000針×2個/箱  315253 (純正)",
+              "quantity": 5
+            }
+          ]
+        }
+      ],
+      "exported_at": "2026-01-26T20:54:32.112Z",
+      "deliveryCompany": "ヤマト",
+      "trackingNumber": "0123456"
+    },
+    {
+      "orderId": 1769461358289,
+      "orderDate": "2026-01-26T21:02:38.289Z",
+      "customerId": "H015",
+      "items": [
+        {
+          "code": "J046HBK",
+          "name": "CANON ﾄﾅｰｶｰﾄﾘｯｼﾞ046H BK　1254C003 (純正)",
+          "price": 22300,
+          "quantity": 10
+        }
+      ],
+      "deliveryInfo": {
+        "date": "最短",
+        "zip": "3861321",
+        "tel": "fadvbabdfbv011442101245",
+        "address": "長野県上田市保野1039-13",
+        "name": "株式会社ｈｈｈｈｆｆｆｆｍｍｍｍ",
+        "note": " (宛名: 株式会社ｈｈｈｈｆｆｆｆｍｍｍｍ, TEL: fadvbabdfbv011442101245)",
+        "clientOrderNumber": "0001234",
+        "shipper": {
+          "zip": "",
+          "address": "",
+          "name": "",
+          "tel": ""
+        }
+      },
+      "status": "発送済",
+      "shipments": [
+        {
+          "shipmentId": 1769461447510,
+          "shippedDate": "2026-01-26T21:04:07.510Z",
+          "deliveryCompany": "ヤマト",
+          "trackingNumber": "123456",
+          "deliveryDate": "2026/01/29",
+          "deliveryDateUnknown": false,
+          "items": [
+            {
+              "code": "J046HBK",
+              "name": "CANON ﾄﾅｰｶｰﾄﾘｯｼﾞ046H BK　1254C003 (純正)",
+              "quantity": 10
+            }
+          ]
+        }
+      ],
+      "exported_at": "2026-01-26T21:03:02.631Z",
+      "deliveryCompany": "ヤマト",
+      "trackingNumber": "123456"
+    },
+    {
+      "orderId": 1769541932080,
+      "orderDate": "2026-01-27T19:25:32.080Z",
+      "customerId": "H015",
+      "items": [
+        {
+          "code": "NBSP6400H",
+          "name": "RICOH 汎用品 IPSiO SPﾄﾅｰｶｰﾄﾘｯｼﾞ6400Ｈ (汎用)",
+          "price": 31000,
+          "quantity": 5
+        },
+        {
+          "code": "JSP6400H",
+          "name": "RICOH SPﾄﾅｰｶｰﾄﾘｯｼﾞ6400H 【600572】 (純正)",
+          "price": 34300,
+          "quantity": 5
+        }
+      ],
+      "deliveryInfo": {
+        "date": "最短",
+        "zip": "4000316",
+        "tel": "0552821111",
+        "address": "山梨県南アルプス市中野11111111",
+        "name": "池田クリニック",
+        "note": " (宛名: 池田クリニック, TEL: 0552821111)",
+        "clientOrderNumber": "123456",
+        "shipper": {
+          "zip": "3861321",
+          "address": "上田市保野1039-13",
+          "name": "出荷ひふみマネジメント株式会社",
+          "tel": "0268752815"
+        }
+      },
+      "status": "未発送",
+      "shipments": [],
+      "exported_at": "2026-02-02T20:08:46.109Z"
+    },
+    {
+      "orderId": 1769740723052,
+      "orderDate": "2026-01-30T02:38:43.052Z",
+      "customerId": "H015",
+      "items": [
+        {
+          "name": "不明",
+          "price": 0,
+          "quantity": 3
+        },
+        {
+          "name": "不明",
+          "price": 0,
+          "quantity": 3
+        }
+      ],
+      "deliveryInfo": {
+        "date": "最短",
+        "zip": "3861321",
+        "tel": "22233645",
+        "address": "長野県上田市保野1039-13",
+        "name": "株式会社hfm",
+        "note": " (宛名: 株式会社hfm, TEL: 22233645)",
+        "clientOrderNumber": "青梅市役所単契",
+        "shipper": {
+          "zip": "205-001",
+          "address": "東京都",
+          "name": "株式会社アサヒ",
+          "tel": "0425554045"
+        }
+      },
+      "status": "未発送",
+      "shipments": [],
+      "exported_at": "2026-02-02T20:08:46.109Z"
+    },
+    {
+      "orderId": 1769746013053,
+      "orderDate": "2026-01-30T04:06:53.053Z",
+      "customerId": "H015",
+      "items": [
+        {
+          "name": "不明",
+          "price": 0,
+          "quantity": 1
+        },
+        {
+          "name": "不明",
+          "price": 0,
+          "quantity": 1
+        }
+      ],
+      "deliveryInfo": {
+        "date": "最短",
+        "zip": "3861321",
+        "tel": "22233645",
+        "address": "長野県上田市保野1039-13",
+        "name": "株式会社hfm",
+        "note": " (宛名: 株式会社hfm, TEL: 22233645)",
+        "clientOrderNumber": "",
+        "shipper": {
+          "zip": "",
+          "address": "",
+          "name": "",
+          "tel": ""
+        }
+      },
+      "status": "未発送",
+      "shipments": [],
+      "exported_at": "2026-02-02T20:08:46.109Z"
+    },
+    {
+      "orderId": 1769746219074,
+      "orderDate": "2026-01-30T04:10:19.074Z",
+      "customerId": "H015",
+      "items": [
+        {
+          "name": "不明",
+          "price": 0,
+          "quantity": 1
+        },
+        {
+          "name": "不明",
+          "price": 0,
+          "quantity": 1
+        }
+      ],
+      "deliveryInfo": {
+        "date": "最短",
+        "zip": "3861321",
+        "tel": "0268752815",
+        "address": "長野県上田市保野1039-13",
+        "name": "ひふみマネジメント株式会社",
+        "note": " (宛名: ひふみマネジメント株式会社, TEL: 0268752815)",
+        "clientOrderNumber": "",
+        "shipper": {
+          "zip": "",
+          "address": "",
+          "name": "",
+          "tel": ""
+        }
+      },
+      "status": "未発送",
+      "shipments": [],
+      "exported_at": "2026-02-02T20:08:46.109Z"
+    },
+    {
+      "orderId": 1769747171482,
+      "orderDate": "2026-01-30T04:26:11.482Z",
+      "customerId": "H015",
+      "items": [
+        {
+          "name": "不明",
+          "price": 0,
+          "quantity": 1
+        },
+        {
+          "name": "不明",
+          "price": 0,
+          "quantity": 1
+        }
+      ],
+      "deliveryInfo": {
+        "date": "最短",
+        "zip": "4000316",
+        "tel": "0552821111",
+        "address": "山梨県南アルプス市中野11111111",
+        "name": "池田クリニック",
+        "note": " (宛名: 池田クリニック, TEL: 0552821111)",
+        "clientOrderNumber": "",
+        "shipper": {
+          "zip": "",
+          "address": "",
+          "name": "",
+          "tel": ""
+        }
+      },
+      "status": "未発送",
+      "shipments": [],
+      "exported_at": "2026-02-02T20:08:46.109Z"
+    },
+    {
+      "orderId": 1769747339346,
+      "orderDate": "2026-01-30T04:28:59.346Z",
+      "customerId": "H015",
+      "items": [
+        {
+          "code": "319167",
+          "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ ｶｰﾄﾘｯｼﾞ ﾀｲﾌﾟV 5000 319167 3251638 (純正)",
+          "price": 2400,
+          "quantity": 2
+        },
+        {
+          "code": "315253",
+          "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ針 ﾀｲﾌﾟN 5000針×2個/箱  315253 (純正)",
+          "price": 3200,
+          "quantity": 2
+        }
+      ],
+      "deliveryInfo": {
+        "date": "最短",
+        "zip": "3861321",
+        "tel": "22233645",
+        "address": "長野県上田市保野1039-13",
+        "name": "株式会社hfm",
+        "note": " (宛名: 株式会社hfm, TEL: 22233645)",
+        "clientOrderNumber": "",
+        "shipper": {
+          "zip": "",
+          "address": "",
+          "name": "",
+          "tel": ""
+        }
+      },
+      "status": "未発送",
+      "shipments": [],
+      "exported_at": "2026-02-02T20:08:46.109Z"
+    },
+    {
+      "orderId": 1770061803264,
+      "orderDate": "2026-02-02T19:50:03.264Z",
+      "customerId": "H015",
+      "items": [
+        {
+          "code": "00000014",
+          "name": "EPSON A3モノクロページプリンター LP-S3250",
+          "price": 0,
+          "quantity": 1
+        },
+        {
+          "code": "00000015",
+          "name": "アクリルパーテーション 60X60 窓付き　4枚ｾｯﾄ",
+          "price": 0,
+          "quantity": 1
+        },
+        {
+          "code": "00000016",
+          "name": "EPSON A4ｶﾗｰｲﾝｸｼﾞｪｯﾄ PX-S740",
+          "price": 0,
+          "quantity": 1
+        },
+        {
+          "code": "315253",
+          "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ針 ﾀｲﾌﾟN 5000針×2個/箱  315253 (純正)",
+          "price": 3200,
+          "quantity": 1
+        }
+      ],
+      "deliveryInfo": {
+        "date": "最短",
+        "zip": "3861321",
+        "tel": "22233645",
+        "address": "長野県上田市保野1039-13",
+        "name": "株式会社hfm",
+        "note": " (宛名: 株式会社hfm, TEL: 22233645)",
+        "clientOrderNumber": "",
+        "shipper": {
+          "zip": "",
+          "address": "",
+          "name": "",
+          "tel": ""
+        }
+      },
+      "status": "発送済",
+      "shipments": [
+        {
+          "shipmentId": 1770062088908,
+          "shippedDate": "2026-02-02T19:54:48.908Z",
+          "deliveryCompany": "佐川",
+          "trackingNumber": "123-456-789",
+          "deliveryDate": "2026/02/04",
+          "deliveryDateUnknown": false,
+          "items": [
+            {
+              "code": "00000014",
+              "name": "EPSON A3モノクロページプリンター LP-S3250",
+              "quantity": 1
+            },
+            {
+              "code": "00000015",
+              "name": "アクリルパーテーション 60X60 窓付き　4枚ｾｯﾄ",
+              "quantity": 1
+            },
+            {
+              "code": "00000016",
+              "name": "EPSON A4ｶﾗｰｲﾝｸｼﾞｪｯﾄ PX-S740",
+              "quantity": 1
+            },
+            {
+              "code": "315253",
+              "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ針 ﾀｲﾌﾟN 5000針×2個/箱  315253 (純正)",
+              "quantity": 1
+            }
+          ]
+        }
+      ],
+      "exported_at": "2026-02-02T20:08:46.109Z",
+      "deliveryCompany": "佐川",
+      "trackingNumber": "123-456-789"
+    }
+  ]

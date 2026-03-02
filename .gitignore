@@ -1,0 +1,35 @@
+# 依存関係
+node_modules/
+
+# セッション保存
+sessions/
+
+# 環境変数（パスワード等）
+.env
+
+# システム設定（SMTPパスワード等の機密情報を含む）
+# 本番環境では各デプロイ先で個別に作成してください
+settings.json
+
+# 招待トークン（有効期限管理用）
+invite_tokens.json
+
+# パスワード再設定トークン（顧客申込・有効期限管理用）
+reset_tokens.json
+
+# パスワード再設定のレート制限用（IP別・15分窓）
+reset_rate_limit.json
+
+# ログイン失敗レート制限用（アカウント別・5回/15分で15分ロック）
+login_rate_limit.json
+
+# 代理ログイン申請（顧客許可待ち）
+proxy_requests.json
+
+# ログ
+logs/*.json
+!logs/.gitkeep
+
+# OS
+.DS_Store
+Thumbs.db

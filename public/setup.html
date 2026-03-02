@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>WEB受注システム 初期設定</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body class="body-login"> 
+        <div class="login-container">
+            <h1 id="page-title">パスワード初期設定</h1>
+            
+            <p id="page-desc" style="font-size: 0.9em; margin-bottom: 20px;">
+                管理者から配布されたIDとパスワードを入力し、<br>
+                新しいパスワードを設定してください。
+            </p>
+            
+            <div id="wrapper-id">
+                <label>ログインID:</label>
+                <input type="text" id="setup-id" placeholder="配布されたID">
+            </div>
+            
+            <div id="wrapper-current">
+                <label>現在のパスワード:</label>
+                <input type="password" id="setup-current-pass" placeholder="配布されたパスワード">
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #ccc; margin: 15px 0;">
+
+            <div>
+                <label>新しいパスワード:</label>
+                <input type="password" id="setup-new-pass" placeholder="4文字以上で設定">
+            </div>
+            
+            <button id="setup-btn" style="background-color: #28a745;">設定を変更する</button>
+
+            <div style="margin-top: 15px; text-align: right;">
+                <a href="/" style="font-size: 0.9em;">ログイン画面に戻る</a>
+            </div>
+        </div>
+
+        <script>
+            /**
+             * 初期設定用スクリプト
+             * URLパラメータ(?id=xxx&key=yyy)がある場合、自動入力モードで動作します
+             */
+            document.addEventListener('DOMContentLoaded', () => {
+                const setupBtn = document.getElementById('setup-btn');
+                const idInput = document.getElementById('setup-id');
+                const currentPassInput = document.getElementById('setup-current-pass');
+                const newPassInput = document.getElementById('setup-new-pass');
+                
+                // UI操作用の要素取得
+                const pageTitle = document.getElementById('page-title');
+                const pageDesc = document.getElementById('page-desc');
+                const wrapperId = document.getElementById('wrapper-id');
+                const wrapperCurrent = document.getElementById('wrapper-current');
+
+                // 1. URLパラメータの解析 (One-Click招待対応)
+                const urlParams = new URLSearchParams(window.location.search);
+                const inviteId = urlParams.get('id');
+                const inviteKey = urlParams.get('key');
+
+                if (inviteId && inviteKey) {
+                    // 自動入力
+                    idInput.value = inviteId;
+                    currentPassInput.value = inviteKey;
+
+                    // 不要な入力欄を非表示にする（ユーザー負荷軽減）
+                    wrapperId.style.display = 'none';
+                    wrapperCurrent.style.display = 'none';
+
+                    // 案内文を親切に変更（inviteId は URL 由来のため XSS 対策でエスケープ）
+                    pageTitle.innerText = "ようこそ";
+                    const esc = (s) => (s == null ? '' : String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'));
+                    pageDesc.innerHTML = 'ID: <b>' + esc(inviteId) + '</b> 様<br>新しいパスワードを設定してください。（招待またはパスワード再設定リンクからお越しの方）';
+                    
+                    // 新しいパスワード欄にフォーカス
+                    newPassInput.focus();
+                }
+
+                // 2. エンターキー送信対応
+                [idInput, currentPassInput, newPassInput].forEach(input => {
+                    input.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') setupBtn.click();
+                    });
+                });
+
+                // 3. 送信処理（URLに id&key がある場合は key を送り、リセット/招待リンクとして処理）
+                setupBtn.addEventListener('click', async () => {
+                    const id = idInput.value.trim();
+                    const currentPass = currentPassInput.value.trim();
+                    const newPass = newPassInput.value.trim();
+                    const fromLink = !!(inviteId && inviteKey);
+
+                    if (!id || !newPass) {
+                        alert('ログインIDと新しいパスワードを入力してください');
+                        return;
+                    }
+                    if (!fromLink && !currentPass) {
+                        alert('現在のパスワードを入力してください');
+                        return;
+                    }
+
+                    if (newPass.length < 4) {
+                        alert('新しいパスワードは4文字以上にしてください');
+                        return;
+                    }
+
+                    setupBtn.disabled = true;
+                    setupBtn.textContent = '通信中...';
+
+                    const body = fromLink
+                        ? { id, key: inviteKey, newPass }
+                        : { id, currentPass, newPass };
+
+                    try {
+                        const response = await fetch('/api/setup', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(body)
+                        });
+
+                        const contentType = response.headers.get("content-type");
+                        if (!contentType || !contentType.includes("application/json")) {
+                            throw new Error("サーバーから不正な応答がありました");
+                        }
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            alert('パスワードの設定が完了しました。\n自動的にログイン画面へ移動します。');
+                            window.location.href = '/'; 
+                        } else {
+                            alert(result.message || '設定に失敗しました');
+                            setupBtn.disabled = false;
+                            setupBtn.textContent = '設定を変更する';
+                        }
+
+                    } catch (error) {
+                        console.error('Setup Error:', error);
+                        alert('通信エラーが発生しました: ' + error.message);
+                        setupBtn.disabled = false;
+                        setupBtn.textContent = '設定を変更する';
+                    }
+                });
+            });
+        </script>
+    </body>
+</html>
