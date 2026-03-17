@@ -3,8 +3,9 @@
 
 const fs = require("fs").promises;
 const path = require("path");
+const { dbPath } = require("../dbPaths");
 
-const SETTINGS_FILE = path.join(__dirname, "../settings.json");
+const SETTINGS_FILE = dbPath("settings.json");
 const isProduction = process.env.NODE_ENV === "production";
 
 // デフォルト設定（設定が無い場合のフォールバック）

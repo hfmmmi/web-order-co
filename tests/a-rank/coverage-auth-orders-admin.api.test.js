@@ -20,6 +20,7 @@ const request = require("supertest");
 const { app } = require("../../server");
 const fs = require("fs").promises;
 const path = require("path");
+const { DATA_ROOT } = require("../../dbPaths");
 const {
     backupDbFiles,
     restoreDbFiles,
@@ -27,6 +28,10 @@ const {
     readJson,
     writeJson
 } = require("../helpers/testSandbox");
+
+function rankPricesPath() {
+    return path.join(DATA_ROOT, "rank_prices.json");
+}
 
 describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
     let backup;
@@ -625,7 +630,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("place-order は rank_prices.json 破損時も注文受付できる", async () => {
             await seedBaseData(); // テスト順に依存しないよう確実にクリーンな状態にする
-            const rpPath = path.join(__dirname, "../../rank_prices.json");
+            const rpPath = rankPricesPath();
             const orig = await fs.readFile(rpPath, "utf-8");
             try {
                 await fs.writeFile(rpPath, "{", "utf-8");
@@ -1216,7 +1221,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
         });
 
         test("GET /admin/rank-prices-list は rank_prices.json 破損時も 200 でオブジェクトを返す", async () => {
-            const rpPath = path.join(__dirname, "../../rank_prices.json");
+            const rpPath = rankPricesPath();
             const orig = await fs.readFile(rpPath, "utf-8").catch(() => "{}");
             try {
                 await fs.writeFile(rpPath, "{", "utf-8");
@@ -1952,7 +1957,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
         });
 
         test("priceService.getRankPrices は rank_prices.json 破損時空オブジェクトを返す", async () => {
-            const rankPath = path.join(__dirname, "../../rank_prices.json");
+            const rankPath = rankPricesPath();
             const orig = await fs.readFile(rankPath, "utf-8").catch(() => "{}");
             try {
                 await fs.writeFile(rankPath, "{invalid", "utf-8");
@@ -1967,7 +1972,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         // 第2期Phase2: getPricelistCsvForRank の rank_prices 読込失敗時 .catch(() => ({})) 分岐
         test("priceService.getPricelistCsvForRank は rank_prices 読込失敗時も空オブジェクトでCSVを返す", async () => {
-            const rankPath = path.join(__dirname, "../../rank_prices.json");
+            const rankPath = rankPricesPath();
             const orig = await fs.readFile(rankPath, "utf-8").catch(() => "{}");
             try {
                 await fs.writeFile(rankPath, "{invalid", "utf-8");
@@ -2329,10 +2334,10 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
         test("priceService.updateRankPricesFromExcel は rank_prices.json が破損時も空オブジェクトで開始する", async () => {
             const fs = require("fs").promises;
             const path = require("path");
-            const rankPricesPath = path.join(__dirname, "../../rank_prices.json");
-            const orig = await fs.readFile(rankPricesPath, "utf-8").catch(() => "{}");
+            const rankPricesPathFull = rankPricesPath();
+            const orig = await fs.readFile(rankPricesPathFull, "utf-8").catch(() => "{}");
             try {
-                await fs.writeFile(rankPricesPath, "{", "utf-8");
+                await fs.writeFile(rankPricesPathFull, "{", "utf-8");
                 const priceService = require("../../services/priceService");
                 const exceljs = require("exceljs");
                 const workbook = new exceljs.Workbook();
@@ -2343,7 +2348,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
                 const result = await priceService.updateRankPricesFromExcel(buffer);
                 expect(result.success).toBe(true);
             } finally {
-                await fs.writeFile(rankPricesPath, orig, "utf-8");
+                await fs.writeFile(rankPricesPathFull, orig, "utf-8");
             }
         });
 
