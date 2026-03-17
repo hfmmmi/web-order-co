@@ -12,10 +12,11 @@ const stockService = require("../services/stockService");
 // ★見積ロジックを輸入
 const specialPriceService = require("../services/specialPriceService");
 
-// データベースの場所
-const PRODUCTS_DB_PATH = path.join(__dirname, "../products.json");
-const PRICES_DB_PATH = path.join(__dirname, "../prices.json");
-const RANK_PRICES_DB_PATH = path.join(__dirname, "../rank_prices.json");
+// データベースの場所（dbPaths 経由で DATA_DIR 対応）
+const { dbPath } = require("../dbPaths");
+const PRODUCTS_DB_PATH = dbPath("products.json");
+const PRICES_DB_PATH = dbPath("prices.json");
+const RANK_PRICES_DB_PATH = dbPath("rank_prices.json");
 
 function normalizeProductCode(code) {
     return (code || "").trim().toUpperCase();
@@ -323,7 +324,7 @@ router.get("/products/frequent", async (req, res) => {
 
     try {
         // データ一括ロード
-        const ORDERS_DB_PATH = path.join(__dirname, "../orders.json");
+        const ORDERS_DB_PATH = dbPath("orders.json");
         const [productData, pricesData, rankData, ordersData] = await Promise.all([
             fs.readFile(PRODUCTS_DB_PATH, "utf-8"),
             fs.readFile(PRICES_DB_PATH, "utf-8"),

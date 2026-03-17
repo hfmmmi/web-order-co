@@ -20,6 +20,7 @@ const excelReader = require("../utils/excelReader");
 const crypto = require("crypto");
 const fs = require("fs").promises;
 const path = require("path");
+const { dbPath } = require("../dbPaths");
 const { validateBody } = require("../middlewares/validate");
 const {
     addCustomerSchema,
@@ -27,9 +28,9 @@ const {
     adminSettingsUpdateSchema
 } = require("../validators/requestSchemas");
 
-const INVITE_TOKENS_PATH = path.join(__dirname, "../invite_tokens.json");
+const INVITE_TOKENS_PATH = dbPath("invite_tokens.json");
 const INVITE_EXPIRY_HOURS = 24;
-const PROXY_REQUESTS_PATH = path.join(__dirname, "../proxy_requests.json");
+const PROXY_REQUESTS_PATH = dbPath("proxy_requests.json");
 const PROXY_REQUEST_EXPIRY_MS = 10 * 60 * 1000; // 10分
 
 async function loadProxyRequests() {
