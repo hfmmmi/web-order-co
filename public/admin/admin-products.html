@@ -160,12 +160,12 @@
                             <input type="text" id="product-name" class="form-control" placeholder="商品名を入力" required>
                         </div>
                         <div class="form-group">
-                            <label>メーカー</label>
-                            <input type="text" id="product-manufacturer" class="form-control" placeholder="例: Canon">
+                            <label>メーカー名</label>
+                            <input type="text" id="product-manufacturer" class="form-control" placeholder="例: RICOH, Canon（価格表のメーカー列に表示）">
                         </div>
                         <div class="form-group">
-                            <label>カテゴリ/規格</label>
-                            <input type="text" id="product-category" class="form-control" placeholder="例: トナーカートリッジ">
+                            <label>規格（価格表の並び順）</label>
+                            <input type="text" id="product-category" class="form-control" placeholder="純正 / 再生 / 汎用 / 海外純正">
                         </div>
                     </div>
                     <div>
@@ -201,11 +201,13 @@
 
                 <div class="embedded-csv-area">
                     <h3>📥 商品マスタ一括登録 (CSV/Excel)</h3>
-                    <div style="display:flex; gap:10px; align-items: center;">
+                    <div style="display:flex; flex-wrap:wrap; gap:10px; align-items: center; margin-bottom:8px;">
                         <input type="file" id="csv-file-input" accept=".csv, .xlsx, .xls">
                         <button id="csv-upload-btn" style="background:#17a2b8; color:white; border:none; padding:8px 16px; border-radius:4px; cursor:pointer;">一括登録を実行</button>
+                        <button type="button" id="product-template-dl-btn" style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:4px; cursor:pointer;">📋 テンプレートをダウンロード</button>
+                        <button type="button" id="product-export-dl-btn" style="background:#28a745; color:white; border:none; padding:8px 16px; border-radius:4px; cursor:pointer;">📦 マスタ全件ダウンロード</button>
                     </div>
-                    <small style="color:#666;">※既存の商品コードは上書き更新されます。</small>
+                    <small style="color:#666;">※既存の商品コードは上書き更新されます。テンプレートは一括取込用のヘッダー付きExcelです。マスタ全件DLで現在の登録データを同じ形式で取得できます。</small>
                 </div>
 
                 <div style="margin-top: 20px;">

@@ -199,7 +199,11 @@ const adminSettingsUpdateSchema = z
             })
             .strict()
             .optional(),
-        productSchema: z.any().optional()
+        productSchema: z.any().optional(),
+        rankCount: z.number().int().min(1).max(26).optional(),
+        rankNames: z.record(z.string().max(10), z.string().max(100)).optional(),
+        shippingRules: z.record(z.string().max(100), z.string().max(5000)).optional(),
+        cartShippingNotice: z.string().max(10000).optional()
     })
     .strict();
 

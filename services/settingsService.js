@@ -121,11 +121,19 @@ WEB受注システムへのログイン試行が5回失敗しました。
         siteKey: "",
         secretKey: ""
     },
-    rankNames: {}  // ランクID → 表示名（未設定時はIDを表示）。キー: A,B,C,D,E,F,G,H,I,P
+    rankCount: 10,  // 利用するランク数（1〜26）。商品マスタ・価格表の列数に反映
+    rankNames: {},  // ランクID → 表示名（未設定時は「ランク1」「ランク2」…）。キー: A,B,C,…
+    // 送料規定（メーカー別・価格表Excelの各シート先頭に記載）。キー: "default" またはメーカー名
+    shippingRules: {},
+    // カートの内容確認ページ最下部に表示する「送料・配送に関するお知らせ」（HTML可）
+    cartShippingNotice: ""
 };
 
-/** ランクIDの既定順（価格表・Excel取込順と一致） */
-const DEFAULT_RANK_IDS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "P"];
+/** ランクIDの既定順（最大26）。従来互換のため先頭10は A～I, P（以降は J,O,Q～Z 等で26まで） */
+const LEGACY_10 = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "P"];
+const REST_LETTERS = "JKLMNOQRSTUVWXYZ".split(""); // P は既に含むため N の次は O,Q,...
+const DEFAULT_RANK_IDS = [...LEGACY_10, ...REST_LETTERS].slice(0, 26);
+const MAX_RANK_COUNT = 26;
 
 let _cache = null;
 let _cacheTime = 0;
@@ -230,15 +238,28 @@ async function getProductSchema() {
 }
 
 /**
- * ランク一覧を取得（管理画面のドロップダウン・価格表用）
+ * 利用するランクIDの配列を取得（設定の rankCount に従う）
+ * @returns {Promise<string[]>}
+ */
+async function getRankIds() {
+    const s = await getSettings();
+    const count = Math.min(MAX_RANK_COUNT, Math.max(1, parseInt(s.rankCount, 10) || 10));
+    return DEFAULT_RANK_IDS.slice(0, count);
+}
+
+/**
+ * ランク一覧を取得（管理画面のドロップダウン・価格表・商品マスタヘッダー用）
+ * 表示名は rankNames で未設定なら「ランク1」「ランク2」…
  * @returns {Promise<Array<{id: string, name: string}>>}
  */
 async function getRankList() {
     const s = await getSettings();
     const rankNames = s.rankNames || {};
-    return DEFAULT_RANK_IDS.map(id => {
+    const count = Math.min(MAX_RANK_COUNT, Math.max(1, parseInt(s.rankCount, 10) || 10));
+    const ids = DEFAULT_RANK_IDS.slice(0, count);
+    return ids.map((id, i) => {
         const custom = rankNames[id] && String(rankNames[id]).trim();
-        return { id, name: custom || id };
+        return { id, name: custom || `ランク${i + 1}` };
     });
 }
 
@@ -321,6 +342,12 @@ async function updateSettings(partial) {
     if (Array.isArray(sanitized.announcements)) {
         merged.announcements = sanitized.announcements;
     }
+    if (sanitized.shippingRules !== undefined && typeof sanitized.shippingRules === "object") {
+        merged.shippingRules = sanitized.shippingRules;
+    }
+    if (sanitized.cartShippingNotice !== undefined) {
+        merged.cartShippingNotice = typeof sanitized.cartShippingNotice === "string" ? sanitized.cartShippingNotice : "";
+    }
     await fs.writeFile(SETTINGS_FILE, JSON.stringify(merged, null, 2), "utf-8");
     _cache = null; // キャッシュ破棄
     return merged;
@@ -347,8 +374,10 @@ module.exports = {
     getFeatures,
     getProductSchema,
     getAnnouncements,
+    getRankIds,
     getRankList,
     DEFAULT_RANK_IDS,
+    MAX_RANK_COUNT,
     updateSettings,
     applyTemplate
 };

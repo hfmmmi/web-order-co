@@ -86,7 +86,7 @@
 
                 <div class="admin-section" style="margin-top:20px; background-color:#e8f5e9; border:1px solid #a5d6a7;">
                     <h2 class="section-title" style="color: #2e7d32;">📥 ランク別価格をExcelで取り込む</h2>
-                    <p style="font-size:0.9rem; color:#555;">Excelのシート名を「<strong>Upload</strong>」にし、1行目にヘッダー（A列＝商品コード、G列以降＝ランクA,B,C,D,E,F,G,H,I,P の単価）を配置したファイルをアップロードしてください。既存のランク価格が上書きされます。</p>
+                    <p style="font-size:0.9rem; color:#555;">Excelのシート名を「<strong>Upload</strong>」にし、1行目にヘッダー（「商品コード」「商品名」列と、ランク列として「ランク1」「ランク2」…または「ランクA」「ランクB」…または<strong>システム設定で設定したランクの表示名</strong>）を配置したファイルをアップロードしてください。列の順序は任意です。既存のランク価格が上書きされます。</p>
                     <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:12px;">
                         <input type="file" id="rank-excel-input" accept=".xlsx,.xls">
                         <button type="button" id="rank-excel-import-btn" style="background:#2e7d32; color:white; border:none; padding:8px 16px; border-radius:5px; font-weight:bold; cursor:pointer;">取り込む</button>
@@ -96,13 +96,14 @@
 
                 <div class="admin-section" style="margin-top:20px;">
                     <h2 class="section-title" style="color: #0d6efd;">📋 ランク別価格表ダウンロード</h2>
-                    <p style="font-size:0.9rem; color:#555;">各ランクの顧客に配布する価格表をCSVでダウンロードできます。メール添付や印刷用にご利用ください。</p>
+                    <p style="font-size:0.9rem; color:#555;">各ランクの顧客に配布する価格表をダウンロードできます。Excelはメーカー別シートで、各シート先頭にシステム設定の「送料規定」が記載されます。</p>
                     <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:12px;">
                         <span style="font-weight:bold;">ランクを選択:</span>
                         <select id="pricelist-rank-select" style="padding:6px 10px; border-radius:4px;">
                             <option value="A">A</option>
                         </select>
-                        <a id="pricelist-download-link" href="/api/admin/download-pricelist-by-rank/A" class="btn-pricelist-dl" style="display:inline-flex; align-items:center; padding:8px 16px; background:#0d6efd; color:white; text-decoration:none; border-radius:5px; font-weight:bold;">📥 価格表をダウンロード</a>
+                        <a id="pricelist-download-link" href="/api/admin/download-pricelist-by-rank/A" class="btn-pricelist-dl" style="display:inline-flex; align-items:center; padding:8px 16px; background:#0d6efd; color:white; text-decoration:none; border-radius:5px; font-weight:bold;">📥 CSV</a>
+                        <a id="pricelist-excel-link" href="/api/admin/download-pricelist-excel-by-rank/A" style="display:inline-flex; align-items:center; padding:8px 16px; background:#217346; color:white; text-decoration:none; border-radius:5px; font-weight:bold;">📥 Excel（メーカー別・送料規定付き）</a>
                     </div>
                 </div>
             </div>
@@ -116,8 +117,15 @@
         (function() {
             var sel = document.getElementById("pricelist-rank-select");
             var link = document.getElementById("pricelist-download-link");
-            function updateHref() { if (link && sel) link.href = "/api/admin/download-pricelist-by-rank/" + sel.value; }
-            if (sel && link) {
+            var excelLink = document.getElementById("pricelist-excel-link");
+            function updateHref() {
+                if (sel) {
+                    var rank = sel.value;
+                    if (link) link.href = "/api/admin/download-pricelist-by-rank/" + rank;
+                    if (excelLink) excelLink.href = "/api/admin/download-pricelist-excel-by-rank/" + rank;
+                }
+            }
+            if (sel) {
                 sel.addEventListener("change", updateHref);
                 updateHref();
             }
@@ -152,6 +160,7 @@
                 if (rankExcelStatus) rankExcelStatus.textContent = "取り込み中...";
                 fetch("/api/admin/import-rank-prices-excel", {
                     method: "POST",
+                    credentials: "include",
                     body: formData
                 })
                 .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })

@@ -95,11 +95,15 @@ router.get("/settings/public", async (req, res) => {
         const announcements = await settingsService.getAnnouncements("customer");
         const recaptcha = settings.recaptcha || {};
         const recaptchaSiteKey = (recaptcha.siteKey && String(recaptcha.siteKey).trim()) ? String(recaptcha.siteKey).trim() : "";
+        const cartShippingNotice = (settings.cartShippingNotice != null && String(settings.cartShippingNotice).trim() !== "")
+            ? String(settings.cartShippingNotice)
+            : "";
         res.json({
             features: publicFeatures,
             orderBanners: Array.isArray(orderBanners) ? orderBanners : [],
             announcements: Array.isArray(announcements) ? announcements : [],
-            recaptchaSiteKey: recaptchaSiteKey
+            recaptchaSiteKey: recaptchaSiteKey,
+            cartShippingNotice
         });
     } catch (e) {
         res.status(500).json({ message: "設定の取得に失敗しました" });
@@ -144,7 +148,11 @@ router.get("/admin/settings", requireAdmin, async (req, res) => {
             recaptcha: {
                 siteKey: recaptcha.siteKey || "",
                 secretKeySet: !!(recaptcha.secretKey && String(recaptcha.secretKey).trim())
-            }
+            },
+            rankCount: settings.rankCount != null ? Math.min(26, Math.max(1, parseInt(settings.rankCount, 10) || 10)) : 10,
+            rankNames: settings.rankNames || {},
+            shippingRules: settings.shippingRules || {},
+            cartShippingNotice: settings.cartShippingNotice || ""
         });
     } catch (e) {
         res.status(500).json({ message: "設定の取得に失敗しました" });
@@ -191,13 +199,40 @@ router.post("/update-product", requireAdmin, async (req, res) => {
 });
 
 // 商品CSV一括登録
-router.post("/api/upload-product-data", requireAdmin, async (req, res) => {
+router.post("/upload-product-data", requireAdmin, async (req, res) => {
     try {
         const result = await productService.importProductCsv(req.body.fileData);
         res.json(result);
     } catch (e) {
         console.error(e);
         res.json({ success: false, message: e.message });
+    }
+});
+
+// 商品マスタ一括取込用テンプレート（ヘッダーのみ）Excel ダウンロード
+router.get("/admin/product-master/template", requireAdmin, async (_req, res) => {
+    try {
+        const buffer = await productService.getProductTemplateBuffer();
+        res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        res.setHeader("Content-Disposition", 'attachment; filename="product_master_template.xlsx"');
+        res.send(Buffer.from(buffer));
+    } catch (e) {
+        console.error("Product master template error:", e);
+        res.status(500).json({ success: false, message: "テンプレートの生成に失敗しました" });
+    }
+});
+
+// 商品マスタ全件 Excel ダウンロード（一括取込と同じ形式）
+router.get("/admin/product-master/export", requireAdmin, async (_req, res) => {
+    try {
+        const buffer = await productService.getProductMasterExportBuffer();
+        const filename = `product_master_${new Date().toISOString().slice(0, 10)}.xlsx`;
+        res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+        res.send(Buffer.from(buffer));
+    } catch (e) {
+        console.error("Product master export error:", e);
+        res.status(500).json({ success: false, message: "マスタの出力に失敗しました" });
     }
 });
 
@@ -514,7 +549,7 @@ router.get("/admin/special-prices-list", requireAdmin, async (req, res) => {
     } catch (e) { res.status(500).json({ message: "取得失敗" }); }
 });
 
-// ランク別価格表ダウンロード（メール添付・顧客配布用）
+// ランク別価格表ダウンロード（CSV・メール添付・顧客配布用）
 router.get("/admin/download-pricelist-by-rank/:rank", requireAdmin, async (req, res) => {
     try {
         const rank = String(req.params.rank || "").toUpperCase().replace(/[^A-Z]/g, "") || "A";
@@ -529,7 +564,22 @@ router.get("/admin/download-pricelist-by-rank/:rank", requireAdmin, async (req, 
     }
 });
 
-// ランク別価格をExcelで一括取込（シート名「Upload」・1行目ヘッダー・A列=商品コード・G列以降=ランクA,B,C...）
+// ランク別価格表ダウンロード（Excel・メーカー別シート・各シート先頭に送料規定）
+router.get("/admin/download-pricelist-excel-by-rank/:rank", requireAdmin, async (req, res) => {
+    try {
+        const rank = String(req.params.rank || "").toUpperCase().replace(/[^A-Z]/g, "") || "A";
+        const { buffer, filename } = await priceService.getPricelistExcelForRank(rank);
+        const encodedFilename = encodeURIComponent(filename);
+        res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        res.setHeader("Content-Disposition", `attachment; filename*=UTF-8''${encodedFilename}`);
+        res.send(buffer);
+    } catch (e) {
+        console.error("Rank pricelist Excel download error:", e);
+        res.status(500).send("価格表の生成に失敗しました");
+    }
+});
+
+// ランク別価格をExcelで一括取込（シート名「Upload」・1行目ヘッダーで「商品コード」列と「ランク1」「ランク2」…列を自動判定）
 router.post("/admin/import-rank-prices-excel", requireAdmin, async (req, res) => {
     const uploaded = req.files && (req.files.rankExcelFile || req.files.file);
     if (!uploaded) {

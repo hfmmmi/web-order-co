@@ -10,6 +10,11 @@ document.addEventListener("DOMContentLoaded", async function () {
     initTabs();
     document.getElementById("settings-form").addEventListener("submit", saveSettings);
     
+    const btnAddShippingRule = document.getElementById("btn-add-shipping-rule");
+    if (btnAddShippingRule) {
+        btnAddShippingRule.addEventListener("click", () => addShippingRuleRow("", ""));
+    }
+
     // お知らせ追加ボタン
     const btnAdd = document.getElementById("btn-add-announcement");
     if (btnAdd) {
@@ -17,7 +22,8 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 });
 
-const RANK_IDS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "P"];
+// バックエンドの DEFAULT_RANK_IDS と同一順（先頭10は A～I, P で従来互換）
+const ALL_RANK_IDS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "P", "J", "K", "L", "M", "N", "O", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
 
 const FEATURE_DEFS = {
     customer: [
@@ -48,6 +54,21 @@ function initTabs() {
             const tabId = "tab-" + btn.dataset.tab;
             document.getElementById(tabId).classList.add("active");
         });
+    });
+}
+
+function renderRankNamesList(container, count, rankNamesData) {
+    if (!container) return;
+    const rankIds = ALL_RANK_IDS.slice(0, count);
+    container.innerHTML = rankIds.map((id, i) => `
+        <div class="form-group" style="margin-bottom:8px;">
+            <label for="rank-name-${id}" style="font-weight:bold; min-width:24px;">${id}（ランク${i + 1}）</label>
+            <input type="text" id="rank-name-${id}" class="form-control" placeholder="ランク${i + 1}" style="max-width:180px;">
+        </div>
+    `).join("");
+    rankIds.forEach(id => {
+        const el = document.getElementById("rank-name-" + id);
+        if (el && rankNamesData[id] !== undefined) el.value = String(rankNamesData[id]);
     });
 }
 
@@ -106,20 +127,35 @@ async function loadSettings() {
         renderFeatureCheckboxes("features-customer", FEATURE_DEFS.customer, features);
         renderFeatureCheckboxes("features-admin", FEATURE_DEFS.admin, features);
 
-        // ランクの名前
+        // ランクの数とランクの名前
+        const rankCountEl = document.getElementById("rank-count");
         const rankNamesContainer = document.getElementById("rank-names-list");
+        if (rankCountEl) {
+            const count = Math.min(26, Math.max(1, parseInt(data.rankCount, 10) || 10));
+            rankCountEl.value = count;
+        }
         if (rankNamesContainer) {
-            rankNamesContainer.innerHTML = RANK_IDS.map(id => `
-                <div class="form-group" style="margin-bottom:8px;">
-                    <label for="rank-name-${id}" style="font-weight:bold; min-width:24px;">${id}</label>
-                    <input type="text" id="rank-name-${id}" class="form-control" placeholder="${id}" style="max-width:180px;">
-                </div>
-            `).join("");
-            RANK_IDS.forEach(id => {
-                const el = document.getElementById("rank-name-" + id);
-                if (el) el.value = (data.rankNames && data.rankNames[id]) ? String(data.rankNames[id]) : "";
+            renderRankNamesList(rankNamesContainer, Math.min(26, Math.max(1, parseInt(data.rankCount, 10) || 10)), data.rankNames || {});
+        }
+        const rankCountInput = document.getElementById("rank-count");
+        if (rankCountInput && rankNamesContainer) {
+            rankCountInput.addEventListener("change", function () {
+                const count = Math.min(26, Math.max(1, parseInt(this.value, 10) || 10));
+                const current = {};
+                ALL_RANK_IDS.forEach(id => {
+                    const el = document.getElementById("rank-name-" + id);
+                    if (el) current[id] = el.value.trim();
+                });
+                renderRankNamesList(rankNamesContainer, count, current);
             });
         }
+
+        // 送料・カートお知らせ
+        const cartNoticeEl = document.getElementById("cart-shipping-notice");
+        if (cartNoticeEl) cartNoticeEl.value = data.cartShippingNotice || "";
+        const defaultRuleEl = document.getElementById("shipping-rule-default");
+        if (defaultRuleEl) defaultRuleEl.value = (data.shippingRules && data.shippingRules.default) ? data.shippingRules.default : "";
+        renderShippingRulesList(data.shippingRules || {});
 
         // お知らせ
         announcementsData = data.announcements || [];
@@ -129,6 +165,68 @@ async function loadSettings() {
         if (typeof toastError === "function") toastError("設定の読み込みに失敗しました");
         else alert("設定の読み込みに失敗しました");
     }
+}
+
+function renderShippingRulesList(shippingRules) {
+    const container = document.getElementById("shipping-rules-list");
+    if (!container) return;
+    const keys = Object.keys(shippingRules).filter(k => k !== "default");
+    container.innerHTML = keys.map((maker, idx) => {
+        const text = shippingRules[maker] || "";
+        return `
+            <div class="shipping-rule-row" data-index="${idx}" style="margin-bottom:15px; padding:12px; border:1px solid #ddd; border-radius:4px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <label style="margin:0; font-weight:bold;">メーカー名</label>
+                    <button type="button" class="btn-small btn-danger remove-shipping-rule">削除</button>
+                </div>
+                <input type="text" class="form-control shipping-rule-maker" value="${escapeHtml(maker)}" placeholder="例: RICOH, Canon" style="margin-bottom:8px;">
+                <textarea class="form-control shipping-rule-text" rows="3" placeholder="送料規定のテキスト">${escapeHtml(text)}</textarea>
+            </div>
+        `;
+    }).join("");
+    container.querySelectorAll(".remove-shipping-rule").forEach(btn => {
+        btn.addEventListener("click", function () {
+            this.closest(".shipping-rule-row").remove();
+        });
+    });
+}
+
+function addShippingRuleRow(makerName, text) {
+    const container = document.getElementById("shipping-rules-list");
+    if (!container) return;
+    const idx = container.querySelectorAll(".shipping-rule-row").length;
+    const div = document.createElement("div");
+    div.className = "shipping-rule-row";
+    div.dataset.index = idx;
+    div.style.cssText = "margin-bottom:15px; padding:12px; border:1px solid #ddd; border-radius:4px;";
+    div.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <label style="margin:0; font-weight:bold;">メーカー名</label>
+            <button type="button" class="btn-small btn-danger remove-shipping-rule">削除</button>
+        </div>
+        <input type="text" class="form-control shipping-rule-maker" value="${escapeHtml(makerName)}" placeholder="例: RICOH, Canon" style="margin-bottom:8px;">
+        <textarea class="form-control shipping-rule-text" rows="3" placeholder="送料規定のテキスト">${escapeHtml(text)}</textarea>
+    `;
+    div.querySelector(".remove-shipping-rule").addEventListener("click", function () {
+        this.closest(".shipping-rule-row").remove();
+    });
+    container.appendChild(div);
+}
+
+function collectShippingRulesData() {
+    const defaultEl = document.getElementById("shipping-rule-default");
+    const rules = {};
+    if (defaultEl && defaultEl.value.trim()) rules.default = defaultEl.value.trim();
+    const list = document.getElementById("shipping-rules-list");
+    if (list) {
+        list.querySelectorAll(".shipping-rule-row").forEach(row => {
+            const makerInput = row.querySelector(".shipping-rule-maker");
+            const textArea = row.querySelector(".shipping-rule-text");
+            const maker = (makerInput && makerInput.value) ? makerInput.value.trim() : "";
+            if (maker) rules[maker] = (textArea && textArea.value) ? textArea.value.trim() : "";
+        });
+    }
+    return rules;
 }
 
 function renderFeatureCheckboxes(containerId, defs, features) {
@@ -194,13 +292,19 @@ async function saveSettings(e) {
         secretKey: recaptchaSecretKeyEl ? recaptchaSecretKeyEl.value : ""
     };
 
+    const rankCountEl = document.getElementById("rank-count");
+    const rankCount = rankCountEl ? Math.min(26, Math.max(1, parseInt(rankCountEl.value, 10) || 10)) : 10;
+    const rankIds = ALL_RANK_IDS.slice(0, rankCount);
     const rankNames = {};
-    RANK_IDS.forEach(id => {
+    rankIds.forEach(id => {
         const el = document.getElementById("rank-name-" + id);
         if (el) rankNames[id] = el.value.trim();
     });
 
-    const partial = { mail: { ...mail }, features, announcements, recaptcha, rankNames };
+    const shippingRules = collectShippingRulesData();
+    const cartNoticeEl = document.getElementById("cart-shipping-notice");
+    const cartShippingNotice = cartNoticeEl ? cartNoticeEl.value : "";
+    const partial = { mail: { ...mail }, features, announcements, recaptcha, rankCount, rankNames, shippingRules, cartShippingNotice };
 
     try {
         const res = await fetch("/api/admin/settings", {

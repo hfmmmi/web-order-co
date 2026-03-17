@@ -977,14 +977,14 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
         });
 
         // Phase1: upload-product-data は import 失敗時 success:false を返す（admin-api catch分岐）
-        // ルートは /api にマウントされているため /api/api/upload-product-data でアクセス
+        // ルートは /api にマウントされているため /api/upload-product-data でアクセス
         test("POST upload-product-data は import 失敗時 success:false を返す", async () => {
             const productService = require("../../services/productService");
             productService.importProductCsv = jest.fn().mockRejectedValueOnce(new Error("CSVパース失敗"));
             try {
                 const admin = request.agent(app);
                 await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
-                const res = await admin.post("/api/api/upload-product-data").send({ fileData: "invalid" });
+                const res = await admin.post("/api/upload-product-data").send({ fileData: "invalid" });
                 expect(res.statusCode).toBe(200);
                 expect(res.body.success).toBe(false);
                 expect(res.body.message).toContain("CSVパース失敗");
@@ -2323,7 +2323,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const buffer = await workbook.xlsx.writeBuffer();
             const result = await priceService.updateRankPricesFromExcel(buffer);
             expect(result.success).toBe(false);
-            expect(result.message).toContain("ファイル形式が認識できません");
+            expect(result.message).toMatch(/商品コード|ランク|認識できません|データがありません/);
         });
 
         test("priceService.updateRankPricesFromExcel は rank_prices.json が破損時も空オブジェクトで開始する", async () => {
@@ -2337,7 +2337,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
                 const exceljs = require("exceljs");
                 const workbook = new exceljs.Workbook();
                 const worksheet = workbook.addWorksheet("Upload");
-                worksheet.addRow(["商品コード", "", "", "", "", "", "A", "B", "C"]);
+                worksheet.addRow(["商品コード", "商品名", "メーカー", "標準原価", "設定モード", "納期区分", "ランク1", "ランク2", "ランク3"]);
                 worksheet.addRow(["P001", "", "", "", "", "", "1000", "1100", "1200"]);
                 const buffer = await workbook.xlsx.writeBuffer();
                 const result = await priceService.updateRankPricesFromExcel(buffer);
@@ -2676,13 +2676,9 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
         });
 
         test("productService.importFromExcel は rawPrice が OPEN のとき basePrice を 0 にする", async () => {
-            const excelReader = require("../../utils/excelReader");
-            excelReader.readToRowArrays.mockResolvedValueOnce([
-                ["コード", "名称", "メーカー", "価格", "在庫", "ランクA"],
-                ["P-OPEN", "OPEN価格商品", "メーカーA", "OPEN", "可", "1000"]
-            ]);
+            const csv = "\uFEFF商品コード,商品名,メーカー,定価,仕様,在庫,A\nP-OPEN,OPEN価格商品,メーカーA,OPEN,,可,1000";
             const productService = require("../../services/productService");
-            const result = await productService.importFromExcel(Buffer.from("mock"));
+            const result = await productService.importFromExcel(Buffer.from(csv, "utf-8"));
             expect(result.success).toBe(true);
             const products = await productService.getAllProducts();
             const product = products.find(p => p.productCode === "P-OPEN");

@@ -1,20 +1,21 @@
 {
-  "ignore": [
-    "sessions/*",
-    "orders.json",
-    "products.json",
-    "customers.json",
-    "prices.json",
-    "rank_prices.json",
-    "kaitori_requests.json",
-    "kaitori_master.json",
-    "support_tickets.json",
-    "public/*"
-  ],
   "watch": [
     "server.js",
     "routes/",
-    "utils/"
+    "services/",
+    "utils/",
+    "middlewares/",
+    "validators/",
+    "dbPaths.js"
   ],
-  "ext": "js,json"
+  "ext": "js",
+  "delay": "800",
+  "ignore": [
+    "*.json",
+    "sessions/*",
+    "node_modules",
+    "coverage",
+    "tests",
+    "public/*"
+  ]
 }

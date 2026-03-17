@@ -56,6 +56,7 @@
                 <button type="button" class="tab-btn" data-tab="recaptcha">🔐 ログインCAPTCHA</button>
                 <button type="button" class="tab-btn" data-tab="features">🔘 機能ON/OFF</button>
                 <button type="button" class="tab-btn" data-tab="rank-names">🏷️ ランクの名前</button>
+                <button type="button" class="tab-btn" data-tab="shipping-cart">🚚 送料規定・カートお知らせ</button>
                 <button type="button" class="tab-btn" data-tab="announcements">📢 お知らせ・バナー</button>
             </div>
 
@@ -183,9 +184,35 @@
                 <!-- ランクの名前タブ -->
                 <div id="tab-rank-names" class="tab-panel">
                     <div class="admin-section">
-                        <h3>ランクの表示名</h3>
-                        <p class="hint" style="margin-bottom: 15px;">価格ランク（A, B, C…）の表示名を変更できます。顧客管理・価格設定のドロップダウンや価格表で使われます。空欄のままにするとランクID（A, B など）がそのまま表示されます。</p>
+                        <h3>ランク数と表示名</h3>
+                        <p class="hint" style="margin-bottom: 15px;">利用するランクの数（1〜26）を設定します。商品マスタの一括取込・価格表の列数や、顧客の価格ランクの選択肢に反映されます。各ランクの表示名を変更すると、テンプレートや価格表のヘッダーで「ランク1」「ランク2」の代わりにその名前が使われます。</p>
+                        <div class="form-group" style="max-width: 120px;">
+                            <label for="rank-count">ランクの数</label>
+                            <input type="number" id="rank-count" class="form-control" min="1" max="26" value="10" placeholder="10">
+                        </div>
                         <div id="rank-names-list" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:12px;"></div>
+                    </div>
+                </div>
+
+                <!-- 送料規定・カートお知らせタブ -->
+                <div id="tab-shipping-cart" class="tab-panel">
+                    <div class="admin-section">
+                        <h3>カートの内容確認ページ（最下部のお知らせ）</h3>
+                        <p style="color:#666; margin-bottom:10px;">注文確定前のカート画面の最下部に表示する「送料・配送に関するお知らせ」です。入力した内容がそのまま表示されます（改行も反映）。空欄の場合は何も表示しません。</p>
+                        <div class="form-group">
+                            <label for="cart-shipping-notice">送料・配送お知らせ</label>
+                            <textarea id="cart-shipping-notice" class="form-control" rows="12" placeholder="例:&#10;⚠️ 送料・配送に関する重要なお知らせ&#10;&#10;・表示価格はまとめ買い優遇価格です。&#10;・同一メーカー製品の合計が11,000円未満の場合は別途送料が発生します。"></textarea>
+                        </div>
+                    </div>
+                    <div class="admin-section" style="margin-top:25px;">
+                        <h3>送料規定（メーカー別・価格表Excel用）</h3>
+                        <p style="color:#666; margin-bottom:10px;">ランク別価格表をExcelでダウンロードする際、メーカーごとのシートの先頭に記載されます。「既定」はメーカーに該当する規定がない場合に使われます。メーカー名は商品マスタの「メーカー名」と一致させてください。</p>
+                        <div class="form-group">
+                            <label for="shipping-rule-default">既定（どのメーカーにも当てはまらない場合）</label>
+                            <textarea id="shipping-rule-default" class="form-control" rows="4" placeholder="送料規定のテキスト（複数行可）"></textarea>
+                        </div>
+                        <div id="shipping-rules-list" style="margin-top:15px;"></div>
+                        <button type="button" id="btn-add-shipping-rule" class="btn-small btn-secondary" style="margin-top:10px;">➕ メーカーを追加</button>
                     </div>
                 </div>
 

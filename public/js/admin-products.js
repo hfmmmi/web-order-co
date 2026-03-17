@@ -422,6 +422,20 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // 商品マスタ：テンプレート・マスタ全件ダウンロード
+    const productTemplateDlBtn = document.querySelector("#product-template-dl-btn");
+    const productExportDlBtn = document.querySelector("#product-export-dl-btn");
+    if (productTemplateDlBtn) {
+        productTemplateDlBtn.addEventListener("click", function () {
+            window.location.href = "/api/admin/product-master/template";
+        });
+    }
+    if (productExportDlBtn) {
+        productExportDlBtn.addEventListener("click", function () {
+            window.location.href = "/api/admin/product-master/export";
+        });
+    }
+
     // =========================================================
     // 5. 見積・特価データ管理 (Estimate & Special Prices)
     // =========================================================

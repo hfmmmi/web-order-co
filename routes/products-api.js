@@ -138,10 +138,10 @@ router.get("/products", async (req, res) => {
         const priceList = JSON.parse(pricesData);
         const rankPriceMap = JSON.parse(rankData);
 
-        // 検索フィルタリング
+        // 検索フィルタリング（取り込みExcel＝rank_pricesに存在する商品のみ表示）
         let filtered = productMaster.filter(p => {
-            // 無効な商品は除外
             if (p.active === false) return false;
+            if (!rankPriceMap[p.productCode]) return false;
 
             if (!keyword) return true;
             const lowerKey = keyword.toLowerCase();
@@ -360,8 +360,9 @@ router.get("/products/frequent", async (req, res) => {
                 });
             });
 
-        // 注文回数が0の場合は空を返す
+        // 注文回数が0の場合は空を返す（取り込みExcel＝rank_pricesに存在する商品のみ表示）
         const sortedCodes = Object.entries(frequencyMap)
+            .filter(([code]) => rankPriceMap[code])
             .sort((a, b) => b[1].count - a[1].count) // 注文回数の多い順
             .slice(0, limit)
             .map(([code]) => code);
@@ -433,6 +434,7 @@ router.get("/download-my-pricelist", async (req, res) => {
         const csvRows = [];
 
         productMaster.forEach(product => {
+            if (!rankPriceMap[product.productCode]) return;
             const specialPriceEntry = priceList.find(p => p.customerId === customerId && p.productCode === product.productCode);
             const productWithRank = { ...product, rankPrices: rankPriceMap[product.productCode] || {} };
             const finalPrice = calculateFinalPrice(productWithRank, myRank, specialPriceEntry);

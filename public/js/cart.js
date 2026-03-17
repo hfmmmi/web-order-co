@@ -14,6 +14,30 @@ document.addEventListener("DOMContentLoaded", function () {
         document.querySelector("#cart-list-body").innerHTML = "<tr><td colspan='6'>カートに商品がありません</td></tr>";
     }
 
+    // カート最下部のお知らせ（システム設定から取得）
+    loadCartShippingNotice();
+
+    async function loadCartShippingNotice() {
+        const container = document.getElementById("cart-shipping-notice-container");
+        if (!container) return;
+        try {
+            const res = await fetch("/api/settings/public", { credentials: "same-origin" });
+            if (!res.ok) return;
+            const data = await res.json();
+            const text = (data.cartShippingNotice && String(data.cartShippingNotice).trim()) ? data.cartShippingNotice.trim() : "";
+            if (text) {
+                container.textContent = text;
+                container.style.whiteSpace = "pre-wrap";
+                container.style.display = "";
+            } else {
+                container.textContent = "";
+                container.style.display = "none";
+            }
+        } catch (e) {
+            container.style.display = "none";
+        }
+    }
+
     // 2. サーバーから詳細取得 & テーブル描画
     async function fetchCartDetails(cart) {
         try {
