@@ -81,6 +81,9 @@ async function seedBaseData() {
         throw new Error("seedBaseData() must not be run in production (DB reset protection)");
     }
 
+    // CI/ローカル問わず DATA_ROOT が無ければ作成（Git は空ディレクトリを追跡しないため）
+    await fs.mkdir(DATA_ROOT, { recursive: true });
+
     const adminPassword = await bcrypt.hash("AdminPass123!", 10);
     const customerPassword = await bcrypt.hash("CustPass123!", 10);
 
