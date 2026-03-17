@@ -29,3 +29,4 @@ jobs:
         env:
           NODE_ENV: test
           SESSION_SECRET: ci-test-secret-do-not-use-in-production
+          DATA_DIR: tests/_sandbox_data
