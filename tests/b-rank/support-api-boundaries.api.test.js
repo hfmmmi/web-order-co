@@ -10,6 +10,7 @@ const request = require("supertest");
 const path = require("path");
 const fs = require("fs").promises;
 const { app } = require("../../server");
+const { DATA_ROOT } = require("../../dbPaths");
 const {
     backupDbFiles,
     restoreDbFiles,
@@ -92,7 +93,7 @@ describe("Bランク: サポートAPI境界", () => {
     test("support/my-tickets は破損JSON時でも空配列で復旧する", async () => {
         const fs = require("fs").promises;
         const path = require("path");
-        await fs.writeFile(path.join(__dirname, "../../support_tickets.json"), "{invalid", "utf-8");
+        await fs.writeFile(path.join(DATA_ROOT, "support_tickets.json"), "{invalid", "utf-8");
         const customer = request.agent(app);
         await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
 
@@ -106,7 +107,7 @@ describe("Bランク: サポートAPI境界", () => {
     test("support/my-tickets は配列以外のJSON時も空配列で返す", async () => {
         const fs = require("fs").promises;
         const path = require("path");
-        const dbPath = path.join(__dirname, "../../support_tickets.json");
+        const dbPath = path.join(DATA_ROOT, "support_tickets.json");
         const orig = await fs.readFile(dbPath, "utf-8").catch(() => "[]");
         try {
             await fs.writeFile(dbPath, "{}", "utf-8");
@@ -124,7 +125,7 @@ describe("Bランク: サポートAPI境界", () => {
     test("admin/support-tickets は読込失敗時は空配列を返す", async () => {
         const fs = require("fs").promises;
         const path = require("path");
-        await fs.writeFile(path.join(__dirname, "../../support_tickets.json"), "not valid json", "utf-8");
+        await fs.writeFile(path.join(DATA_ROOT, "support_tickets.json"), "not valid json", "utf-8");
         const admin = request.agent(app);
         await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
         const res = await admin.get("/admin/support-tickets");
@@ -295,7 +296,7 @@ describe("Bランク: サポートAPI境界", () => {
 
     // Phase 5: admin/update-ticket の読込失敗時500（破損JSONで parse が throw する経路）
     test("admin/update-ticket は support_tickets.json 破損時500を返す", async () => {
-        const dbPath = path.join(__dirname, "../../support_tickets.json");
+        const dbPath = path.join(DATA_ROOT, "support_tickets.json");
         const orig = await fs.readFile(dbPath, "utf-8").catch(() => "[]");
         try {
             await fs.writeFile(dbPath, "{invalid", "utf-8");

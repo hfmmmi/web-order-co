@@ -22,7 +22,8 @@ module.exports = defineConfig({
         url: "http://127.0.0.1:3000",
         timeout: 120_000,
         env: {
-            NODE_ENV: "test"
+            NODE_ENV: "test",
+            DATA_DIR: "tests/e2e/.e2e_data"
         },
         reuseExistingServer: false
     }

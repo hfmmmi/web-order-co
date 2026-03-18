@@ -29,8 +29,10 @@ test("代理ログイン: 申請→顧客許可→実行で顧客画面に遷移
         await customerPage.goto("/index.html");
         await customerPage.fill("#username-input", "TEST001");
         await customerPage.fill("#password-input", "CustPass123!");
-        await customerPage.getByRole("button", { name: "ログイン" }).click();
-        await expect(customerPage).toHaveURL(/products\.html$/);
+        await Promise.all([
+            customerPage.waitForURL(/products\.html$/, { timeout: 15000 }),
+            customerPage.getByRole("button", { name: "ログイン" }).click()
+        ]);
 
         const allowBtn = customerPage.getByRole("button", { name: "許可" });
         await allowBtn.waitFor({ state: "visible", timeout: 10000 });

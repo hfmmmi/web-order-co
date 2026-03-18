@@ -30,6 +30,13 @@ proxy_requests.json
 logs/*.json
 !logs/.gitkeep
 
+# API テスト用サンドボックス（seedBaseData で自動作成するためコミットしない）
+tests/_sandbox_data/
+
+# E2E 用データ（本番データ保護のため専用ディレクトリのみ使用）
+tests/e2e/.e2e_data/
+tests/e2e/.tmp/
+
 # OS
 .DS_Store
 Thumbs.db

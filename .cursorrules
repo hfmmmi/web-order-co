@@ -11,6 +11,9 @@
 ### 規模感と進捗 (Target Lines of Code)
 - **2/18時点のコード量**: 約 27,700行
 
+### 共同編集・別スレ継続について
+- 本ルールは**共同編集や別スレッドでの続き**を想定して記載している。途中から別スレで再開する場合は、**「次回スレッドで優先対応すべき事項」** と **「直近スレッド反映済み」** の日付付き項目を確認し、`docs/` 内の該当ドキュメント（test-execution.md、調査メモ_顧客アドレス消失.md 等）を参照して作業を継続すること。
+
 ### 次回スレッドで優先対応すべき事項
 - **カバレッジ向上計画は現時点で完了扱い**：`npm run test:all`（API（S+A+B+Risk・カバレッジ付き）+ E2E + 負荷試験 + flake監視）が安定して PASS。最新実行では **行 90.10% / 分岐 69.25% / global 閾値 80/67** を確認済み。Phase 1（カバレッジ理想値到達）は「global 80/70 を絶対条件にはせず、運用コスパを踏まえてここで完了」とする（詳細は `docs/coverage-improvement-plan.md` §12.7 と `docs/branch-coverage-70-proposal.md`）。
 - **カバレッジは今後“必要に応じて局所追加”**：全体分岐 80% などの数値目標は追わず、新機能追加や不具合修正時にその周辺のテストを増やす方針とする。P0 ファイル（auth-api / admin-api / orders-api / validate.js / priceCalc.js）の品質維持を優先。
@@ -20,6 +23,12 @@
 - **顧客ごとの orders/prices ファイル分割は現時点では不要**（customerId フィルタ運用を継続）
 - **シークレット運用の強化**：本番は SMTP パスワードを `MAIL_PASSWORD` で管理し、settings.json には保存しない
 - **自動テスト運用の定着**：`npm run test:all`（API（S+A+B+Risk・カバレッジ付き） + E2E + 負荷試験 + flake監視）を変更前後で実行し、回帰を最優先で検知する。**test:all は API → E2E → 負荷 → flake の順で全テストを実行**。負荷は test:all 内でサーバーを自動起動して実行。週次では `.github/workflows/step3-periodic.yml` で定期実行も実施。
+
+### 直近スレッド反映済み（2026-03-17 顧客アドレス消失原因・E2E本番データ保護）
+- **顧客アドレス（email）消失の原因**：E2E 実行時に **プロジェクト直下の customers.json 等が E2E 用 seed で上書きされていた** ことが原因。teardown（restore）が動かなかった場合や、古いバックアップで復元した場合に本番データや email が失われる事象が発生。詳細は **`docs/調査メモ_顧客アドレス消失.md`** 参照。
+- **再発防止（E2E の本番データ保護）**：E2E は **専用ディレクトリ `tests/e2e/.e2e_data` のみ** を使用するよう変更済み。`tests/e2e/scripts/e2eDbManager.js` の backup/seed/restore はすべて `.e2e_data` 配下のみ操作。Playwright の webServer 起動時に **DATA_DIR=tests/e2e/.e2e_data** を渡し、サーバーはこのディレクトリのみ参照。**プロジェクト直下の JSON は一切触らない**。
+- **テストは継続してよい**：API テストは DATA_DIR=tests/_sandbox_data 必須（testSandbox の安全装置）。E2E は上記の通り .e2e_data のみ使用するため、本番データを汚染せずテストを実行できる。
+- **.gitignore**：`tests/e2e/.e2e_data/` と `tests/e2e/.tmp/` を追加済み。
 
 ### 直近スレッド反映済み（2026-03 送料規定・カートお知らせ・ランク別価格表Excel・category・nodemon）
 - **送料規定・カートお知らせ（システム設定）**：**settings.json** に **shippingRules**（メーカー別送料規定。キー "default" またはメーカー名→テキスト）と **cartShippingNotice**（カートの内容確認ページ最下部に表示するお知らせ）。管理画面「🚚 送料規定・カートお知らせ」タブで編集。**cartShippingNotice** は **プレーンテキスト**で表示（改行反映・HTML解釈しない）。未設定時はカート最下部のブロックは非表示。**GET /api/settings/public** に **cartShippingNotice** を返却。価格表Excelの各メーカーシート先頭には **shippingRules[メーカー]** または **shippingRules["default"]** を記載。
@@ -47,9 +56,10 @@
 
 ### 直近スレッド反映済み（2026-02-27 データ分離・本番データ保護）
 - **業務データとテストの分離**：業務用JSON（admins, customers, orders, products, prices, rank_prices, estimates, support_tickets, kaitori_requests, kaitori_master）のパスは **dbPaths.js**（`dbPath(fileName)`・`DATA_ROOT`）で一元管理。環境変数 **DATA_DIR** 未設定時はプロジェクト直下を参照。本番サーバーでは DATA_DIR で業務データディレクトリを指定可能。開発時はプロジェクト直下のJSONをそのまま利用。
-- **テスト用ディレクトリ**：テストは「業務用ディレクトリは触らず、テスト用ディレクトリを新設」する方針。ローカルで test:api / test:all を実行する際は **DATA_DIR=tests/_sandbox_data** を設定し、`tests/_sandbox_data` 配下のみを seed/backup/restore 対象とする。**手順は `docs/test-execution.md` 参照**。
+- **API テスト用ディレクトリ**：ローカルで test:api / test:all を実行する際は **DATA_DIR=tests/_sandbox_data** を設定し、`tests/_sandbox_data` 配下のみを seed/backup/restore 対象とする。**手順は `docs/test-execution.md` 参照**。
+- **E2E 用ディレクトリ**：E2E（Playwright）は **`tests/e2e/.e2e_data` のみ** を使用。e2eDbManager の backup/seed/restore および webServer 起動時のサーバーはこのディレクトリのみ参照し、**プロジェクト直下は一切触らない**（2026-03-17 に本番データ保護のため変更済み。経緯は `docs/調査メモ_顧客アドレス消失.md`）。
 - **seedBaseData ガード**：`tests/helpers/testSandbox.js` の `seedBaseData()` は **NODE_ENV=production では実行禁止**（throw）。本番で誤ってテスト用初期化が走ることを防止。
-- **安全装置（DATA_DIR 付け忘れ防止）**：testSandbox 読み込み時に、DATA_ROOT がプロジェクト直下かつ **ALLOW_REAL_DB_FOR_TESTS が未設定**なら即 throw し、業務用JSONには一切触れない。このため **DATA_DIR を設定せずに npm run test:all だけ実行するとエラーで即終了**する。
+- **安全装置（DATA_DIR 付け忘れ防止）**：testSandbox 読み込み時に、DATA_ROOT がプロジェクト直下かつ **ALLOW_REAL_DB_FOR_TESTS が未設定**なら即 throw し、業務用JSONには一切触れない。このため **DATA_DIR を設定せずに npm run test:api を実行するとエラーで即終了**する。
 - **テスト実行手順の記載**：`docs/test-execution.md` に PowerShell での手順（mkdir tests\_sandbox_data → $env:DATA_DIR = "tests/_sandbox_data" → npm run test:all）を記載。「テストの実行方法を教えて」と聞かれたらこのドキュメントを返す。
 
 ### 直近スレッド反映済み（2026-02-12）
@@ -319,7 +329,7 @@
 - **Bランク（API統合）**: 周辺業務（`/products/frequent`、`/products`、`/cart-details`、`/support/my-tickets`、`/delivery-history`、`/shipper-history`、CSV/テンプレDL、買取Excel解析、公開お知らせ返却）に加え、**在庫UI組合せ**、**サポートAPI境界**（401/404/履歴追加/破損JSON復旧）、**商品API境界**（401/estimate 400）を検証。**ステップ3**：性能監視（X-Response-Time）、負荷試験・PERF_LOG 閾値検証。
 - **Riskランク（回帰抑止）**: 設定系の事故を優先監視（reCAPTCHA secret空保存時の既存値維持、features反映の退行防止）し、**feature OFF時の表示/直アクセス制御（UI非表示のみでなく遷移・応答整合）**の回帰を監視する。
 - **E2E（Playwright）**: 実ブラウザ操作で「管理ログイン→顧客管理/設定遷移」「設定保存→再読込保持（副作用復元含む）」「顧客ログイン→商品→カート」「顧客注文確定→履歴」「お知らせページ表示」「注文関連バナー表示」「サポート送信→履歴反映」「パスワード再設定モーダル送信」に加え、**CAPTCHA表示/失敗系導線（script遅延・描画失敗時の導線維持、siteKey切替安定）**、**履歴クイック再注文（多商品・既存カートマージ）→再注文確定**、**feature OFF時ナビ非表示保持**、**setup.html の id&key 時表示（新パスワードのみ）**、**代理ログインフロー（申請→許可→実行→顧客画面遷移）**を検証。
-- **データ安全性**: テスト実行時はテスト用seed投入と復元を行い、実運用JSONデータを汚染しない。
+- **データ安全性**: API テストは DATA_DIR=tests/_sandbox_data でサンドボックスのみ操作。E2E は tests/e2e/.e2e_data のみ使用し、プロジェクト直下の実運用JSONには一切触れない。
 - **副作用ゼロ運用**: E2Eで設定変更（features / recaptcha など）を行うテストは **必ず復元処理（try/finally等）** を実装し、テスト間の汚染を防止する。
 - **テスト中メール**: テスト環境で SMTP 未設定時にメール送信ログエラー（`EAUTH` など）が出ることがあるが、回帰判定はテスト失敗/成功を優先し、**最終判定はPASS/FAILで行う**。
 
@@ -472,8 +482,9 @@ web-order/
 │   ├── b-rank/*.test.js    ... [Test] BランクAPI統合テスト（周辺業務/履歴/CSV/Excel/商品・keyword・frequent・cart-details/サポート境界・お知らせAPI・**納期目安一貫・products境界拡張・stockService.syncStocks**）
 │   ├── risk-driven/*.test.js ... [Test] リスク駆動回帰テスト（設定系退行防止・優先事故の再発防止）
 │   └── e2e/
+│       ├── .e2e_data/       ... [Data] E2E専用データ（本番データ保護のためここだけ使用。.gitignore 済み）
 │       ├── specs/*.spec.js ... [Test] Playwright E2E（顧客/管理主要フロー + 注文履歴反映 + 設定保存保持 + お知らせ/サポート/再設定導線 + CAPTCHA表示導線 + 履歴クイック再注文 + feature OFF時表示保持 + **setup id&key表示・代理ログインフロー**。login-captcha-visibility で login_rate_limit リセット、proxy-login-flow で waitFor state: "enabled" を expect().toBeEnabled() に修正）
-│       └── scripts/*       ... [Test Helper] E2E用DB準備・復元（products/prices/rank_prices/support/estimates 含む）
+│       └── scripts/*       ... [Test Helper] E2E用DB準備（prepare-e2e-db.js → seedForE2E で .e2e_data にのみ投入。backup/restore は no-op。webServer は DATA_DIR=tests/e2e/.e2e_data で起動）
 │
 ├── utils/
 │   ├── priceCalc.js        ... [Core] 価格計算エンジン [Pure Function]
@@ -487,6 +498,7 @@ web-order/
 │   ├── step3-performance-load-flake.md ... [Doc] ステップ3 運用ガイド（性能監視・負荷試験・flake監視・CI定期実行）
 │   ├── load-test-results.md   ... [Data] 負荷試験結果ログ（load-test.js が追記）
 │   ├── flake-log.md           ... [Data] flake監視ログ（run-flake-check.js が検出時に追記）
-│   └── test-execution.md      ... [Doc] テスト実行手順（本番データ保護）。PowerShell で DATA_DIR 設定→npm run test:all。テスト実行方法を聞かれたらこのドキュメントを返す
+│   ├── test-execution.md      ... [Doc] テスト実行手順（本番データ保護）。PowerShell で DATA_DIR 設定→npm run test:all。テスト実行方法を聞かれたらこのドキュメントを返す
+│   └── 調査メモ_顧客アドレス消失.md ... [Doc] 顧客アドレス（email）消失の原因調査とE2E本番データ保護の対応内容（2026-03-17）
 │
 └── sessions/               ... [System] セッション保存先

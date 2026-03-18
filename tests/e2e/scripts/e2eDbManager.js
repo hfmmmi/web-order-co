@@ -2,82 +2,18 @@ const fs = require("fs").promises;
 const path = require("path");
 const bcrypt = require("bcryptjs");
 
-const ROOT = path.join(__dirname, "..", "..", "..");
-const TMP_DIR = path.join(ROOT, "tests", "e2e", ".tmp");
-const BACKUP_PATH = path.join(TMP_DIR, "db-backup.json");
-
-const TARGET_FILES = [
-    "admins.json",
-    "customers.json",
-    "orders.json",
-    "settings.json",
-    "products.json",
-    "prices.json",
-    "rank_prices.json",
-    "support_tickets.json",
-    "estimates.json",
-    "login_rate_limit.json",
-    "reset_rate_limit.json",
-    "reset_tokens.json",
-    "invite_tokens.json",
-    "proxy_requests.json",
-    "logs/admin-auth.json",
-    "logs/customer-auth.json"
-];
+// ★本番データ保護: E2E は専用ディレクトリのみ使用（プロジェクト直下は触らない）
+const PROJECT_ROOT = path.join(__dirname, "..", "..", "..");
+const E2E_DATA = path.join(PROJECT_ROOT, "tests", "e2e", ".e2e_data");
 
 function abs(rel) {
-    return path.join(ROOT, rel);
-}
-
-async function backup() {
-    const payload = {};
-    for (const rel of TARGET_FILES) {
-        const filePath = abs(rel);
-        try {
-            payload[rel] = {
-                exists: true,
-                content: await fs.readFile(filePath, "utf-8")
-            };
-        } catch (err) {
-            if (err && err.code === "ENOENT") {
-                payload[rel] = { exists: false, content: "" };
-                continue;
-            }
-            throw err;
-        }
-    }
-    await fs.mkdir(TMP_DIR, { recursive: true });
-    await fs.writeFile(BACKUP_PATH, JSON.stringify(payload, null, 2), "utf-8");
-}
-
-async function restore() {
-    let raw;
-    try {
-        raw = await fs.readFile(BACKUP_PATH, "utf-8");
-    } catch (err) {
-        if (err && err.code === "ENOENT") return;
-        throw err;
-    }
-
-    const payload = JSON.parse(raw);
-    for (const rel of TARGET_FILES) {
-        const snapshot = payload[rel];
-        const filePath = abs(rel);
-        if (!snapshot || !snapshot.exists) {
-            try {
-                await fs.unlink(filePath);
-            } catch (err) {
-                if (!err || err.code !== "ENOENT") throw err;
-            }
-            continue;
-        }
-        await fs.writeFile(filePath, snapshot.content, "utf-8");
-    }
-
-    await fs.unlink(BACKUP_PATH).catch(() => {});
+    return path.join(E2E_DATA, rel);
 }
 
 async function seedForE2E() {
+    await fs.mkdir(E2E_DATA, { recursive: true });
+    await fs.mkdir(path.join(E2E_DATA, "logs"), { recursive: true });
+
     const adminPassword = await bcrypt.hash("AdminPass123!", 10);
     const customerPassword = await bcrypt.hash("CustPass123!", 10);
 
@@ -215,6 +151,14 @@ async function seedForE2E() {
     await fs.mkdir(abs("logs"), { recursive: true });
     await fs.writeFile(abs("logs/admin-auth.json"), JSON.stringify([], null, 2), "utf-8");
     await fs.writeFile(abs("logs/customer-auth.json"), JSON.stringify([], null, 2), "utf-8");
+}
+
+// 後方互換: 本番データを触らないため backup/restore は no-op（E2E は .e2e_data のみ使用）
+async function backup() {
+    console.log("[E2E] backup skipped (using dedicated .e2e_data only).");
+}
+async function restore() {
+    console.log("[E2E] restore skipped (no project root data was changed).");
 }
 
 module.exports = {

@@ -8,6 +8,7 @@ jest.mock("../../services/mailService", () => ({
 
 const request = require("supertest");
 const { app } = require("../../server");
+const { DATA_ROOT } = require("../../dbPaths");
 const {
     backupDbFiles,
     restoreDbFiles,
@@ -34,7 +35,6 @@ async function waitForJsonArray(filePath, maxAttempts = 20, delayMs = 50) {
 
 describe("Sランク: 監査ログ破損時の耐性", () => {
     let backup;
-    const root = path.join(__dirname, "..", "..");
 
     beforeAll(async () => {
         backup = await backupDbFiles();
@@ -49,7 +49,7 @@ describe("Sランク: 監査ログ破損時の耐性", () => {
     });
 
     test("admin-auth.json が破損していてもログイン時に追記再生成できる", async () => {
-        const adminLogPath = path.join(root, "logs", "admin-auth.json");
+        const adminLogPath = path.join(DATA_ROOT, "logs", "admin-auth.json");
         await fs.writeFile(adminLogPath, "{broken-json", "utf-8");
 
         const login = await request(app)
@@ -71,7 +71,7 @@ describe("Sランク: 監査ログ破損時の耐性", () => {
     });
 
     test("customer-auth.json が破損していても失敗ログイン時に追記再生成できる", async () => {
-        const customerLogPath = path.join(root, "logs", "customer-auth.json");
+        const customerLogPath = path.join(DATA_ROOT, "logs", "customer-auth.json");
         await fs.writeFile(customerLogPath, "{broken-json", "utf-8");
 
         const failed = await request(app)

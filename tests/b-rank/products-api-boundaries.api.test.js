@@ -10,6 +10,7 @@ const request = require("supertest");
 const path = require("path");
 const fs = require("fs").promises;
 const { app } = require("../../server");
+const { DATA_ROOT } = require("../../dbPaths");
 const {
     backupDbFiles,
     restoreDbFiles,
@@ -112,9 +113,9 @@ describe("Bランク: 商品API境界", () => {
         expect(Array.isArray(res.body.cartDetails)).toBe(true);
     });
 
-    // 第2期Phase2: products-api 分岐強化（products-api が読むのと同じパスを破損させる）
+    // 第2期Phase2: products-api 分岐強化（DATA_DIR 時は DATA_ROOT の rank_prices を破損させる）
     test("GET /products は rank_prices.json 破損時（parse失敗）に500を返す", async () => {
-        const rankPath = path.join(path.dirname(require.resolve("../../routes/products-api")), "../rank_prices.json");
+        const rankPath = path.join(DATA_ROOT, "rank_prices.json");
         const orig = await fs.readFile(rankPath, "utf-8").catch(() => "{}");
         try {
             await fs.writeFile(rankPath, "{invalid", "utf-8");
@@ -172,7 +173,7 @@ describe("Bランク: 商品API境界", () => {
     });
 
     test("GET /products は products.json 読込失敗時500を返す", async () => {
-        const productsPath = path.join(__dirname, "../../products.json");
+        const productsPath = path.join(DATA_ROOT, "products.json");
         const orig = await fs.readFile(productsPath, "utf-8").catch(() => "[]");
         try {
             await fs.writeFile(productsPath, "{invalid", "utf-8");
@@ -238,6 +239,9 @@ describe("Bランク: 商品API境界", () => {
         const products = await readJson("products.json");
         const emptyCode = { productCode: "", name: "空コード商品", manufacturer: "Test", category: "テスト", basePrice: 0, stockStatus: "取寄", active: true };
         await writeJson("products.json", [...products, emptyCode]);
+        // 一覧は rank_prices に存在する商品のみ返すため、空コード用のエントリを追加
+        const rankPrices = await readJson("rank_prices.json");
+        await writeJson("rank_prices.json", { ...rankPrices, "": { A: 0 } });
         const agent = request.agent(app);
         await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
         const res = await agent.get("/products?page=1&limit=50");
@@ -306,7 +310,7 @@ describe("Bランク: 商品API境界", () => {
     test("GET /products/frequent は注文履歴がまだない場合に空itemsとメッセージを返す", async () => {
         const agent = request.agent(app);
         await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
-        const ordersPath = path.join(__dirname, "../../orders.json");
+        const ordersPath = path.join(DATA_ROOT, "orders.json");
         const origOrders = await fs.readFile(ordersPath, "utf-8").catch(() => "[]");
         try {
             await fs.writeFile(ordersPath, "[]", "utf-8");
@@ -321,7 +325,7 @@ describe("Bランク: 商品API境界", () => {
 
     // 第2期Phase4 分岐70%: GET /products/frequent の getStockContext 失敗時 catch 500 分岐（注文履歴ありで getStockContext を呼ぶ経路を通す）
     test("GET /products/frequent は getStockContext 失敗時500を返す", async () => {
-        const ordersPath = path.join(__dirname, "../../orders.json");
+        const ordersPath = path.join(DATA_ROOT, "orders.json");
         const origOrders = await readJson("orders.json").catch(() => []);
         await writeJson("orders.json", [
             { orderId: 1, customerId: "TEST001", orderDate: "2025-01-01", items: [{ code: "P001", quantity: 1 }] }
@@ -346,7 +350,7 @@ describe("Bランク: 商品API境界", () => {
     });
 
     test("GET /download-my-pricelist は products.json 読込失敗時500を返す", async () => {
-        const productsPath = path.join(__dirname, "../../products.json");
+        const productsPath = path.join(DATA_ROOT, "products.json");
         const orig = await fs.readFile(productsPath, "utf-8").catch(() => "[]");
         const agent = request.agent(app);
         await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
@@ -360,7 +364,7 @@ describe("Bランク: 商品API境界", () => {
     });
 
     test("POST /cart-details は商品DB読込失敗時500を返す", async () => {
-        const productsPath = path.join(__dirname, "../../products.json");
+        const productsPath = path.join(DATA_ROOT, "products.json");
         const orig = await fs.readFile(productsPath, "utf-8").catch(() => "[]");
         const agent = request.agent(app);
         await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
@@ -376,8 +380,8 @@ describe("Bランク: 商品API境界", () => {
 
     // estimate ルートの catch 500: estimateItems が1件以上ある場合に productData を読むため、見積1件＋products 破損で 500
     test("GET /products/estimate は見積ありで productData 読込失敗時500を返す", async () => {
-        const productsPath = path.join(__dirname, "../../products.json");
-        const estimatesPath = path.join(__dirname, "../../estimates.json");
+        const productsPath = path.join(DATA_ROOT, "products.json");
+        const estimatesPath = path.join(DATA_ROOT, "estimates.json");
         const origProducts = await fs.readFile(productsPath, "utf-8").catch(() => "[]");
         const origEstimates = await fs.readFile(estimatesPath, "utf-8").catch(() => "[]");
         try {

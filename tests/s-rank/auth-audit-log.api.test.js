@@ -10,6 +10,7 @@ const request = require("supertest");
 const fs = require("fs").promises;
 const path = require("path");
 const { app } = require("../../server");
+const { DATA_ROOT } = require("../../dbPaths");
 const {
     backupDbFiles,
     restoreDbFiles,
@@ -52,7 +53,7 @@ async function sleep(ms) {
 }
 
 async function readLogJson(relPath) {
-    const absPath = path.join(__dirname, "..", "..", relPath);
+    const absPath = path.join(DATA_ROOT, relPath);
     try {
         const raw = await fs.readFile(absPath, "utf-8");
         if (!raw.trim()) return null;
@@ -124,7 +125,7 @@ describe("Sランク: 認証監査ログ", () => {
 
     test("admin-auth.json は failed_login -> login -> logout の順序と欠損混在ログ耐性を満たす", async () => {
         await fs.writeFile(
-            path.join(__dirname, "..", "..", "logs/admin-auth.json"),
+            path.join(DATA_ROOT, "logs/admin-auth.json"),
             JSON.stringify([{ action: "legacy", at: null }], null, 2),
             "utf-8"
         );

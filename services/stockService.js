@@ -1,11 +1,11 @@
 const path = require("path");
 const fs = require("fs").promises;
 const { randomUUID } = require("crypto");
+const { dbPath } = require("../dbPaths");
 
-const ROOT_DIR = path.join(__dirname, "..");
-const STOCKS_DB = path.join(ROOT_DIR, "stocks.json");
-const ADAPTER_CONFIG_DB = path.join(ROOT_DIR, "config", "stocks-adapters.json");
-const HISTORY_DB = path.join(ROOT_DIR, "logs", "stocks-history.json");
+const STOCKS_DB = dbPath("stocks.json");
+const ADAPTER_CONFIG_DB = dbPath("config/stocks-adapters.json");
+const HISTORY_DB = dbPath("logs/stocks-history.json");
 
 class StockService {
     constructor() {

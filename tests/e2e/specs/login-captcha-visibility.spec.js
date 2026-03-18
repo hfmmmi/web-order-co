@@ -25,8 +25,10 @@ async function primeCustomerLoginFailures(request, count = 2) {
 
 /** TEST001 のログイン失敗カウントをリセット（後続テストでロックされないように） */
 async function resetLoginRateLimit() {
-    const root = path.join(__dirname, "..", "..", "..");
-    const filePath = path.join(root, "login_rate_limit.json");
+    // E2E サーバーは DATA_DIR=tests/e2e/.e2e_data を使うため、そちらのファイルをリセットする
+    const e2eDataDir = path.join(__dirname, "..", ".e2e_data");
+    const filePath = path.join(e2eDataDir, "login_rate_limit.json");
+    await fs.mkdir(e2eDataDir, { recursive: true });
     await fs.writeFile(filePath, JSON.stringify({}, null, 2), "utf-8");
 }
 

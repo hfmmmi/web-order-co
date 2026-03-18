@@ -165,6 +165,8 @@ router.put("/admin/settings", requireAdmin, validateBody(adminSettingsUpdateSche
     try {
         const partial = req.body;
         await settingsService.updateSettings(partial);
+        // メール設定変更を次回送信から反映するためキャッシュを破棄
+        if (mailService.clearTransporterCache) mailService.clearTransporterCache();
         res.json({ success: true, message: "設定を保存しました" });
     } catch (e) {
         res.status(500).json({ message: e.message || "設定の保存に失敗しました" });

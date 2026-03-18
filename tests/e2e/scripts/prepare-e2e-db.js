@@ -1,9 +1,8 @@
-const { backup, seedForE2E } = require("./e2eDbManager");
+const { seedForE2E } = require("./e2eDbManager");
 
 async function main() {
-    await backup();
     await seedForE2E();
-    console.log("[E2E] DB backup and seed completed.");
+    console.log("[E2E] DB seed completed (tests/e2e/.e2e_data).");
 }
 
 main().catch((err) => {

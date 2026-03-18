@@ -6,6 +6,11 @@ const settingsService = require("./settingsService");
 
 let _transporter = null;
 
+/** 設定変更後に呼ぶと、次回送信で新しい設定が使われます（サーバー再起動不要） */
+function clearTransporterCache() {
+    _transporter = null;
+}
+
 async function getTransporter() {
     if (_transporter) return _transporter;
     const config = await settingsService.getMailConfig();
@@ -270,4 +275,11 @@ async function sendLoginFailureAlert(opts) {
     }
 }
 
-module.exports = { sendOrderConfirmation, sendSupportNotification, sendInviteEmail, sendPasswordChangedNotification, sendLoginFailureAlert };
+module.exports = {
+    sendOrderConfirmation,
+    sendSupportNotification,
+    sendInviteEmail,
+    sendPasswordChangedNotification,
+    sendLoginFailureAlert,
+    clearTransporterCache
+};

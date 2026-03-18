@@ -11,6 +11,7 @@ const request = require("supertest");
 const fs = require("fs").promises;
 const path = require("path");
 const { app } = require("../../server");
+const { DATA_ROOT } = require("../../dbPaths");
 const {
     backupDbFiles,
     restoreDbFiles,
@@ -19,8 +20,7 @@ const {
     writeJson
 } = require("../helpers/testSandbox");
 
-const ROOT = path.join(__dirname, "../..");
-function abs(rel) { return path.join(ROOT, rel); }
+function abs(rel) { return path.join(DATA_ROOT, rel); }
 
 describe("Aランク: 買取API", () => {
     let backup;
@@ -147,7 +147,7 @@ describe("Aランク: 買取API", () => {
         });
 
         test("顧客ログインでマスタ取得", async () => {
-            const masterPath = path.join(path.dirname(require.resolve("../../routes/kaitori-api")), "../kaitori_master.json");
+            const masterPath = path.join(DATA_ROOT, "kaitori_master.json");
             await fs.writeFile(masterPath, JSON.stringify([{ id: "K1", maker: "メーカー", name: "品名", type: "タイプ", price: 100, destination: "大阪" }], null, 2), "utf-8");
             const agent = request.agent(app);
             await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });

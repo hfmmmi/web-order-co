@@ -63,7 +63,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
         });
 
         test("admins.json 読み込み失敗時は管理者DBエラーを返す", async () => {
-            const adminsPath = path.join(__dirname, "../../admins.json");
+            const adminsPath = path.join(DATA_ROOT, "admins.json");
             await fs.writeFile(adminsPath, "{", "utf-8");
             try {
                 const res = await request(app)
@@ -270,7 +270,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         // Phase1 分岐70%: appendAdminAuthLog の read で ENOENT 以外（破損JSON）のとき catch 内 console.error 分岐を通す
         test("管理者ログイン時 admin-auth ログが破損JSONでもログインは成功する", async () => {
-            const logPath = path.join(__dirname, "../../logs/admin-auth.json");
+            const logPath = path.join(DATA_ROOT, "logs/admin-auth.json");
             const fsMod = require("fs").promises;
             await fsMod.mkdir(path.dirname(logPath), { recursive: true });
             await fsMod.writeFile(logPath, "{", "utf-8");
@@ -308,7 +308,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         // Phase1 分岐70%: appendCustomerAuthLog の read で ENOENT 以外（破損JSON）のとき catch 分岐を通す
         test("顧客ログイン時 customer-auth ログが破損JSONでもログインは成功する", async () => {
-            const logPath = path.join(__dirname, "../../logs/customer-auth.json");
+            const logPath = path.join(DATA_ROOT, "logs/customer-auth.json");
             const fsMod = require("fs").promises;
             await fsMod.mkdir(path.dirname(logPath), { recursive: true });
             await fsMod.writeFile(logPath, "{", "utf-8");
@@ -366,7 +366,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         // 分岐70%: invite-reset は invite_tokens 読込失敗時 catch で tokens = {} として処理継続（200で成功）
         test("POST /api/admin/invite-reset は invite_tokens 読込失敗時も処理を継続して200で返す", async () => {
-            const invitePath = path.join(__dirname, "../../invite_tokens.json");
+            const invitePath = path.join(DATA_ROOT, "invite_tokens.json");
             const orig = await fs.readFile(invitePath, "utf-8").catch(() => "{}");
             try {
                 await fs.writeFile(invitePath, "{ invalid json", "utf-8");
@@ -1175,7 +1175,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
         });
 
         test("GET /admin/customer-price-list は prices.json 破損時も空配列で200", async () => {
-            const pricesPath = path.join(__dirname, "../../prices.json");
+            const pricesPath = path.join(DATA_ROOT, "prices.json");
             const orig = await fs.readFile(pricesPath, "utf-8").catch(() => "[]");
             try {
                 await fs.writeFile(pricesPath, "{", "utf-8");
@@ -1190,7 +1190,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
         });
 
         test("GET /api/admin/stocks は stocks.json 破損時も空配列で200", async () => {
-            const stocksPath = path.join(__dirname, "../../stocks.json");
+            const stocksPath = path.join(DATA_ROOT, "stocks.json");
             const orig = await fs.readFile(stocksPath, "utf-8").catch(() => "[]");
             try {
                 await fs.writeFile(stocksPath, "{", "utf-8");
@@ -1206,7 +1206,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
         });
 
         test("POST /admin/delete-estimates-by-manufacturer は estimates 破損時も 200", async () => {
-            const estimatesPath = path.join(__dirname, "../../estimates.json");
+            const estimatesPath = path.join(DATA_ROOT, "estimates.json");
             const orig = await fs.readFile(estimatesPath, "utf-8").catch(() => "[]");
             try {
                 await fs.writeFile(estimatesPath, "{", "utf-8");
@@ -2821,7 +2821,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         // Phase 1: support-api admin/support-tickets は破損JSON時は空配列を返す（既存 support-api-boundaries と同様の経路）
         test("GET /admin/support-tickets は support_tickets.json 破損時は空配列を返す", async () => {
-            const dbPath = path.join(__dirname, "../../support_tickets.json");
+            const dbPath = path.join(DATA_ROOT, "support_tickets.json");
             const orig = await fs.readFile(dbPath, "utf-8").catch(() => "[]");
             try {
                 await fs.writeFile(dbPath, "not valid json", "utf-8");
