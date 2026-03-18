@@ -957,7 +957,8 @@
     "customerId": "H015",
     "password": "$2b$10$XuMfbzyjm2.aabQi8iawfuY1fq8jZ.zq3SfRKJPdjdYRcSz4IO7I2",
     "customerName": "ひふみマネジメント株式会社",
-    "priceRank": "B"
+    "priceRank": "B",
+    "email": "irikura2@hifumi-m.com"
   },
   {
     "customerId": "H016",

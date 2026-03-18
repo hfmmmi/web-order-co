@@ -1,14 +1,23 @@
 {
   "version": 1,
-  "updatedAt": null,
+  "updatedAt": "2026-03-17T20:48:56.773Z",
   "display": {
-    "enabled": false,
-    "hiddenMessage": "仕入先直送のため在庫表示は行っておりません",
+    "enabled": true,
+    "hiddenMessage": "在庫情報は非公開です",
     "showStocklessLabel": true,
     "stocklessLabel": "仕入先直送",
     "allowOrderingWhenZero": true,
-    "highlightThresholdMinutes": 180,
-    "warehousePresets": []
+    "highlightThresholdMinutes": 60,
+    "warehousePresets": [
+      {
+        "code": "NAGANO",
+        "name": "長野倉庫"
+      },
+      {
+        "code": "OSAKA",
+        "name": "大阪倉庫"
+      }
+    ]
   },
   "adapters": []
 }

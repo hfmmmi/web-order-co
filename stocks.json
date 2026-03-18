@@ -1,1 +1,28 @@
-[]
+[
+  {
+    "productCode": "P001",
+    "totalQty": 100,
+    "reservedQty": 0,
+    "warehouses": [],
+    "lastSyncedAt": "2026-03-17T20:48:58.866Z",
+    "source": "manual",
+    "publish": true,
+    "hiddenMessage": "",
+    "manualLock": true,
+    "customLabels": {},
+    "note": ""
+  },
+  {
+    "productCode": "P002",
+    "totalQty": 20,
+    "reservedQty": 1,
+    "warehouses": [],
+    "lastSyncedAt": "2026-03-17T20:48:58.426Z",
+    "source": "manual",
+    "publish": true,
+    "hiddenMessage": "",
+    "manualLock": false,
+    "customLabels": {},
+    "note": ""
+  }
+]

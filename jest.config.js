@@ -1,6 +1,7 @@
 /** @type {import('jest').Config} */
 module.exports = {
     testEnvironment: "node",
+    setupFiles: ["<rootDir>/tests/setupJestDataDir.js"],
     testMatch: ["**/tests/**/*.test.js"],
     collectCoverageFrom: [
         "routes/**/*.js",

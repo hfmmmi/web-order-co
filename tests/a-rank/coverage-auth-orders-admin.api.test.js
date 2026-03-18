@@ -80,7 +80,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
         // Phase1: 顧客ログインで customers.json 読込失敗時はシステムエラーを返す（auth-api catch分岐）
         test("顧客ログインで customers.json 読込失敗時はシステムエラーを返す", async () => {
             const fsMod = require("fs").promises;
-            const customersPath = path.join(__dirname, "../../customers.json");
+            const customersPath = path.join(DATA_ROOT, "customers.json");
             const origRead = fsMod.readFile;
             jest.spyOn(fsMod, "readFile").mockImplementation((filePath) => {
                 if (String(filePath).includes("customers.json")) {

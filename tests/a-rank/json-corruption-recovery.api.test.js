@@ -9,6 +9,7 @@ jest.mock("../../services/mailService", () => ({
 const request = require("supertest");
 const fs = require("fs").promises;
 const path = require("path");
+const { DATA_ROOT } = require("../../dbPaths");
 const { app } = require("../../server");
 const {
     backupDbFiles,
@@ -16,8 +17,6 @@ const {
     seedBaseData,
     readJson
 } = require("../helpers/testSandbox");
-
-const ROOT = path.join(__dirname, "..", "..");
 
 describe("Aランク: JSON破損時の復旧耐性", () => {
     let backup;
@@ -35,7 +34,7 @@ describe("Aランク: JSON破損時の復旧耐性", () => {
     });
 
     test("login_rate_limit.json が破損していても failed login 記録で再生成できる", async () => {
-        const filePath = path.join(ROOT, "login_rate_limit.json");
+        const filePath = path.join(DATA_ROOT, "login_rate_limit.json");
         await fs.writeFile(filePath, "{broken-json", "utf-8");
 
         const failed = await request(app)
@@ -53,7 +52,7 @@ describe("Aランク: JSON破損時の復旧耐性", () => {
     });
 
     test("reset_tokens.json が破損していても request-password-reset 実行で再生成できる", async () => {
-        const filePath = path.join(ROOT, "reset_tokens.json");
+        const filePath = path.join(DATA_ROOT, "reset_tokens.json");
         await fs.writeFile(filePath, "{broken-json", "utf-8");
 
         const res = await request(app)
@@ -71,7 +70,7 @@ describe("Aランク: JSON破損時の復旧耐性", () => {
     });
 
     test("proxy_requests.json が破損していても status確認と再申請で復旧できる", async () => {
-        const filePath = path.join(ROOT, "proxy_requests.json");
+        const filePath = path.join(DATA_ROOT, "proxy_requests.json");
         await fs.writeFile(filePath, "{broken-json", "utf-8");
 
         const admin = request.agent(app);
