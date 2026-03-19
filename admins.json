@@ -1,7 +1,8 @@
 [
   {
     "adminId": "admin",
-    "password": "$2b$10$jUR5049Bmi8XP3PXMXE8z.yvQeg9J0IBcMRIxdqoc8NUvpdlsxfo6",
-    "name": "管理者"
+    "password": "$2b$10$KAKHeisnzFPX500eGGXBruyHnqLG2/rRcmUwBLlcXMXN5itheyfpu",
+    "name": "管理者",
+    "email": "irikura2@hifumi-m.com"
   }
 ]

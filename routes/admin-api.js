@@ -21,13 +21,16 @@ const crypto = require("crypto");
 const fs = require("fs").promises;
 const path = require("path");
 const { dbPath } = require("../dbPaths");
+const bcrypt = require("bcryptjs");
 const { validateBody } = require("../middlewares/validate");
 const {
     addCustomerSchema,
     updateCustomerSchema,
-    adminSettingsUpdateSchema
+    adminSettingsUpdateSchema,
+    adminAccountUpdateSchema
 } = require("../validators/requestSchemas");
 
+const ADMINS_DB_PATH = dbPath("admins.json");
 const INVITE_TOKENS_PATH = dbPath("invite_tokens.json");
 const INVITE_EXPIRY_HOURS = 24;
 const PROXY_REQUESTS_PATH = dbPath("proxy_requests.json");
@@ -170,6 +173,66 @@ router.put("/admin/settings", requireAdmin, validateBody(adminSettingsUpdateSche
         res.json({ success: true, message: "設定を保存しました" });
     } catch (e) {
         res.status(500).json({ message: e.message || "設定の保存に失敗しました" });
+    }
+});
+
+// =================================================================
+// 👤 管理者アカウント（ID・パスワード・表示名・メール）
+// =================================================================
+router.get("/admin/account", requireAdmin, async (req, res) => {
+    try {
+        const data = await fs.readFile(ADMINS_DB_PATH, "utf-8");
+        const list = JSON.parse(data);
+        if (!Array.isArray(list) || list.length === 0) {
+            return res.json({ adminId: "", name: "", passwordSet: false, email: "" });
+        }
+        const admin = list[0];
+        res.json({
+            adminId: admin.adminId || "",
+            name: admin.name || "",
+            passwordSet: !!(admin.password && String(admin.password).trim()),
+            email: (admin.email && String(admin.email).trim()) || ""
+        });
+    } catch (e) {
+        if (e.code === "ENOENT") {
+            return res.json({ adminId: "", name: "", passwordSet: false, email: "" });
+        }
+        res.status(500).json({ message: "管理者アカウントの取得に失敗しました" });
+    }
+});
+
+router.put("/admin/account", requireAdmin, validateBody(adminAccountUpdateSchema), async (req, res) => {
+    try {
+        const { adminId, name, password, email } = req.body;
+        let list = [];
+        try {
+            const data = await fs.readFile(ADMINS_DB_PATH, "utf-8");
+            list = JSON.parse(data);
+        } catch (e) {
+            if (e.code !== "ENOENT") throw e;
+        }
+        if (!Array.isArray(list)) list = [];
+
+        let admin = list[0] || null;
+        if (!admin) {
+            if (!password || password.length < 4) {
+                return res.status(400).json({ message: "初回作成時はパスワードを4文字以上で指定してください" });
+            }
+            admin = { adminId: "", password: "", name: "" };
+            list = [admin];
+        }
+
+        admin.adminId = adminId;
+        if (name !== undefined) admin.name = name;
+        if (email !== undefined) admin.email = email === "" ? undefined : email;
+        if (password && String(password).trim().length >= 4) {
+            admin.password = await bcrypt.hash(String(password).trim(), 10);
+        }
+
+        await fs.writeFile(ADMINS_DB_PATH, JSON.stringify(list, null, 2), "utf-8");
+        res.json({ success: true, message: "管理者アカウントを保存しました" });
+    } catch (e) {
+        res.status(500).json({ message: e.message || "管理者アカウントの保存に失敗しました" });
     }
 });
 

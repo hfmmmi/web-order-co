@@ -97,20 +97,32 @@ const sessionOptions = {
     }
 };
 
-if (!isTest && !isWindowsDev) {
-    sessionOptions.store = new FileStore({
-        path: "./sessions",
-        logFn: function(){},      // 余計なログは出さない
-        retries: 50,              // ★増強: 5回 -> 50回 (絶対に諦めない)
-        factor: 1,                // 待機時間の増加率
-        minTimeout: 100,          // ★増強: 50ms -> 100ms (最低待ち時間)
-        maxTimeout: 1000,         // ★増強: 200ms -> 1秒 (最大待ち時間)
-        reapInterval: 60 * 60     // 1時間ごとに掃除
-    });
-}
+// セッション: テスト時はメモリ。本番・Mac/Linux はファイル保存（再起動後も維持）。
+// Windows 開発環境ではファイル保存が 3～5 秒遅延の原因になるためデフォルトはメモリ（速い・再起動でログアウト）。
+// Windows で再起動後もログインを維持したい場合は PERSIST_SESSION=1 を設定（その代わりページ遷移が遅くなる可能性あり）。
+const useMemorySession = isTest
+    || (isWindowsDev && (process.env.PERSIST_SESSION !== "1" && process.env.PERSIST_SESSION !== "true"));
 
-if (isWindowsDev) {
-    console.warn("⚠️ Windows開発環境のためメモリセッションを使用します（EPERM回避）");
+if (!useMemorySession) {
+    // 本番では SESSION_PATH を「デプロイで消えないディレクトリ」にすると、再起動・更新後もログインが維持される
+    const sessionPath = process.env.SESSION_PATH || path.join(process.cwd(), "sessions");
+    sessionOptions.store = new FileStore({
+        path: sessionPath,
+        logFn: function () {},
+        retries: 50,
+        factor: 1,
+        minTimeout: 100,
+        maxTimeout: 1000,
+        reapInterval: 60 * 60
+    });
+    if (isProduction && sessionPath === path.join(process.cwd(), "sessions")) {
+        console.warn("⚠️ 本番: 再起動後もログインを維持するには SESSION_PATH をアプリ外の永続ディレクトリに設定してください（例: SESSION_PATH=/var/lib/weborder/sessions）");
+    }
+    if (isWindowsDev) {
+        console.log("📁 PERSIST_SESSION 有効: セッションをファイル保存しています（再起動後もログイン維持）。");
+    }
+} else if (isWindowsDev && !isTest) {
+    console.log("📁 Windows 開発: メモリセッションを使用（ページ遷移は速い。再起動でログアウト）。永続化は PERSIST_SESSION=1 で有効にできます。");
 }
 
 app.use(session(sessionOptions));
@@ -131,8 +143,7 @@ app.use((req, res, next) => {
             
             // セッションをサーバーから削除
             return req.session.destroy((err) => {
-                // フロントエンドに「期限切れ」を通知
-                res.status(401).json({ success: false, message: "Session Expired" });
+                res.status(401).json({ success: false, message: "再ログインが必要です。", code: "SESSION_EXPIRED" });
             });
         }
 

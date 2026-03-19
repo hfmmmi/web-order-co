@@ -75,12 +75,12 @@ window.fetch = async (...args) => {
         const path = window.location.pathname;
         const isLoginPage = path.endsWith('index.html') || path === '/' || path.endsWith('/');
         
-        // 「権限なし(401)」と言われた場合
+        // 「権限なし(401)」＝期限切れ or システム再起動などでセッションが無効になった場合
         if (response.status === 401 && !isLoginPage) {
             if (!window.isRedirecting) {
                 window.isRedirecting = true;
-                alert("セッションの有効期限(120分)が切れました。\nログイン画面に戻ります。");
-                window.location.href = "/index.html"; 
+                alert("再ログインが必要です。\n（長時間の無操作やシステム更新によりセッションが切れた場合があります）\n\nログイン画面に移動します。");
+                window.location.href = "/index.html";
             }
             throw new Error("Session Expired");
         }

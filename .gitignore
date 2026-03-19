@@ -17,6 +17,9 @@ invite_tokens.json
 # パスワード再設定トークン（顧客申込・有効期限管理用）
 reset_tokens.json
 
+# 管理者パスワード再設定トークン（24時間・1回使用）
+admin_reset_tokens.json
+
 # パスワード再設定のレート制限用（IP別・15分窓）
 reset_rate_limit.json
 
@@ -29,6 +32,9 @@ proxy_requests.json
 # ログ
 logs/*.json
 !logs/.gitkeep
+
+# カバレッジレポート（CI で生成するためコミットしない）
+coverage/
 
 # API テスト用サンドボックス（seedBaseData で自動作成するためコミットしない）
 tests/_sandbox_data/

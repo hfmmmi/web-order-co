@@ -12,7 +12,8 @@
 - **2/18時点のコード量**: 約 27,700行
 
 ### 共同編集・別スレ継続について
-- 本ルールは**共同編集や別スレッドでの続き**を想定して記載している。途中から別スレで再開する場合は、**「次回スレッドで優先対応すべき事項」** と **「直近スレッド反映済み」** の日付付き項目を確認し、`docs/` 内の該当ドキュメント（test-execution.md、調査メモ_顧客アドレス消失.md 等）を参照して作業を継続すること。
+- 本ルールは**共同編集や別スレッドでの続き**を想定して記載している。途中から別スレで再開する場合は、**「次回スレッドで優先対応すべき事項」** と **「直近スレッド反映済み」** の日付付き項目を確認し、`docs/` 内の該当ドキュメント（test-execution.md、調査メモ_顧客アドレス消失.md、**共同編集の手順.md** 等）を参照して作業を継続すること。
+- **共同編集の手順**は **`docs/共同編集の手順.md`** に集約している。招待方法・初回の流れ（Accept → clone → cd → npm install → Cursor でフォルダを開く）・2回目からの流れ（**pull → 編集 → テスト（推奨）→ push**）・用語（ターミナル／pull／push／コミット）・push 手順（git add . → git commit -m "..." → git push origin main）をエンジニアでない人にも分かるように記載。共同編集者に渡す一文のコピペ用も同 doc にあり。
 
 ### 次回スレッドで優先対応すべき事項
 - **カバレッジ向上計画は現時点で完了扱い**：`npm run test:all`（API（S+A+B+Risk・カバレッジ付き）+ E2E + 負荷試験 + flake監視）が安定して PASS。最新実行では **行 90.10% / 分岐 69.25% / global 閾値 80/67** を確認済み。Phase 1（カバレッジ理想値到達）は「global 80/70 を絶対条件にはせず、運用コスパを踏まえてここで完了」とする（詳細は `docs/coverage-improvement-plan.md` §12.7 と `docs/branch-coverage-70-proposal.md`）。
@@ -24,6 +25,27 @@
 - **シークレット運用の強化**：本番は SMTP パスワードを `MAIL_PASSWORD` で管理し、settings.json には保存しない
 - **自動テスト運用の定着**：`npm run test:all`（API（S+A+B+Risk・カバレッジ付き） + E2E + 負荷試験 + flake監視）を変更前後で実行し、回帰を最優先で検知する。**test:all は API → E2E → 負荷 → flake の順で全テストを実行**。負荷は test:all 内でサーバーを自動起動して実行。週次では `.github/workflows/step3-periodic.yml` で定期実行も実施。
 
+### 直近スレッド反映済み（2026-03-19 管理者アカウント・ランク価格表Excel書式・セッション運用）
+- **管理者アカウント（システム設定）**：システム設定に **「👤 管理者アカウント」** タブを追加。管理者ID・表示名・メールアドレス（パスワード再設定リンク送信先）・パスワードを設定可能。**GET/PUT /api/admin/account**（requireAdmin）。admins.json の先頭1件を読書き。validators に **adminAccountUpdateSchema**。パスワードは空欄保存で既存維持。管理者に **email** フィールドを任意で持たせられる。
+- **管理者パスワード再設定**：ログイン画面「パスワードをお忘れの方」で **顧客と同様に管理者も** 再設定可能。**POST /api/request-password-reset** で顧客で見つからなければ管理者を adminId または email で検索。**admin_reset_tokens.json** にトークン保存（24h・1回使用）。**setup.html** の id&key が管理者用トークンの場合は admins.json のパスワードを更新。送信先は管理者の email がなければ **supportNotifyTo**。.gitignore に admin_reset_tokens.json を追加済み。
+- **ランク別価格表Excel（メーカー同一扱い）**：**normalizeManufacturerKey**（priceService）でメーカー名を正規化。英数字は全角→半角・大文字統一。**半角カナ→全角カナ**（HALF_KATAKANA/FULL_KATAKANA）で「富士フイルム」と「富士ﾌｲﾙﾑ」を同一シートに。シート分け・並び順・送料規定参照に正規化キーを使用。
+- **ランク別価格表Excel（シート構成）**：**純正**＝メーカー別シート、**再生・汎用・海外純正**＝カテゴリ名で各1シート、**その他**＝1シート。再生シート内は **メーカー名順**で並び替え。送料規定は代表表示名・正規化キー・default の順で参照。
+- **ランク別価格表Excel（書式・備考・固定）**：**枠線**（全セル）・**ヘッダー行**（太字・背景#E0E0E0・中央揃え）・**列幅**（商品ｺｰﾄﾞ14・メーカー14・商品名36・定価10・仕様12・価格10・掛率10・**備考20**）。定価/価格は **#,##0** ・右寄せ。**H列に備考欄**（空欄・顧客記入用）。**ウィンドウ枠の固定**（sheet.views = [{ state: "frozen", ySplit: headerRowIndex }]。送料規定＋ヘッダー行まで固定）。ヘッダー行番号は **ruleEndRow + 1**（addRow がシート末尾に追加するため）。送料規定エリアにも枠線。
+- **セッション運用**：**本番で再起動後もログイン維持**するには **SESSION_PATH** をデプロイで消えない永続ディレクトリに設定（例: `/var/lib/weborder/sessions`）。未設定時は本番起動時に警告。**Windows 開発**ではデフォルトは**メモリ**（ページ遷移が速い・再起動でログアウト）。**PERSIST_SESSION=1** でファイル保存（再起動後維持・3～5秒遅延の可能性）。**USE_MEMORY_SESSION=1** で強制メモリ。401 時は「再ログインが必要です。（長時間の無操作やシステム更新によりセッションが切れた場合があります）」と表示。**docs/session-production.md** に本番でのセッション運用ガイドを記載。
+
+### 直近スレッド反映済み（2026-03-18 共同編集手順・Git運用）
+- **共同編集の手順**：`docs/共同編集の手順.md` を中心に運用。**初回**＝招待 Accept → ターミナルで clone / cd web-order-co / npm install → Cursor で Open Folder（web-order-co）。**2回目以降**＝作業開始時に **git pull origin main**（最新を取り込む）→ 編集 → **テスト（推奨）** `$env:DATA_DIR = "tests/_sandbox_data"; npm run test:all` → **push**（git add . → git commit -m "○○の修正" → git push origin main）。ターミナルはプロジェクトのフォルダで実行。
+- **Git の説明**：**コミット**＝変更を「ひとまとまりの記録」として保存する操作。**push** でその記録を GitHub の main に送る。**本番**＝GitHub の main。main に push した時点で本番に反映。**git add .** で変更したファイルをすべて追加（.gitignore のものは除く）。ファイル名の追記は不要。
+- **招待・手順共有**：GitHub の Settings → Collaborators → Add people。手順は `docs/共同編集の手順.md` の「共同編集者に渡す一文」をコピペして渡す。
+
+### 直近スレッド反映済み（2026-03-18 テストによる本番データ上書き防止・kaitori復元）
+- **事象**：`kaitori_master.json` と `kaitori_requests.json` がテスト実行で上書きされ、不正JSON（`{ broken` / `not json`）になっていた。原因は kaitori-api.api.test.js の「不正JSON」用テストが本番ファイルに直接書き込んでいたこと、および json-corruption-recovery.api.test.js が **プロジェクトルート（ROOT = path.join(__dirname, "..", "..")）** に login_rate_limit.json / reset_tokens.json / proxy_requests.json の破損データを書き込んでいたこと。
+- **復元**：first commit（1c86364）から `git checkout 1c86364 -- kaitori_master.json kaitori_requests.json` で両ファイルを復元。
+- **再発防止（Jest で常にサンドボックス使用）**：**`tests/setupJestDataDir.js`** を新規作成し、`DATA_DIR` が未設定のとき **`tests/_sandbox_data`** を自動設定。**`jest.config.js`** に **`setupFiles: ["<rootDir>/tests/setupJestDataDir.js"]`** を追加。これにより `npm run test:api` / `npm run test:a` 等では DATA_DIR を手動設定しなくても本番の JSON を触らない。
+- **テストコードの修正**：**`tests/a-rank/json-corruption-recovery.api.test.js`** は `ROOT`（プロジェクトルート）を廃止し、**`DATA_ROOT`（dbPaths）** を使用するよう変更（破損させるファイルはすべてサンドボックス内のみ）。**`tests/a-rank/coverage-auth-orders-admin.api.test.js`** の customers.json 参照を `path.join(__dirname, "../../customers.json")` から **`path.join(DATA_ROOT, "customers.json")`** に統一。
+- **ルール**：テストで JSON やデータファイルを書き込む場合は、**必ず `dbPaths` の `DATA_ROOT` または testSandbox の `readJson`/`writeJson`（abs = path.join(DATA_ROOT, relPath)）を使うこと**。`path.join(__dirname, "..", "..")` でプロジェクトルートを指しての書き込みは禁止（本番データを破壊する原因になる）。
+- **個人環境の推奨フロー**：**pull → 編集 → テスト → push**。テストは setup で DATA_DIR が自動設定されるため、本番データを触らずに実行できる。
+
 ### 直近スレッド反映済み（2026-03-17 顧客アドレス消失原因・E2E本番データ保護）
 - **顧客アドレス（email）消失の原因**：E2E 実行時に **プロジェクト直下の customers.json 等が E2E 用 seed で上書きされていた** ことが原因。teardown（restore）が動かなかった場合や、古いバックアップで復元した場合に本番データや email が失われる事象が発生。詳細は **`docs/調査メモ_顧客アドレス消失.md`** 参照。
 - **再発防止（E2E の本番データ保護）**：E2E は **専用ディレクトリ `tests/e2e/.e2e_data` のみ** を使用するよう変更済み。`tests/e2e/scripts/e2eDbManager.js` の backup/seed/restore はすべて `.e2e_data` 配下のみ操作。Playwright の webServer 起動時に **DATA_DIR=tests/e2e/.e2e_data** を渡し、サーバーはこのディレクトリのみ参照。**プロジェクト直下の JSON は一切触らない**。
@@ -32,7 +54,7 @@
 
 ### 直近スレッド反映済み（2026-03 送料規定・カートお知らせ・ランク別価格表Excel・category・nodemon）
 - **送料規定・カートお知らせ（システム設定）**：**settings.json** に **shippingRules**（メーカー別送料規定。キー "default" またはメーカー名→テキスト）と **cartShippingNotice**（カートの内容確認ページ最下部に表示するお知らせ）。管理画面「🚚 送料規定・カートお知らせ」タブで編集。**cartShippingNotice** は **プレーンテキスト**で表示（改行反映・HTML解釈しない）。未設定時はカート最下部のブロックは非表示。**GET /api/settings/public** に **cartShippingNotice** を返却。価格表Excelの各メーカーシート先頭には **shippingRules[メーカー]** または **shippingRules["default"]** を記載。
-- **ランク別価格表ダウンロード**：**CSV**（GET /api/admin/download-pricelist-by-rank/:rank）はヘッダー順 **商品ｺｰﾄﾞ, メーカー名, 商品名, 定価, 仕様, 価格, 掛率**。掛率は 価格/定価 を小数第1位で%表記（定価0の場合は "-"）。**Excel**（GET /api/admin/download-pricelist-excel-by-rank/:rank）は **メーカー別シート**・各シート先頭に送料規定（shippingRules）・列は上記と同じ。**シート名**は Excel が大文字小文字を区別しないため、重複判定は小文字で行い、重複時は "Brother_1" のように番号を付与（**priceService.getPricelistExcelForRank**）。
+- **ランク別価格表ダウンロード**：**CSV**（GET /api/admin/download-pricelist-by-rank/:rank）はヘッダー順 **商品ｺｰﾄﾞ, メーカー名, 商品名, 定価, 仕様, 価格, 掛率**。掛率は 価格/定価 を小数第1位で%表記（定価0の場合は "-"）。**Excel**（GET /api/admin/download-pricelist-excel-by-rank/:rank）は **純正＝メーカー別シート・再生/汎用/海外純正＝カテゴリ名で1シートずつ**・各シート先頭に送料規定（shippingRules）・列は **商品ｺｰﾄﾞ, メーカー名, 商品名, 定価, 仕様, 価格, 掛率, 備考**（H列備考は空欄）。メーカー名は **normalizeManufacturerKey**（半角/全角・大小・半角カナ→全角カナ）で同一扱い。**書式**：枠線・ヘッダー太字・グレー背景・列幅・定価/価格は#,##0・**ウィンドウ枠の固定**（送料規定＋ヘッダー行）。シート名重複時は小文字で判定し "Brother_1" のように番号を付与（**priceService.getPricelistExcelForRank**）。
 - **商品登録・category**：**addProduct** ではリクエストを正規化し **category** を確実に保存（productCode, name, manufacturer, category, basePrice, stockStatus, active, rankPrices）。**商品マスタ一括取込**では「仕様」「規格」「**カテゴリ**」のいずれかの列名で category 列を判定。
 - **ランク名をシステム設定から**：**商品マスタ一括取込**と**ランク別価格Excel取込**で、ヘッダーが **getRankList() の表示名**（システム設定の「ランクの名前」）と一致する列もランク列として認識（ランク1/ランクA に加えて、例: 「ゴールド」「シルバー」等が使える）。
 - **nodemon**：**nodemon.json** の **watch** に **services/, middlewares/, validators/, dbPaths.js** を含める（`server.js`, `routes/`, `utils/` に加えて）。**ext** は **js** のみ（*.json の変更で再起動しない）。**ignore** に *.json, sessions/*, node_modules, coverage, tests, public/*。これにより services/ 等の変更で自動再起動される。
@@ -217,10 +239,10 @@
 - **server.js**: セッション管理（クッキー24時間・無操作120分検知）とルーティングを一手に担う心臓部。**ステップ3**：全リクエストに `X-Response-Time` ヘッダ付与（オプションで `ENABLE_PERF_LOG=true` 時は閾値超過ログ出力）。**セキュリティ**: dotenv で .env 読込（未インストール時はスキップ）・SESSION_SECRET は環境変数（本番では必須）・helmet でセキュリティヘッダー（未インストール時はスキップ）・**CSP 有効**（default-src 'self'、script-src/script-src-attr 'unsafe-inline'＋reCAPTCHA 用 https://www.google.com, https://www.gstatic.com、frame-src に https://www.recaptcha.net、style-src/connect-src/img-src/font-src/base-uri/form-action を設定）。Cookie は httpOnly / 本番で secure / sameSite:lax / name:weborder.sid。**CORS は既定で同一オリジン**、`ALLOWED_ORIGINS` 設定時のみ許可リスト方式で有効化（credentials許可・未許可Originは拒否）。`TRUST_PROXY=1/true` で `trust proxy` を有効化。**セッションストア**は本番/通常運用で session-file-store（単一サーバー前提）を使用。**Windows開発環境では EPERM(rename) 回避のためメモリストアへ自動フォールバック**。本番・SaaS で複数インスタンスにする場合は Redis 等の共有ストアに変更すること。
 
 ### B. API部隊 (The Squads / Server Side)
-- **auth-api.js**: [警備] ログイン・PW照合・初期設定・**招待用リセット**（invite_tokens.json）・**顧客申込パスワード再設定**（POST /api/request-password-reset、reset_tokens.json 24h・1回使用・**レート制限**同一IP 15分5回/reset_rate_limit.json）・**再設定完了時**顧客へ通知メール（mailService.sendPasswordChangedNotification）。**ログイン失敗レート制限**（同一アカウント5回/15分→15分ロック・login_rate_limit.json）。**連続失敗5回時メール**（5回目＝ロック時に顧客宛はmailService.sendLoginFailureAlert、管理者はsupportNotifyToへ）。**reCAPTCHA v2**（2回失敗で3回目以降CAPTCHA必須・body.captchaToken を Google siteverify で検証・未設定ならスキップ）。**ログイン成功時は session.regenerate でIDローテーション**（固定化対策）。**顧客セッション** GET /api/session（proxyByAdmin 含む）。**代理ログイン申請（顧客側）** GET /api/account/proxy-request・POST /api/account/proxy-request/approve・reject（proxy-request 返却時の adminName は **sanitizeAdminName** 済み）。**アカウント設定** GET/PUT /api/account/settings（現状は設定項目なし）。**管理者表示名サニタイズ**（sanitizeAdminName：長さ100・<>"\'& 除去。ログイン時 session.adminName と proxy-request 返却に適用）。**管理者認証履歴**（appendAdminAuthLog→logs/admin-auth.json）に加え、**顧客認証履歴**（appendCustomerAuthLog→logs/customer-auth.json：login / logout / failed_login、customerId・customerName・ip・at）を記録。**ログアウト時のCookieクリアは weborder.sid を使用**。
+- **auth-api.js**: [警備] ログイン・PW照合・初期設定・**招待用リセット**（invite_tokens.json）・**顧客申込パスワード再設定**（POST /api/request-password-reset、reset_tokens.json 24h・1回使用・**レート制限**同一IP 15分5回/reset_rate_limit.json）・**管理者パスワード再設定**（顧客で見つからなければ adminId/email で検索・admin_reset_tokens.json・送信先は管理者emailまたはsupportNotifyTo）・**再設定完了時**顧客へ通知メール（mailService.sendPasswordChangedNotification）。**ログイン失敗レート制限**（同一アカウント5回/15分→15分ロック・login_rate_limit.json）。**連続失敗5回時メール**（5回目＝ロック時に顧客宛はmailService.sendLoginFailureAlert、管理者はsupportNotifyToへ）。**reCAPTCHA v2**（2回失敗で3回目以降CAPTCHA必須・body.captchaToken を Google siteverify で検証・未設定ならスキップ）。**ログイン成功時は session.regenerate でIDローテーション**（固定化対策）。**顧客セッション** GET /api/session（proxyByAdmin 含む）。**代理ログイン申請（顧客側）** GET /api/account/proxy-request・POST /api/account/proxy-request/approve・reject（proxy-request 返却時の adminName は **sanitizeAdminName** 済み）。**アカウント設定** GET/PUT /api/account/settings（現状は設定項目なし）。**管理者表示名サニタイズ**（sanitizeAdminName：長さ100・<>"\'& 除去。ログイン時 session.adminName と proxy-request 返却に適用）。**管理者認証履歴**（appendAdminAuthLog→logs/admin-auth.json）に加え、**顧客認証履歴**（appendCustomerAuthLog→logs/customer-auth.json：login / logout / failed_login、customerId・customerName・ip・at）を記録。**ログアウト時のCookieクリアは weborder.sid を使用**。
 - **products-api.js**: [店舗] 商品一覧・検索・価格計算・価格表DL・**よく注文する商品API**・**在庫情報(stockInfo/stockUi)付与**。
 - **orders-api.js**: [物流] 注文確定（在庫チェックなし・常に受付）・履歴参照・メール通知・CSV生成。**外部受注CSV取込**（POST /api/import-orders-csv）と**出荷CSV取込**（POST /api/import-shipping-csv）を提供し、取込時は `req.file` / `req.files.file` の両系統に対応。
-- **admin-api.js**: [本部] 商品/顧客マスタ管理・Excel一括取込・価格設定・**見積削除API**・**在庫設定/CSV取込API**（/admin/stocks/*）・**在庫テンプレートDL**（GET /api/admin/stocks/template・exceljsで生成）・**買取Excel解析**（POST /api/admin/kaitori/parse-excel・exceljsでサーバー解析）・**システム設定API**（GET/PUT /admin/settings、GET /settings/public・**お知らせ含む**・**recaptchaSiteKey** 公開用のみ返却）・**招待メール送信API**（POST /admin/send-invite-email）・**ステータス/納期目安更新API**（POST /api/update-order-status）。**ランク別価格Excel取込**（POST /api/admin/import-rank-prices-excel・req.files.rankExcelFile・シート「Upload」・ヘッダーで商品コード/商品名/ランク1…判定・価格はparsePriceCellで整数円・商品名は取り込みのたび全件上書き）。**ランク一覧API**（GET /api/admin/rank-list・表示名付き・価格設定・顧客管理のドロップダウン用）。**管理者による代理ログイン**（POST /api/admin/proxy-request→顧客が許可/却下→GET /api/admin/proxy-request-status ポーリング→POST /api/admin/proxy-login で実行・POST /api/admin/proxy-logout。proxy_requests.json で申請状態・10分有効。代理終了時に同一セッションに元の顧客ログインがあれば proxySaved* で復元しユーザーはログイン継続）。
+- **admin-api.js**: [本部] 商品/顧客マスタ管理・Excel一括取込・価格設定・**見積削除API**・**在庫設定/CSV取込API**（/admin/stocks/*）・**在庫テンプレートDL**（GET /api/admin/stocks/template・exceljsで生成）・**買取Excel解析**（POST /api/admin/kaitori/parse-excel・exceljsでサーバー解析）・**システム設定API**・**管理者アカウント**（GET/PUT /admin/account・admins.json 先頭1件）・（GET/PUT /admin/settings、GET /settings/public・**お知らせ含む**・**recaptchaSiteKey** 公開用のみ返却）・**招待メール送信API**（POST /admin/send-invite-email）・**ステータス/納期目安更新API**（POST /api/update-order-status）。**ランク別価格Excel取込**（POST /api/admin/import-rank-prices-excel・req.files.rankExcelFile・シート「Upload」・ヘッダーで商品コード/商品名/ランク1…判定・価格はparsePriceCellで整数円・商品名は取り込みのたび全件上書き）。**ランク一覧API**（GET /api/admin/rank-list・表示名付き・価格設定・顧客管理のドロップダウン用）。**管理者による代理ログイン**（POST /api/admin/proxy-request→顧客が許可/却下→GET /api/admin/proxy-request-status ポーリング→POST /api/admin/proxy-login で実行・POST /api/admin/proxy-logout。proxy_requests.json で申請状態・10分有効。代理終了時に同一セッションに元の顧客ログインがあれば proxySaved* で復元しユーザーはログイン継続）。
 - **kaitori-api.js**: [空カートリッジ買取] 査定申請・自動振分判定・マスタ管理・ステータス更新。
 - **support-api.js**: [窓口] チケット管理・不具合報告受付・**顧客本人の履歴参照API**（GET /support/my-tickets）・**メール通知は mailService 経由（設定ベース）**。
 
@@ -288,7 +310,7 @@
 - **本番環境**: server.js は dotenv で .env を読込。SESSION_SECRET は環境変数で設定（未設定時は警告）。Cookie は httpOnly・本番で secure・sameSite:lax。helmet でセキュリティヘッダー付与。**CSP 有効**（default-src 'self'、script-src/script-src-attr 'unsafe-inline'、reCAPTCHA 用に https://www.google.com, https://www.gstatic.com, https://www.recaptcha.net を許可。style-src/connect-src/img-src/font-src/base-uri/form-action を設定）。インラインイベント（onclick 等）は script-src-attr 'unsafe-inline' で許可。将来 nonce/hash で 'unsafe-inline' を外すとより堅牢。
 - **CORS 運用**: 既定は同一オリジン運用（ヘッダ未付与）。フロント/API分離時は `ALLOWED_ORIGINS` で許可オリジンを明示し、許可リスト方式で有効化する（`*` は使わない）。
 - **XSS 対策**: ユーザー入力・他者データは表示前に HTML エスケープすること。script.js / admin-common.js に escapeHtml を用意。代理ログインの adminName・トーストの message・history/orders/support の error.message や file.name 等はエスケープ済み。setup.html の inviteId もエスケープ。管理者表示名は auth-api の sanitizeAdminName（長さ100・<>"\'& 除去）をログイン時と proxy-request 返却時に適用。
-- **セッションストア**: 現状は session-file-store（単一サーバー前提）。本番・SaaS で複数インスタンスやオートスケールにする場合は Redis 等の共有ストアに変更すること。
+- **セッションストア**: 現状は session-file-store（単一サーバー前提）。**本番で再起動後もログイン維持**するには **SESSION_PATH** を永続ディレクトリに設定（`docs/session-production.md`）。Windows 開発ではデフォルトはメモリ（PERSIST_SESSION=1 でファイル保存可）。本番・SaaS で複数インスタンスやオートスケールにする場合は Redis 等の共有ストアに変更すること。
 - **ログイン失敗レート制限**: 同一アカウント（顧客ID/管理者ID）で **5回失敗/15分** → **15分ロック**（login_rate_limit.json）。顧客・管理者の両方に適用。ロック時メッセージで「パスワードをお忘れの方」を案内。
 - **連続失敗5回時メール**: 5回目の失敗（＝ロックしたタイミング）で送信。顧客は顧客のメールアドレス宛（loginFailureAlert テンプレート）、管理者は supportNotifyTo 宛（loginFailureAlertAdmin テンプレート）。mailService.sendLoginFailureAlert。
 - **reCAPTCHA v2**: 同一アカウントで **2回失敗したあと**（3回目以降）のログイン試行で CAPTCHA 必須。body.captchaToken を Google siteverify で検証。未設定（siteKey/secretKey が空）の場合はCAPTCHAは行わない。フロントは GET /api/settings/public の recaptchaSiteKey でウィジェット読み込み、captchaRequired: true 時に「私はロボットではありません」を表示。ドメイン登録はホストのみ（`localhost` や本番ドメイン。プロトコル・ポートは含めない）。
@@ -321,7 +343,7 @@
 
 ### F-10. 自動テスト運用（S/A/B/Risk/E2E・CI・カバレッジ）
 - **実行コマンド**: `npm run test:all` を品質ゲートの標準とする（内部で **test:api → test:e2e → test:load（サーバー自動起動）→ test:flake** の4ステップを実行し、テスト最終サマリーに **開始時刻・終了時刻・総実行時間** と段階別 PASS/FAIL・最終判定を表示）。ランク別は `test:s` / `test:a` / `test:b` / `test:risk`、E2E のみは `test:e2e`、負荷のみは `test:load`、flake のみは `test:flake`。週次 CI（step3-periodic.yml）でも負荷・flake を含む定期実行を実施。
-- **テスト実行手順（本番データ保護）**: ローカルで test:all / test:api を実行する際は必ず DATA_DIR をテスト用に設定すること。**手順は `docs/test-execution.md` 参照**。DATA_DIR 未設定で実行すると testSandbox の安全装置で即エラーとなり業務用JSONには触れない。「テストの実行方法を教えて」「テストの流し方」と聞かれたらこのドキュメントを返す。
+- **テスト実行手順（本番データ保護）**: **Jest 経由（test:api / test:a / test:s / test:b / test:risk）では `tests/setupJestDataDir.js` が DATA_DIR を `tests/_sandbox_data` に自動設定するため、手動で DATA_DIR を設定しなくても本番データを触らない**。test:all は内部で test:api を実行するため同様。DATA_DIR を設定せずに Jest 以外の経路で testSandbox を読み込むと安全装置で即エラー。詳細は `docs/test-execution.md` 参照。「テストの実行方法を教えて」「テストの流し方」と聞かれたらこのドキュメントを返す。
 - **CIワークフロー**: `.github/workflows/ci.yml` で `main`/`master`/`develop` への push/PR 時に自動で `npm run test:all` を実行。ブランチ保護設定（Settings → Branches）で「テスト通過を必須にする」ことで、壊れたコードのマージを防止（`docs/ci-setup.md` 参照）。
 - **カバレッジ閾値**: `jest.config.js` の `coverageThreshold` で global と P0ファイル（auth-api、orders-api、admin-api、validate.js、priceCalc.js）の閾値を設定。Phase 4 完了後は global 行75%・分岐58%、auth-api 80/66、admin-api 80/62、orders-api 90/62（`docs/coverage-targets.md`・`docs/coverage-improvement-plan.md` 参照）。目標 80/70 は Phase 5 で余力対応。
 - **Sランク（API統合）**: ログイン（顧客/管理者）・注文確定・顧客登録/更新・管理設定更新・入力検証統一（strict/unknown key/400整形）・認証セキュリティ（失敗ロック/CAPTCHA分岐/再設定トークン制御/レート制限）・**セッション期限切れ120分（119:59/120:00+境界、同居セッション失効、副作用なし再ログイン）**・**監査ログ項目（admin/customer auth）と順序整合（failed_login→login→logout）**を検証。
@@ -366,7 +388,7 @@
 web-order/
 ├── server.js               ... [Core] 司令塔/120分監視/stockPoller起動・**CSP 有効**（helmet contentSecurityPolicy）[Deps: routes/*, jobs/stockPoller]
 ├── package.json            ... [Config] scripts: test, test:s, test:a, test:b, test:risk, test:api, test:flake, test:load, test:e2e, test:e2e:headed, test:all。**dev**: nodemon --legacy-watch server.js。nodemonConfig: watch, ext js, delay 800, ignore *.json/sessions/node_modules/coverage/tests
-├── jest.config.js          ... [Test Config] Jest設定・カバレッジ閾値（global 75/58、auth 80/66、admin 80/62、orders 90/62、validate/priceCalc 個別）
+├── jest.config.js          ... [Test Config] Jest設定・**setupFiles: tests/setupJestDataDir.js（DATA_DIR 未設定時は tests/_sandbox_data を自動設定）**・カバレッジ閾値（global 80/67、auth 80/66、admin 80/62、orders 90/62、validate/priceCalc 個別）
 ├── .github/workflows/ci.yml ... [CI] push/PR時にtest:all自動実行
 ├── .github/workflows/step3-periodic.yml ... [CI] 週次（日曜3:00 UTC）負荷試験・flake監視
 ├── package-lock.json
@@ -394,6 +416,7 @@ web-order/
 ├── support_tickets.json    ... [DB] サポート（パスは dbPaths 経由） [Ref: support-api]
 ├── invite_tokens.json      ... [DB] 招待トークン有効期限（24時間・1回使用） [Ref: auth-api]
 ├── reset_tokens.json       ... [DB] パスワード再設定トークン（顧客申込・24時間・1回使用） [Ref: auth-api]
+├── admin_reset_tokens.json ... [DB] 管理者パスワード再設定トークン（24時間・1回使用） [Ref: auth-api]
 ├── reset_rate_limit.json   ... [Data] パスワード再設定申込のレート制限（IP別・15分窓・5回まで） [Ref: auth-api]
 ├── login_rate_limit.json   ... [Data] ログイン失敗レート制限（アカウント別・5回/15分で15分ロック） [Ref: auth-api] .gitignore で除外推奨
 ├── proxy_requests.json     ... [Data] 代理ログイン申請（顧客ID→requestedAt, adminName, approved）10分有効 [Ref: admin-api, auth-api]
@@ -426,7 +449,7 @@ web-order/
 │   │   ├── admin-orders.html     ... [Page] 受注管理
 │   │   ├── admin-prices.html     ... [Page] 価格設定・**ランク別価格Excel取込**（POST /admin/import-rank-prices-excel・credentials: "include"）・**ランク別価格表DL**（CSV: GET /admin/download-pricelist-by-rank/:rank、Excel: GET /admin/download-pricelist-excel-by-rank/:rank・メーカー別・送料規定付き）・ランク選択は GET /admin/rank-list で動的生成
 │   │   ├── admin-products.html   ... [Page] 商品マスタ管理
-│   │   ├── admin-settings.html   ... [Page] システム設定（メール・SMTP・招待/パスワード再設定/パスワード変更完了通知テンプレート・**🔐 ログインCAPTCHA**（reCAPTCHA サイトキー/シークレットキー）・機能ON/OFF・**🏷️ ランクの名前**・**🚚 送料規定・カートお知らせ**（cartShippingNotice・shippingRules）・**お知らせ・バナー管理**）
+│   │   ├── admin-settings.html   ... [Page] システム設定（メール・SMTP・**👤 管理者アカウント**（ID/表示名/メール/パスワード・「管理者アカウントを保存」）・招待/パスワード再設定/パスワード変更完了通知テンプレート・**🔐 ログインCAPTCHA**（reCAPTCHA サイトキー/シークレットキー）・機能ON/OFF・**🏷️ ランクの名前**・**🚚 送料規定・カートお知らせ**（cartShippingNotice・shippingRules）・**お知らせ・バナー管理**）
 │   │   └── admin-support.html    ... [Page] サポート管理
 │   │
 │   ├── js/                 ... [Logic] フロントエンド
@@ -447,8 +470,8 @@ web-order/
 │   │   │   └── estimatePdf.js ... [Util] PDF生成
 │
 ├── routes/                 ... [API] サーバーサイド処理
-│   ├── admin-api.js        ... [API] 管理系全般・**システム設定API**・**招待メール送信**・**update-order-status**・**在庫テンプレート**（GET /admin/stocks/template）・**買取Excel解析**（POST /admin/kaitori/parse-excel）・**ランク価格Excel取込**（POST /admin/import-rank-prices-excel・Uploadシート・ヘッダー判定・商品名全件上書き）・**ランク一覧**（GET /admin/rank-list）・**代理ログイン**（proxy-request/proxy-request-status/proxy-login/proxy-logout）[Deps: all Services, settingsService, mailService, excelReader]
-│   ├── auth-api.js         ... [API] 認証/招待リセット・setup・request-password-reset（レート制限・完了時通知）・**ログイン失敗レート制限**（login_rate_limit.json・5回/15分→15分ロック）・**連続失敗5回メール**（sendLoginFailureAlert）・**reCAPTCHA v2**（2回失敗で必須・verifyRecaptcha）・**ログイン成功時 session.regenerate によるIDローテーション**・GET /session・/account/proxy-request・/account/settings・**管理者表示名サニタイズ**（sanitizeAdminName）・**管理者認証履歴**（appendAdminAuthLog→logs/admin-auth.json）[Deps: customerService, mailService, settingsService]
+│   ├── admin-api.js        ... [API] 管理系全般・**システム設定API**・**管理者アカウント**（GET/PUT /admin/account）・**招待メール送信**・**update-order-status**・**在庫テンプレート**（GET /admin/stocks/template）・**買取Excel解析**（POST /admin/kaitori/parse-excel）・**ランク価格Excel取込**（POST /admin/import-rank-prices-excel・Uploadシート・ヘッダー判定・商品名全件上書き）・**ランク一覧**（GET /admin/rank-list）・**代理ログイン**（proxy-request/proxy-request-status/proxy-login/proxy-logout）[Deps: all Services, settingsService, mailService, excelReader]
+│   ├── auth-api.js         ... [API] 認証/招待リセット・setup・request-password-reset（顧客/管理者両方・admin_reset_tokens.json）・**ログイン失敗レート制限**（login_rate_limit.json・5回/15分→15分ロック）・**連続失敗5回メール**（sendLoginFailureAlert）・**reCAPTCHA v2**（2回失敗で必須・verifyRecaptcha）・**ログイン成功時 session.regenerate によるIDローテーション**・GET /session・/account/proxy-request・/account/settings・**管理者表示名サニタイズ**（sanitizeAdminName）・**管理者認証履歴**（appendAdminAuthLog→logs/admin-auth.json）[Deps: customerService, mailService, settingsService]
 │   ├── kaitori-api.js      ... [API] 買取 [Deps: kaitori_*.json]
 │   ├── orders-api.js       ... [API] 注文・外部受注CSV取込（/api/import-orders-csv）・出荷CSV取込（/api/import-shipping-csv）[Deps: orderService, mailService, csvService]
 │   ├── products-api.js     ... [API] 商品・**よく注文API**・**stockInfo付与** [Deps: productService, stockService] [/products/frequent→orders.json参照]
@@ -475,6 +498,7 @@ web-order/
 │   └── stockPoller.js      ... [Job] 在庫アダプタ定期ポーリング [Deps: node-cron, stockService]
 │
 ├── tests/
+│   ├── setupJestDataDir.js  ... [Test Config] Jest の setupFiles。DATA_DIR 未設定時に tests/_sandbox_data を自動設定し、本番データをテストで上書きしないようにする
 │   ├── _sandbox_data/       ... [Data] テスト用JSON置き場（DATA_DIR=tests/_sandbox_data 時のみ使用。手順は docs/test-execution.md）
 │   ├── helpers/testSandbox.js ... [Test Helper] API/Unitテスト用のDB退避・復元・seed。**DATA_ROOT（dbPaths）配下のみ操作**。NODE_ENV=production では seedBaseData 実行禁止。DATA_DIR 未設定でプロジェクト直下を指す場合は ALLOW_REAL_DB_FOR_TESTS が無い限り即 throw（本番データ保護）
 │   ├── s-rank/*.test.js    ... [Test] SランクAPI統合テスト（認証/注文/顧客/設定/認証セキュリティ/入力検証統一/通知失敗分岐/監査ログ破損耐性/Cookie属性）
@@ -499,6 +523,8 @@ web-order/
 │   ├── load-test-results.md   ... [Data] 負荷試験結果ログ（load-test.js が追記）
 │   ├── flake-log.md           ... [Data] flake監視ログ（run-flake-check.js が検出時に追記）
 │   ├── test-execution.md      ... [Doc] テスト実行手順（本番データ保護）。PowerShell で DATA_DIR 設定→npm run test:all。テスト実行方法を聞かれたらこのドキュメントを返す
-│   └── 調査メモ_顧客アドレス消失.md ... [Doc] 顧客アドレス（email）消失の原因調査とE2E本番データ保護の対応内容（2026-03-17）
+│   ├── 共同編集の手順.md       ... [Doc] 共同編集の手順（招待・初回の流れ・2回目以降 pull→編集→テスト→push・用語・push 手順）。共同編集者に渡す一文のコピペ用あり。招待・Git運用を聞かれたらこのドキュメントを返す
+│   ├── 調査メモ_顧客アドレス消失.md ... [Doc] 顧客アドレス（email）消失の原因調査とE2E本番データ保護の対応内容（2026-03-17）
+│   └── session-production.md   ... [Doc] 本番でのセッション運用（SESSION_PATH で再起動後もログイン維持・再ログイン時の案内）
 │
-└── sessions/               ... [System] セッション保存先
+└── sessions/               ... [System] セッション保存先（SESSION_PATH 未設定時は process.cwd()/sessions）

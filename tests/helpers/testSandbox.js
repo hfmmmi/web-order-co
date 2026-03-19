@@ -27,6 +27,7 @@ const DB_FILES = [
     "login_rate_limit.json",
     "reset_rate_limit.json",
     "reset_tokens.json",
+    "admin_reset_tokens.json",
     "invite_tokens.json",
     "proxy_requests.json",
     "kaitori_requests.json",
@@ -196,6 +197,7 @@ async function seedBaseData() {
     await fs.writeFile(abs("login_rate_limit.json"), JSON.stringify({}, null, 2), "utf-8");
     await fs.writeFile(abs("reset_rate_limit.json"), JSON.stringify({}, null, 2), "utf-8");
     await fs.writeFile(abs("reset_tokens.json"), JSON.stringify({}, null, 2), "utf-8");
+    await fs.writeFile(abs("admin_reset_tokens.json"), JSON.stringify({}, null, 2), "utf-8");
     await fs.writeFile(abs("invite_tokens.json"), JSON.stringify({}, null, 2), "utf-8");
     await fs.writeFile(abs("proxy_requests.json"), JSON.stringify({}, null, 2), "utf-8");
     await fs.writeFile(abs("kaitori_requests.json"), JSON.stringify([], null, 2), "utf-8");

@@ -22,6 +22,7 @@ const CUSTOMERS_DB_PATH = dbPath("customers.json");
 const ADMINS_DB_PATH = dbPath("admins.json");
 const INVITE_TOKENS_PATH = dbPath("invite_tokens.json");
 const RESET_TOKENS_PATH = dbPath("reset_tokens.json");
+const ADMIN_RESET_TOKENS_PATH = dbPath("admin_reset_tokens.json");
 const RESET_RATE_LIMIT_PATH = dbPath("reset_rate_limit.json");
 const LOGIN_RATE_LIMIT_PATH = dbPath("login_rate_limit.json");
 const PROXY_REQUESTS_PATH = dbPath("proxy_requests.json");
@@ -686,6 +687,44 @@ router.post("/setup", async (req, res) => {
             return res.json({ success: true, message: "パスワードを変更しました。ログインしてください。" });
         }
 
+        // 0b. 管理者パスワード再設定トークン確認
+        let adminResetTokens = {};
+        try {
+            const adminResetData = await fs.readFile(ADMIN_RESET_TOKENS_PATH, "utf-8");
+            adminResetTokens = JSON.parse(adminResetData);
+        } catch (e) { adminResetTokens = {}; }
+        if (adminResetTokens[id] && adminResetTokens[id].token === tokenOrPass) {
+            const expiresAt = adminResetTokens[id].expiresAt;
+            if (Date.now() > expiresAt) {
+                delete adminResetTokens[id];
+                await fs.writeFile(ADMIN_RESET_TOKENS_PATH, JSON.stringify(adminResetTokens, null, 2));
+                return res.json({
+                    success: false,
+                    message: "このリンクの有効期限（24時間）が切れています。再度「パスワードをお忘れの方」から申請してください。"
+                });
+            }
+            let adminList = [];
+            try {
+                const adminData = await fs.readFile(ADMINS_DB_PATH, "utf-8");
+                adminList = JSON.parse(adminData);
+            } catch (e) {
+                return res.json({ success: false, message: "管理者DBエラー" });
+            }
+            const admin = adminList.find(a => a.adminId === id);
+            if (!admin) {
+                delete adminResetTokens[id];
+                await fs.writeFile(ADMIN_RESET_TOKENS_PATH, JSON.stringify(adminResetTokens, null, 2));
+                return res.json({ success: false, message: "管理者が見つかりません" });
+            }
+            const hashedPassword = await bcrypt.hash(newPass, 10);
+            admin.password = hashedPassword;
+            await fs.writeFile(ADMINS_DB_PATH, JSON.stringify(adminList, null, 2));
+            delete adminResetTokens[id];
+            await fs.writeFile(ADMIN_RESET_TOKENS_PATH, JSON.stringify(adminResetTokens, null, 2));
+            console.log(`パスワード再設定完了（管理者）: ${id}`);
+            return res.json({ success: true, message: "パスワードを変更しました。管理者ログイン画面からログインしてください。" });
+        }
+
         // 1. 招待トークンの有効期限チェック（招待経由の場合）
         let tokens = {};
         try {
@@ -785,43 +824,90 @@ router.post("/request-password-reset", async (req, res) => {
 
         const data = await fs.readFile(CUSTOMERS_DB_PATH, "utf-8");
         const customerList = JSON.parse(data);
-        const isEmail = trimId.includes("@");
-        const customer = isEmail
+        const isEmailInput = trimId.includes("@");
+        const customer = isEmailInput
             ? customerList.find(c => (c.email || "").trim().toLowerCase() === trimId.toLowerCase())
             : customerList.find(c => c.customerId === trimId);
 
-        if (!customer || !(customer.email || "").trim()) {
+        if (customer && (customer.email || "").trim()) {
+            const customerId = customer.customerId;
+            const token = crypto.randomBytes(24).toString("hex");
+            const expiresAt = Date.now() + RESET_EXPIRY_HOURS * 60 * 60 * 1000;
+
+            let resetTokens = {};
+            try {
+                const resetData = await fs.readFile(RESET_TOKENS_PATH, "utf-8");
+                resetTokens = JSON.parse(resetData);
+            } catch (e) { resetTokens = {}; }
+            resetTokens[customerId] = { token, expiresAt };
+            await fs.writeFile(RESET_TOKENS_PATH, JSON.stringify(resetTokens, null, 2));
+
+            const baseUrl = (req.protocol || "http") + "://" + (req.get("host") || "localhost");
+            const inviteUrl = `${baseUrl}/setup.html?id=${encodeURIComponent(customerId)}&key=${token}`;
+
+            const mailPayload = {
+                customerId: customer.customerId,
+                customerName: customer.customerName || customerId,
+                email: customer.email.trim()
+            };
+            const sent = await mailService.sendInviteEmail(mailPayload, inviteUrl, "", true);
+
+            if (!sent.success) {
+                delete resetTokens[customerId];
+                await fs.writeFile(RESET_TOKENS_PATH, JSON.stringify(resetTokens, null, 2));
+                console.error("[request-password-reset] Mail send failed:", sent.message);
+            } else {
+                console.log(`[request-password-reset] Sent reset link to ${customerId}`);
+            }
             return res.json({ success: true, message: safeMessage });
         }
 
-        const customerId = customer.customerId;
-        const token = crypto.randomBytes(24).toString("hex");
-        const expiresAt = Date.now() + RESET_EXPIRY_HOURS * 60 * 60 * 1000;
-
-        let resetTokens = {};
+        // 管理者のパスワード再設定（顧客で見つからなかった場合）
+        let adminList = [];
         try {
-            const resetData = await fs.readFile(RESET_TOKENS_PATH, "utf-8");
-            resetTokens = JSON.parse(resetData);
-        } catch (e) { resetTokens = {}; }
-        resetTokens[customerId] = { token, expiresAt };
-        await fs.writeFile(RESET_TOKENS_PATH, JSON.stringify(resetTokens, null, 2));
+            const adminData = await fs.readFile(ADMINS_DB_PATH, "utf-8");
+            adminList = JSON.parse(adminData);
+        } catch (e) { adminList = []; }
+        if (!Array.isArray(adminList)) adminList = [];
+        const admin = isEmailInput
+            ? adminList.find(a => (a.email || "").trim().toLowerCase() === trimId.toLowerCase())
+            : adminList.find(a => a.adminId === trimId);
 
-        const baseUrl = (req.protocol || "http") + "://" + (req.get("host") || "localhost");
-        const inviteUrl = `${baseUrl}/setup.html?id=${encodeURIComponent(customerId)}&key=${token}`;
+        if (admin) {
+            const settings = await settingsService.getSettings();
+            const mail = settings.mail || {};
+            const toEmail = (admin.email && String(admin.email).trim())
+                ? String(admin.email).trim()
+                : (mail.supportNotifyTo && String(mail.supportNotifyTo).trim())
+                    ? String(mail.supportNotifyTo).trim()
+                    : "";
+            if (toEmail) {
+                const token = crypto.randomBytes(24).toString("hex");
+                const expiresAt = Date.now() + RESET_EXPIRY_HOURS * 60 * 60 * 1000;
+                let adminResetTokens = {};
+                try {
+                    const adminResetData = await fs.readFile(ADMIN_RESET_TOKENS_PATH, "utf-8");
+                    adminResetTokens = JSON.parse(adminResetData);
+                } catch (e) { adminResetTokens = {}; }
+                adminResetTokens[admin.adminId] = { token, expiresAt };
+                await fs.writeFile(ADMIN_RESET_TOKENS_PATH, JSON.stringify(adminResetTokens, null, 2));
 
-        const mailPayload = {
-            customerId: customer.customerId,
-            customerName: customer.customerName || customerId,
-            email: customer.email.trim()
-        };
-        const sent = await mailService.sendInviteEmail(mailPayload, inviteUrl, "", true);
-
-        if (!sent.success) {
-            delete resetTokens[customerId];
-            await fs.writeFile(RESET_TOKENS_PATH, JSON.stringify(resetTokens, null, 2));
-            console.error("[request-password-reset] Mail send failed:", sent.message);
-        } else {
-            console.log(`[request-password-reset] Sent reset link to ${customerId}`);
+                const baseUrl = (req.protocol || "http") + "://" + (req.get("host") || "localhost");
+                const inviteUrl = `${baseUrl}/setup.html?id=${encodeURIComponent(admin.adminId)}&key=${token}`;
+                const mailPayload = {
+                    customerId: admin.adminId,
+                    customerName: admin.name || admin.adminId,
+                    email: toEmail
+                };
+                const sent = await mailService.sendInviteEmail(mailPayload, inviteUrl, "", true);
+                if (!sent.success) {
+                    delete adminResetTokens[admin.adminId];
+                    await fs.writeFile(ADMIN_RESET_TOKENS_PATH, JSON.stringify(adminResetTokens, null, 2));
+                    console.error("[request-password-reset] Admin mail send failed:", sent.message);
+                } else {
+                    console.log(`[request-password-reset] Sent admin reset link to ${admin.adminId}`);
+                }
+            }
         }
 
         return res.json({ success: true, message: safeMessage });

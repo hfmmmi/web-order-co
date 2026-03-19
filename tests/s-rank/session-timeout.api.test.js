@@ -59,7 +59,7 @@ describe("Sランク: セッション120分タイムアウト", () => {
         const expired = await agent.get("/api/session");
         expect(expired.statusCode).toBe(401);
         expect(expired.body.success).toBe(false);
-        expect(expired.body.message).toBe("Session Expired");
+        expect(expired.body.message).toBe("再ログインが必要です。");
 
         const after = await agent.get("/api/session");
         expect(after.statusCode).toBe(200);
@@ -95,7 +95,7 @@ describe("Sランク: セッション120分タイムアウト", () => {
         const expired = await agent.get("/api/admin/settings");
         expect(expired.statusCode).toBe(401);
         expect(expired.body.success).toBe(false);
-        expect(expired.body.message).toBe("Session Expired");
+        expect(expired.body.message).toBe("再ログインが必要です。");
 
         const after = await agent.get("/api/admin/settings");
         expect(after.statusCode).toBe(401);

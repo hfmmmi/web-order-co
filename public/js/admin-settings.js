@@ -7,8 +7,14 @@ let announcementsData = [];
 
 document.addEventListener("DOMContentLoaded", async function () {
     await loadSettings();
+    await loadAdminAccount();
     initTabs();
     document.getElementById("settings-form").addEventListener("submit", saveSettings);
+
+    const btnSaveAdminAccount = document.getElementById("btn-save-admin-account");
+    if (btnSaveAdminAccount) {
+        btnSaveAdminAccount.addEventListener("click", saveAdminAccount);
+    }
     
     const btnAddShippingRule = document.getElementById("btn-add-shipping-rule");
     if (btnAddShippingRule) {
@@ -70,6 +76,66 @@ function renderRankNamesList(container, count, rankNamesData) {
         const el = document.getElementById("rank-name-" + id);
         if (el && rankNamesData[id] !== undefined) el.value = String(rankNamesData[id]);
     });
+}
+
+async function loadAdminAccount() {
+    try {
+        const res = await fetch("/api/admin/account");
+        if (!res.ok) return;
+        const data = await res.json();
+        const idEl = document.getElementById("admin-account-id");
+        const nameEl = document.getElementById("admin-account-name");
+        const emailEl = document.getElementById("admin-account-email");
+        const passwordEl = document.getElementById("admin-account-password");
+        const hintEl = document.getElementById("admin-account-password-hint");
+        if (idEl) idEl.value = data.adminId || "";
+        if (nameEl) nameEl.value = data.name || "";
+        if (emailEl) emailEl.value = data.email || "";
+        if (passwordEl) passwordEl.value = "";
+        if (hintEl) hintEl.textContent = data.passwordSet ? "パスワード設定済み。変更する場合のみ入力してください。" : "パスワードを入力してください（4文字以上）。";
+    } catch (e) {
+        console.error("loadAdminAccount:", e);
+    }
+}
+
+async function saveAdminAccount() {
+    const idEl = document.getElementById("admin-account-id");
+    const nameEl = document.getElementById("admin-account-name");
+    const emailEl = document.getElementById("admin-account-email");
+    const passwordEl = document.getElementById("admin-account-password");
+    const btn = document.getElementById("btn-save-admin-account");
+    if (!idEl || !btn) return;
+    const adminId = (idEl.value || "").trim();
+    if (!adminId) {
+        if (typeof toastError === "function") toastError("管理者IDを入力してください");
+        else alert("管理者IDを入力してください");
+        return;
+    }
+    btn.disabled = true;
+    const body = {
+        adminId,
+        name: (nameEl && nameEl.value) ? nameEl.value.trim() : "",
+        email: (emailEl && emailEl.value) ? emailEl.value.trim() : ""
+    };
+    if (passwordEl && passwordEl.value.trim()) body.password = passwordEl.value;
+    try {
+        const res = await fetch("/api/admin/account", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+        });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.message || "保存に失敗しました");
+        if (typeof toastSuccess === "function") toastSuccess("管理者アカウントを保存しました");
+        else alert("管理者アカウントを保存しました");
+        passwordEl.value = "";
+        await loadAdminAccount();
+    } catch (err) {
+        if (typeof toastError === "function") toastError(err.message);
+        else alert(err.message);
+    } finally {
+        btn.disabled = false;
+    }
 }
 
 async function loadSettings() {

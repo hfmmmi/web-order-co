@@ -185,6 +185,24 @@ const announcementSchema = z
     })
     .strict();
 
+const adminAccountUpdateSchema = z
+    .object({
+        adminId: z.preprocess(
+            (v) => (typeof v === "string" ? v.trim() : v),
+            z.string().min(1).max(50).regex(/^[A-Za-z0-9._-]+$/, "管理者IDは英数字・ピリオド・アンダースコア・ハイフンのみ使用できます")
+        ),
+        name: z.preprocess(
+            (v) => (typeof v === "string" ? v.trim() : v),
+            z.string().max(100)
+        ).optional(),
+        password: z.string().min(0).max(200).optional(),
+        email: z.preprocess(
+            (v) => (typeof v === "string" ? v.trim() : v),
+            z.union([z.literal(""), z.string().email().max(254)]).optional()
+        )
+    })
+    .strict();
+
 const adminSettingsUpdateSchema = z
     .object({
         blockedManufacturers: z.array(z.string().max(200)).optional(),
@@ -212,5 +230,6 @@ module.exports = {
     placeOrderSchema,
     addCustomerSchema,
     updateCustomerSchema,
+    adminAccountUpdateSchema,
     adminSettingsUpdateSchema
 };

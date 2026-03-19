@@ -23,6 +23,37 @@ function parsePriceCell(val) {
     return rounded <= 999999999 ? rounded : null;
 }
 
+/**
+ * 半角カナ → 全角カナ（1対1対応。ﾞﾟはそのまま）
+ * シート分けで「富士フイルム」と「富士ﾌｲﾙﾑ」を同一扱いするため
+ */
+const HALF_KATAKANA = "ｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ";
+const FULL_KATAKANA = "ヲァィゥェォャュョッーアイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワン";
+
+/**
+ * メーカー名をシート分け・並び順用に正規化する（半角/全角・大文字/小文字を同一扱い）
+ * - 英数字: 全角→半角、小文字→大文字
+ * - カナ: 半角カナ→全角カナ（富士ﾌｲﾙﾑ → 富士フイルム）
+ * @param {string} str - メーカー名
+ * @returns {string} 正規化キー（英数字は半角大文字、カナは全角・trim）
+ */
+function normalizeManufacturerKey(str) {
+    if (typeof str !== "string") return "";
+    let s = str.trim();
+    if (!s) return "";
+    // 半角カナ → 全角カナ（富士ﾌｲﾙﾑ と 富士フイルム を同一キーに）
+    let out = "";
+    for (let i = 0; i < s.length; i++) {
+        const idx = HALF_KATAKANA.indexOf(s[i]);
+        out += idx >= 0 ? FULL_KATAKANA[idx] : s[i];
+    }
+    s = out;
+    // 全角英数字 → 半角
+    s = s.replace(/[０-９]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
+    s = s.replace(/[Ａ-Ｚａ-ｚ]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
+    return s.toUpperCase();
+}
+
 class PriceService {
 
     // 共通: JSON読み込みヘルパー
@@ -339,7 +370,7 @@ class PriceService {
                 category,
                 price,
                 categoryOrder,
-                manufacturerSort: manufacturer
+                manufacturerSort: normalizeManufacturerKey(manufacturer) || manufacturer
             });
         });
 
@@ -399,16 +430,19 @@ class PriceService {
                 ? (Math.round((price / listPriceNum) * 1000) / 10).toFixed(1) + "%"
                 : "-";
             const categoryOrder = CATEGORY_ORDER[category] ?? 99;
+            const manufacturerDisplay = manufacturer || "その他";
+            const manufacturerKey = normalizeManufacturerKey(manufacturerDisplay) || manufacturerDisplay;
             rows.push({
                 productCode,
                 displayName,
-                manufacturer: manufacturer || "その他",
+                manufacturer: manufacturerDisplay,
+                manufacturerKey: manufacturerKey || "その他",
                 listPriceDisplay,
                 category,
                 price,
                 ratePct,
                 categoryOrder,
-                manufacturerSort: manufacturer
+                manufacturerSort: manufacturerKey || manufacturerDisplay
             });
         });
 
@@ -418,12 +452,18 @@ class PriceService {
             return 0;
         });
 
-        const headerRow = ["商品ｺｰﾄﾞ", "メーカー名", "商品名", "定価", "仕様", "価格", "掛率"];
-        const byManufacturer = {};
-        rows.forEach(r => {
-            const key = r.manufacturer || "その他";
-            if (!byManufacturer[key]) byManufacturer[key] = [];
-            byManufacturer[key].push(r);
+        const headerRow = ["商品ｺｰﾄﾞ", "メーカー名", "商品名", "定価", "仕様", "価格", "掛率", "備考"];
+        // シート分け: 純正＝メーカー別、再生・汎用・海外純正＝カテゴリ名で1シートずつ、その他＝1シート
+        const CATEGORY_SHEET_NAMES = { "純正": null, "再生": "再生", "汎用": "汎用", "海外純正": "海外純正" };
+        const bySheet = {};
+        rows.forEach((r) => {
+            const isSeijou = r.category === "純正";
+            const sheetKey = isSeijou
+                ? (r.manufacturerKey || "その他")
+                : (CATEGORY_SHEET_NAMES[r.category] != null ? CATEGORY_SHEET_NAMES[r.category] : "その他");
+            const displayName = isSeijou ? r.manufacturer : (sheetKey === "その他" ? "その他" : sheetKey);
+            if (!bySheet[sheetKey]) bySheet[sheetKey] = { rows: [], displayName, categoryOrder: r.categoryOrder, isSeijou };
+            bySheet[sheetKey].rows.push(r);
         });
 
         const workbook = new ExcelJS.Workbook();
@@ -442,23 +482,102 @@ class PriceService {
             return s;
         };
 
-        const manufacturerKeys = Object.keys(byManufacturer).sort((a, b) => a.localeCompare(b, "ja"));
-        for (const maker of manufacturerKeys) {
-            const sheetRows = byManufacturer[maker];
-            const sheet = workbook.addWorksheet(sanitizeSheetName(maker), { headerFooter: { firstHeader: "", firstFooter: "" } });
+        // シート順: 純正(メーカー名順) → 再生 → 汎用 → 海外純正 → その他
+        const sheetKeysSorted = Object.keys(bySheet).sort((a, b) => {
+            const ga = bySheet[a];
+            const gb = bySheet[b];
+            if (ga.categoryOrder !== gb.categoryOrder) return ga.categoryOrder - gb.categoryOrder;
+            return (a || "").localeCompare(b || "", "ja");
+        });
+
+        const thinBorder = { style: "thin" };
+
+        for (const sheetKey of sheetKeysSorted) {
+            const group = bySheet[sheetKey];
+            const sheetRows = group.rows;
+            const makerDisplay = group.displayName || sheetKey;
+            const sheet = workbook.addWorksheet(sanitizeSheetName(makerDisplay), { headerFooter: { firstHeader: "", firstFooter: "" } });
             let rowIndex = 1;
-            const ruleText = shippingRules[maker] || shippingRules["default"] || "";
+            // 送料規定: 代表表示名・正規化キー・default の順で参照（半角/全角・大小文字の違いを吸収）
+            const ruleText = shippingRules[makerDisplay] || shippingRules[sheetKey] || shippingRules["default"] || "";
+            const ruleStartRow = rowIndex;
             if (ruleText.trim()) {
                 ruleText.split(/\r?\n/).forEach(line => {
                     sheet.getRow(rowIndex).getCell(1).value = line.trim();
                     rowIndex++;
                 });
-                rowIndex++;
+                rowIndex++; // 表との空き行
             }
+            const ruleEndRow = ruleText.trim() ? rowIndex - 2 : 0; // 送料規定の最終行（rowIndex-2は空き行の1つ前）
+
+            // addRow はシート末尾に追加するため、ヘッダーは「送料規定の次行」= ruleEndRow+1 に入る（送料なし時は1行目）
+            const headerRowIndex = ruleEndRow + 1;
             sheet.addRow(headerRow);
-            sheetRows.forEach(r => {
-                sheet.addRow([r.productCode, r.manufacturer, r.displayName, r.listPriceDisplay, r.category, r.price, r.ratePct]);
+            rowIndex = headerRowIndex + 1;
+            // 再生シートはメーカー名順で並び替え（正規化キーで同一メーカーをまとめる）
+            const rowsToAdd = sheetKey === "再生"
+                ? [...sheetRows].sort((a, b) => (a.manufacturerSort || "").localeCompare(b.manufacturerSort || "", "ja"))
+                : sheetRows;
+            rowsToAdd.forEach((r) => {
+                sheet.addRow([r.productCode, r.manufacturer, r.displayName, r.listPriceDisplay, r.category, r.price, r.ratePct, ""]);
+                rowIndex++;
             });
+            const dataEndRow = rowIndex - 1;
+            const colCount = 8;
+
+            // 列幅（価格表として見やすく）
+            sheet.getColumn(1).width = 14;  // 商品ｺｰﾄﾞ
+            sheet.getColumn(2).width = 14;  // メーカー名
+            sheet.getColumn(3).width = 36;  // 商品名
+            sheet.getColumn(4).width = 10;  // 定価
+            sheet.getColumn(5).width = 12;  // 仕様
+            sheet.getColumn(6).width = 10;  // 価格
+            sheet.getColumn(7).width = 10;  // 掛率
+            sheet.getColumn(8).width = 20;  // 備考
+
+            // ウィンドウ枠の固定: 送料規定＋ヘッダー行までを固定し、縦スクロールしても見出しが残る
+            sheet.views = [{ state: "frozen", ySplit: headerRowIndex }];
+
+            // 送料規定エリアに枠線（1列結合の見た目で左端のみ枠）
+            if (ruleEndRow >= ruleStartRow) {
+                for (let r = ruleStartRow; r <= ruleEndRow; r++) {
+                    sheet.getCell(r, 1).border = { top: thinBorder, left: thinBorder, bottom: thinBorder, right: thinBorder };
+                }
+            }
+
+            // ヘッダー行: 太字・背景色・中央揃え
+            for (let c = 1; c <= colCount; c++) {
+                const cell = sheet.getCell(headerRowIndex, c);
+                cell.font = { bold: true };
+                cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFE0E0E0" } };
+                cell.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
+                cell.border = { top: thinBorder, left: thinBorder, bottom: thinBorder, right: thinBorder };
+            }
+
+            // データ行: 枠線・定価/価格は数値書式・右寄せ、掛率は中央
+            for (let r = headerRowIndex + 1; r <= dataEndRow; r++) {
+                for (let c = 1; c <= colCount; c++) {
+                    const cell = sheet.getCell(r, c);
+                    cell.border = { top: thinBorder, left: thinBorder, bottom: thinBorder, right: thinBorder };
+                    if (c === 6) {
+                        cell.numFmt = "#,##0";
+                        cell.alignment = { horizontal: "right", vertical: "middle" };
+                    } else if (c === 4) {
+                        const v = cell.value;
+                        if (typeof v === "number" || (typeof v === "string" && /^\d+$/.test(String(v).trim()))) {
+                            cell.numFmt = "#,##0";
+                            cell.alignment = { horizontal: "right", vertical: "middle" };
+                        } else {
+                            cell.alignment = { vertical: "middle", wrapText: true };
+                        }
+                    } else if (c === 7) {
+                        cell.alignment = { horizontal: "center", vertical: "middle" };
+                    } else {
+                        // c === 8 備考を含むその他
+                        cell.alignment = { vertical: "middle", wrapText: true };
+                    }
+                }
+            }
         }
 
         const buffer = await workbook.xlsx.writeBuffer();
