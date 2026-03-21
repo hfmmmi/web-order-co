@@ -179,6 +179,20 @@ document.addEventListener("DOMContentLoaded", function () {
                     <div style="background: #fff; padding: 8px; border:1px solid #ccc; border-radius: 4px; font-size: 0.95rem; white-space: pre-wrap;">${ticket.detail}</div>
                 </div>
 
+                ${(() => {
+                    const list = ticket.attachments;
+                    if (!list || !list.length) return "";
+                    const tid = encodeURIComponent(ticket.ticketId || "");
+                    const items = list.map((a) => {
+                        const sn = encodeURIComponent(a.storedName || "");
+                        const lab = typeof escapeHtml !== "undefined"
+                            ? escapeHtml(a.originalName || a.storedName || "file")
+                            : String(a.originalName || a.storedName || "file").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+                        return `<li><a href="/support/attachment/${tid}/${sn}" target="_blank" rel="noopener">${lab}</a></li>`;
+                    }).join("");
+                    return `<div style="margin-bottom:10px;"><label style="font-size:0.8rem; font-weight:bold;">📎 添付ファイル</label><ul style="margin:6px 0 0 18px; font-size:0.9rem;">${items}</ul></div>`;
+                })()}
+
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;">
                     <div>
                         <label style="font-size:0.8rem; font-weight:bold;">希望対応</label>

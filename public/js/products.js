@@ -20,6 +20,19 @@ let stockUiConfig = {
 // ★追加: 外部サイトに頼らない、埋め込み型の「No Image」画像データ (SVG)
 const NO_IMAGE_DATA_URI = "data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2250%22%20height%3D%2250%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2050%2050%22%20preserveAspectRatio%3D%22none%22%3E%3Crect%20width%3D%2250%22%20height%3D%2250%22%20style%3D%22fill%3A%23cccccc%3B%22%2F%3E%3Ctext%20x%3D%2225%22%20y%3D%2230%22%20style%3D%22fill%3A%23666666%3Bfont-size%3A10px%3Btext-anchor%3Amiddle%3Bfont-family%3A%27Arial%27%2C%20sans-serif%3B%22%3ENo%20Img%3C%2Ftext%3E%3C%2Fsvg%3E";
 
+function esc(s) {
+    if (typeof escapeHtml === "function") return escapeHtml(String(s == null ? "" : s));
+    return String(s == null ? "" : s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+}
+
+function escAttr(s) {
+    return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+}
+
 // =========================================================
 // 🚀 初期化処理 (Initialization)
 // =========================================================
@@ -130,7 +143,7 @@ async function fetchProducts(page = 1) {
     if (infoArea) infoArea.textContent = "";
 
     // ローディング表示
-    listBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px;">データを読み込んでいます...</td></tr>';
+    listBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">データを読み込んでいます...</td></tr>';
 
     try {
         const rawKeyword = searchInput ? searchInput.value : "";
@@ -167,7 +180,7 @@ async function fetchProducts(page = 1) {
 
     } catch (error) {
         console.error("Fetch Error:", error);
-        listBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">データの読み込みに失敗しました</td></tr>';
+        listBody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">データの読み込みに失敗しました</td></tr>';
     }
 }
 
@@ -189,7 +202,7 @@ async function executeEstimateSearch() {
     }
 
     // ローディング
-    listBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px;">見積データを照会中...</td></tr>';
+    listBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">見積データを照会中...</td></tr>';
     
     try {
         // APIパス修正: /products/estimate
@@ -206,7 +219,7 @@ async function executeEstimateSearch() {
 
         if (data.items.length === 0) {
             toastInfo(data.message || "該当する見積が見つかりません");
-            listBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#666;">該当する見積明細はありません。<br>番号、有効期限、顧客IDをご確認ください。</td></tr>';
+            listBody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#666;">該当する見積明細はありません。<br>番号、有効期限、顧客IDをご確認ください。</td></tr>';
             if (estimateBanner) estimateBanner.style.display = "none";
             return;
         }
@@ -296,7 +309,7 @@ async function fetchFrequentProducts() {
     const paginationContainer = document.querySelector("#pagination-container");
     const infoArea = document.querySelector("#search-result-info");
 
-    listBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px;">よく注文する商品を読み込んでいます...</td></tr>';
+    listBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">よく注文する商品を読み込んでいます...</td></tr>';
     if (paginationContainer) paginationContainer.innerHTML = "";
     if (infoArea) infoArea.textContent = "";
 
@@ -320,7 +333,7 @@ async function fetchFrequentProducts() {
 
         if (data.items.length === 0) {
             listBody.innerHTML = `
-                <tr><td colspan="5" style="text-align:center; padding:40px;">
+                <tr><td colspan="6" style="text-align:center; padding:40px;">
                     <div style="font-size: 1.2rem; color: #666; margin-bottom: 10px;">📭 まだ注文履歴がありません</div>
                     <div style="font-size: 0.9rem; color: #999;">商品を注文すると、ここによく注文する商品が表示されます</div>
                 </td></tr>
@@ -336,7 +349,7 @@ async function fetchFrequentProducts() {
 
     } catch (error) {
         console.error("Frequent Products Error:", error);
-        listBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">データの読み込みに失敗しました</td></tr>';
+        listBody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">データの読み込みに失敗しました</td></tr>';
     }
 }
 
@@ -350,7 +363,7 @@ async function fetchFavoriteProducts() {
 
     if (favoriteList.length === 0) {
         listBody.innerHTML = `
-            <tr><td colspan="5" style="text-align:center; padding:40px;">
+            <tr><td colspan="6" style="text-align:center; padding:40px;">
                 <div style="font-size: 1.2rem; color: #666; margin-bottom: 10px;">⭐ お気に入りがまだありません</div>
                 <div style="font-size: 0.9rem; color: #999;">商品一覧で ☆ マークをクリックしてお気に入りに追加できます</div>
             </td></tr>
@@ -359,7 +372,7 @@ async function fetchFavoriteProducts() {
         return;
     }
 
-    listBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px;">お気に入り商品を読み込んでいます...</td></tr>';
+    listBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">お気に入り商品を読み込んでいます...</td></tr>';
 
     try {
         // お気に入り商品を取得するために通常検索を利用（各商品を個別に取得）
@@ -382,7 +395,7 @@ async function fetchFavoriteProducts() {
 
         if (favoriteItems.length === 0) {
             listBody.innerHTML = `
-                <tr><td colspan="5" style="text-align:center; padding:40px;">
+                <tr><td colspan="6" style="text-align:center; padding:40px;">
                     <div style="font-size: 1.2rem; color: #666;">お気に入りの商品が見つかりませんでした</div>
                 </td></tr>
             `;
@@ -393,7 +406,7 @@ async function fetchFavoriteProducts() {
 
     } catch (error) {
         console.error("Favorite Products Error:", error);
-        listBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">データの読み込みに失敗しました</td></tr>';
+        listBody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">データの読み込みに失敗しました</td></tr>';
     }
 }
 
@@ -460,7 +473,7 @@ function renderProductList(items, isEstimateMode = false, isFrequentMode = false
     listBody.innerHTML = "";
 
     if (!items || items.length === 0) {
-        listBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px;">商品が見つかりません</td></tr>';
+        listBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">商品が見つかりません</td></tr>';
         return;
     }
 
@@ -500,26 +513,61 @@ function renderProductList(items, isEstimateMode = false, isFrequentMode = false
 
         const stockHtml = renderStockCell(product);
         const disableOrder = shouldDisableOrder(product);
+        const priceNum = Number(product.price);
+        const isQuoteRequired = priceNum === 0;
+
+        const makerText = esc(product.manufacturer || "—");
+        const specText = esc(product.category || "—");
+        const codeAttr = escAttr(product.productCode);
+
+        let orderCellInner;
+        if (isQuoteRequired) {
+            orderCellInner = `
+                <div style="display:flex; align-items:center; gap:5px;">
+                    <input type="number" min="1" value="1" id="qty-${product.productCode}"
+                        style="width:50px; padding:5px; border:1px solid #ddd; border-radius:4px;" disabled title="価格が0円の商品はお問い合わせください">
+                    <button type="button" class="btn-quote-request" data-code="${codeAttr}"
+                        style="background:#6f42c1; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; white-space:nowrap;" title="見積依頼（サポート）を別タブで開きます">
+                        要問合
+                    </button>
+                </div>`;
+        } else {
+            orderCellInner = `
+                <div style="display:flex; align-items:center; gap:5px;">
+                    <input type="number" min="1" value="1" id="qty-${product.productCode}"
+                        style="width:50px; padding:5px; border:1px solid #ddd; border-radius:4px;" ${disableOrder ? "disabled" : ""}>
+                    <button type="button" class="btn-add-cart" data-code="${codeAttr}"
+                        style="background:${disableOrder ? "#adb5bd" : "#007bff"}; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:${disableOrder ? "not-allowed" : "pointer"};" ${disableOrder ? "disabled" : ""}>
+                        ${disableOrder ? "在庫なし" : "カート"}
+                    </button>
+                </div>`;
+        }
 
         tr.innerHTML = `
-            <td style="text-align:center; width:60px; vertical-align:middle;">
-                <img src="${imgSrc}" alt="" style="width:50px; height:50px; object-fit:cover; border-radius:4px; border:1px solid #eee;">
+            <td style="vertical-align:middle; width:110px; text-align:center;">
+                <div style="font-weight:bold; font-size:0.95rem; line-height:1.3; word-break:break-word;">${makerText}</div>
+                <div style="margin-top:8px;">
+                    <img src="${imgSrc}" alt="" style="width:50px; height:50px; object-fit:cover; border-radius:4px; border:1px solid #eee;">
+                </div>
             </td>
-            <td style="vertical-align:middle; min-width:220px;">
+            <td style="vertical-align:middle; min-width:200px;">
                 <div style="display:flex; align-items:flex-start; gap:6px;">
-                    <button class="btn-favorite" data-code="${product.productCode}" 
+                    <button class="btn-favorite" data-code="${codeAttr}"
                         style="background:${favBgColor}; border:1px solid ${favBorder}; border-radius:4px; font-size:1rem; cursor:pointer; color:${favColor}; width:28px; height:28px; min-width:28px; padding:0; flex-shrink:0; line-height:1; display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box;"
-                        title="${isFavorite ? 'お気に入りから削除' : 'お気に入りに追加'}">
+                        title="${isFavorite ? "お気に入りから削除" : "お気に入りに追加"}">
                         ${favIcon}
                     </button>
                     <div style="flex:1; min-width:0; overflow-wrap:break-word;">
                         <div style="font-weight:bold; font-size:1rem; word-wrap:break-word; overflow-wrap:break-word;">${product.name}</div>
                         <div style="font-size:0.85rem; color:#666; margin-top:2px;">
-                            ${product.manufacturer || ""} / ${product.productCode} ${badgeDisplay} ${frequentBadge}
+                            ${esc(product.productCode)} ${badgeDisplay} ${frequentBadge}
                         </div>
-                        ${isEstimateMode ? `<div style="font-size:0.8rem; color:#d63384;">有効期限: ${product.validUntil || '不明'}</div>` : ''}
+                        ${isEstimateMode ? `<div style="font-size:0.8rem; color:#d63384;">有効期限: ${product.validUntil || "不明"}</div>` : ""}
                     </div>
                 </div>
+            </td>
+            <td style="vertical-align:middle; width:100px; font-size:0.9rem; word-break:break-word; color:#333;">
+                ${specText}
             </td>
             <td style="font-family:'Arial',sans-serif; width:100px; text-align:right; vertical-align:middle;">
                 ${priceDisplay}
@@ -528,27 +576,32 @@ function renderProductList(items, isEstimateMode = false, isFrequentMode = false
                 ${stockHtml}
             </td>
             <td style="width:140px; vertical-align:middle;">
-                <div style="display:flex; align-items:center; gap:5px;">
-                    <input type="number" min="1" value="1" id="qty-${product.productCode}" 
-                        style="width:50px; padding:5px; border:1px solid #ddd; border-radius:4px;" ${disableOrder ? "disabled" : ""}>
-                    <button class="btn-add-cart" data-code="${product.productCode}"
-                        style="background:${disableOrder ? "#adb5bd" : "#007bff"}; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:${disableOrder ? "not-allowed" : "pointer"};" ${disableOrder ? "disabled" : ""}>
-                        ${disableOrder ? "在庫なし" : "カート"}
-                    </button>
-                </div>
+                ${orderCellInner}
             </td>
         `;
 
-        // カートボタン
+        const quoteBtn = tr.querySelector(".btn-quote-request");
+        if (quoteBtn) {
+            quoteBtn.addEventListener("click", function () {
+                const code = this.getAttribute("data-code");
+                const p = currentProductList.find(x => x.productCode === code);
+                const q = new URLSearchParams();
+                q.set("type", "見積依頼");
+                q.set("productCode", code);
+                if (p && p.name) q.set("productName", p.name);
+                window.open("support.html?" + q.toString(), "_blank", "noopener,noreferrer");
+            });
+        }
+
         const addBtn = tr.querySelector(".btn-add-cart");
-        if (!disableOrder) {
-            addBtn.addEventListener("click", function() {
+        if (addBtn && !disableOrder) {
+            addBtn.addEventListener("click", function () {
                 const code = this.getAttribute("data-code");
                 const qtyInput = document.querySelector(`#qty-${code}`);
                 const qty = parseInt(qtyInput.value) || 1;
                 addToCart(code, qty);
             });
-        } else {
+        } else if (addBtn) {
             addBtn.title = "在庫不足のためカート追加不可";
         }
 
@@ -595,7 +648,7 @@ function toggleFavorite(productCode, buttonElement) {
             const listBody = document.querySelector("#product-list-body");
             if (listBody.children.length === 0) {
                 listBody.innerHTML = `
-                    <tr><td colspan="5" style="text-align:center; padding:40px;">
+                    <tr><td colspan="6" style="text-align:center; padding:40px;">
                         <div style="font-size: 1.2rem; color: #666; margin-bottom: 10px;">⭐ お気に入りがまだありません</div>
                         <div style="font-size: 0.9rem; color: #999;">商品一覧で ☆ マークをクリックしてお気に入りに追加できます</div>
                     </td></tr>

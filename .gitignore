@@ -36,6 +36,9 @@ logs/*.json
 # カバレッジレポート（CI で生成するためコミットしない）
 coverage/
 
+# サポート申請の添付ファイル（業務データ・容量大のためコミットしない）
+support_attachments/
+
 # API テスト用サンドボックス（seedBaseData で自動作成するためコミットしない）
 tests/_sandbox_data/
 

@@ -8,6 +8,18 @@ const { parse } = require('csv-parse/sync'); // FLAM用
 const iconv = require('iconv-lite');      // FLAM用
 const { calculateFinalPrice } = require("../utils/priceCalc"); // 価格計算
 const stockService = require("./stockService");
+const settingsService = require("./settingsService");
+
+/** 物流CSVの1行から、候補列名のうち最初に値があるものを返す */
+function firstCsvRowValue(row, keys) {
+    if (!row || !Array.isArray(keys)) return "";
+    for (const k of keys) {
+        if (k && row[k] != null && String(row[k]).trim() !== "") {
+            return String(row[k]).trim();
+        }
+    }
+    return "";
+}
 
 // データベースのパス定義（業務データは dbPaths 経由で一元管理）
 const { dbPath } = require("../dbPaths");
@@ -403,6 +415,7 @@ class OrderService {
 
     async importFlamData(fileBuffer) {
         try {
+            const cfg = await settingsService.getLogisticsCsvImportConfig();
             const content = iconv.decode(fileBuffer, "Shift_JIS");
             const records = parse(content, {
                 columns: true,
@@ -410,14 +423,27 @@ class OrderService {
                 relax_column_count: true
             });
 
+            let publicIdRegex;
+            try {
+                publicIdRegex = new RegExp(cfg.publicIdPattern || "W(\\d{11})");
+            } catch (e) {
+                publicIdRegex = /W(\d{11})/;
+            }
+
+            const memoFields = Array.isArray(cfg.memoFields) && cfg.memoFields.length ? cfg.memoFields : ["社内メモ", "備考"];
+            const sourceLabel =
+                cfg.importSourceLabel && String(cfg.importSourceLabel).trim()
+                    ? String(cfg.importSourceLabel).trim()
+                    : "FLAM";
+
             return await this._withOrdersWriteLock(async () => {
                 const orders = await this._loadJson(ORDERS_DB);
                 const stats = { updated: 0, created: 0, skipped: 0 };
                 const historyLog = [];
 
                 records.forEach((row) => {
-                    const memo = row["社内メモ"] || row["備考"] || "";
-                    const match = memo.match(/W(\d{11})/);
+                    const memo = firstCsvRowValue(row, memoFields);
+                    const match = memo.match(publicIdRegex);
 
                     if (match) {
                         const publicId = match[0];
@@ -426,8 +452,11 @@ class OrderService {
 
                         if (targetOrder) {
                             targetOrder.status = "発送済";
-                            targetOrder.deliveryDate = row["納品日"] || row["納期"] || "";
-                            targetOrder.flamInfo = { orderNo: row["受注番号"], updatedAt: new Date().toISOString() };
+                            targetOrder.deliveryDate = firstCsvRowValue(row, cfg.deliveryDate) || "";
+                            targetOrder.flamInfo = {
+                                orderNo: firstCsvRowValue(row, cfg.orderNumber),
+                                updatedAt: new Date().toISOString()
+                            };
                             stats.updated++;
                             historyLog.push(`[更新] ID:${publicId}`);
                         } else {
@@ -438,13 +467,14 @@ class OrderService {
                         const newOrder = {
                             orderId: newId,
                             userId: "FAX_USER",
-                            customerName: row["得意先名"] || "不明",
-                            totalAmount: parseInt(row["受注合計"] || row["総合計"] || 0) || 0,
-                            orderDate: row["受注日"] || new Date().toISOString().split("T")[0],
+                            customerName: firstCsvRowValue(row, cfg.customerName) || "不明",
+                            totalAmount: parseInt(firstCsvRowValue(row, cfg.orderTotal) || "0", 10) || 0,
+                            orderDate:
+                                firstCsvRowValue(row, cfg.orderDate) || new Date().toISOString().split("T")[0],
                             status: "発送済",
                             items: [],
-                            deliveryDate: row["納品日"] || "",
-                            source: "FLAM"
+                            deliveryDate: firstCsvRowValue(row, cfg.deliveryDate) || "",
+                            source: sourceLabel
                         };
                         orders.push(newOrder);
                         stats.created++;

@@ -3,6 +3,8 @@
 // [Updated] 注文確定時に商品詳細（名前・価格・コード）を確実に結合して送信するよう修正
 
 let loadedCartData = []; // ここにサーバーから取得した詳細データが入る
+/** @type {object|null} 見積PDF用（/api/settings/public の publicBranding） */
+let cachedPublicBranding = null;
 
 document.addEventListener("DOMContentLoaded", function () {
     const cartDataString = sessionStorage.getItem("cart");
@@ -14,16 +16,17 @@ document.addEventListener("DOMContentLoaded", function () {
         document.querySelector("#cart-list-body").innerHTML = "<tr><td colspan='6'>カートに商品がありません</td></tr>";
     }
 
-    // カート最下部のお知らせ（システム設定から取得）
-    loadCartShippingNotice();
+    // カート最下部のお知らせ・見積用ブランディング（システム設定）
+    loadCartPublicSettings();
 
-    async function loadCartShippingNotice() {
+    async function loadCartPublicSettings() {
         const container = document.getElementById("cart-shipping-notice-container");
-        if (!container) return;
         try {
             const res = await fetch("/api/settings/public", { credentials: "same-origin" });
             if (!res.ok) return;
             const data = await res.json();
+            cachedPublicBranding = data.publicBranding && typeof data.publicBranding === "object" ? data.publicBranding : {};
+            if (!container) return;
             const text = (data.cartShippingNotice && String(data.cartShippingNotice).trim()) ? data.cartShippingNotice.trim() : "";
             if (text) {
                 container.textContent = text;
@@ -34,7 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 container.style.display = "none";
             }
         } catch (e) {
-            container.style.display = "none";
+            if (container) container.style.display = "none";
         }
     }
 
@@ -291,7 +294,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (typeof EstimatePdfGenerator !== "undefined") {
                 const generator = new EstimatePdfGenerator();
-                generator.generate(loadedCartData, customerInfo);
+                generator.generate(loadedCartData, customerInfo, cachedPublicBranding || {});
             } else {
                 toastError("見積書生成モジュールが読み込まれていません");
             }

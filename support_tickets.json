@@ -1,1 +1,117 @@
-[]
+[
+  {
+    "ticketId": "T-MK7X2QA2",
+    "status": "verifying",
+    "category": "support",
+    "orderId": "",
+    "type": "初期不良・破損",
+    "detail": "1/10納品　519　認識しない",
+    "timestamp": "2026-01-10T06:21:14.762Z",
+    "customerPoNumber": "2467",
+    "internalOrderNo": "6431",
+    "desiredAction": "代替品発送",
+    "collectionDate": "2026-01-16",
+    "history": [
+      {
+        "date": "2026-01-13T19:34:47.117Z",
+        "action": "2度目の不具合　ﾒｰｶｰ変更希望あり　今回NCIからふくやまに変更する　NCIは赤伝"
+      }
+    ],
+    "internalCustomerPoNumber": "98745"
+  },
+  {
+    "ticketId": "T-MK7X3BJ1",
+    "status": "resolved",
+    "category": "support",
+    "orderId": "",
+    "type": "誤発送・不足",
+    "detail": "1/10　納品　519　3本のところ　1本しか届いていない",
+    "timestamp": "2026-01-10T06:21:42.301Z",
+    "customerPoNumber": "12345",
+    "internalOrderNo": "54321",
+    "desiredAction": "不足分出荷",
+    "collectionDate": "",
+    "history": [
+      {
+        "date": "2026-01-13T19:33:32.116Z",
+        "action": "サカタ再出荷対応中　1/15着予定"
+      }
+    ],
+    "internalCustomerPoNumber": "102030"
+  },
+  {
+    "ticketId": "T-MKOI9YSA",
+    "status": "open",
+    "category": "support",
+    "customerPoNumber": "",
+    "internalOrderNo": "",
+    "desiredAction": "",
+    "collectionDate": "",
+    "history": [],
+    "orderId": "1769022663155",
+    "type": "その他",
+    "detail": "キャンセルしたい",
+    "timestamp": "2026-01-21T20:59:03.130Z",
+    "customerId": "H015",
+    "customerName": "ひふみマネジメント株式会社"
+  },
+  {
+    "ticketId": "T-MKVMWS05",
+    "status": "verifying",
+    "category": "support",
+    "orderId": "",
+    "type": "操作方法の質問",
+    "detail": "メールのテスト",
+    "timestamp": "2026-01-26T20:43:09.125Z",
+    "internalOrderNo": "2222",
+    "internalCustomerPoNumber": "1111",
+    "customerPoNumber": "",
+    "desiredAction": "",
+    "collectionDate": "2026-01-30",
+    "history": [],
+    "customerId": "H015",
+    "customerName": "ひふみマネジメント株式会社"
+  },
+  {
+    "ticketId": "T-ML5LV8DU",
+    "status": "open",
+    "category": "support",
+    "orderId": "",
+    "type": "誤発送・不足",
+    "detail": "商品が届かない",
+    "timestamp": "2026-02-02T20:11:39.186Z",
+    "internalOrderNo": "",
+    "internalCustomerPoNumber": "",
+    "customerPoNumber": "",
+    "desiredAction": "",
+    "collectionDate": "",
+    "history": [],
+    "customerId": "H015",
+    "customerName": "ひふみマネジメント株式会社"
+  },
+  {
+    "ticketId": "T-MMXTQ2KW",
+    "status": "open",
+    "category": "support",
+    "orderId": "",
+    "type": "見積依頼",
+    "detail": "見積依頼",
+    "internalOrderNo": "",
+    "internalCustomerPoNumber": "",
+    "customerPoNumber": "",
+    "desiredAction": "",
+    "collectionDate": "",
+    "history": [],
+    "customerId": "H015",
+    "customerName": "ひふみマネジメント株式会社",
+    "timestamp": "2026-03-19T18:48:50.589Z",
+    "attachments": [
+      {
+        "storedName": "0_1773946130585_fe07fc5c.xlsx",
+        "originalName": "æ¥­èå®è¦ç©æ¸è¨å¥ç¨ç´.xlsx",
+        "size": 16428,
+        "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      }
+    ]
+  }
+]

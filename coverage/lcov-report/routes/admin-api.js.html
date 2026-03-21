@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">79.42% </span>
+                <span class="strong">79.54% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>413/520</span>
+                <span class='fraction'>416/523</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">62.41% </span>
+                <span class="strong">62.5% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>191/306</span>
+                <span class='fraction'>195/312</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">80.03% </span>
+                <span class="strong">80.15% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>409/511</span>
+                <span class='fraction'>412/514</span>
             </div>
         
             
@@ -1025,7 +1025,15 @@
 <a name='L960'></a><a href='#L960'>960</a>
 <a name='L961'></a><a href='#L961'>961</a>
 <a name='L962'></a><a href='#L962'>962</a>
-<a name='L963'></a><a href='#L963'>963</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L963'></a><a href='#L963'>963</a>
+<a name='L964'></a><a href='#L964'>964</a>
+<a name='L965'></a><a href='#L965'>965</a>
+<a name='L966'></a><a href='#L966'>966</a>
+<a name='L967'></a><a href='#L967'>967</a>
+<a name='L968'></a><a href='#L968'>968</a>
+<a name='L969'></a><a href='#L969'>969</a>
+<a name='L970'></a><a href='#L970'>970</a>
+<a name='L971'></a><a href='#L971'>971</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">62x</span>
 <span class="cline-any cline-yes">62x</span>
@@ -1110,10 +1118,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">62x</span>
-<span class="cline-any cline-yes">1170x</span>
-<span class="cline-any cline-yes">1170x</span>
-<span class="cline-any cline-yes">1168x</span>
-<span class="cline-any cline-yes">1168x</span>
+<span class="cline-any cline-yes">1711x</span>
+<span class="cline-any cline-yes">1711x</span>
+<span class="cline-any cline-yes">1709x</span>
+<span class="cline-any cline-yes">1709x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1122,14 +1130,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1168x</span>
-<span class="cline-any cline-yes">1168x</span>
-<span class="cline-any cline-yes">1168x</span>
-<span class="cline-any cline-yes">1168x</span>
-<span class="cline-any cline-yes">1168x</span>
+<span class="cline-any cline-yes">1709x</span>
+<span class="cline-any cline-yes">1709x</span>
+<span class="cline-any cline-yes">1709x</span>
+<span class="cline-any cline-yes">1709x</span>
+<span class="cline-any cline-yes">1709x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1168x</span>
+<span class="cline-any cline-yes">1709x</span>
+<span class="cline-any cline-yes">1709x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1170,6 +1180,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1741,6 +1752,11 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -2091,12 +2107,14 @@ router.get("/settings/public", async (req, res) =&gt; {
         const cartShippingNotice = (settings.cartShippingNotice != null &amp;&amp; String(settings.cartShippingNotice).trim() !== "")
             ? <span class="branch-0 cbranch-no" title="branch not covered" >String(settings.cartShippingNotice)</span>
             : "";
+        const publicBranding = await settingsService.getPublicBranding();
         res.json({
             features: publicFeatures,
             orderBanners: Array.isArray(orderBanners) ? orderBanners : [],
             announcements: Array.isArray(announcements) ? announcements : [],
             recaptchaSiteKey: recaptchaSiteKey,
-            cartShippingNotice
+            cartShippingNotice,
+            publicBranding
         });
     } catch (e) {
         res.status(500).json({ message: "設定の取得に失敗しました" });
@@ -2145,7 +2163,8 @@ router.get("/admin/settings", requireAdmin, async (req, res) =&gt; {
             rankCount: settings.rankCount != null ? Math.min(26, Math.max(1, parseInt(settings.rankCount, 10) || <span class="branch-1 cbranch-no" title="branch not covered" >10)</span>) : <span class="branch-1 cbranch-no" title="branch not covered" >10,</span>
             rankNames: settings.rankNames || <span class="branch-1 cbranch-no" title="branch not covered" >{},</span>
             shippingRules: settings.shippingRules || <span class="branch-1 cbranch-no" title="branch not covered" >{},</span>
-            cartShippingNotice: settings.cartShippingNotice || ""
+            cartShippingNotice: settings.cartShippingNotice || "",
+            dataFormats: settings.dataFormats || <span class="branch-1 cbranch-no" title="branch not covered" >{}</span>
         });
     } catch (e) {
         res.status(500).json({ message: "設定の取得に失敗しました" });
@@ -2702,7 +2721,12 @@ router.post('/admin/import-estimates', requireAdmin, async (req, res) =&gt; {
     try {
         const fileBuffer = req.files.estimateFile.data;
         const fileName = req.files.estimateFile.name || <span class="branch-1 cbranch-no" title="branch not covered" >"";</span>  // ファイル名を取得
-        const parsedData = await csvService.parseEstimatesData(fileBuffer, fileName);
+        const settings = await settingsService.getSettings();
+        const aliasOverride =
+            settings.dataFormats &amp;&amp; settings.dataFormats.estimateImportAliases
+                ? settings.dataFormats.estimateImportAliases
+                : <span class="branch-1 cbranch-no" title="branch not covered" >{};</span>
+        const parsedData = await csvService.parseEstimatesData(fileBuffer, fileName, aliasOverride);
         <span class="missing-if-branch" title="else path not taken" >E</span>if (parsedData.length === 0) {
             return res.status(400).json({ success: false, message: '有効なデータが見つかりませんでした（顧客コード0000の行は除外されます）' });
         }
@@ -2956,7 +2980,7 @@ module.exports = router;</pre></td></tr></table></pre>
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-18T23:59:31.871Z
+                at 2026-03-21T22:14:58.248Z
             </div>
         <script src="../prettify.js"></script>
         <script>

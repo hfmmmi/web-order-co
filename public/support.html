@@ -168,6 +168,80 @@
         .history-row:last-child {
             border-bottom: none;
         }
+
+        /* 添付: クリック選択 + ドラッグ＆ドロップ */
+        .support-dropzone {
+            position: relative;
+            min-height: 120px;
+            border: 2px dashed #ced4da;
+            border-radius: 8px;
+            background: #fafafa;
+            transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .support-dropzone.support-dropzone--over {
+            border-color: #0d6efd;
+            background: #e7f1ff;
+            box-shadow: inset 0 0 0 1px rgba(13, 110, 253, 0.25);
+        }
+
+        .support-attachments-native {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .support-dropzone-inner {
+            padding: 20px 16px;
+            text-align: center;
+        }
+
+        .support-dropzone-lead {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #444;
+            line-height: 1.6;
+        }
+
+        .support-dropzone-browse {
+            background: none;
+            border: none;
+            padding: 0;
+            color: #0d6efd;
+            font-weight: bold;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: inherit;
+            font-family: inherit;
+        }
+
+        .support-dropzone-browse:hover {
+            color: #0a58ca;
+        }
+
+        .support-dropzone-browse:focus-visible {
+            outline: 2px solid #0d6efd;
+            outline-offset: 2px;
+        }
+
+        .support-dropzone-or {
+            color: #555;
+        }
+
+        .support-dropzone-files {
+            display: none;
+            margin: 12px 0 0;
+            font-size: 0.85rem;
+            color: #333;
+            text-align: left;
+            word-break: break-all;
+        }
     </style>
 </head>
 
@@ -233,6 +307,7 @@
                             <option value="">選択してください</option>
                             <option value="初期不良・破損">商品の初期不良・破損</option>
                             <option value="誤発送・不足">商品の誤発送・不足</option>
+                            <option value="見積依頼">見積依頼</option>
                             <option value="操作方法の質問">操作方法がわからない</option>
                             <option value="システムエラー">システムのエラー・不具合</option>
                             <option value="その他">その他のお問い合わせ</option>
@@ -242,6 +317,25 @@
                     <div class="form-group">
                         <label for="support-detail">詳細内容 <span style="color:red">*</span></label>
                         <textarea id="support-detail" rows="5" placeholder="具体的な状況をご記入ください..." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label id="support-attach-label" for="support-attachments-browse">データ添付（任意・最大5ファイル・各10MBまで）</label>
+                        <div id="support-dropzone" class="support-dropzone" role="region" aria-labelledby="support-attach-label">
+                            <input type="file" id="support-attachments" name="attachments" class="support-attachments-native" multiple
+                                accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.txt,.csv,.doc,.docx,.xls,.xlsx,.zip,application/pdf,image/*"
+                                tabindex="-1" aria-hidden="true">
+                            <div class="support-dropzone-inner">
+                                <p class="support-dropzone-lead">
+                                    <button type="button" id="support-attachments-browse" class="support-dropzone-browse">ファイルを選択</button>
+                                    <span class="support-dropzone-or">／ この枠内にドラッグ＆ドロップ</span>
+                                </p>
+                                <p id="support-attachment-names" class="support-dropzone-files" aria-live="polite"></p>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.85em; color: #666; margin-top: 6px;">
+                            PDF・画像・Word/Excel・zip など。実行ファイル（.exe 等）はアップロードできません。
+                        </p>
                     </div>
 
                     <button type="submit" class="btn-submit">申請を送信する</button>

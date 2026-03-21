@@ -4,6 +4,9 @@
 
 class KaitoriView {
     constructor() {
+        /** 価格表カテゴリ設定の「メーカー別シート」に使う区分（バッジ色の基準） */
+        this.primaryProductCategoryForBadge = "純正";
+
         // テーブル・モーダル等の要素参照
         this.listBody = document.getElementById("kaitori-list-body");
         this.masterBody = document.getElementById("kaitori-master-body");
@@ -21,6 +24,12 @@ class KaitoriView {
 
         // マスタ編集モーダル要素
         this.masterModal = document.getElementById("kaitori-master-modal");
+    }
+
+    setPrimaryProductCategory(cat) {
+        if (cat && String(cat).trim()) {
+            this.primaryProductCategoryForBadge = String(cat).trim();
+        }
     }
 
     // =========================================
@@ -230,7 +239,7 @@ class KaitoriView {
                 <td>${item.id}</td>
                 <td>${item.maker}</td>
                 <td>${item.name}</td>
-                <td><span class="badge ${item.type==='純正'?'badge-success':'badge-secondary'}">${item.type}</span></td>
+                <td><span class="badge ${item.type===this.primaryProductCategoryForBadge?'badge-success':'badge-secondary'}">${item.type}</span></td>
                 <td style="text-align:right; font-weight:bold;">¥${item.price.toLocaleString()}</td>
                 <td>${item.destination || "大阪"}</td>
                 <td style="text-align:center;">
@@ -247,7 +256,7 @@ class KaitoriView {
         document.getElementById("km-id").value = item ? item.id : "";
         document.getElementById("km-maker").value = item ? item.maker : "";
         document.getElementById("km-name").value = item ? item.name : "";
-        document.getElementById("km-type").value = item ? item.type : "純正";
+        document.getElementById("km-type").value = item ? item.type : this.primaryProductCategoryForBadge;
         document.getElementById("km-price").value = item ? item.price : 0;
         document.getElementById("km-destination").value = item ? item.destination : "大阪";
         this.masterModal.style.display = "flex";

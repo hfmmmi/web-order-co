@@ -9,6 +9,7 @@ const multer = require("multer");
 const orderService = require("../services/orderService");
 const mailService = require("../services/mailService");
 const csvService = require("../services/csvService");
+const settingsService = require("../services/settingsService");
 const { validateBody } = require("../middlewares/validate");
 const { placeOrderSchema } = require("../validators/requestSchemas");
 
@@ -190,7 +191,16 @@ router.get("/api/download-csv", async (req, res) => {
             return matchKeyword && matchStatus && matchDate;
         });
 
-        const csvData = csvService.generateOrdersCsv(filteredOrders, productMaster, priceList, customerList, rankPriceMap, isUnexportedOnly);
+        const exportSpec = await settingsService.getOrderCsvExportSpec();
+        const csvData = csvService.generateOrdersCsv(
+            filteredOrders,
+            productMaster,
+            priceList,
+            customerList,
+            rankPriceMap,
+            isUnexportedOnly,
+            exportSpec
+        );
 
         if (isUnexportedOnly && filteredOrders.length > 0) {
             await orderService.markOrdersAsExported(filteredOrders.map(o => o.orderId));

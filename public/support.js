@@ -69,6 +69,21 @@ document.addEventListener("DOMContentLoaded", function () {
                     .join("");
             }
 
+            let attachHtml = "";
+            if (Array.isArray(ticket.attachments) && ticket.attachments.length > 0) {
+                const tid = encodeURIComponent(ticket.ticketId || "");
+                attachHtml = `<div style="margin-top:8px; font-size:0.88rem;">
+                    <strong>添付:</strong>
+                    <ul style="margin:6px 0 0 18px; padding:0;">
+                        ${ticket.attachments.map((a) => {
+                            const sn = encodeURIComponent(a.storedName || "");
+                            const href = `/support/attachment/${tid}/${sn}`;
+                            return `<li><a href="${href}" target="_blank" rel="noopener">${safeText(a.originalName || a.storedName || "ファイル")}</a></li>`;
+                        }).join("")}
+                    </ul>
+                </div>`;
+            }
+
             card.innerHTML = `
                 <div class="support-ticket-meta">
                     <span><strong>${safeText(ticket.ticketId || "-")}</strong></span>
@@ -82,6 +97,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     注文ID: ${safeText(ticket.orderId || "-")} / 貴社発注NO: ${safeText(ticket.customerPoNumber || "-")}
                 </div>
                 <div class="support-ticket-detail">${safeText(ticket.detail || "")}</div>
+                ${attachHtml}
                 <div style="margin-top:8px; font-size:0.88rem; color:#555;">
                     希望対応: ${safeText(ticket.desiredAction || "-")} / 回収指定日: ${safeText(ticket.collectionDate || "-")}
                 </div>
@@ -114,6 +130,32 @@ document.addEventListener("DOMContentLoaded", function () {
         orderInput.value = targetOrderId;
     }
 
+    // 商品一覧「要問合」から: ?type=見積依頼&productCode=...&productName=...
+    const typeParam = params.get("type");
+    const productCodeParam = params.get("productCode");
+    const productNameParam = params.get("productName");
+    const supportTypeSelect = document.getElementById("support-type");
+    if (typeParam && supportTypeSelect) {
+        for (let i = 0; i < supportTypeSelect.options.length; i++) {
+            if (supportTypeSelect.options[i].value === typeParam) {
+                supportTypeSelect.selectedIndex = i;
+                break;
+            }
+        }
+    }
+    const detailForProduct = document.getElementById("support-detail");
+    if (detailForProduct && (productCodeParam || productNameParam)) {
+        const lines = [];
+        if (productCodeParam) lines.push("商品コード: " + productCodeParam);
+        if (productNameParam) lines.push("商品名: " + productNameParam);
+        lines.push("");
+        lines.push("上記商品について見積をお願いします。");
+        const block = lines.join("\n");
+        if (!detailForProduct.value.trim()) {
+            detailForProduct.value = block;
+        }
+    }
+
     // 3.5 タブ切り替え
     tabButtons.forEach((btn) => {
         btn.addEventListener("click", async function () {
@@ -124,6 +166,80 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     });
+
+    // 3.6 添付: ファイル選択ボタン + ドラッグ＆ドロップ
+    (function initSupportAttachments() {
+        const fileInput = document.getElementById("support-attachments");
+        const dropzone = document.getElementById("support-dropzone");
+        const browseBtn = document.getElementById("support-attachments-browse");
+        const namesEl = document.getElementById("support-attachment-names");
+        if (!fileInput || !dropzone || !browseBtn) return;
+
+        const MAX_ATTACH_FILES = 5;
+
+        function updateAttachmentNamesDisplay() {
+            if (!namesEl) return;
+            const files = fileInput.files ? Array.from(fileInput.files) : [];
+            if (files.length === 0) {
+                namesEl.textContent = "";
+                namesEl.style.display = "none";
+                return;
+            }
+            namesEl.style.display = "block";
+            namesEl.textContent = "選択中（" + files.length + "件）: " + files.map(function (f) {
+                return f.name;
+            }).join("、");
+        }
+
+        function applyFilesToInput(fileArray) {
+            const dt = new DataTransfer();
+            (fileArray || []).slice(0, MAX_ATTACH_FILES).forEach(function (f) {
+                dt.items.add(f);
+            });
+            fileInput.files = dt.files;
+            updateAttachmentNamesDisplay();
+        }
+
+        function mergeDroppedFiles(fileList) {
+            const existing = Array.from(fileInput.files || []);
+            const incoming = Array.from(fileList || []);
+            applyFilesToInput(existing.concat(incoming));
+        }
+
+        browseBtn.addEventListener("click", function () {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener("change", function () {
+            applyFilesToInput(Array.from(fileInput.files || []));
+        });
+
+        dropzone.addEventListener("dragenter", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.classList.add("support-dropzone--over");
+        });
+        dropzone.addEventListener("dragleave", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const rt = e.relatedTarget;
+            if (rt && dropzone.contains(rt)) return;
+            dropzone.classList.remove("support-dropzone--over");
+        });
+        dropzone.addEventListener("dragover", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+        dropzone.addEventListener("drop", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.classList.remove("support-dropzone--over");
+            const fl = e.dataTransfer && e.dataTransfer.files;
+            if (fl && fl.length) {
+                mergeDroppedFiles(fl);
+            }
+        });
+    })();
 
     // 4. 送信ボタンが押された時の処理
     if (form) {
@@ -144,28 +260,61 @@ document.addEventListener("DOMContentLoaded", function () {
                 btn.textContent = "送信中...";
             }
 
-            // サーバーに送るデータ
-            const requestData = {
-                category: categoryVal,
-                orderId: orderIdVal,
-                type: typeVal,
-                detail: detailVal,
-                timestamp: new Date().toISOString()
-            };
+            const fileInput = document.getElementById("support-attachments");
+            const files = fileInput && fileInput.files ? Array.from(fileInput.files) : [];
+            if (files.length > 5) {
+                msgDiv.style.color = "red";
+                msgDiv.textContent = "❌ 添付は最大5ファイルまでです。";
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = "申請を送信する";
+                }
+                return;
+            }
 
             try {
-                // APIへPOST送信
-                const response = await fetch("/request-support", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(requestData)
-                });
+                let response;
+                if (files.length > 0) {
+                    const formData = new FormData();
+                    formData.append("category", categoryVal);
+                    formData.append("orderId", orderIdVal);
+                    formData.append("type", typeVal);
+                    formData.append("detail", detailVal);
+                    files.forEach(function (f) {
+                        formData.append("attachments", f);
+                    });
+                    response = await fetch("/request-support", {
+                        method: "POST",
+                        body: formData
+                    });
+                } else {
+                    const requestData = {
+                        category: categoryVal,
+                        orderId: orderIdVal,
+                        type: typeVal,
+                        detail: detailVal,
+                        timestamp: new Date().toISOString()
+                    };
+                    response = await fetch("/request-support", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(requestData)
+                    });
+                }
                 const result = await response.json();
 
                 if (result.success) {
                     msgDiv.style.color = "green";
                     msgDiv.textContent = "✅ 申請を受け付けました。管理者が確認次第ご連絡します。";
                     form.reset();
+                    if (fileInput) fileInput.value = "";
+                    const namesEp = document.getElementById("support-attachment-names");
+                    if (namesEp) {
+                        namesEp.textContent = "";
+                        namesEp.style.display = "none";
+                    }
+                    const dzClear = document.getElementById("support-dropzone");
+                    if (dzClear) dzClear.classList.remove("support-dropzone--over");
 
                     const defaultRadio = document.querySelector('input[name="category"][value="support"]');
                     if (defaultRadio) defaultRadio.checked = true;

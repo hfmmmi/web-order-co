@@ -80,6 +80,7 @@ describe("Aランク: /api/settings/public レスポンス契約", () => {
         expect(Array.isArray(res.body.orderBanners)).toBe(true);
         expect(Array.isArray(res.body.announcements)).toBe(true);
         expect(typeof res.body.recaptchaSiteKey).toBe("string");
+        expect(typeof res.body.publicBranding).toBe("object");
 
         expect(typeof res.body.features.orders).toBe("boolean");
         expect(typeof res.body.features.support).toBe("boolean");

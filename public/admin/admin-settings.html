@@ -59,6 +59,7 @@
                 <button type="button" class="tab-btn" data-tab="rank-names">🏷️ ランクの名前</button>
                 <button type="button" class="tab-btn" data-tab="shipping-cart">🚚 送料規定・カートお知らせ</button>
                 <button type="button" class="tab-btn" data-tab="announcements">📢 お知らせ・バナー</button>
+                <button type="button" class="tab-btn" data-tab="data-formats">🔧 汎用・連携</button>
             </div>
 
             <form id="settings-form">
@@ -121,7 +122,7 @@
                         </div>
                         <div class="form-group">
                             <label>サポート申請の本文 (supportBody)</label>
-                            <textarea id="supportBody" class="form-control" placeholder="プレースホルダ: {{ticketId}}, {{categoryLabel}}, {{customerName}}, {{customerId}}, {{date}}, {{orderId}}, {{customerPoNumber}}, {{detail}}"></textarea>
+                            <textarea id="supportBody" class="form-control" placeholder="プレースホルダ: {{ticketId}}, {{categoryLabel}}, {{customerName}}, {{customerId}}, {{date}}, {{orderId}}, {{customerPoNumber}}, {{detail}}, {{attachmentsList}}"></textarea>
                         </div>
                         <hr style="margin:20px 0;">
                         <h4>📨 招待・パスワード再設定メール（顧客宛）</h4>
@@ -243,6 +244,78 @@
                         </div>
                         <div id="shipping-rules-list" style="margin-top:15px;"></div>
                         <button type="button" id="btn-add-shipping-rule" class="btn-small btn-secondary" style="margin-top:10px;">➕ メーカーを追加</button>
+                    </div>
+                </div>
+
+                <!-- 汎用・連携（見積PDF・価格表・受注CSV・物流取込） -->
+                <div id="tab-data-formats" class="tab-panel">
+                    <div class="admin-section">
+                        <h3>顧客向け見積PDFの発行元</h3>
+                        <p class="hint">カート画面の「見積書」に反映されます。</p>
+                        <div class="form-row">
+                            <div class="form-group"><label>会社名</label><input type="text" id="df-pb-company" class="form-control" placeholder="株式会社○○"></div>
+                            <div class="form-group"><label>ロゴ文言</label><input type="text" id="df-pb-logo" class="form-control"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>郵便番号</label><input type="text" id="df-pb-zip" class="form-control" style="max-width:140px;"></div>
+                            <div class="form-group" style="flex:2;"><label>住所</label><input type="text" id="df-pb-address" class="form-control"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>TEL</label><input type="text" id="df-pb-tel" class="form-control"></div>
+                            <div class="form-group"><label>FAX</label><input type="text" id="df-pb-fax" class="form-control"></div>
+                        </div>
+                        <div class="form-group"><label>担当欄の表示</label><input type="text" id="df-pb-contact" class="form-control" placeholder="担当者"></div>
+                        <div class="form-row">
+                            <div class="form-group"><label>件名（顧客側ブロック）</label><input type="text" id="df-pb-subject" class="form-control"></div>
+                            <div class="form-group"><label>支払条件</label><input type="text" id="df-pb-payment" class="form-control"></div>
+                        </div>
+                        <div class="form-group"><label>有効期限の文言</label><input type="text" id="df-pb-valid" class="form-control" placeholder="発行より1ヶ月"></div>
+                        <div class="form-group"><label>備考フッター（HTML可・改行可）</label><textarea id="df-pb-footer" class="form-control" rows="4"></textarea></div>
+                    </div>
+                    <div class="admin-section">
+                        <h3>価格表（CSV/Excel）のカテゴリ・ヘッダー</h3>
+                        <p class="hint">商品マスタの「仕様」列の値の並び・Excelシート分けに使います。</p>
+                        <div class="form-group"><label>カテゴリの並び（カンマ区切り）</label><input type="text" id="df-pl-sort" class="form-control" placeholder="純正,再生,汎用,海外純正"></div>
+                        <div class="form-row">
+                            <div class="form-group"><label>メーカー別シートにするカテゴリ名</label><input type="text" id="df-pl-split" class="form-control" placeholder="純正"></div>
+                            <div class="form-group"><label>シート内をメーカー順に並べ替えるカテゴリ</label><input type="text" id="df-pl-sortsheet" class="form-control" placeholder="再生"></div>
+                        </div>
+                        <div class="form-group"><label>カテゴリ→Excelシート名（JSONオブジェクト）</label><textarea id="df-pl-sheetnames" class="form-control" rows="3" placeholder='{"再生":"再生","汎用":"汎用"}'></textarea></div>
+                        <div class="form-group"><label>価格表CSVのヘッダー行（カンマ区切り・改行なし）</label><input type="text" id="df-pl-csv-h" class="form-control"></div>
+                        <div class="form-group"><label>商品名から除去する文字列（価格表の表示用）</label><input type="text" id="df-pl-strip" class="form-control" placeholder="商品コード"></div>
+                        <div class="form-group"><label>価格表Excelのヘッダー列（カンマ区切り）</label><input type="text" id="df-pl-xlsx-h" class="form-control"></div>
+                    </div>
+                    <div class="admin-section">
+                        <h3>物流ステータスCSV取込（列名）</h3>
+                        <p class="hint">社内メモ内の公開注文ID検出用の正規表現・列名の候補をカンマ区切りで指定します。</p>
+                        <div class="form-group"><label>メモ欄の列名候補</label><input type="text" id="df-li-memo" class="form-control" placeholder="社内メモ,備考"></div>
+                        <div class="form-group"><label>公開ID検出の正規表現</label><input type="text" id="df-li-pattern" class="form-control" placeholder="W(\\d{11})"></div>
+                        <div class="form-row">
+                            <div class="form-group"><label>受注番号の列名候補</label><input type="text" id="df-li-ordno" class="form-control"></div>
+                            <div class="form-group"><label>得意先名の列名候補</label><input type="text" id="df-li-cust" class="form-control"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>合計金額の列名候補</label><input type="text" id="df-li-total" class="form-control"></div>
+                            <div class="form-group"><label>受注日の列名候補</label><input type="text" id="df-li-odate" class="form-control"></div>
+                        </div>
+                        <div class="form-group"><label>納品日・納期の列名候補</label><input type="text" id="df-li-ddate" class="form-control"></div>
+                        <div class="form-group"><label>新規行の source 文字列</label><input type="text" id="df-li-src" class="form-control" placeholder="FLAM"></div>
+                    </div>
+                    <div class="admin-section">
+                        <h3>受注データCSVエクスポート（基幹連携）</h3>
+                        <p class="hint">ヘッダー行のみ変更する場合は1行目を編集。データ列の対応を変える場合は列キー配列をJSONで指定（列数はヘッダーと一致必須）。空欄は既定のまま。</p>
+                        <div class="form-group"><label>ヘッダー行（カンマ区切り1行）</label><textarea id="df-order-csv-h" class="form-control" rows="4" placeholder="空欄＝システム既定"></textarea></div>
+                        <div class="form-group"><label>列キー（JSON配列・例: ["orderId","orderDate","empty",...]）</label><textarea id="df-order-csv-keys" class="form-control" rows="6" placeholder="空欄＝システム既定。利用可能キー: orderId, orderDate, customerId, customerName, deliveryNote, internalMemo, productCode, productName, unitPrice, quantity, empty, literal:0"></textarea></div>
+                    </div>
+                    <div class="admin-section">
+                        <h3>見積Excel/CSV取込の列名エイリアス（上級者向け）</h3>
+                        <p class="hint">既定の別名に追加するヘッダー名をJSONで指定します。キー: estimateId, customerId, productCode, productName, price, validUntil, manufacturer, subject</p>
+                        <textarea id="df-est-aliases" class="form-control" rows="5" placeholder='例: {"customerId":["取引先コード"]}'></textarea>
+                    </div>
+                    <div class="admin-section">
+                        <h3>固定列インデックス取込（Excel・上級者向け）</h3>
+                        <p class="hint">csvService.importFlamData 等で使用。通常は空欄で既定（0始まり列番号のJSON）。</p>
+                        <textarea id="df-fixed-cols" class="form-control" rows="3" placeholder='{"orderId":0,"orderDate":1,...}'></textarea>
                     </div>
                 </div>
 

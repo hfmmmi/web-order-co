@@ -1,8 +1,11 @@
 // services/mailService.js
 // 【役割】メール通知に関する全責任を負う専門部隊
 // 設定は settingsService から取得。パスワードは環境変数 MAIL_PASSWORD
+const path = require("path");
+const fs = require("fs").promises;
 const nodemailer = require("nodemailer");
 const settingsService = require("./settingsService");
+const { DATA_ROOT } = require("../dbPaths");
 
 let _transporter = null;
 
@@ -81,6 +84,29 @@ async function sendSupportNotification(ticketData) {
         const config = await settingsService.getMailConfig();
         const categoryLabel = ticketData.category === "bug" ? "🐛 不具合報告" : "✉️ サポート/問合せ";
 
+        const att = Array.isArray(ticketData.attachments) ? ticketData.attachments : [];
+        const attachmentsList = att.length
+            ? att.map((a) => (a && a.originalName) || (a && a.storedName) || "file").join(", ")
+            : "なし";
+
+        const nodemailerAttachments = [];
+        const mailFileMax = 5 * 1024 * 1024;
+        const baseDir = path.join(DATA_ROOT, "support_attachments", ticketData.ticketId || "");
+        for (const a of att.slice(0, 3)) {
+            if (!a || !a.storedName) continue;
+            if ((a.size || 0) > mailFileMax) continue;
+            const p = path.join(baseDir, a.storedName);
+            try {
+                await fs.stat(p);
+                nodemailerAttachments.push({
+                    filename: String(a.originalName || "attachment").replace(/[\r\n]/g, "").slice(0, 180),
+                    path: p
+                });
+            } catch (_) {
+                /* ファイルが無い場合は本文のみ */
+            }
+        }
+
         const body = settingsService.applyTemplate(config.templates.supportBody, {
             ticketId: ticketData.ticketId,
             categoryLabel,
@@ -89,7 +115,8 @@ async function sendSupportNotification(ticketData) {
             date: new Date().toLocaleString("ja-JP"),
             orderId: ticketData.orderId || "指定なし",
             customerPoNumber: ticketData.customerPoNumber || "なし",
-            detail: ticketData.detail || ""
+            detail: ticketData.detail || "",
+            attachmentsList
         });
 
         const subject = settingsService.applyTemplate(config.templates.supportSubject, {
@@ -98,12 +125,16 @@ async function sendSupportNotification(ticketData) {
         });
 
         const transporter = await getTransporter();
-        await transporter.sendMail({
+        const mailOpts = {
             from: config.from,
             to: config.supportNotifyTo,
             subject,
             text: body
-        });
+        };
+        if (nodemailerAttachments.length) {
+            mailOpts.attachments = nodemailerAttachments;
+        }
+        await transporter.sendMail(mailOpts);
         console.log(`[Mail] Sent support notification for Ticket: ${ticketData.ticketId}`);
         return true;
     } catch (error) {

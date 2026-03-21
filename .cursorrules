@@ -16,8 +16,9 @@
 - **共同編集の手順**は **`docs/共同編集の手順.md`** に集約している。招待方法・初回の流れ（Accept → clone → cd → npm install → Cursor でフォルダを開く）・2回目からの流れ（**pull → 編集 → テスト（推奨）→ push**）・用語（ターミナル／pull／push／コミット）・push 手順（git add . → git commit -m "..." → git push origin main）をエンジニアでない人にも分かるように記載。共同編集者に渡す一文のコピペ用も同 doc にあり。
 
 ### 次回スレッドで優先対応すべき事項
-- **カバレッジ向上計画は現時点で完了扱い**：`npm run test:all`（API（S+A+B+Risk・カバレッジ付き）+ E2E + 負荷試験 + flake監視）が安定して PASS。最新実行では **行 90.10% / 分岐 69.25% / global 閾値 80/67** を確認済み。Phase 1（カバレッジ理想値到達）は「global 80/70 を絶対条件にはせず、運用コスパを踏まえてここで完了」とする（詳細は `docs/coverage-improvement-plan.md` §12.7 と `docs/branch-coverage-70-proposal.md`）。
-- **カバレッジは今後“必要に応じて局所追加”**：全体分岐 80% などの数値目標は追わず、新機能追加や不具合修正時にその周辺のテストを増やす方針とする。P0 ファイル（auth-api / admin-api / orders-api / validate.js / priceCalc.js）の品質維持を優先。
+- **カバレッジ向上計画は現時点で完了扱い**：`npm run test:all`（API（S+A+B+Risk・カバレッジ付き）+ E2E + 負荷試験 + flake監視）が安定して PASS。Phase 1（カバレッジ理想値到達）は「global 80/70 を絶対条件にはせず、運用コスパを踏まえてここで完了」とする（詳細は `docs/coverage-improvement-plan.md` §12.7 と `docs/branch-coverage-70-proposal.md`）。
+- **Jest のカバレッジ閾値**（2026-03-19 更新）：**jest.config.js** で **global branches 50%**、**routes/auth-api.js** / **routes/admin-api.js** は **lines・branches 各 50%** に緩和済み。実測は行 82% 前後・分岐 61% 前後でも API テストは通過可能。理想値はドキュメント参照、**閾値の実体は常に jest.config.js を正とする**。
+- **カバレッジは今後“必要に応じて局所追加”**：全体分岐の高い数値目標は追わず、新機能追加や不具合修正時にその周辺のテストを増やす方針。P0 ファイル（auth-api / admin-api / orders-api / validate.js / priceCalc.js）の品質維持を優先。
 - **ステップ3（性能/負荷試験・flake監視）は実装済み**。詳細は `docs/step3-performance-load-flake.md` 参照。
 - **入力検証の統一（Phase 1）は完了済み**。6APIでZodスキーマ検証・unknown key拒否・400統一。余力で他APIへの適用や query/params スキーマ追加を検討。
 - **マルチテナント化は現時点では未着手**（社内運用優先）。SaaS化フェーズで設計・実装
@@ -32,6 +33,21 @@
 - **ランク別価格表Excel（シート構成）**：**純正**＝メーカー別シート、**再生・汎用・海外純正**＝カテゴリ名で各1シート、**その他**＝1シート。再生シート内は **メーカー名順**で並び替え。送料規定は代表表示名・正規化キー・default の順で参照。
 - **ランク別価格表Excel（書式・備考・固定）**：**枠線**（全セル）・**ヘッダー行**（太字・背景#E0E0E0・中央揃え）・**列幅**（商品ｺｰﾄﾞ14・メーカー14・商品名36・定価10・仕様12・価格10・掛率10・**備考20**）。定価/価格は **#,##0** ・右寄せ。**H列に備考欄**（空欄・顧客記入用）。**ウィンドウ枠の固定**（sheet.views = [{ state: "frozen", ySplit: headerRowIndex }]。送料規定＋ヘッダー行まで固定）。ヘッダー行番号は **ruleEndRow + 1**（addRow がシート末尾に追加するため）。送料規定エリアにも枠線。
 - **セッション運用**：**本番で再起動後もログイン維持**するには **SESSION_PATH** をデプロイで消えない永続ディレクトリに設定（例: `/var/lib/weborder/sessions`）。未設定時は本番起動時に警告。**Windows 開発**ではデフォルトは**メモリ**（ページ遷移が速い・再起動でログアウト）。**PERSIST_SESSION=1** でファイル保存（再起動後維持・3～5秒遅延の可能性）。**USE_MEMORY_SESSION=1** で強制メモリ。401 時は「再ログインが必要です。（長時間の無操作やシステム更新によりセッションが切れた場合があります）」と表示。**docs/session-production.md** に本番でのセッション運用ガイドを記載。
+
+### 直近スレッド反映済み（2026-03-20 サポート申請・商品一覧UI）
+- **サポート申請項目**: **見積依頼** を `public/support.html` の申請項目 `<select>` に追加（値 **`見積依頼`**）。API・チケットは既存どおり **`type`** フィールドで保持。
+- **サポート添付ファイル**: `POST /request-support` は **JSON（従来・テスト互換）** と **multipart/form-data（FormData・フィールド名 `attachments` 複数）** の両対応。**express-fileupload**（`server.js`）で受信。保存先は **`DATA_ROOT/support_attachments/<ticketId>/`**（**dbPaths の DATA_ROOT**）。**.gitignore に `support_attachments/`**（容量・業務データのためコミットしない）。拡張子ホワイトリスト（pdf/画像/Office/zip 等）・**最大5ファイル・各10MB**。チケットJSONの **`attachments`**: `{ storedName, originalName, size, mimeType }`。**GET `/support/attachment/:ticketId/:storedName`** — ログイン顧客は本人チケットのみ、管理者は全件、**res.download**（パストラバーサル防止あり）。
+- **サポート画面UI**: `support.html` / `support.js` で **ファイル選択ボタン＋ドラッグ＆ドロップ**（`#support-dropzone`、`DataTransfer` で最大5件までマージ・超過は切り詰め）。顧客の問い合わせ履歴・**`public/js/admin-support.js`**（`admin-support.html` はキャッシュバスティング用 `?v=` 更新）で添付ダウンロードリンク表示。
+- **サポート通知メール**: `services/mailService.js` の `sendSupportNotification` で **`{{attachmentsList}}`** をテンプレに渡す（既定 **`supportBody`** は **`services/settingsService.js`** の DEFAULTS に「添付ファイル: {{attachmentsList}}」行を追加済み）。**5MB以下の添付は最大3件まで** nodemailer **attachments** 同梱。管理画面 **`public/admin/admin-settings.html`** の supportBody プレースホルダ説明に **`{{attachmentsList}}`** を記載。
+- **support_tickets.json / ナビ**: リポジトリ上は **`[]` プレースホルダ**のため **Gitから実データ復元は不可**。**バックアップ**推奨。顧客ナビの「サポート」は **`features.support === false`** のとき **`public/script.js`**（`/api/settings/public`）が **`[data-feature="support"]`** を `display:none`（**`support.html` 直リンクは可能**）。
+- **商品一覧（顧客）`public/products.html`・`public/js/products.js`**: テーブル **6列**。ヘッダー **メーカー／商品名・備考／仕様／価格／在庫／発注**。**メーカー列**＝ **`manufacturer`**（太字）＋サムネイル。**仕様列**＝商品マスタの **`category`**（**`productService.importFromExcel`** ではヘッダー「仕様」「規格」「**カテゴリ**」のいずれかで取り込み。旧データが「純正」等のみの場合はそのまま表示）。商品名ブロックのサブ行は **型番（productCode）のみ**（メーカーは左列へ集約）。**APIの `price` が数値で厳密に 0 円**の行は数量 **disabled**・ボタン **「要問合」**（紫系）→ **`window.open("support.html?..." , "_blank", "noopener,noreferrer")`**（**`type=見積依頼`・`productCode`・任意 `productName`**）。**`support.js`** は URL クエリ **`type`** で申請項目を合わせ、**`productCode` / `productName`** で詳細欄を自動下書き（**空のときのみ**）。ロード中・空一覧の **colspan は 6**。
+
+### 直近スレッド反映済み（2026-03-19 テスト・Jest閾値・GitHub）
+- **セッションタイムアウト API 文言**：無操作120分超えで 401 のとき JSON は **`message: "再ログインが必要です。"`**、**`code: "SESSION_EXPIRED"`**（**server.js**）。**tests/s-rank/session-timeout.api.test.js** はこの文言を期待する（旧「Session Expired」は廃止）。フロント（**public/script.js**）の 401 時 alert も同趣旨の案内。
+- **API カバレッジ強化テスト**：**tests/a-rank/auth-api-coverage.api.test.js**（管理者パスワード再設定 setup トークン・招待期限切れ・GET/PUT /api/account/settings・admins.json 不正JSON・平文パスワード管理者ログイン・request-password-reset の管理者経路・空 id）。**tests/a-rank/admin-api-coverage.api.test.js**（GET/PUT /api/admin/account・customers keyword・send-invite-email 各分岐・proxy-request / proxy-request-status / proxy-login / proxy-logout）。**tests/helpers/testSandbox.js** に **admin_reset_tokens.json** をバックアップ対象・seed に追加。
+- **Jest カバレッジ閾値**（**jest.config.js**）：運用コスパのため緩和。**global** の **branches は 50%**（lines は 80% 維持）。**routes/auth-api.js** / **routes/admin-api.js** は **lines・branches とも 50%**。**middlewares/validate.js**・**utils/priceCalc.js**・**routes/orders-api.js** の個別閾値は従来通り。余力でテスト追加し随時引き上げ可。
+- **GitHub への共有**：**docs/共同編集の手順.md** の **pull → 編集 → テスト（推奨）→ push**。**git add .** → **git commit -m "…"** → **git push origin main** でリモート **main** が進めば共有完了。**LF will be replaced by CRLF** の warning は Windows での改行変換通知であり **push 失敗ではない**。
+- **コミット時の注意**：**coverage/** は **.gitignore** にあるが、過去に追跡済みだと `git add .` で再コミットされうる。**admins.json** 等の業務データをリポジトリに含めないよう、不要なら **git rm --cached** で追跡解除し今後はコミット対象外にする。
 
 ### 直近スレッド反映済み（2026-03-18 共同編集手順・Git運用）
 - **共同編集の手順**：`docs/共同編集の手順.md` を中心に運用。**初回**＝招待 Accept → ターミナルで clone / cd web-order-co / npm install → Cursor で Open Folder（web-order-co）。**2回目以降**＝作業開始時に **git pull origin main**（最新を取り込む）→ 編集 → **テスト（推奨）** `$env:DATA_DIR = "tests/_sandbox_data"; npm run test:all` → **push**（git add . → git commit -m "○○の修正" → git push origin main）。ターミナルはプロジェクトのフォルダで実行。
@@ -366,7 +382,7 @@
 - **データディレクトリ（DATA_DIR）**：業務用JSONの実体パスは **dbPaths.js**（`DATA_ROOT`・`dbPath(fileName)`）で解決。**DATA_DIR** 未設定時はプロジェクト直下。本番では DATA_DIR で業務データ用ディレクトリを指定可能。テスト時は **DATA_DIR=tests/_sandbox_data** を設定し、テスト用ディレクトリのみを操作（`docs/test-execution.md` 参照）。
 - **admins.json**: 管理者マスタ（認証情報・ハッシュ化PW）
 - **orders.json**: 受注データ。deliveryInfo.estimateMessage に納期目安を格納（管理画面で更新・顧客履歴で表示）。
-- **products.json**: 商品マスタ（2,000件超・実データ稼働中）
+- **products.json**: 商品マスタ（2,000件超・実データ稼働中）。**category** は Excel/CSV 取込で「仕様・規格・カテゴリ」列から投入。**顧客商品一覧の「仕様」列**に表示
 - **customers.json**: 顧客マスタ（400件超・実データ稼働中）。email フィールドで招待メール送信先を管理。
 - **prices.json**: 個別価格マスタ
 - **rank_prices.json**: ランク別価格マスタ
@@ -375,7 +391,7 @@
 - **settings.json**: システム設定（blockedManufacturers/blockedProductCodes, mail, features, productSchema, **announcements**, **recaptcha**, **rankCount**, **rankNames**, **shippingRules**, **cartShippingNotice** 等）。mail.smtp に host/port/secure/user（開発/検証では password 利用可）、mail.templates に invite* / passwordReset* / passwordChanged* / **loginFailureAlert*** / **loginFailureAlertAdmin*** を含む。**本番の SMTP パスワードは `MAIL_PASSWORD` で管理し、settings.json へは保存しない**。**recaptcha** は siteKey, secretKey（未設定時はCAPTCHAなし）。**announcements** はお知らせ配列（title, body, type, target, **category(order/general)**, enabled, startDate, endDate, linkUrl, linkText）。**rankCount**（1～26、既定10）と **rankNames**（ランクID→表示名。管理画面「ランクの名前」タブで編集。空欄なら「ランク1」…またはIDを表示）。**shippingRules** はメーカー別送料規定（キー "default" またはメーカー名→テキスト。価格表Excelの各シート先頭に記載）。**cartShippingNotice** はカートの内容確認ページ最下部のお知らせ（プレーンテキスト・改行反映・HTML解釈しない）。
 - **kaitori_requests.json**: 買取申請データ
 - **kaitori_master.json**: 買取価格マスタ
-- **support_tickets.json**: サポート申請データ
+- **support_tickets.json**: サポート申請データ（チケット本文・**attachments メタのみ**。実ファイルは **`support_attachments/<ticketId>/`**（DATA_ROOT 配下・gitignore））
 - **stocks.json**: 在庫マスタ（productCode, totalQty, reservedQty, warehouses, publish, hiddenMessage 等）
 - **config/stocks-adapters.json**: 在庫アダプタ設定（表示ON/OFF、非公開文言、アダプタ種別等）
 - **logs/stocks-history.json**: 在庫取込・引当・解放の履歴
@@ -394,7 +410,7 @@ web-order/
 ├── package-lock.json
 ├── playwright.config.js    ... [Test Config] Playwright（webServer起動・globalTeardown）
 ├── .cursorrules            ... [Map] 本ファイル（アーキテクチャ・依存関係マップ）
-├── .gitignore              ... [Config] settings.json, invite_tokens.json, reset_tokens.json, reset_rate_limit.json, login_rate_limit.json, proxy_requests.json, .env を除外
+├── .gitignore              ... [Config] settings.json, invite_tokens.json, reset_tokens.json, reset_rate_limit.json, login_rate_limit.json, proxy_requests.json, **support_attachments/**（サポート添付・業務データ）, .env を除外
 ├── migrate-passwords.js    ... [Tool] パスワードハッシュ化
 ├── .env.example            ... [Config] SESSION_SECRET（本番必須）・NODE_ENV・MAIL_PASSWORD・ALLOWED_ORIGINS・TRUST_PROXY 等の環境変数テンプレート
 ├── dbPaths.js              ... [Config] 業務用JSONのルート（DATA_DIR で切り替え）。dbPath(fileName), DATA_ROOT。未設定時はプロジェクト直下 [Ref: auth-api, services/*, routes/*, testSandbox]
@@ -414,6 +430,7 @@ web-order/
 ├── estimates.json          ... [DB] 見積データ（パスは dbPaths 経由） [Ref: specialPriceService]
 ├── settings.json           ... [DB] システム設定（mail, features, blocked*, **announcements**, **recaptcha**, **rankCount**, **rankNames**） [Ref: settingsService, specialPriceService]
 ├── support_tickets.json    ... [DB] サポート（パスは dbPaths 経由） [Ref: support-api]
+├── support_attachments/      ... [Data] サポート添付（**DATA_ROOT** 配下・**gitignore**・チケットID別サブフォルダ） [Ref: support-api, mailService]
 ├── invite_tokens.json      ... [DB] 招待トークン有効期限（24時間・1回使用） [Ref: auth-api]
 ├── reset_tokens.json       ... [DB] パスワード再設定トークン（顧客申込・24時間・1回使用） [Ref: auth-api]
 ├── admin_reset_tokens.json ... [DB] 管理者パスワード再設定トークン（24時間・1回使用） [Ref: auth-api]
@@ -429,18 +446,18 @@ web-order/
 ├── public/
 │   ├── index.html          ... [View] ログイン画面（**パスワードをお忘れの方**モーダル・**reCAPTCHA用** #recaptcha-wrap/#recaptcha-container 付き）
 │   ├── setup.html          ... [View] 初期設定 (招待URLの id&key でID/PW欄非表示、新パスワードのみ入力)
-│   ├── products.html      ... [View] 商品一覧(顧客用) [Ref: script.js→toast, js/products.js]
+│   ├── products.html      ... [View] 商品一覧(顧客用)・**6列テーブル（メーカー/仕様/価格0円時は要問合）** [Ref: script.js→toast, js/products.js]
 │   ├── announcements.html  ... [View] お知らせページ(顧客用) [Ref: script.js, js/announcements.js]
 │   ├── account.html        ... [View] アカウント設定(顧客用) 現状「現在、設定項目はありません。」のみ
 │   ├── cart.html           ... [View] カート(顧客用)。**貴社発注番号**は荷主ブロックではなく配送先・電話番号の直下に配置。**最下部のお知らせ**は #cart-shipping-notice-container に **GET /api/settings/public** の cartShippingNotice をプレーンテキストで表示（cart.js の loadCartShippingNotice）。未設定時は非表示。
 │   ├── history.html        ... [View] 注文履歴(顧客用)
 │   ├── kaitori.html        ... [View] 空カートリッジ買取(顧客用)
-│   ├── support.html        ... [View] サポート申請(顧客用)・**フォーム/履歴のタブ切替UI**
+│   ├── support.html        ... [View] サポート申請(顧客用)・**フォーム/履歴のタブ切替UI**・**見積依頼を含む申請項目**・**添付（ドロップゾーン＋複数ファイル）**
 │   ├── style.css           ... [Style] 共通デザイン
 │   ├── script.js           ... [Logic] 共通スクリプト/120分監視/toast通知/**顧客ナビのfeatures出し分け**・**注文お知らせバナー表示**（orderBanners→商品一覧・注文履歴のナビ直下）・**代理ログイン申請バナー**（GET /api/account/proxy-request 即時＋1.5秒ポーリング・許可/却下）・**代理ログイン中バナー**（adminName は escapeHtml で表示）・**reCAPTCHA**（/api/settings/public で recaptchaSiteKey 取得→スクリプト読み込み・captchaRequired 時にウィジェット表示・送信時に captchaToken 付与）・**XSS 対策**（escapeHtml・トースト message エスケープ） [Ref: /api/settings/public, /api/session]
 │   ├── history.js          ... [Logic] 履歴表示・**納期目安表示**・**クイック再注文** [API: /order-history] ※visibilitychangeで再取得
 │   ├── kaitori.js          ... [Logic] 空カートリッジ買取機能 [API: /kaitori]
-│   └── support.js          ... [Logic] サポート機能・**本人履歴表示**（GET /support/my-tickets）・送信後に履歴再取得＆履歴タブ遷移
+│   └── support.js          ... [Logic] サポート機能・**本人履歴表示**（GET /support/my-tickets）・**FormData/JSON 送信**・**添付ドラッグ＆ドロップ**・**URLクエリ**（orderId / **type・productCode・productName** で見積依頼下書き）・送信後に履歴再取得＆履歴タブ遷移
 │   │
 │   ├── admin/              ... [View] 管理画面 (連邦制)
 │   │   ├── admin-dashboard.html  ... [Dash] 司令塔・ダッシュボード（カードは features で出し分け）
@@ -461,8 +478,8 @@ web-order/
 │   │   ├── admin-orders-view.js ... [Logic] 注文カードHTML生成・出荷オペレーションUI
 │   │   ├── admin-products.js  ... [Logic] [API: /products]
 │   │   ├── admin-settings.js    ... [Logic] システム設定画面（recaptcha 読み書き・**ランクの名前**タブで rankNames 読み書き・お知らせ管理UI・保存時にcollectAnnouncementsDataで全件DOMから送信） [API: /admin/settings]
-│   │   ├── admin-support.js   ... [Logic] [API: /support]
-│   │   ├── products.js         ... [Logic] 商品一覧・**タブ・お気に入り・在庫列・ページネーション** [API: /products] ※cart-modalは削除済み、通知はtoastのみ
+│   │   ├── admin-support.js   ... [Logic] サポートチケット一覧・**添付ダウンロードリンク** [API: /admin/support-tickets, /support/attachment/…]
+│   │   ├── products.js         ... [Logic] 商品一覧・**6列（メーカー/商品名/仕様/価格/在庫/発注）**・**価格0円は「要問合」→ support.html 別タブ（見積依頼）**・タブ・お気に入り・在庫列・ページネーション [API: /products] ※cart-modalは削除済み、通知はtoastのみ
 │   │   ├── announcements.js   ... [Logic] お知らせページ表示（category=general のみ） [API: /api/settings/public]
 │   │   └── cart.js            ... [Logic] カート機能 [API: /orders]
 │   │   │
@@ -475,13 +492,13 @@ web-order/
 │   ├── kaitori-api.js      ... [API] 買取 [Deps: kaitori_*.json]
 │   ├── orders-api.js       ... [API] 注文・外部受注CSV取込（/api/import-orders-csv）・出荷CSV取込（/api/import-shipping-csv）[Deps: orderService, mailService, csvService]
 │   ├── products-api.js     ... [API] 商品・**よく注文API**・**stockInfo付与** [Deps: productService, stockService] [/products/frequent→orders.json参照]
-│   └── support-api.js      ... [API] サポート（request-support / admin/support-tickets / admin/update-ticket / support/my-tickets）[Deps: support_tickets.json, mailService]
+│   └── support-api.js      ... [API] サポート（**POST request-support** JSON|multipart・**GET support/attachment/:ticketId/:storedName**・support/my-tickets・admin/support-tickets・admin/update-ticket）[Deps: support_tickets.json, **DATA_ROOT/support_attachments/**, mailService]
 │
 ├── services/               ... [Logic] 実務ロジック部隊
 │   ├── settingsService.js  ... [Svc] システム設定の読み書き・メール設定・features・getAnnouncements(target, category)・**getRankList()**（表示名付きランク一覧・DEFAULT_RANK_IDS）・テンプレート置換・**recaptcha**（siteKey/secretKey・secretKey空欄保存時は既存維持）。updateSettings で announcements 配列を明示マージ。**rankNames**（ランク表示名）を settings で管理 [DB: settings.json]
 │   ├── csvService.js       ... [Svc] CSV/Excel貿易。Excel は **utils/excelReader**（exceljs）使用。外部受注/出荷CSVパーサ（parseExternalOrdersCsv/parseShippingCsv）を提供 [Deps: iconv-lite, excelReader]
 │   ├── customerService.js  ... [Svc] 顧客DB/PW更新・getCustomerById（email含む）・updateCustomerAllowProxy（アカウント設定用・代理ログイン事前許可は廃止だがAPIは残置）。Excel一括取込は **excelReader** 使用 [DB: customers.json]
-│   ├── mailService.js      ... [Svc] メール送信（設定・テンプレートベース）sendOrderConfirmation, sendSupportNotification, sendInviteEmail, **sendPasswordChangedNotification**, **sendLoginFailureAlert**（顧客宛/管理者失敗時はsupportNotifyTo・loginFailureAlert* / loginFailureAlertAdmin* テンプレート）[Deps: nodemailer, settingsService]
+│   ├── mailService.js      ... [Svc] メール送信（設定・テンプレートベース）sendOrderConfirmation, **sendSupportNotification**（**{{attachmentsList}}**・小容量添付の同梱可）, sendInviteEmail, **sendPasswordChangedNotification**, **sendLoginFailureAlert**（顧客宛/管理者失敗時はsupportNotifyTo・loginFailureAlert* / loginFailureAlertAdmin* テンプレート）[Deps: nodemailer, settingsService, **DATA_ROOT/support_attachments**]
 │   ├── orderService.js     ... [Svc] 注文DB操作。**注文確定時は在庫引当を行わない**（仕入先直送前提・stockSnapshot: null）。既存注文のキャンセル時など stockSnapshot がある場合のみ解放。**orders.json 更新系は書き込みキューで直列化**（placeOrder/importExternalOrders/updateOrderStatus/registerShipment/updateShipment/markOrdersAsExported/resetExportStatus/importFlamData）[DB: orders.json] [Deps: stockService]
 │   ├── priceService.js     ... [Svc] 価格計算。ランク価格Excel取込は **excelReader**（sheetName: Upload・ヘッダーで商品コード/商品名・**ランク列はランク1/ランクAまたは getRankList() の表示名**・parsePriceCellで整数円・商品名は全件上書き）。取込・保存時に **rank_prices_updated_at.json** を更新。**getRankPricesUpdatedAt()** で時系列マージ用に提供。**ランク別価格表CSV**（getPricelistCsvForRank）はヘッダー 商品ｺｰﾄﾞ, メーカー名, 商品名, 定価, 仕様, 価格, 掛率（掛率=価格/定価・小数第1位%）。**ランク別価格表Excel**（getPricelistExcelForRank）はメーカー別シート・各シート先頭に settings.shippingRules・シート名重複時は小文字で判定し _1, _2 付与。parsePriceCell で 0～999,999,999 円 [Deps: priceCalc, prices.json, excelReader, settingsService.getRankIds, getRankList, getSettings]
 │   ├── productService.js   ... [Svc] 商品DB操作。Excel/CSV一括取込（isExcelBuffer で判別・parseCsvToRowArrays で CSV）。**ヘッダーで列判定**（商品コード必須・商品名/メーカー/定価・**仕様または規格またはカテゴリ**・在庫＋**ランク列は getRankList() の表示名またはランク1/ランクA**）。**addProduct** はリクエストを正規化し category 等を確実に保存。テンプレートDL・マスタ全件DL（getProductTemplateBuffer/getProductMasterExportBuffer）は rank_prices と時系列マージ。rankPricesUpdatedAt はランクが1件以上ある行のみ設定 [DB: products.json] [Ref: priceService.getRankPrices, getRankPricesUpdatedAt, settingsService.getRankList]

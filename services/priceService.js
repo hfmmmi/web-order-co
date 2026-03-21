@@ -332,16 +332,18 @@ class PriceService {
     // 7. 指定ランクの価格表CSV生成（メール添付・配布用）※取り込みExcel(rank_prices)に存在する商品のみ
     // 並び順: 1.純正（メーカー名順）→ 2.再生 → 3.汎用 → 4.海外純正。メーカー列はメーカー名、商品名から「商品コード」表記は除去。
     async getPricelistCsvForRank(rank) {
-        const [productMaster, rankPriceMap] = await Promise.all([
+        const [productMaster, rankPriceMap, fmt] = await Promise.all([
             this._loadJson(PRODUCTS_DB_PATH),
-            fs.readFile(RANK_PRICES_DB_PATH, "utf-8").then(d => JSON.parse(d)).catch(() => ({}))
+            fs.readFile(RANK_PRICES_DB_PATH, "utf-8").then(d => JSON.parse(d)).catch(() => ({})),
+            settingsService.getPriceListFormatConfig()
         ]);
 
         const masterByCode = (productMaster || []).reduce((acc, p) => { acc[p.productCode] = p; return acc; }, {});
 
-        // ヘッダー順: 商品ｺｰﾄﾞ, メーカー名, 商品名, 定価, 仕様, 価格, 掛率（G列）
-        const headers = "商品ｺｰﾄﾞ,メーカー名,商品名,定価,仕様,価格,掛率\n";
-        const CATEGORY_ORDER = { "純正": 0, "再生": 1, "汎用": 2, "海外純正": 3 };
+        const headers = fmt.csvHeaderLine.endsWith("\n") ? fmt.csvHeaderLine : `${fmt.csvHeaderLine}\n`;
+        const CATEGORY_ORDER = fmt.categoryOrder;
+        const stripToken = fmt.productNameStripFromDisplay || "";
+        const splitCat = fmt.manufacturerSplitCategory;
         const rows = [];
 
         Object.keys(rankPriceMap || {}).forEach(productCode => {
@@ -356,7 +358,14 @@ class PriceService {
 
             const product = masterByCode[productCode] || { productCode, name: productCode, manufacturer: "", category: "", basePrice: 0 };
             const rawName = (product.name || product.productCode || "").trim();
-            const displayName = rawName.replace(/商品コード/g, "").trim().replace(/"/g, '""') || productCode;
+            let displayName = rawName;
+            if (stripToken) {
+                displayName = rawName.split(stripToken).join("").trim();
+            } else {
+                displayName = rawName.replace(/商品コード/g, "").trim();
+            }
+            if (!displayName) displayName = productCode;
+            displayName = displayName.replace(/"/g, '""');
             const category = String(product.category || "").trim();
             const manufacturer = String(product.manufacturer || "").trim();
             const basePrice = product.basePrice != null && product.basePrice !== "" ? Number(product.basePrice) : 0;
@@ -376,7 +385,7 @@ class PriceService {
 
         rows.sort((a, b) => {
             if (a.categoryOrder !== b.categoryOrder) return a.categoryOrder - b.categoryOrder;
-            if (a.categoryOrder === 0) return (a.manufacturerSort || "").localeCompare(b.manufacturerSort || "", "ja");
+            if (a.category === splitCat) return (a.manufacturerSort || "").localeCompare(b.manufacturerSort || "", "ja");
             return 0;
         });
 
@@ -398,14 +407,23 @@ class PriceService {
      * @returns {Promise<{ buffer: Buffer, filename: string }>}
      */
     async getPricelistExcelForRank(rank) {
-        const [productMaster, rankPriceMap, settings] = await Promise.all([
+        const [productMaster, rankPriceMap, settings, fmt] = await Promise.all([
             this._loadJson(PRODUCTS_DB_PATH),
             fs.readFile(RANK_PRICES_DB_PATH, "utf-8").then(d => JSON.parse(d)).catch(() => ({})),
-            settingsService.getSettings()
+            settingsService.getSettings(),
+            settingsService.getPriceListFormatConfig()
         ]);
         const shippingRules = (settings && settings.shippingRules) ? settings.shippingRules : {};
         const masterByCode = (productMaster || []).reduce((acc, p) => { acc[p.productCode] = p; return acc; }, {});
-        const CATEGORY_ORDER = { "純正": 0, "再生": 1, "汎用": 2, "海外純正": 3 };
+        const CATEGORY_ORDER = fmt.categoryOrder;
+        const stripToken = fmt.productNameStripFromDisplay || "";
+        const splitCat = fmt.manufacturerSplitCategory;
+        const sheetNamesByCategory = fmt.sheetNamesByCategory || {};
+        const sheetManufacturerSortCategory = fmt.sheetManufacturerSortCategory;
+        const sortSheetKey =
+            sheetNamesByCategory[sheetManufacturerSortCategory] != null
+                ? sheetNamesByCategory[sheetManufacturerSortCategory]
+                : sheetManufacturerSortCategory;
         const rows = [];
 
         Object.keys(rankPriceMap || {}).forEach(productCode => {
@@ -420,7 +438,13 @@ class PriceService {
 
             const product = masterByCode[productCode] || { productCode, name: productCode, manufacturer: "", category: "", basePrice: 0 };
             const rawName = (product.name || product.productCode || "").trim();
-            const displayName = rawName.replace(/商品コード/g, "").trim() || productCode;
+            let displayName = rawName;
+            if (stripToken) {
+                displayName = rawName.split(stripToken).join("").trim();
+            } else {
+                displayName = rawName.replace(/商品コード/g, "").trim();
+            }
+            displayName = displayName || productCode;
             const category = String(product.category || "").trim();
             const manufacturer = String(product.manufacturer || "").trim();
             const basePrice = product.basePrice != null && product.basePrice !== "" ? Number(product.basePrice) : 0;
@@ -448,21 +472,19 @@ class PriceService {
 
         rows.sort((a, b) => {
             if (a.categoryOrder !== b.categoryOrder) return a.categoryOrder - b.categoryOrder;
-            if (a.categoryOrder === 0) return (a.manufacturerSort || "").localeCompare(b.manufacturerSort || "", "ja");
+            if (a.category === splitCat) return (a.manufacturerSort || "").localeCompare(b.manufacturerSort || "", "ja");
             return 0;
         });
 
-        const headerRow = ["商品ｺｰﾄﾞ", "メーカー名", "商品名", "定価", "仕様", "価格", "掛率", "備考"];
-        // シート分け: 純正＝メーカー別、再生・汎用・海外純正＝カテゴリ名で1シートずつ、その他＝1シート
-        const CATEGORY_SHEET_NAMES = { "純正": null, "再生": "再生", "汎用": "汎用", "海外純正": "海外純正" };
+        const headerRow = Array.isArray(fmt.excelHeaderRow) && fmt.excelHeaderRow.length ? [...fmt.excelHeaderRow] : ["商品ｺｰﾄﾞ", "メーカー名", "商品名", "定価", "仕様", "価格", "掛率", "備考"];
         const bySheet = {};
         rows.forEach((r) => {
-            const isSeijou = r.category === "純正";
-            const sheetKey = isSeijou
+            const isSplitByManufacturer = r.category === splitCat;
+            const sheetKey = isSplitByManufacturer
                 ? (r.manufacturerKey || "その他")
-                : (CATEGORY_SHEET_NAMES[r.category] != null ? CATEGORY_SHEET_NAMES[r.category] : "その他");
-            const displayName = isSeijou ? r.manufacturer : (sheetKey === "その他" ? "その他" : sheetKey);
-            if (!bySheet[sheetKey]) bySheet[sheetKey] = { rows: [], displayName, categoryOrder: r.categoryOrder, isSeijou };
+                : (sheetNamesByCategory[r.category] != null ? sheetNamesByCategory[r.category] : "その他");
+            const displayName = isSplitByManufacturer ? r.manufacturer : (sheetKey === "その他" ? "その他" : sheetKey);
+            if (!bySheet[sheetKey]) bySheet[sheetKey] = { rows: [], displayName, categoryOrder: r.categoryOrder, isSeijou: isSplitByManufacturer };
             bySheet[sheetKey].rows.push(r);
         });
 
@@ -514,26 +536,26 @@ class PriceService {
             const headerRowIndex = ruleEndRow + 1;
             sheet.addRow(headerRow);
             rowIndex = headerRowIndex + 1;
-            // 再生シートはメーカー名順で並び替え（正規化キーで同一メーカーをまとめる）
-            const rowsToAdd = sheetKey === "再生"
+            // 設定のカテゴリ（既定: 再生）はメーカー名順で並び替え
+            const rowsToAdd = sheetKey === sortSheetKey
                 ? [...sheetRows].sort((a, b) => (a.manufacturerSort || "").localeCompare(b.manufacturerSort || "", "ja"))
                 : sheetRows;
+            const colCount = Math.max(1, headerRow.length);
+            const padPriceRow = (r) => {
+                const base = [r.productCode, r.manufacturer, r.displayName, r.listPriceDisplay, r.category, r.price, r.ratePct, ""];
+                while (base.length < colCount) base.push("");
+                return base.slice(0, colCount);
+            };
             rowsToAdd.forEach((r) => {
-                sheet.addRow([r.productCode, r.manufacturer, r.displayName, r.listPriceDisplay, r.category, r.price, r.ratePct, ""]);
+                sheet.addRow(padPriceRow(r));
                 rowIndex++;
             });
             const dataEndRow = rowIndex - 1;
-            const colCount = 8;
 
-            // 列幅（価格表として見やすく）
-            sheet.getColumn(1).width = 14;  // 商品ｺｰﾄﾞ
-            sheet.getColumn(2).width = 14;  // メーカー名
-            sheet.getColumn(3).width = 36;  // 商品名
-            sheet.getColumn(4).width = 10;  // 定価
-            sheet.getColumn(5).width = 12;  // 仕様
-            sheet.getColumn(6).width = 10;  // 価格
-            sheet.getColumn(7).width = 10;  // 掛率
-            sheet.getColumn(8).width = 20;  // 備考
+            const defaultWidths = [14, 14, 36, 10, 12, 10, 10, 20];
+            for (let c = 1; c <= colCount; c++) {
+                sheet.getColumn(c).width = defaultWidths[c - 1] != null ? defaultWidths[c - 1] : 12;
+            }
 
             // ウィンドウ枠の固定: 送料規定＋ヘッダー行までを固定し、縦スクロールしても見出しが残る
             sheet.views = [{ state: "frozen", ySplit: headerRowIndex }];
@@ -554,15 +576,15 @@ class PriceService {
                 cell.border = { top: thinBorder, left: thinBorder, bottom: thinBorder, right: thinBorder };
             }
 
-            // データ行: 枠線・定価/価格は数値書式・右寄せ、掛率は中央
+            // データ行: 既定8列レイアウト時は定価(4)・価格(6)・掛率(7)を従来どおり書式設定
             for (let r = headerRowIndex + 1; r <= dataEndRow; r++) {
                 for (let c = 1; c <= colCount; c++) {
                     const cell = sheet.getCell(r, c);
                     cell.border = { top: thinBorder, left: thinBorder, bottom: thinBorder, right: thinBorder };
-                    if (c === 6) {
+                    if (c === 6 && colCount >= 6) {
                         cell.numFmt = "#,##0";
                         cell.alignment = { horizontal: "right", vertical: "middle" };
-                    } else if (c === 4) {
+                    } else if (c === 4 && colCount >= 4) {
                         const v = cell.value;
                         if (typeof v === "number" || (typeof v === "string" && /^\d+$/.test(String(v).trim()))) {
                             cell.numFmt = "#,##0";
@@ -570,10 +592,9 @@ class PriceService {
                         } else {
                             cell.alignment = { vertical: "middle", wrapText: true };
                         }
-                    } else if (c === 7) {
+                    } else if (c === 7 && colCount >= 7) {
                         cell.alignment = { horizontal: "center", vertical: "middle" };
                     } else {
-                        // c === 8 備考を含むその他
                         cell.alignment = { vertical: "middle", wrapText: true };
                     }
                 }

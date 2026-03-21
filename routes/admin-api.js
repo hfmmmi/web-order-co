@@ -102,12 +102,14 @@ router.get("/settings/public", async (req, res) => {
         const cartShippingNotice = (settings.cartShippingNotice != null && String(settings.cartShippingNotice).trim() !== "")
             ? String(settings.cartShippingNotice)
             : "";
+        const publicBranding = await settingsService.getPublicBranding();
         res.json({
             features: publicFeatures,
             orderBanners: Array.isArray(orderBanners) ? orderBanners : [],
             announcements: Array.isArray(announcements) ? announcements : [],
             recaptchaSiteKey: recaptchaSiteKey,
-            cartShippingNotice
+            cartShippingNotice,
+            publicBranding
         });
     } catch (e) {
         res.status(500).json({ message: "設定の取得に失敗しました" });
@@ -156,7 +158,8 @@ router.get("/admin/settings", requireAdmin, async (req, res) => {
             rankCount: settings.rankCount != null ? Math.min(26, Math.max(1, parseInt(settings.rankCount, 10) || 10)) : 10,
             rankNames: settings.rankNames || {},
             shippingRules: settings.shippingRules || {},
-            cartShippingNotice: settings.cartShippingNotice || ""
+            cartShippingNotice: settings.cartShippingNotice || "",
+            dataFormats: settings.dataFormats || {}
         });
     } catch (e) {
         res.status(500).json({ message: "設定の取得に失敗しました" });
@@ -713,7 +716,12 @@ router.post('/admin/import-estimates', requireAdmin, async (req, res) => {
     try {
         const fileBuffer = req.files.estimateFile.data;
         const fileName = req.files.estimateFile.name || "";  // ファイル名を取得
-        const parsedData = await csvService.parseEstimatesData(fileBuffer, fileName);
+        const settings = await settingsService.getSettings();
+        const aliasOverride =
+            settings.dataFormats && settings.dataFormats.estimateImportAliases
+                ? settings.dataFormats.estimateImportAliases
+                : {};
+        const parsedData = await csvService.parseEstimatesData(fileBuffer, fileName, aliasOverride);
         if (parsedData.length === 0) {
             return res.status(400).json({ success: false, message: '有効なデータが見つかりませんでした（顧客コード0000の行は除外されます）' });
         }

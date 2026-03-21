@@ -48,6 +48,8 @@ WEB発注NO: {{customerPoNumber}}
 
 ■内容:
 {{detail}}
+
+添付ファイル: {{attachmentsList}}
 --------------------------------
 ※管理画面ダッシュボードをご確認ください。`,
             inviteSubject: "【WEB受注システム】初回ログインのご案内",
@@ -127,7 +129,64 @@ WEB受注システムへのログイン試行が5回失敗しました。
     // 送料規定（メーカー別・価格表Excelの各シート先頭に記載）。キー: "default" またはメーカー名
     shippingRules: {},
     // カートの内容確認ページ最下部に表示する「送料・配送に関するお知らせ」（HTML可）
-    cartShippingNotice: ""
+    cartShippingNotice: "",
+    /**
+     * 汎用化: 見積PDF・価格表・受注CSV・物流取込など（未設定時は下記デフォルト）
+     */
+    dataFormats: {
+        publicBranding: {
+            companyName: "ひふみマネジメント株式会社",
+            zip: "386-1321",
+            address: "長野県上田市保野1039-13",
+            tel: "0268-75-2815",
+            fax: "0268-75-2816",
+            logoText: "Hifumi Management",
+            estimateContactLabel: "担当者",
+            estimateSubjectLine: "商品購入の件",
+            estimatePaymentTerms: "貴社規定通り",
+            estimateValidPeriod: "発行より1ヶ月",
+            estimateFooterNotes:
+                "※消費税は別途申し受けます。<br>\n※本見積書はシステムによる自動発行です。"
+        },
+        priceListCategories: {
+            sortOrder: ["純正", "再生", "汎用", "海外純正"],
+            manufacturerSplitCategory: "純正",
+            sheetNamesByCategory: { 再生: "再生", 汎用: "汎用", 海外純正: "海外純正" },
+            sheetManufacturerSortCategory: "再生"
+        },
+        priceListCsv: {
+            headerLine: "商品ｺｰﾄﾞ,メーカー名,商品名,定価,仕様,価格,掛率",
+            productNameStripFromDisplay: "商品コード"
+        },
+        priceListExcel: {
+            headerRow: ["商品ｺｰﾄﾞ", "メーカー名", "商品名", "定価", "仕様", "価格", "掛率", "備考"]
+        },
+        orderCsvExport: {
+            headerLine: null,
+            columnKeys: null
+        },
+        logisticsFixedColumnImport: {
+            orderId: 0,
+            orderDate: 1,
+            customerId: 7,
+            customerName: 8,
+            productCode: 32,
+            productName: 35,
+            unitPrice: 39,
+            quantity: 40
+        },
+        logisticsCsvImport: {
+            memoFields: ["社内メモ", "備考"],
+            publicIdPattern: "W(\\d{11})",
+            orderNumber: ["受注番号"],
+            customerName: ["得意先名"],
+            orderTotal: ["受注合計", "総合計"],
+            orderDate: ["受注日"],
+            deliveryDate: ["納品日", "納期"],
+            importSourceLabel: "FLAM"
+        },
+        estimateImportAliases: {}
+    }
 };
 
 /** ランクIDの既定順（最大26）。従来互換のため先頭10は A～I, P（以降は J,O,Q～Z 等で26まで） */
@@ -369,6 +428,98 @@ function applyTemplate(template, vars) {
     return out;
 }
 
+/**
+ * 受注CSVエクスポート仕様（列ヘッダー・フィールド対応）
+ */
+async function getOrderCsvExportSpec() {
+    const { resolveOrderCsvSpec } = require("./csvService");
+    const s = await getSettings();
+    return resolveOrderCsvSpec(s.dataFormats && s.dataFormats.orderCsvExport);
+}
+
+/**
+ * 価格表CSV/Excel用のカテゴリ並び・シート規則・ヘッダー
+ */
+async function getPriceListFormatConfig() {
+    const s = await getSettings();
+    const df = s.dataFormats || {};
+    const defs = DEFAULTS.dataFormats;
+    const plc = deepMerge(defs.priceListCategories, df.priceListCategories || {});
+    const sortOrder = Array.isArray(plc.sortOrder) && plc.sortOrder.length ? plc.sortOrder : defs.priceListCategories.sortOrder;
+    const categoryOrder = {};
+    sortOrder.forEach((name, i) => {
+        if (name && String(name).trim()) categoryOrder[String(name).trim()] = i;
+    });
+    const manufacturerSplitCategory =
+        plc.manufacturerSplitCategory && String(plc.manufacturerSplitCategory).trim()
+            ? String(plc.manufacturerSplitCategory).trim()
+            : sortOrder[0] || "純正";
+    const sheetNamesByCategory = {
+        ...(defs.priceListCategories.sheetNamesByCategory || {}),
+        ...(plc.sheetNamesByCategory && typeof plc.sheetNamesByCategory === "object" ? plc.sheetNamesByCategory : {})
+    };
+    const sheetManufacturerSortCategory =
+        plc.sheetManufacturerSortCategory && String(plc.sheetManufacturerSortCategory).trim()
+            ? String(plc.sheetManufacturerSortCategory).trim()
+            : defs.priceListCategories.sheetManufacturerSortCategory;
+    const csvCfg = deepMerge(defs.priceListCsv, df.priceListCsv || {});
+    const excelCfg = deepMerge(defs.priceListExcel, df.priceListExcel || {});
+    const headerLine =
+        typeof csvCfg.headerLine === "string" && csvCfg.headerLine.trim()
+            ? csvCfg.headerLine.trim()
+            : defs.priceListCsv.headerLine;
+    const productNameStripFromDisplay =
+        csvCfg.productNameStripFromDisplay != null && String(csvCfg.productNameStripFromDisplay).length
+            ? String(csvCfg.productNameStripFromDisplay)
+            : defs.priceListCsv.productNameStripFromDisplay;
+    const excelHeaderRow = Array.isArray(excelCfg.headerRow) && excelCfg.headerRow.length ? excelCfg.headerRow : defs.priceListExcel.headerRow;
+    return {
+        categoryOrder,
+        manufacturerSplitCategory,
+        sheetNamesByCategory,
+        sheetManufacturerSortCategory,
+        csvHeaderLine: headerLine + (headerLine.endsWith("\n") ? "" : "\n"),
+        productNameStripFromDisplay,
+        excelHeaderRow
+    };
+}
+
+/**
+ * 物流CSV（列名可変）取込のヘッダー候補
+ */
+async function getLogisticsCsvImportConfig() {
+    const s = await getSettings();
+    const df = s.dataFormats || {};
+    const def = DEFAULTS.dataFormats.logisticsCsvImport;
+    const m = deepMerge(JSON.parse(JSON.stringify(def)), df.logisticsCsvImport || {});
+    const arrKeys = ["memoFields", "orderNumber", "customerName", "orderTotal", "orderDate", "deliveryDate"];
+    for (const k of arrKeys) {
+        if (!Array.isArray(m[k]) || m[k].length === 0) {
+            m[k] = [...(def[k] || [])];
+        }
+    }
+    if (!m.publicIdPattern || !String(m.publicIdPattern).trim()) {
+        m.publicIdPattern = def.publicIdPattern;
+    }
+    return m;
+}
+
+/**
+ * 固定列インデックスの物流Excel取込（csvService.importFlamData）
+ */
+async function getLogisticsFixedColumnImportConfig() {
+    const s = await getSettings();
+    const df = s.dataFormats || {};
+    return deepMerge(DEFAULTS.dataFormats.logisticsFixedColumnImport, df.logisticsFixedColumnImport || {});
+}
+
+/** 顧客向けAPI用（見積PDFなど） */
+async function getPublicBranding() {
+    const s = await getSettings();
+    const df = s.dataFormats || {};
+    return deepMerge(DEFAULTS.dataFormats.publicBranding, df.publicBranding || {});
+}
+
 module.exports = {
     getSettings,
     getMailConfig,
@@ -380,5 +531,10 @@ module.exports = {
     DEFAULT_RANK_IDS,
     MAX_RANK_COUNT,
     updateSettings,
-    applyTemplate
+    applyTemplate,
+    getOrderCsvExportSpec,
+    getPriceListFormatConfig,
+    getLogisticsCsvImportConfig,
+    getLogisticsFixedColumnImportConfig,
+    getPublicBranding
 };

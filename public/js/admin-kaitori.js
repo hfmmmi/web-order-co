@@ -49,6 +49,16 @@ document.addEventListener("DOMContentLoaded", function () {
     document.addEventListener("admin-ready", function() {
         console.log("🚀 Kaitori: Auth Signal Received.");
         loadKaitoriList(); // 初期表示
+
+        fetch("/api/admin/settings")
+            .then((res) => (res.ok ? res.json() : {}))
+            .then((data) => {
+                const prim = data.dataFormats && data.dataFormats.priceListCategories
+                    ? data.dataFormats.priceListCategories.manufacturerSplitCategory
+                    : "";
+                if (prim) view.setPrimaryProductCategory(prim);
+            })
+            .catch(() => {});
         
         // 裏でマスタも取得しておく (URL修正: /api削除)
         fetch("/kaitori-master")
