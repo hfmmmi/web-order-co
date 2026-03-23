@@ -54,6 +54,26 @@ window.toastError = (msg, duration) => window.showToast(msg, 'error', duration);
 window.toastWarning = (msg, duration) => window.showToast(msg, 'warning', duration);
 window.toastInfo = (msg, duration) => window.showToast(msg, 'info', duration);
 
+/**
+ * 管理画面向け fetch。credentials を付与し、401 時はトースト後にログインへ誘導。
+ * @param {string|URL} url
+ * @param {RequestInit} [init]
+ * @returns {Promise<Response>}
+ */
+window.adminApiFetch = async function (url, init) {
+    const res = await fetch(url, { credentials: "include", ...(init || {}) });
+    if (res.status === 401) {
+        let msg = "再ログインが必要です";
+        try {
+            const j = await res.clone().json();
+            if (j && j.message) msg = j.message;
+        } catch (e) { /* 非JSON */ }
+        if (window.toastError) window.toastError(msg);
+        window.location.href = "../index.html";
+    }
+    return res;
+};
+
 // --- ⏱️ 無操作監視タイマー (Activity Watcher) ---
 const TIMEOUT_LIMIT = 120 * 60 * 1000; // 120分
 let inactivityTimer;

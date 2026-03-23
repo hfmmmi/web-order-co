@@ -2,6 +2,7 @@ const path = require("path");
 const fs = require("fs").promises;
 const { randomUUID } = require("crypto");
 const { dbPath } = require("../dbPaths");
+const { runWithJsonFileWriteLock } = require("../utils/jsonWriteQueue");
 
 const STOCKS_DB = dbPath("stocks.json");
 const ADAPTER_CONFIG_DB = dbPath("config/stocks-adapters.json");
@@ -70,6 +71,11 @@ class StockService {
         await this._writeJson(STOCKS_DB, list);
     }
 
+    /** stocks.json の read-modify-write をプロセス内で直列化 */
+    _withStocksLock(task) {
+        return runWithJsonFileWriteLock(STOCKS_DB, () => task());
+    }
+
     _normalizeEntry(entry = {}) {
         const totalQty = Number.isFinite(entry.totalQty) ? entry.totalQty : 0;
         const reservedQty = Number.isFinite(entry.reservedQty) ? entry.reservedQty : 0;
@@ -109,19 +115,21 @@ class StockService {
         if (!entry || !entry.productCode) {
             throw new Error("productCode is required");
         }
-        const stocks = await this._readStocks();
-        const normalized = this._normalizeEntry(entry);
-        const index = stocks.findIndex(s => s.productCode === normalized.productCode);
-        if (index === -1) {
-            stocks.push(normalized);
-        } else {
-            stocks[index] = {
-                ...stocks[index],
-                ...normalized
-            };
-        }
-        await this._writeStocks(stocks);
-        return normalized;
+        return this._withStocksLock(async () => {
+            const stocks = await this._readStocks();
+            const normalized = this._normalizeEntry(entry);
+            const index = stocks.findIndex((s) => s.productCode === normalized.productCode);
+            if (index === -1) {
+                stocks.push(normalized);
+            } else {
+                stocks[index] = {
+                    ...stocks[index],
+                    ...normalized
+                };
+            }
+            await this._writeStocks(stocks);
+            return normalized;
+        });
     }
 
     async syncStocks(inputList, options = {}) {
@@ -138,46 +146,48 @@ class StockService {
             allowPartial = true
         } = options;
 
-        const existing = await this._readStocks();
-        const byCode = new Map(existing.map(item => [item.productCode, item]));
-
         let successCount = 0;
         let skippedCount = 0;
         let errorRows = [];
 
-        inputList.forEach((row, idx) => {
-            if (!row || !row.productCode) {
-                errorRows.push({ row: idx + 1, reason: "商品コードが空です" });
-                return;
-            }
+        await this._withStocksLock(async () => {
+            const existing = await this._readStocks();
+            const byCode = new Map(existing.map((item) => [item.productCode, item]));
 
-            const current = byCode.get(row.productCode);
-            if (skipLocked && current && current.manualLock) {
-                skippedCount++;
-                return;
-            }
+            inputList.forEach((row, idx) => {
+                if (!row || !row.productCode) {
+                    errorRows.push({ row: idx + 1, reason: "商品コードが空です" });
+                    return;
+                }
 
-            const normalized = this._normalizeEntry({
-                ...current,
-                ...row,
-                source,
-                lastSyncedAt: row.timestamp || new Date().toISOString()
+                const current = byCode.get(row.productCode);
+                if (skipLocked && current && current.manualLock) {
+                    skippedCount++;
+                    return;
+                }
+
+                const normalized = this._normalizeEntry({
+                    ...current,
+                    ...row,
+                    source,
+                    lastSyncedAt: row.timestamp || new Date().toISOString()
+                });
+
+                if (!Number.isFinite(row.totalQty) && normalized.warehouses.length > 0) {
+                    normalized.totalQty = normalized.warehouses.reduce((sum, wh) => sum + (wh.qty || 0), 0);
+                }
+
+                byCode.set(normalized.productCode, normalized);
+                successCount++;
             });
 
-            // totalQty が未指定の場合は倉庫合計を採用
-            if (!Number.isFinite(row.totalQty) && normalized.warehouses.length > 0) {
-                normalized.totalQty = normalized.warehouses.reduce((sum, wh) => sum + (wh.qty || 0), 0);
+            if (!allowPartial && errorRows.length > 0) {
+                throw new Error("データ検証に失敗しました");
             }
 
-            byCode.set(normalized.productCode, normalized);
-            successCount++;
+            await this._writeStocks(Array.from(byCode.values()));
         });
 
-        if (!allowPartial && errorRows.length > 0) {
-            throw new Error("データ検証に失敗しました");
-        }
-
-        await this._writeStocks(Array.from(byCode.values()));
         await this._appendHistory({
             id: randomUUID(),
             adapterId,
@@ -199,44 +209,47 @@ class StockService {
             throw new Error("reservation items required");
         }
 
-        const stocks = await this._readStocks();
-        const issues = [];
+        await this._withStocksLock(async () => {
+            const stocks = await this._readStocks();
+            const issues = [];
 
-        items.forEach(item => {
-            const code = item.productCode || item.code;
-            const quantity = Number(item.quantity) || 0;
-            if (!code || quantity <= 0) return;
+            items.forEach((item) => {
+                const code = item.productCode || item.code;
+                const quantity = Number(item.quantity) || 0;
+                if (!code || quantity <= 0) return;
 
-            const target = stocks.find(s => s.productCode === code);
-            if (!target) {
-                issues.push(`${code}: 在庫マスタなし`);
-                return;
+                const target = stocks.find((s) => s.productCode === code);
+                if (!target) {
+                    issues.push(`${code}: 在庫マスタなし`);
+                    return;
+                }
+
+                const available = Math.max(target.totalQty - target.reservedQty, 0);
+                if (available < quantity) {
+                    issues.push(`${code}: 在庫不足 (必要${quantity} / 残${available})`);
+                }
+            });
+
+            if (issues.length > 0) {
+                const message = metadata.silent ? "在庫不足" : issues.join(", ");
+                const error = new Error(message);
+                error.code = "STOCK_SHORTAGE";
+                error.details = issues;
+                throw error;
             }
 
-            const available = Math.max(target.totalQty - target.reservedQty, 0);
-            if (available < quantity) {
-                issues.push(`${code}: 在庫不足 (必要${quantity} / 残${available})`);
-            }
+            items.forEach((item) => {
+                const code = item.productCode || item.code;
+                const quantity = Number(item.quantity) || 0;
+                const target = stocks.find((s) => s.productCode === code);
+                if (!target) return;
+                target.reservedQty = (target.reservedQty || 0) + quantity;
+                target.lastSyncedAt = new Date().toISOString();
+            });
+
+            await this._writeStocks(stocks);
         });
 
-        if (issues.length > 0) {
-            const message = metadata.silent ? "在庫不足" : issues.join(", ");
-            const error = new Error(message);
-            error.code = "STOCK_SHORTAGE";
-            error.details = issues;
-            throw error;
-        }
-
-        items.forEach(item => {
-            const code = item.productCode || item.code;
-            const quantity = Number(item.quantity) || 0;
-            const target = stocks.find(s => s.productCode === code);
-            if (!target) return;
-            target.reservedQty = (target.reservedQty || 0) + quantity;
-            target.lastSyncedAt = new Date().toISOString();
-        });
-
-        await this._writeStocks(stocks);
         await this._appendHistory({
             id: randomUUID(),
             adapterId: "order-reserve",
@@ -253,20 +266,24 @@ class StockService {
 
     async release(items, metadata = {}) {
         if (!Array.isArray(items) || items.length === 0) return false;
-        const stocks = await this._readStocks();
 
-        items.forEach(item => {
-            const code = item.productCode || item.code;
-            const quantity = Number(item.quantity) || 0;
-            if (!code || quantity <= 0) return;
-            const target = stocks.find(s => s.productCode === code);
-            if (!target) return;
-            const updated = (target.reservedQty || 0) - quantity;
-            target.reservedQty = updated < 0 ? 0 : updated;
-            target.lastSyncedAt = new Date().toISOString();
+        await this._withStocksLock(async () => {
+            const stocks = await this._readStocks();
+
+            items.forEach((item) => {
+                const code = item.productCode || item.code;
+                const quantity = Number(item.quantity) || 0;
+                if (!code || quantity <= 0) return;
+                const target = stocks.find((s) => s.productCode === code);
+                if (!target) return;
+                const updated = (target.reservedQty || 0) - quantity;
+                target.reservedQty = updated < 0 ? 0 : updated;
+                target.lastSyncedAt = new Date().toISOString();
+            });
+
+            await this._writeStocks(stocks);
         });
 
-        await this._writeStocks(stocks);
         await this._appendHistory({
             id: randomUUID(),
             adapterId: "order-release",
@@ -283,12 +300,14 @@ class StockService {
 
     async toggleManualLock(productCode, locked) {
         if (!productCode) return;
-        const stocks = await this._readStocks();
-        const target = stocks.find(s => s.productCode === productCode);
-        if (!target) return;
-        target.manualLock = !!locked;
-        target.lastSyncedAt = new Date().toISOString();
-        await this._writeStocks(stocks);
+        await this._withStocksLock(async () => {
+            const stocks = await this._readStocks();
+            const target = stocks.find((s) => s.productCode === productCode);
+            if (!target) return;
+            target.manualLock = !!locked;
+            target.lastSyncedAt = new Date().toISOString();
+            await this._writeStocks(stocks);
+        });
     }
 
     async getDisplaySettings() {

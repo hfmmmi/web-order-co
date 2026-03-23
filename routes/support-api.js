@@ -8,6 +8,7 @@ const crypto = require("crypto");
 const fs = require("fs").promises;
 const mailService = require("../services/mailService");
 const { dbPath, DATA_ROOT } = require("../dbPaths");
+const { runWithJsonFileWriteLock } = require("../utils/jsonWriteQueue");
 
 const SUPPORT_DB_PATH = dbPath("support_tickets.json");
 const ATTACH_DIR_NAME = "support_attachments";
@@ -127,12 +128,6 @@ router.post("/request-support", async (req, res) => {
 
     const newRequest = req.body && typeof req.body === "object" ? req.body : {};
     try {
-        let tickets = [];
-        try {
-            const data = await fs.readFile(SUPPORT_DB_PATH, "utf-8");
-            tickets = JSON.parse(data);
-        } catch (e) { tickets = []; }
-
         const ticketId = "T-" + Date.now().toString(36).toUpperCase();
 
         let attachmentRecords = [];
@@ -168,8 +163,18 @@ router.post("/request-support", async (req, res) => {
             attachments: attachmentRecords
         };
 
-        tickets.push(ticketData);
-        await fs.writeFile(SUPPORT_DB_PATH, JSON.stringify(tickets, null, 2));
+        await runWithJsonFileWriteLock(SUPPORT_DB_PATH, async () => {
+            let tickets = [];
+            try {
+                const data = await fs.readFile(SUPPORT_DB_PATH, "utf-8");
+                tickets = JSON.parse(data);
+                if (!Array.isArray(tickets)) tickets = [];
+            } catch (e) {
+                tickets = [];
+            }
+            tickets.push(ticketData);
+            await fs.writeFile(SUPPORT_DB_PATH, JSON.stringify(tickets, null, 2));
+        });
 
         mailService.sendSupportNotification(ticketData).catch((e) => {
             console.error("メール送信失敗:", e);
@@ -260,35 +265,41 @@ router.post("/admin/update-ticket", async (req, res) => {
     } = req.body;
 
     try {
-        const data = await fs.readFile(SUPPORT_DB_PATH, "utf-8");
-        let tickets = JSON.parse(data);
         let updated = false;
+        await runWithJsonFileWriteLock(SUPPORT_DB_PATH, async () => {
+            const data = await fs.readFile(SUPPORT_DB_PATH, "utf-8");
+            let tickets = JSON.parse(data);
+            if (!Array.isArray(tickets)) tickets = [];
 
-        tickets = tickets.map(t => {
-            if (t.ticketId === ticketId) {
-                t.status = status;
+            tickets = tickets.map((t) => {
+                if (t.ticketId === ticketId) {
+                    t.status = status;
 
-                if (internalOrderNo !== undefined) t.internalOrderNo = internalOrderNo;
-                if (internalCustomerPoNumber !== undefined) t.internalCustomerPoNumber = internalCustomerPoNumber;
+                    if (internalOrderNo !== undefined) t.internalOrderNo = internalOrderNo;
+                    if (internalCustomerPoNumber !== undefined) t.internalCustomerPoNumber = internalCustomerPoNumber;
 
-                if (desiredAction !== undefined) t.desiredAction = desiredAction;
-                if (collectionDate !== undefined) t.collectionDate = collectionDate;
+                    if (desiredAction !== undefined) t.desiredAction = desiredAction;
+                    if (collectionDate !== undefined) t.collectionDate = collectionDate;
 
-                if (newHistoryLog) {
-                    if (!t.history) t.history = [];
-                    t.history.push({
-                        date: new Date().toISOString(),
-                        action: newHistoryLog,
-                        by: req.session.adminName || "Admin"
-                    });
+                    if (newHistoryLog) {
+                        if (!t.history) t.history = [];
+                        t.history.push({
+                            date: new Date().toISOString(),
+                            action: newHistoryLog,
+                            by: req.session.adminName || "Admin"
+                        });
+                    }
+                    updated = true;
                 }
-                updated = true;
+                return t;
+            });
+
+            if (updated) {
+                await fs.writeFile(SUPPORT_DB_PATH, JSON.stringify(tickets, null, 2));
             }
-            return t;
         });
 
         if (updated) {
-            await fs.writeFile(SUPPORT_DB_PATH, JSON.stringify(tickets, null, 2));
             res.json({ success: true, message: "チケット情報を更新しました" });
         } else {
             res.status(404).json({ success: false, message: "チケットが見つかりません" });

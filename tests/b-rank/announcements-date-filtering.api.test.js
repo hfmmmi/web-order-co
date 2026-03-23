@@ -16,6 +16,8 @@ const {
 
 describe("Bランク: お知らせの日付境界フィルタ", () => {
     let backup;
+    const OriginalDate = global.Date;
+    const FIXED_MS = OriginalDate.parse("2026-01-01T12:00:00.000Z");
 
     beforeAll(async () => {
         backup = await backupDbFiles();
@@ -27,12 +29,24 @@ describe("Bランク: お知らせの日付境界フィルタ", () => {
 
     beforeEach(async () => {
         await seedBaseData();
-        jest.useFakeTimers();
-        jest.setSystemTime(new Date("2026-01-01T12:00:00.000Z"));
+        // jest.useFakeTimers は supertest / Express と相性が悪くタイムアウトするため、
+        // サーバー側の new Date() / Date.now() のみ固定する
+        global.Date = class extends OriginalDate {
+            constructor(...args) {
+                if (args.length === 0) {
+                    super(FIXED_MS);
+                } else {
+                    super(...args);
+                }
+            }
+            static now() {
+                return FIXED_MS;
+            }
+        };
     });
 
     afterEach(() => {
-        jest.useRealTimers();
+        global.Date = OriginalDate;
     });
 
     test("start/end の境界とタイムゾーン付き日時を正しく評価する", async () => {

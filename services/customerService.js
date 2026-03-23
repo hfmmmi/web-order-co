@@ -1,10 +1,10 @@
 // services/customerService.js
 // 顧客管理に関する実務ロジック（検索・登録・更新・Excel取込）を担当
-const path = require("path");
 const fs = require("fs").promises;
 const bcrypt = require("bcryptjs");
 const { readToRowArrays } = require("../utils/excelReader");
 const { dbPath } = require("../dbPaths");
+const { runWithJsonFileWriteLock } = require("../utils/jsonWriteQueue");
 
 // DBパス設定
 const CUSTOMERS_DB_PATH = dbPath("customers.json");
@@ -20,11 +20,6 @@ class CustomerService {
             console.error("[CustomerService] Load Error:", error);
             return []; // エラー時は空配列を返す（ファイルがない場合など）
         }
-    }
-
-    // 2. 保存（内部用）
-    async _save(data) {
-        await fs.writeFile(CUSTOMERS_DB_PATH, JSON.stringify(data, null, 2));
     }
 
     // ★追加: 全顧客取得（API互換性のため）
@@ -68,47 +63,49 @@ class CustomerService {
 
     // 4. 顧客追加
     async addCustomer({ customerId, customerName, password, priceRank, email }) {
-        const list = await this._loadAll();
+        return runWithJsonFileWriteLock(CUSTOMERS_DB_PATH, async () => {
+            const list = await this._loadAll();
 
-        if (list.find(c => c.customerId === customerId)) {
-            return { success: false, message: "このIDは既に使用されています" };
-        }
+            if (list.find(c => c.customerId === customerId)) {
+                return { success: false, message: "このIDは既に使用されています" };
+            }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
-        
-        // ★修正: pushではなく新しいリストを作成
-        const newList = [...list, {
-            customerId: String(customerId).trim(),
-            customerName: String(customerName).trim(),
-            password: hashedPassword,
-            priceRank: priceRank ? String(priceRank).trim().toUpperCase() : "",
-            email: email ? String(email).trim() : ""
-        }];
+            const hashedPassword = await bcrypt.hash(password, 10);
 
-        await this._save(newList);
-        return { success: true, message: "顧客を登録しました" };
+            const newList = [...list, {
+                customerId: String(customerId).trim(),
+                customerName: String(customerName).trim(),
+                password: hashedPassword,
+                priceRank: priceRank ? String(priceRank).trim().toUpperCase() : "",
+                email: email ? String(email).trim() : ""
+            }];
+
+            await fs.writeFile(CUSTOMERS_DB_PATH, JSON.stringify(newList, null, 2));
+            return { success: true, message: "顧客を登録しました" };
+        });
     }
 
     // 5. 顧客更新
     async updateCustomer({ customerId, customerName, password, priceRank, email }) {
-        const list = await this._loadAll();
-        const index = list.findIndex(c => c.customerId === customerId);
+        return runWithJsonFileWriteLock(CUSTOMERS_DB_PATH, async () => {
+            const list = await this._loadAll();
+            const index = list.findIndex(c => c.customerId === customerId);
 
-        if (index === -1) {
-            return { success: false, message: "顧客が見つかりません" };
-        }
+            if (index === -1) {
+                return { success: false, message: "顧客が見つかりません" };
+            }
 
-        list[index].customerName = String(customerName).trim();
-        list[index].priceRank = priceRank ? String(priceRank).trim().toUpperCase() : "";
-        list[index].email = email !== undefined ? String(email || "").trim() : (list[index].email || "");
+            list[index].customerName = String(customerName).trim();
+            list[index].priceRank = priceRank ? String(priceRank).trim().toUpperCase() : "";
+            list[index].email = email !== undefined ? String(email || "").trim() : (list[index].email || "");
 
-        // パスワードが入力されている場合のみ更新
-        if (password && String(password).trim() !== "") {
-            list[index].password = await bcrypt.hash(String(password).trim(), 10);
-        }
+            if (password && String(password).trim() !== "") {
+                list[index].password = await bcrypt.hash(String(password).trim(), 10);
+            }
 
-        await this._save(list);
-        return { success: true, message: "顧客情報を更新しました" };
+            await fs.writeFile(CUSTOMERS_DB_PATH, JSON.stringify(list, null, 2));
+            return { success: true, message: "顧客情報を更新しました" };
+        });
     }
 
     // 6. Excel一括取込（exceljs 使用・社外アップロード対応）
@@ -116,49 +113,47 @@ class CustomerService {
         try {
             const jsonData = await readToRowArrays(fileBuffer);
 
-            let customerList = await this._loadAll();
-            let updateCount = 0;
-            let addCount = 0;
+            return runWithJsonFileWriteLock(CUSTOMERS_DB_PATH, async () => {
+                let customerList = await this._loadAll();
+                let updateCount = 0;
+                let addCount = 0;
 
-            // 1行目はヘッダーとみなし、2行目から処理
-            // 非同期処理(bcrypt)を含むため for...of ループを使用
-            for (let i = 1; i < jsonData.length; i++) {
-                const row = jsonData[i];
-                if (!row || row.length < 2) continue; // ID, PASS必須
+                for (let i = 1; i < jsonData.length; i++) {
+                    const row = jsonData[i];
+                    if (!row || row.length < 2) continue;
 
-                const inputId = String(row[0]).trim();
-                const inputPass = String(row[1]).trim();
-                const inputName = row[2] ? String(row[2]).trim() : "名称未設定";
-                const inputRank = row[3] ? String(row[3]).trim().toUpperCase() : "";
-                const inputEmail = row[4] ? String(row[4]).trim() : "";
+                    const inputId = String(row[0]).trim();
+                    const inputPass = String(row[1]).trim();
+                    const inputName = row[2] ? String(row[2]).trim() : "名称未設定";
+                    const inputRank = row[3] ? String(row[3]).trim().toUpperCase() : "";
+                    const inputEmail = row[4] ? String(row[4]).trim() : "";
 
-                if (!inputId || !inputPass) continue;
+                    if (!inputId || !inputPass) continue;
 
-                const hashedPassword = await bcrypt.hash(inputPass, 10);
-                const idx = customerList.findIndex(c => c.customerId === inputId);
+                    const hashedPassword = await bcrypt.hash(inputPass, 10);
+                    const idx = customerList.findIndex(c => c.customerId === inputId);
 
-                if (idx !== -1) {
-                    // 更新
-                    customerList[idx].password = hashedPassword;
-                    customerList[idx].customerName = inputName;
-                    customerList[idx].priceRank = inputRank;
-                    if (inputEmail) customerList[idx].email = inputEmail;
-                    updateCount++;
-                } else {
-                    // 新規
-                    customerList.push({
-                        customerId: inputId,
-                        password: hashedPassword,
-                        customerName: inputName,
-                        priceRank: inputRank,
-                        email: inputEmail
-                    });
-                    addCount++;
+                    if (idx !== -1) {
+                        customerList[idx].password = hashedPassword;
+                        customerList[idx].customerName = inputName;
+                        customerList[idx].priceRank = inputRank;
+                        if (inputEmail) customerList[idx].email = inputEmail;
+                        updateCount++;
+                    } else {
+                        customerList.push({
+                            customerId: inputId,
+                            password: hashedPassword,
+                            customerName: inputName,
+                            priceRank: inputRank,
+                            email: inputEmail
+                        });
+                        addCount++;
+                    }
                 }
-            }
 
-            await this._save(customerList);
-            return { success: true, message: `取込成功: 更新${updateCount}件 / 新規${addCount}件` };
+                await fs.writeFile(CUSTOMERS_DB_PATH, JSON.stringify(customerList, null, 2));
+                return { success: true, message: `取込成功: 更新${updateCount}件 / 新規${addCount}件` };
+            });
 
         } catch (error) {
             console.error("[CustomerService] Import Error:", error);
@@ -169,18 +164,20 @@ class CustomerService {
 
     // ★New: 7. パスワード更新専用（ユーザー初期設定用）
     async updateCustomerPassword(customerId, newPassword) {
-        const list = await this._loadAll();
-        const index = list.findIndex(c => c.customerId === customerId);
+        return runWithJsonFileWriteLock(CUSTOMERS_DB_PATH, async () => {
+            const list = await this._loadAll();
+            const index = list.findIndex(c => c.customerId === customerId);
 
-        if (index === -1) {
-            return { success: false, message: "IDが見つかりません" };
-        }
+            if (index === -1) {
+                return { success: false, message: "IDが見つかりません" };
+            }
 
-        const hashedPassword = await bcrypt.hash(String(newPassword).trim(), 10);
-        list[index].password = hashedPassword;
+            const hashedPassword = await bcrypt.hash(String(newPassword).trim(), 10);
+            list[index].password = hashedPassword;
 
-        await this._save(list);
-        return { success: true, message: "パスワード設定が完了しました" };
+            await fs.writeFile(CUSTOMERS_DB_PATH, JSON.stringify(list, null, 2));
+            return { success: true, message: "パスワード設定が完了しました" };
+        });
     }
 
     // 8. 顧客IDで1件取得（メール送信用など、email含む。代理ログイン許可フラグ含む）
@@ -199,14 +196,16 @@ class CustomerService {
 
     // 9. 顧客本人による「管理者の代理ログインを許可」の更新（アカウント設定用）
     async updateCustomerAllowProxy(customerId, allowProxyLogin) {
-        const list = await this._loadAll();
-        const index = list.findIndex(c => c.customerId === customerId);
-        if (index === -1) {
-            return { success: false, message: "顧客が見つかりません" };
-        }
-        list[index].allowProxyLogin = allowProxyLogin === true;
-        await this._save(list);
-        return { success: true, message: "設定を保存しました" };
+        return runWithJsonFileWriteLock(CUSTOMERS_DB_PATH, async () => {
+            const list = await this._loadAll();
+            const index = list.findIndex(c => c.customerId === customerId);
+            if (index === -1) {
+                return { success: false, message: "顧客が見つかりません" };
+            }
+            list[index].allowProxyLogin = allowProxyLogin === true;
+            await fs.writeFile(CUSTOMERS_DB_PATH, JSON.stringify(list, null, 2));
+            return { success: true, message: "設定を保存しました" };
+        });
     }
 }
 

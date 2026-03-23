@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">54.65% </span>
+                <span class="strong">55.62% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>88/161</span>
+                <span class='fraction'>94/169</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">45.03% </span>
+                <span class="strong">45.85% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>68/151</span>
+                <span class='fraction'>72/157</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">52.63% </span>
+                <span class="strong">57.14% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>10/19</span>
+                <span class='fraction'>12/21</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">55.17% </span>
+                <span class="strong">56.95% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>80/145</span>
+                <span class='fraction'>86/151</span>
             </div>
         
             
@@ -365,9 +365,21 @@
 <a name='L300'></a><a href='#L300'>300</a>
 <a name='L301'></a><a href='#L301'>301</a>
 <a name='L302'></a><a href='#L302'>302</a>
-<a name='L303'></a><a href='#L303'>303</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L303'></a><a href='#L303'>303</a>
+<a name='L304'></a><a href='#L304'>304</a>
+<a name='L305'></a><a href='#L305'>305</a>
+<a name='L306'></a><a href='#L306'>306</a>
+<a name='L307'></a><a href='#L307'>307</a>
+<a name='L308'></a><a href='#L308'>308</a>
+<a name='L309'></a><a href='#L309'>309</a>
+<a name='L310'></a><a href='#L310'>310</a>
+<a name='L311'></a><a href='#L311'>311</a>
+<a name='L312'></a><a href='#L312'>312</a>
+<a name='L313'></a><a href='#L313'>313</a>
+<a name='L314'></a><a href='#L314'>314</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">62x</span>
 <span class="cline-any cline-yes">62x</span>
 <span class="cline-any cline-yes">62x</span>
 <span class="cline-any cline-yes">62x</span>
@@ -495,12 +507,6 @@
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">9x</span>
@@ -537,6 +543,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -629,6 +645,8 @@
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
@@ -656,6 +674,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -677,6 +699,7 @@ const crypto = require("crypto");
 const fs = require("fs").promises;
 const mailService = require("../services/mailService");
 const { dbPath, DATA_ROOT } = require("../dbPaths");
+const { runWithJsonFileWriteLock } = require("../utils/jsonWriteQueue");
 &nbsp;
 const SUPPORT_DB_PATH = dbPath("support_tickets.json");
 const ATTACH_DIR_NAME = "support_attachments";
@@ -796,12 +819,6 @@ router.post("/request-support", async (req, res) =&gt; {
 &nbsp;
     const newRequest = req.body &amp;&amp; typeof req.body === "object" ? req.body : <span class="branch-1 cbranch-no" title="branch not covered" >{};</span>
     try {
-        let tickets = [];
-        try {
-            const data = await fs.readFile(SUPPORT_DB_PATH, "utf-8");
-            tickets = JSON.parse(data);
-        } catch (e) { <span class="cstat-no" title="statement not covered" >tickets = []; </span>}
-&nbsp;
         const ticketId = "T-" + Date.now().toString(36).toUpperCase();
 &nbsp;
         let attachmentRecords = [];
@@ -837,8 +854,18 @@ router.post("/request-support", async (req, res) =&gt; {
             attachments: attachmentRecords
         };
 &nbsp;
-        tickets.push(ticketData);
-        await fs.writeFile(SUPPORT_DB_PATH, JSON.stringify(tickets, null, 2));
+        await runWithJsonFileWriteLock(SUPPORT_DB_PATH, async () =&gt; {
+            let tickets = [];
+            try {
+                const data = await fs.readFile(SUPPORT_DB_PATH, "utf-8");
+                tickets = JSON.parse(data);
+                <span class="missing-if-branch" title="if path not taken" >I</span>if (!Array.isArray(tickets)) <span class="cstat-no" title="statement not covered" >tickets = [];</span>
+            } catch (e) {
+<span class="cstat-no" title="statement not covered" >                tickets = [];</span>
+            }
+            tickets.push(ticketData);
+            await fs.writeFile(SUPPORT_DB_PATH, JSON.stringify(tickets, null, 2));
+        });
 &nbsp;
         mailService.sendSupportNotification(ticketData).catch((e) =&gt; {
             console.error("メール送信失敗:", e);
@@ -929,35 +956,41 @@ router.post("/admin/update-ticket", async (req, res) =&gt; {
     } = req.body;
 &nbsp;
     try {
-        const data = await fs.readFile(SUPPORT_DB_PATH, "utf-8");
-        let tickets = JSON.parse(data);
         let updated = false;
+        await runWithJsonFileWriteLock(SUPPORT_DB_PATH, async () =&gt; {
+            const data = await fs.readFile(SUPPORT_DB_PATH, "utf-8");
+            let tickets = JSON.parse(data);
+            <span class="missing-if-branch" title="if path not taken" >I</span>if (!Array.isArray(tickets)) <span class="cstat-no" title="statement not covered" >tickets = [];</span>
 &nbsp;
-        tickets = tickets.map(t =&gt; {
-            <span class="missing-if-branch" title="else path not taken" >E</span>if (t.ticketId === ticketId) {
-                t.status = status;
+            tickets = tickets.map((t) =&gt; {
+                <span class="missing-if-branch" title="else path not taken" >E</span>if (t.ticketId === ticketId) {
+                    t.status = status;
 &nbsp;
-                if (internalOrderNo !== undefined) t.internalOrderNo = internalOrderNo;
-                if (internalCustomerPoNumber !== undefined) t.internalCustomerPoNumber = internalCustomerPoNumber;
+                    if (internalOrderNo !== undefined) t.internalOrderNo = internalOrderNo;
+                    if (internalCustomerPoNumber !== undefined) t.internalCustomerPoNumber = internalCustomerPoNumber;
 &nbsp;
-                if (desiredAction !== undefined) t.desiredAction = desiredAction;
-                if (collectionDate !== undefined) t.collectionDate = collectionDate;
+                    if (desiredAction !== undefined) t.desiredAction = desiredAction;
+                    if (collectionDate !== undefined) t.collectionDate = collectionDate;
 &nbsp;
-                if (newHistoryLog) {
-                    <span class="missing-if-branch" title="if path not taken" >I</span>if (!t.history) <span class="cstat-no" title="statement not covered" >t.history = [];</span>
-                    t.history.push({
-                        date: new Date().toISOString(),
-                        action: newHistoryLog,
-                        by: req.session.adminName || <span class="branch-1 cbranch-no" title="branch not covered" >"Admin"</span>
-                    });
+                    if (newHistoryLog) {
+                        <span class="missing-if-branch" title="if path not taken" >I</span>if (!t.history) <span class="cstat-no" title="statement not covered" >t.history = [];</span>
+                        t.history.push({
+                            date: new Date().toISOString(),
+                            action: newHistoryLog,
+                            by: req.session.adminName || <span class="branch-1 cbranch-no" title="branch not covered" >"Admin"</span>
+                        });
+                    }
+                    updated = true;
                 }
-                updated = true;
+                return t;
+            });
+&nbsp;
+            if (updated) {
+                await fs.writeFile(SUPPORT_DB_PATH, JSON.stringify(tickets, null, 2));
             }
-            return t;
         });
 &nbsp;
         if (updated) {
-            await fs.writeFile(SUPPORT_DB_PATH, JSON.stringify(tickets, null, 2));
             res.json({ success: true, message: "チケット情報を更新しました" });
         } else {
             res.status(404).json({ success: false, message: "チケットが見つかりません" });
@@ -976,7 +1009,7 @@ module.exports = router;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-21T22:14:58.248Z
+                at 2026-03-23T00:12:25.447Z
             </div>
         <script src="../prettify.js"></script>
         <script>

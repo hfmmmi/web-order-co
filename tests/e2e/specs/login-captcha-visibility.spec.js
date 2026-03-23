@@ -111,7 +111,15 @@ test("顧客E2E: siteKey 切替後も CAPTCHA 表示状態が破綻しない", a
     });
 
     try {
+        const publicReady = page.waitForResponse(
+            (res) => res.url().includes("/api/settings/public") && res.status() === 200
+        );
         await page.goto("/index.html");
+        await publicReady;
+        const pub = await request.get("/api/settings/public");
+        expect(pub.ok()).toBeTruthy();
+        expect((await pub.json()).recaptchaSiteKey).toBe("site-key-e2e");
+
         await page.fill("#username-input", "TEST001");
         await page.fill("#password-input", "WrongPassword!");
         await primeCustomerLoginFailures(request, 2);

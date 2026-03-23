@@ -2,8 +2,8 @@
 // 【役割】システム設定の読み書きを一手に担う共通基盤
 
 const fs = require("fs").promises;
-const path = require("path");
 const { dbPath } = require("../dbPaths");
+const { runWithJsonFileWriteLock } = require("../utils/jsonWriteQueue");
 
 const SETTINGS_FILE = dbPath("settings.json");
 const isProduction = process.env.NODE_ENV === "production";
@@ -388,29 +388,29 @@ async function updateSettings(partial) {
         delete sanitized.recaptcha.secretKey;
     }
 
-    const current = await loadRaw();
-    const merged = deepMerge(current, sanitized);
+    return runWithJsonFileWriteLock(SETTINGS_FILE, async () => {
+        const current = await loadRaw();
+        const merged = deepMerge(current, sanitized);
 
-    // 本番環境では settings.json から SMTP パスワードを必ず除去（平文保存を禁止）
-    if (isProduction && merged.mail && merged.mail.smtp) {
-        delete merged.mail.smtp.password;
-    }
-    if (sanitized.recaptcha && !merged.recaptcha.secretKey && current.recaptcha && current.recaptcha.secretKey) {
-        merged.recaptcha.secretKey = current.recaptcha.secretKey;
-    }
-    // お知らせは配列なので明示的に上書き（deepMerge で配列が正しく渡るよう念のため）
-    if (Array.isArray(sanitized.announcements)) {
-        merged.announcements = sanitized.announcements;
-    }
-    if (sanitized.shippingRules !== undefined && typeof sanitized.shippingRules === "object") {
-        merged.shippingRules = sanitized.shippingRules;
-    }
-    if (sanitized.cartShippingNotice !== undefined) {
-        merged.cartShippingNotice = typeof sanitized.cartShippingNotice === "string" ? sanitized.cartShippingNotice : "";
-    }
-    await fs.writeFile(SETTINGS_FILE, JSON.stringify(merged, null, 2), "utf-8");
-    _cache = null; // キャッシュ破棄
-    return merged;
+        if (isProduction && merged.mail && merged.mail.smtp) {
+            delete merged.mail.smtp.password;
+        }
+        if (sanitized.recaptcha && !merged.recaptcha.secretKey && current.recaptcha && current.recaptcha.secretKey) {
+            merged.recaptcha.secretKey = current.recaptcha.secretKey;
+        }
+        if (Array.isArray(sanitized.announcements)) {
+            merged.announcements = sanitized.announcements;
+        }
+        if (sanitized.shippingRules !== undefined && typeof sanitized.shippingRules === "object") {
+            merged.shippingRules = sanitized.shippingRules;
+        }
+        if (sanitized.cartShippingNotice !== undefined) {
+            merged.cartShippingNotice = typeof sanitized.cartShippingNotice === "string" ? sanitized.cartShippingNotice : "";
+        }
+        await fs.writeFile(SETTINGS_FILE, JSON.stringify(merged, null, 2), "utf-8");
+        _cache = null;
+        return merged;
+    });
 }
 
 /**

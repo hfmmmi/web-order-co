@@ -1,11 +1,11 @@
 // services/productService.js
 // 商品管理に関する実務ロジック（CRUD + Excel取込・CSV取込）を担当
-const path = require("path");
 const fs = require("fs").promises;
 const iconv = require("iconv-lite");
 const { parse } = require("csv-parse/sync");
 const { readToRowArrays, ExcelJS } = require("../utils/excelReader");
 const { dbPath } = require("../dbPaths");
+const { runWithJsonFileWriteLock } = require("../utils/jsonWriteQueue");
 const settingsService = require("./settingsService");
 const priceService = require("./priceService");
 
@@ -69,59 +69,65 @@ class ProductService {
 
     // 2. 商品追加（リクエストから正規化して category 等を確実に保存）
     async addProduct(newProduct) {
-        const productMaster = await this.getAllProducts();
-        const code = (newProduct && newProduct.productCode != null) ? String(newProduct.productCode).trim() : "";
-        if (!code) {
-            return { success: false, message: "商品コードは必須です" };
-        }
-        const exists = productMaster.find(p => p.productCode === code);
-        if (exists) {
-            return { success: false, message: "この商品コードは既に存在します" };
-        }
+        return runWithJsonFileWriteLock(PRODUCTS_DB_PATH, async () => {
+            const productMaster = await this.getAllProducts();
+            const code = (newProduct && newProduct.productCode != null) ? String(newProduct.productCode).trim() : "";
+            if (!code) {
+                return { success: false, message: "商品コードは必須です" };
+            }
+            const exists = productMaster.find(p => p.productCode === code);
+            if (exists) {
+                return { success: false, message: "この商品コードは既に存在します" };
+            }
 
-        const normalized = {
-            productCode: code,
-            name: (newProduct.name != null && newProduct.name !== "") ? String(newProduct.name).trim() : code,
-            manufacturer: (newProduct.manufacturer != null) ? String(newProduct.manufacturer).trim() : "",
-            category: (newProduct.category != null) ? String(newProduct.category).trim() : "",
-            basePrice: typeof newProduct.basePrice === "number" && Number.isFinite(newProduct.basePrice) ? Math.max(0, Math.round(newProduct.basePrice)) : 0,
-            stockStatus: (newProduct.stockStatus != null && String(newProduct.stockStatus).trim() !== "") ? String(newProduct.stockStatus).trim() : "即納",
-            active: newProduct.active !== false,
-            rankPrices: (newProduct.rankPrices && typeof newProduct.rankPrices === "object") ? newProduct.rankPrices : {}
-        };
-        if (Object.keys(normalized.rankPrices || {}).length > 0) {
-            normalized.rankPricesUpdatedAt = Date.now();
-        }
-        productMaster.push(normalized);
-        await this._save(productMaster);
-        return { success: true };
+            const normalized = {
+                productCode: code,
+                name: (newProduct.name != null && newProduct.name !== "") ? String(newProduct.name).trim() : code,
+                manufacturer: (newProduct.manufacturer != null) ? String(newProduct.manufacturer).trim() : "",
+                category: (newProduct.category != null) ? String(newProduct.category).trim() : "",
+                basePrice: typeof newProduct.basePrice === "number" && Number.isFinite(newProduct.basePrice) ? Math.max(0, Math.round(newProduct.basePrice)) : 0,
+                stockStatus: (newProduct.stockStatus != null && String(newProduct.stockStatus).trim() !== "") ? String(newProduct.stockStatus).trim() : "即納",
+                active: newProduct.active !== false,
+                rankPrices: (newProduct.rankPrices && typeof newProduct.rankPrices === "object") ? newProduct.rankPrices : {}
+            };
+            if (Object.keys(normalized.rankPrices || {}).length > 0) {
+                normalized.rankPricesUpdatedAt = Date.now();
+            }
+            productMaster.push(normalized);
+            await fs.writeFile(PRODUCTS_DB_PATH, JSON.stringify(productMaster, null, 2));
+            return { success: true };
+        });
     }
 
     // 3. 商品更新
     async updateProduct(updateData) {
-        const productMaster = await this.getAllProducts();
-        const index = productMaster.findIndex(p => p.productCode === updateData.productCode);
+        return runWithJsonFileWriteLock(PRODUCTS_DB_PATH, async () => {
+            const productMaster = await this.getAllProducts();
+            const index = productMaster.findIndex(p => p.productCode === updateData.productCode);
 
-        if (index === -1) {
-            return { success: false, message: "商品が見つかりません" };
-        }
+            if (index === -1) {
+                return { success: false, message: "商品が見つかりません" };
+            }
 
-        productMaster[index] = updateData;
-        await this._save(productMaster);
-        return { success: true };
+            productMaster[index] = updateData;
+            await fs.writeFile(PRODUCTS_DB_PATH, JSON.stringify(productMaster, null, 2));
+            return { success: true };
+        });
     }
 
     // 4. 商品削除
     async deleteProduct(productCode) {
-        const productMaster = await this.getAllProducts();
-        const newMaster = productMaster.filter(p => p.productCode !== productCode);
-        
-        if (productMaster.length === newMaster.length) {
-            return { success: false, message: "削除対象が見つかりません" };
-        }
+        return runWithJsonFileWriteLock(PRODUCTS_DB_PATH, async () => {
+            const productMaster = await this.getAllProducts();
+            const newMaster = productMaster.filter(p => p.productCode !== productCode);
 
-        await this._save(newMaster);
-        return { success: true };
+            if (productMaster.length === newMaster.length) {
+                return { success: false, message: "削除対象が見つかりません" };
+            }
+
+            await fs.writeFile(PRODUCTS_DB_PATH, JSON.stringify(newMaster, null, 2));
+            return { success: true };
+        });
     }
 
     /** Base64 または Buffer を受け取り、Excel一括取込を実行（API用） */
@@ -183,6 +189,7 @@ class ProductService {
                 });
             }
 
+            return await runWithJsonFileWriteLock(PRODUCTS_DB_PATH, async () => {
             const productMaster = await this.getAllProducts();
             let updateCount = 0, addCount = 0;
 
@@ -251,8 +258,9 @@ class ProductService {
                 }
             });
 
-            await this._save(productMaster);
+            await fs.writeFile(PRODUCTS_DB_PATH, JSON.stringify(productMaster, null, 2));
             return { success: true, message: `処理完了: 更新${updateCount}件 / 新規${addCount}件` };
+            });
 
         } catch (error) {
             console.error("[ProductService] Import Error:", error);
@@ -315,10 +323,6 @@ class ProductService {
         return workbook.xlsx.writeBuffer();
     }
 
-    // 内部用: 保存処理
-    async _save(data) {
-        await fs.writeFile(PRODUCTS_DB_PATH, JSON.stringify(data, null, 2));
-    }
 }
 
 module.exports = new ProductService();

@@ -15,12 +15,30 @@
 - 本ルールは**共同編集や別スレッドでの続き**を想定して記載している。途中から別スレで再開する場合は、**「次回スレッドで優先対応すべき事項」** と **「直近スレッド反映済み」** の日付付き項目を確認し、`docs/` 内の該当ドキュメント（test-execution.md、調査メモ_顧客アドレス消失.md、**共同編集の手順.md** 等）を参照して作業を継続すること。
 - **共同編集の手順**は **`docs/共同編集の手順.md`** に集約している。招待方法・初回の流れ（Accept → clone → cd → npm install → Cursor でフォルダを開く）・2回目からの流れ（**pull → 編集 → テスト（推奨）→ push**）・用語（ターミナル／pull／push／コミット）・push 手順（git add . → git commit -m "..." → git push origin main）をエンジニアでない人にも分かるように記載。共同編集者に渡す一文のコピペ用も同 doc にあり。
 
+### 直近スレッド反映済み（2026-03-23 作業方針・コード健全性）
+- **改善の主軸（オーナー方針）**: コードのスパゲッティ解体を常時タスクとしなくてよい。**実際にシステムを使い**、**機能・画面構成・UX** について「こうあると良い」をブレストする活動を優先してよい。
+- **長いファイルとモジュール化**: **行数だけを理由に分割しない**。読みにくい・同じ処理のコピペが増える・複数人で衝突しやすい・テストしたい塊がはっきりしたときに分割する。**一画面・一フローの一直線**なら600行超でも許容範囲になり得る。
+- **任意の技術的改善（必須ではない）**: 以下は **P0 ではない**。困ったとき・余力があるときに検討でよい。(1) ~~**server.js** のミドルウェア分割~~ → **2026-03-23 スレッドで実施済み**（下記「スパゲッティ解消・構造整理」参照）。(2) **customers.json / products.json 等**の read-modify-write を **jsonWriteQueue 未適用のサービスまで横展開**するか、SQLite 等へ移行するか → 必要になったら（現状は **orderService・上記キュー適用箇所**で主要リスクを緩和済み。詳細は **REFACTOR_INVENTORY.md**「JSON 書き込み棚卸し」）。(3) 顧客向けが **`/place-order` 等で /api なし**、管理系が **`/api/...`** の **URL 二系統** → 動作上は問題なし。迷いを減らすなら **API 一覧のドキュメント化**や将来の統一移行で対応でよい。
+- **スパゲッティ度の目安（現状認識）**: **管理者API**はドメイン別ルートに分割済み。**auth-api**はハンドラが集約されるが、**レート制限・reCAPTCHA・管理者名サニタイズ**は **`routes/auth/`** 配下モジュールに分割済み。監査ログ・パスワード再設定依頼・セッションPromiseはサービス/utilsへ抽出済み。**代理ログイン**は **`utils/proxyRequestsStore.js`** の **`mutateProxyRequests`**（**`utils/jsonWriteQueue.js`** で **proxy_requests.json** を直列化）＋ **`loadProxyRequests`** / **`PROXY_REQUEST_EXPIRY_MS`**。
+- **実装（proxy・God Hand）**: admin / auth は **`mutateProxyRequests`** で申請の読み書きを行う（旧 **`saveProxyRequests` パターンは廃止**）。**`public/js/admin-customers.js`** の God Hand サジェストは **`fillGodSuggestList`** に集約。
+- **コード健全性計画（TOCTOU・ID・分割）2026-03-23 実装済み**: **`utils/jsonWriteQueue.js`** の **`runWithJsonFileWriteLock`** を **login_rate_limit.json**（**`routes/auth/loginRateLimit.js`**）、**proxy_requests.json**（上記 mutate）、**kaitori_requests / kaitori_master**（**`routes/kaitori-api.js`**）、**support_tickets.json** の該当更新（**`routes/support-api.js`**）、**stocks.json** 書き込み経路（**`services/stockService.js`** の **`_withStocksLock`**）に適用。**買取 requestId** は **`KR-<timestamp>-<hex8>`** 形式で衝突しにくく生成。**顧客向け在庫表示**は **`utils/stockPresentation.js`**（**`buildStockInfo` / `getStockContext`** 等）を **`routes/products-api.js`** から利用。**管理画面 JS**: **`public/js/admin-products-stock.js`**（在庫ブロック・**admin-products.html** で **admin-products.js の後**に読込）、**`public/js/admin-settings-dataformats.js`**（**`window.AdminSettingsDataFormats`**・**admin-settings.html** で **admin-settings.js より前**に読込）。**網羅・残リスク・マルチプロセス限界**は **`REFACTOR_INVENTORY.md`**（実装後メモ・JSON 棚卸し）を正とする。**変更後は `npm run test:api` で回帰**（全スイート PASS を維持）。
+
+### 直近スレッド反映済み（2026-03-23 スパゲッティ解消計画の実装）
+- **棚卸し**: 行数・ルート数・重複シグナルの表は **`REFACTOR_INVENTORY.md`**（リポジトリ直下）。**実装後メモ**（JSON キュー適用箇所・**未キュー化の read-modify-write 候補**・**マルチプロセスでは Promise キューは共有されない**）を優先参照。更新時は `npm run test:api` 前提で指標を見直す。
+- **セッション Promise 共通化**: **`utils/sessionAsync.js`**（`regenerateSession` / `saveSession`）。**代理ログイン・ログイン成功時の ID ローテーション**は **routes/admin/customersRoutes.js**（proxy-login）と **routes/auth-api.js** から参照。
+- **認証監査ログ**: **`services/authAuditLogService.js`**（`appendAdminAuthLog` / `appendCustomerAuthLog` → **logs/admin-auth.json** / **logs/customer-auth.json**）。**routes/auth-api.js** から呼び出し。
+- **パスワード再設定依頼**: **`services/passwordResetRequestService.js`**（`requestPasswordReset`）。**POST /api/request-password-reset** の本体（レート制限・reset_tokens / admin_reset_tokens・メール）はここ。**routes/auth-api.js** は薄いハンドラのみ。
+- **管理者 API の分割**: **`routes/admin-api.js`** は **`router.use`** で子ルータをマウントするだけ（エントリ薄型）。実装は **`routes/admin/`** 配下（**requireAdmin.js**, **settingsRoutes.js**, **productsRoutes.js**, **customersRoutes.js**（招待・代理ログイン含む）, **pricesRoutes.js**, **ordersRoutes.js**, **stocksRoutes.js**）。**URL は従来どおり `/api` 配下で変更なし**。
+- **server.js のミドルウェア分離**: **`middlewares/helmetIfAvailable.js`**（applyHelmetIfAvailable）, **`corsAllowlist.js`**（createCorsAllowlistMiddleware）, **`sessionMiddleware.js`**（createSessionMiddleware）, **`slidingSessionTimeout.js`**（120分スライディング）, **`responseTime.js`**（X-Response-Time・PERF_LOG）。**server.js** は dotenv・express・fileUpload・静的・ルートマウント・stockPoller 起動を組み立てる役。
+- **管理画面 fetch 共通化**: **`public/js/admin-common.js`** に **`window.adminApiFetch`**（`credentials: "include"`、401 時トースト＋**`../index.html`** へ誘導）。**`public/js/admin-customers.js`**・**`public/js/admin-products.js`** の API 呼び出しはこれを使用（**admin-common.js を先に読み込む HTML** が前提）。
+- **回帰**: 変更後 **`npm run test:api`**（または **test:all**）で既存テストを維持すること。新規ルートファイル追加時は **nodemon** の **watch** に **routes/** が含まれていれば **routes/admin/** も監視対象。
+
 ### 次回スレッドで優先対応すべき事項
 - **カバレッジ向上計画は現時点で完了扱い**：`npm run test:all`（API（S+A+B+Risk・カバレッジ付き）+ E2E + 負荷試験 + flake監視）が安定して PASS。Phase 1（カバレッジ理想値到達）は「global 80/70 を絶対条件にはせず、運用コスパを踏まえてここで完了」とする（詳細は `docs/coverage-improvement-plan.md` §12.7 と `docs/branch-coverage-70-proposal.md`）。
 - **Jest のカバレッジ閾値**（2026-03-19 更新）：**jest.config.js** で **global branches 50%**、**routes/auth-api.js** / **routes/admin-api.js** は **lines・branches 各 50%** に緩和済み。実測は行 82% 前後・分岐 61% 前後でも API テストは通過可能。理想値はドキュメント参照、**閾値の実体は常に jest.config.js を正とする**。
 - **カバレッジは今後“必要に応じて局所追加”**：全体分岐の高い数値目標は追わず、新機能追加や不具合修正時にその周辺のテストを増やす方針。P0 ファイル（auth-api / admin-api / orders-api / validate.js / priceCalc.js）の品質維持を優先。
 - **ステップ3（性能/負荷試験・flake監視）は実装済み**。詳細は `docs/step3-performance-load-flake.md` 参照。
-- **入力検証の統一（Phase 1）は完了済み**。6APIでZodスキーマ検証・unknown key拒否・400統一。余力で他APIへの適用や query/params スキーマ追加を検討。
+- **入力検証の統一（Phase 1）は完了済み**。6APIでZodスキーマ検証・unknown key拒否・400統一。余力で他APIへの適用や query/params スキーマ追加を検討（健全性計画メモ: **買取 kaitori-request** 等への **validateBody** 拡張は任意）。
 - **マルチテナント化は現時点では未着手**（社内運用優先）。SaaS化フェーズで設計・実装
 - **顧客ごとの orders/prices ファイル分割は現時点では不要**（customerId フィルタ運用を継続）
 - **シークレット運用の強化**：本番は SMTP パスワードを `MAIL_PASSWORD` で管理し、settings.json には保存しない
@@ -40,7 +58,7 @@
 - **settingsService のヘルパー**: `getOrderCsvExportSpec()`・`getPriceListFormatConfig()`・`getLogisticsCsvImportConfig()`（空配列は既定にフォールバック）・`getLogisticsFixedColumnImportConfig()`・`getPublicBranding()`。
 - **csvService.js**: `resolveOrderCsvSpec` / `getDefaultOrderCsvSpec`・`generateOrdersCsv(..., exportSpec)`・列キー（orderId, orderDate, customerId, customerName, deliveryNote, internalMemo, productCode, productName, unitPrice, quantity, empty, literal:* 等）・`parseEstimatesData(buffer, fileName, estimateImportAliasesOverride)`・`importFlamData(buffer, indicesOverride)`。旧コメントの「貿易センター」は廃止済み。
 - **orders-api.js**: 受注CSVダウンロードで `settingsService.getOrderCsvExportSpec()` を渡して生成。
-- **admin-api.js**: **GET /api/settings/public** に **publicBranding** を追加。**GET /api/admin/settings** に **dataFormats** を返却。見積取込（import-estimates）で **estimateImportAliases** を parseEstimatesData に渡す。
+- **管理者API**（当時は **admin-api.js** 集約。現状は **routes/admin/** 分割）：**GET /api/settings/public** に **publicBranding**。**GET /api/admin/settings** に **dataFormats**。見積取込で **estimateImportAliases** を parseEstimatesData に渡す（**ordersRoutes**）。
 - **priceService.js**: ランク別価格表 CSV/Excel は **getPriceListFormatConfig()** でヘッダー・カテゴリ並び・メーカー別シート対象・シート名・Excel列数パディングを反映（既定は従来どおり純正/再生等）。
 - **orderService.js**: **importFlamData** は **getLogisticsCsvImportConfig()** に基づき列名候補で行を解釈（**firstCsvRowValue**）。新規行の **source** は importSourceLabel（既定 "FLAM"）。
 - **顧客側**: **cart.js** が `/api/settings/public` で **publicBranding** を取得し **estimatePdf.js** の `generate(..., publicBranding)` に渡す。見積フッターは管理設定の HTML 可（管理者信頼前提）。
@@ -57,7 +75,7 @@
 - **商品一覧（顧客）`public/products.html`・`public/js/products.js`**: テーブル **6列**。ヘッダー **メーカー／商品名・備考／仕様／価格／在庫／発注**。**メーカー列**＝ **`manufacturer`**（太字）＋サムネイル。**仕様列**＝商品マスタの **`category`**（**`productService.importFromExcel`** ではヘッダー「仕様」「規格」「**カテゴリ**」のいずれかで取り込み。旧データが「純正」等のみの場合はそのまま表示）。商品名ブロックのサブ行は **型番（productCode）のみ**（メーカーは左列へ集約）。**APIの `price` が数値で厳密に 0 円**の行は数量 **disabled**・ボタン **「要問合」**（紫系）→ **`window.open("support.html?..." , "_blank", "noopener,noreferrer")`**（**`type=見積依頼`・`productCode`・任意 `productName`**）。**`support.js`** は URL クエリ **`type`** で申請項目を合わせ、**`productCode` / `productName`** で詳細欄を自動下書き（**空のときのみ**）。ロード中・空一覧の **colspan は 6**。
 
 ### 直近スレッド反映済み（2026-03-19 テスト・Jest閾値・GitHub）
-- **セッションタイムアウト API 文言**：無操作120分超えで 401 のとき JSON は **`message: "再ログインが必要です。"`**、**`code: "SESSION_EXPIRED"`**（**server.js**）。**tests/s-rank/session-timeout.api.test.js** はこの文言を期待する（旧「Session Expired」は廃止）。フロント（**public/script.js**）の 401 時 alert も同趣旨の案内。
+- **セッションタイムアウト API 文言**：無操作120分超えで 401 のとき JSON は **`message: "再ログインが必要です。"`**、**`code: "SESSION_EXPIRED"`**（**middlewares/slidingSessionTimeout.js**・**server.js** でマウント）。**tests/s-rank/session-timeout.api.test.js** はこの文言を期待する（旧「Session Expired」は廃止）。フロント（**public/script.js**）の 401 時 alert も同趣旨の案内。
 - **API カバレッジ強化テスト**：**tests/a-rank/auth-api-coverage.api.test.js**（管理者パスワード再設定 setup トークン・招待期限切れ・GET/PUT /api/account/settings・admins.json 不正JSON・平文パスワード管理者ログイン・request-password-reset の管理者経路・空 id）。**tests/a-rank/admin-api-coverage.api.test.js**（GET/PUT /api/admin/account・customers keyword・send-invite-email 各分岐・proxy-request / proxy-request-status / proxy-login / proxy-logout）。**tests/helpers/testSandbox.js** に **admin_reset_tokens.json** をバックアップ対象・seed に追加。
 - **Jest カバレッジ閾値**（**jest.config.js**）：運用コスパのため緩和。**global** の **branches は 50%**（lines は 80% 維持）。**routes/auth-api.js** / **routes/admin-api.js** は **lines・branches とも 50%**。**middlewares/validate.js**・**utils/priceCalc.js**・**routes/orders-api.js** の個別閾値は従来通り。余力でテスト追加し随時引き上げ可。
 - **GitHub への共有**：**docs/共同編集の手順.md** の **pull → 編集 → テスト（推奨）→ push**。**git add .** → **git commit -m "…"** → **git push origin main** でリモート **main** が進めば共有完了。**LF will be replaced by CRLF** の warning は Windows での改行変換通知であり **push 失敗ではない**。
@@ -131,7 +149,7 @@
 - **P2 test:all の最終判定可視化を実装済み**：`scripts/run-test-all.js` を追加し、`npm run test:all` 実行後に **段階別 PASS/FAIL と最終判定**を明示する運用へ統一。
 
 ### 直近スレッド反映済み（2026-02-16 追加実装）
-- **P0 セッション固定化対策を実装済み**：`routes/auth-api.js`（顧客/管理者ログイン成功時）と `routes/admin-api.js`（`/api/admin/proxy-login` 実行時）で `session.regenerate()` によるセッションIDローテーションを導入し、顧客/管理者同居セッション要件を維持。
+- **P0 セッション固定化対策を実装済み**：`routes/auth-api.js`（顧客/管理者ログイン成功時）と **代理ログイン**（**`routes/admin/customersRoutes.js`** の POST `/api/admin/proxy-login`）で **`utils/sessionAsync.js`** の `regenerateSession` によりセッションIDをローテーションし、顧客/管理者同居セッション要件を維持。
 - **P0 レート制限境界値テストを追加済み**：`tests/s-rank/session-fixation-and-rate-limit-boundary.api.test.js` でログイン失敗ロック/再設定申込の **14:59維持 / 15:00解除** を時刻固定で検証。
 - **P0 ログアウトCookie整合を修正済み**：`routes/auth-api.js` の `clearCookie` を `weborder.sid` に統一し、`tests/s-rank/logout-cookie-clear.api.test.js` で顧客/管理者ログアウト時の失効を検証。
 - **P1 破損JSON耐性を拡張済み**：`tests/a-rank/json-corruption-recovery.api.test.js` で `login_rate_limit.json` / `reset_tokens.json` / `proxy_requests.json` 破損時の復旧挙動を検証。
@@ -266,24 +284,24 @@
 ## 2. システム構成と機能要件 (Architecture)
 
 ### A. 司令塔 (The Commander)
-- **server.js**: セッション管理（クッキー24時間・無操作120分検知）とルーティングを一手に担う心臓部。**ステップ3**：全リクエストに `X-Response-Time` ヘッダ付与（オプションで `ENABLE_PERF_LOG=true` 時は閾値超過ログ出力）。**セキュリティ**: dotenv で .env 読込（未インストール時はスキップ）・SESSION_SECRET は環境変数（本番では必須）・helmet でセキュリティヘッダー（未インストール時はスキップ）・**CSP 有効**（default-src 'self'、script-src/script-src-attr 'unsafe-inline'＋reCAPTCHA 用 https://www.google.com, https://www.gstatic.com、frame-src に https://www.recaptcha.net、style-src/connect-src/img-src/font-src/base-uri/form-action を設定）。Cookie は httpOnly / 本番で secure / sameSite:lax / name:weborder.sid。**CORS は既定で同一オリジン**、`ALLOWED_ORIGINS` 設定時のみ許可リスト方式で有効化（credentials許可・未許可Originは拒否）。`TRUST_PROXY=1/true` で `trust proxy` を有効化。**セッションストア**は本番/通常運用で session-file-store（単一サーバー前提）を使用。**Windows開発環境では EPERM(rename) 回避のためメモリストアへ自動フォールバック**。本番・SaaS で複数インスタンスにする場合は Redis 等の共有ストアに変更すること。
+- **server.js**: アプリ組み立てのエントリ。**セッション**（クッキー24時間）・**無操作120分検知**・ルーティング・静的配信・stockPoller 起動を接続する。実装の詳細は **middlewares/** に分割：**helmetIfAvailable**（CSP 含む）・**corsAllowlist**・**sessionMiddleware**（FileStore / Windows 開発時メモリの分岐含む）・**slidingSessionTimeout**（120分）・**responseTime**（**ステップ3**：`X-Response-Time`・`ENABLE_PERF_LOG`）。**セキュリティ**: dotenv・SESSION_SECRET・helmet・CSP・Cookie（httpOnly / 本番 secure / sameSite:lax / name:weborder.sid）・**CORS**（`ALLOWED_ORIGINS` 時のみ許可リスト）・`TRUST_PROXY` は従来どおり。**セッションストア**・Windows メモリフォールバックの挙動は **middlewares/sessionMiddleware.js** 内。本番・SaaS で複数インスタンスにする場合は Redis 等の共有ストアに変更すること。
 
 ### B. API部隊 (The Squads / Server Side)
-- **auth-api.js**: [警備] ログイン・PW照合・初期設定・**招待用リセット**（invite_tokens.json）・**顧客申込パスワード再設定**（POST /api/request-password-reset、reset_tokens.json 24h・1回使用・**レート制限**同一IP 15分5回/reset_rate_limit.json）・**管理者パスワード再設定**（顧客で見つからなければ adminId/email で検索・admin_reset_tokens.json・送信先は管理者emailまたはsupportNotifyTo）・**再設定完了時**顧客へ通知メール（mailService.sendPasswordChangedNotification）。**ログイン失敗レート制限**（同一アカウント5回/15分→15分ロック・login_rate_limit.json）。**連続失敗5回時メール**（5回目＝ロック時に顧客宛はmailService.sendLoginFailureAlert、管理者はsupportNotifyToへ）。**reCAPTCHA v2**（2回失敗で3回目以降CAPTCHA必須・body.captchaToken を Google siteverify で検証・未設定ならスキップ）。**ログイン成功時は session.regenerate でIDローテーション**（固定化対策）。**顧客セッション** GET /api/session（proxyByAdmin 含む）。**代理ログイン申請（顧客側）** GET /api/account/proxy-request・POST /api/account/proxy-request/approve・reject（proxy-request 返却時の adminName は **sanitizeAdminName** 済み）。**アカウント設定** GET/PUT /api/account/settings（現状は設定項目なし）。**管理者表示名サニタイズ**（sanitizeAdminName：長さ100・<>"\'& 除去。ログイン時 session.adminName と proxy-request 返却に適用）。**管理者認証履歴**（appendAdminAuthLog→logs/admin-auth.json）に加え、**顧客認証履歴**（appendCustomerAuthLog→logs/customer-auth.json：login / logout / failed_login、customerId・customerName・ip・at）を記録。**ログアウト時のCookieクリアは weborder.sid を使用**。
-- **products-api.js**: [店舗] 商品一覧・検索・価格計算・価格表DL・**よく注文する商品API**・**在庫情報(stockInfo/stockUi)付与**。
+- **auth-api.js**: [警備] ログイン・PW照合・初期設定・**招待用リセット**（invite_tokens.json）・**顧客申込パスワード再設定**（POST /api/request-password-reset → 実体は **services/passwordResetRequestService.js** の `requestPasswordReset`。reset_tokens / admin_reset_tokens・**レート制限**はサービス内・reset_rate_limit.json）・**管理者パスワード再設定**（顧客で見つからなければ adminId/email で検索）・**再設定完了時**顧客へ通知メール（mailService.sendPasswordChangedNotification）。**ログイン失敗レート制限**（**`routes/auth/loginRateLimit.js`**・**login_rate_limit.json** は **`runWithJsonFileWriteLock`** で直列化）。**連続失敗5回時メール**（sendLoginFailureAlert）。**reCAPTCHA v2**（**`routes/auth/recaptcha.js`** の verifyRecaptcha）。**ログイン成功時は session.regenerate**（**utils/sessionAsync.js** の `regenerateSession`）。**顧客セッション** GET /api/session。**代理ログイン申請（顧客側）**（**proxyRequestsStore.mutateProxyRequests**・**`routes/auth/sanitizeAdminName.js`**）。**アカウント設定** GET/PUT /api/account/settings。**認証監査ログ**は **services/authAuditLogService.js**（**logs/admin-auth.json** / **logs/customer-auth.json**）。**ログアウト時のCookieクリアは weborder.sid**。
+- **products-api.js**: [店舗] 商品一覧・検索・価格計算・価格表DL・**よく注文する商品API**・**在庫情報(stockInfo/stockUi)付与**（**`utils/stockPresentation.js`** の **buildStockInfo / getStockContext** 等）。
 - **orders-api.js**: [物流] 注文確定（在庫チェックなし・常に受付）・履歴参照・メール通知・CSV生成（**getOrderCsvExportSpec** で列仕様を反映）。**外部受注CSV取込**（POST /api/import-orders-csv）と**出荷CSV取込**（POST /api/import-shipping-csv）を提供し、取込時は `req.file` / `req.files.file` の両系統に対応。[Deps: **settingsService**（CSV仕様）]
-- **admin-api.js**: [本部] 商品/顧客マスタ管理・Excel一括取込・価格設定・**見積削除API**・**在庫設定/CSV取込API**（/admin/stocks/*）・**在庫テンプレートDL**（GET /api/admin/stocks/template・exceljsで生成）・**買取Excel解析**（POST /api/admin/kaitori/parse-excel・exceljsでサーバー解析）・**システム設定API**・**管理者アカウント**（GET/PUT /admin/account・admins.json 先頭1件）・（GET/PUT /admin/settings・**dataFormats 返却**、GET /settings/public・**お知らせ・publicBranding 含む**・**recaptchaSiteKey** 公開用のみ返却）・**招待メール送信API**（POST /admin/send-invite-email）・**ステータス/納期目安更新API**（POST /api/update-order-status）。**ランク別価格Excel取込**（POST /api/admin/import-rank-prices-excel・req.files.rankExcelFile・シート「Upload」・ヘッダーで商品コード/商品名/ランク1…判定・価格はparsePriceCellで整数円・商品名は取り込みのたび全件上書き）。**ランク一覧API**（GET /api/admin/rank-list・表示名付き・価格設定・顧客管理のドロップダウン用）。**管理者による代理ログイン**（POST /api/admin/proxy-request→顧客が許可/却下→GET /api/admin/proxy-request-status ポーリング→POST /api/admin/proxy-login で実行・POST /api/admin/proxy-logout。proxy_requests.json で申請状態・10分有効。代理終了時に同一セッションに元の顧客ログインがあれば proxySaved* で復元しユーザーはログイン継続）。
+- **admin-api（集約エントリ + routes/admin/*）**: **`routes/admin-api.js`** は子ルータのマウントのみ。**実装ファイル**は **`routes/admin/settingsRoutes.js`**（設定・公開・管理者アカウント）, **productsRoutes.js**, **customersRoutes.js**（顧客・招待メール・**代理ログイン** proxy-request / status / login / logout・**sessionAsync**）, **pricesRoutes.js**, **ordersRoutes.js**（update-order-status・FLAM・見積取込/削除）, **stocksRoutes.js**（在庫・テンプレ・**kaitori/parse-excel**）。**requireAdmin** は **`routes/admin/requireAdmin.js`**。URL・機能は従来どおり（**/settings/public**, **/admin/***, **/add-product**, **/update-order-status**, **proxyRequestsStore** 等）。
 - **kaitori-api.js**: [空カートリッジ買取] 査定申請・自動振分判定・マスタ管理・ステータス更新。
 - **support-api.js**: [窓口] チケット管理・不具合報告受付・**顧客本人の履歴参照API**（GET /support/my-tickets）・**メール通知は mailService 経由（設定ベース）**。
 
 ### C. 管理画面部隊 (The Admins / Client Side)
-- **js/admin-common.js**: [基盤] 120分無操作監視・共通UI・認証チェック・ログアウト制御・**features によるサイドバーメニュー出し分け**・**XSS 対策**（escapeHtml・トースト message のエスケープ）。
-- **js/admin-products.js**: 商品管理・Excelインポート・**見積削除（メーカー別/商品コード別）**・**在庫設定/登録倉庫名・CSV・Excel取込・テンプレDL（GET /api/admin/stocks/template）・手動調整（倉庫別在庫はコード・倉庫名・数量のラベル付き）**担当。クライアント側 xlsx は使用しない。
+- **js/admin-common.js**: [基盤] 120分無操作監視・共通UI・認証チェック・ログアウト制御・**features によるサイドバーメニュー出し分け**・**XSS 対策**（escapeHtml・トースト message のエスケープ）・**adminApiFetch**（管理API用 fetch・401 時トースト＋ログインへ誘導）。
+- **js/admin-products.js** + **js/admin-products-stock.js**: 商品管理・Excelインポート・**見積削除（メーカー別/商品コード別）**・**在庫設定/登録倉庫名・CSV・Excel取込・テンプレDL・手動調整**担当（在庫UIの一部は **admin-products-stock.js** に分離。**admin-products.html** は **admin-common → admin-products.js → admin-products-stock.js** の順）。クライアント側 xlsx は使用しない。
 - **js/admin-orders.js**: 注文管理・CSVダウンロード・ステータス更新・**納期目安の更新**担当。操作エリアは admin-orders-view.js で生成。
-- **js/admin-customers.js**: 顧客管理・価格設定・**招待**（メールアドレスあり→直接送信、なし→URLモーダル表示）・一括登録・**代理ログイン**（「代理ログイン」押下時に確認ポップアップ「本当に代理ログイン申請を送信しますか？」→申請送信→許可待ちモーダルで「代理ログインを実行」が顧客の許可後に有効化）担当。**価格ランク**のdatalistは GET /api/admin/rank-list で取得した表示名付きランク一覧で動的更新。
+- **js/admin-customers.js**: 顧客管理・価格設定・**招待**（メールアドレスあり→直接送信、なし→URLモーダル表示）・一括登録・**代理ログイン**（「代理ログイン」押下時に確認ポップアップ「本当に代理ログイン申請を送信しますか？」→申請送信→許可待ちモーダルで「代理ログインを実行」が顧客の許可後に有効化）担当。**God Hand（個別価格）**の顧客・商品サジェストは **fillGodSuggestList** で DOM 生成を共通化。**価格ランク**のdatalistは GET /api/admin/rank-list で取得した表示名付きランク一覧で動的更新。
 - **js/admin-kaitori.js**: 空カートリッジ買取依頼管理・査定・メール生成・**買取マスタExcel取込は POST /api/admin/kaitori/parse-excel でサーバー解析**担当。クライアント側 xlsx は使用しない。
 - **js/admin-support.js**: サポートチケット管理担当。
-- **js/admin-settings.js**: システム設定（メール・SMTP・招待・パスワード再設定・**パスワード変更完了通知**テンプレート・**🔐 ログインCAPTCHA**・機能ON/OFF・**🏷️ ランクの名前**・**🚚 送料規定・カートお知らせ**（cartShippingNotice・shippingRules 既定/メーカー別の追加・削除・保存）・**🔧 汎用・連携**（**dataFormats**・collectDataFormats/loadDataFormatsTab）・**お知らせ・バナー管理**）担当。
+- **js/admin-settings.js** + **js/admin-settings-dataformats.js**: システム設定（メール・SMTP・招待・パスワード再設定・**パスワード変更完了通知**テンプレート・**🔐 ログインCAPTCHA**・機能ON/OFF・**🏷️ ランクの名前**・**🚚 送料規定・カートお知らせ**・**🔧 汎用・連携**（**dataFormats** は **`window.AdminSettingsDataFormats`** 経由で load/collect）・**お知らせ・バナー管理**）担当。**admin-settings.html** は **admin-settings-dataformats.js を admin-settings.js より前**に読込。
 
 ### D. 共通装備 (Shared Utils)
 - **utils/priceCalc.js**: [心臓] 「ランク価格 > 特価 > 定価」の優先順位を司る計算エンジン。
@@ -308,7 +326,7 @@
 
 ### F-5. 管理者による代理ログイン (Proxy Login)
 - **流れ**: 管理者が顧客一覧で「代理ログイン」→確認ポップアップで申請送信→**顧客画面**に「管理者（○○）が代理ログインを申請しています。許可しますか？」バナーと【許可】【却下】が表示→顧客が許可/却下（事前のチェック設定は不要・タイムリーに許可）。管理者は許可待ちモーダルで「代理ログインを実行」が有効になったらクリック→ユーザー画面（商品一覧）に遷移。**代理ログインを終了**で管理画面に戻る（同一セッションに元の顧客ログインがあった場合は復元されユーザーはログイン継続）。
-- **データ**: proxy_requests.json（顧客ID→requestedAt, adminName, approved）。10分で失効。.gitignore で除外推奨。
+- **データ**: proxy_requests.json（顧客ID→requestedAt, adminName, approved）。10分で失効。.gitignore で除外推奨。**永続化**は **`utils/proxyRequestsStore.js`**（**`mutateProxyRequests`** で read-modify-write を直列化・**`loadProxyRequests`** / **`PROXY_REQUEST_EXPIRY_MS`**）。admin / auth ルートはこれを共有する。
 - **顧客画面**: script.js で GET /api/account/proxy-request を即時＋1.5秒間隔でポーリング。申請ありならナビ直下に許可/却下バナー表示。代理ログイン中は「管理者（○○）による代理ログイン中」バナーと「代理ログインを終了」表示。
 - **アカウント設定**: 「管理者による代理ログインを許可する」項目は廃止。account.html は「現在、設定項目はありません。」のみ表示。
 
@@ -332,20 +350,20 @@
 ### F-3. 顧客申込パスワード再設定 (Request Password Reset)
 - **利用場面**: パスワード忘れ・定期的なパスワード変更。
 - **ログイン画面**: 「パスワードをお忘れの方」リンクでモーダル表示。ログインID または メールアドレスを入力して送信。
-- **API**: POST /api/request-password-reset（body: { id }）。**レート制限**: 同一IPで15分あたり5回まで（reset_rate_limit.json）。超過時も同一メッセージ返却。顧客が存在しメール登録ありなら reset_tokens.json にトークン保存・メール送信（passwordReset テンプレート）。成否に関わらず同一メッセージ返却（情報漏洩防止）。
+- **API**: POST /api/request-password-reset（body: { id }）。処理本体は **services/passwordResetRequestService.js**（**レート制限**・reset_rate_limit.json・reset_tokens / admin_reset_tokens・メール）。成否に関わらず同一メッセージ返却（情報漏洩防止）。
 - **リンク**: setup.html?id=xxx&key=トークン。1回使用・24時間有効（reset_tokens.json）。使用後トークン削除。
 - **再設定完了通知**: 顧客がリンクから新パスワードを設定して完了した際、その顧客のメールアドレスへ「パスワードが変更されました」通知を送信（passwordChanged テンプレート・mailService.sendPasswordChangedNotification）。不正利用の検知に利用。
 
 ### F-6. セキュリティ・監査 (Security & Audit)
-- **本番環境**: server.js は dotenv で .env を読込。SESSION_SECRET は環境変数で設定（未設定時は警告）。Cookie は httpOnly・本番で secure・sameSite:lax。helmet でセキュリティヘッダー付与。**CSP 有効**（default-src 'self'、script-src/script-src-attr 'unsafe-inline'、reCAPTCHA 用に https://www.google.com, https://www.gstatic.com, https://www.recaptcha.net を許可。style-src/connect-src/img-src/font-src/base-uri/form-action を設定）。インラインイベント（onclick 等）は script-src-attr 'unsafe-inline' で許可。将来 nonce/hash で 'unsafe-inline' を外すとより堅牢。
+- **本番環境**: **server.js** は dotenv で .env を読込。**helmet/CSP** は **middlewares/helmetIfAvailable.js**。SESSION_SECRET・Cookie（httpOnly・本番 secure・sameSite:lax）は **middlewares/sessionMiddleware.js** と **server.js** の組み合わせ。**CSP** 指令は helmet 設定内（reCAPTCHA 用ドメイン許可等）。将来 nonce/hash で 'unsafe-inline' を外すとより堅牢。
 - **CORS 運用**: 既定は同一オリジン運用（ヘッダ未付与）。フロント/API分離時は `ALLOWED_ORIGINS` で許可オリジンを明示し、許可リスト方式で有効化する（`*` は使わない）。
 - **XSS 対策**: ユーザー入力・他者データは表示前に HTML エスケープすること。script.js / admin-common.js に escapeHtml を用意。代理ログインの adminName・トーストの message・history/orders/support の error.message や file.name 等はエスケープ済み。setup.html の inviteId もエスケープ。管理者表示名は auth-api の sanitizeAdminName（長さ100・<>"\'& 除去）をログイン時と proxy-request 返却時に適用。
 - **セッションストア**: 現状は session-file-store（単一サーバー前提）。**本番で再起動後もログイン維持**するには **SESSION_PATH** を永続ディレクトリに設定（`docs/session-production.md`）。Windows 開発ではデフォルトはメモリ（PERSIST_SESSION=1 でファイル保存可）。本番・SaaS で複数インスタンスやオートスケールにする場合は Redis 等の共有ストアに変更すること。
 - **ログイン失敗レート制限**: 同一アカウント（顧客ID/管理者ID）で **5回失敗/15分** → **15分ロック**（login_rate_limit.json）。顧客・管理者の両方に適用。ロック時メッセージで「パスワードをお忘れの方」を案内。
 - **連続失敗5回時メール**: 5回目の失敗（＝ロックしたタイミング）で送信。顧客は顧客のメールアドレス宛（loginFailureAlert テンプレート）、管理者は supportNotifyTo 宛（loginFailureAlertAdmin テンプレート）。mailService.sendLoginFailureAlert。
 - **reCAPTCHA v2**: 同一アカウントで **2回失敗したあと**（3回目以降）のログイン試行で CAPTCHA 必須。body.captchaToken を Google siteverify で検証。未設定（siteKey/secretKey が空）の場合はCAPTCHAは行わない。フロントは GET /api/settings/public の recaptchaSiteKey でウィジェット読み込み、captchaRequired: true 時に「私はロボットではありません」を表示。ドメイン登録はホストのみ（`localhost` や本番ドメイン。プロトコル・ポートは含めない）。
-- **管理者認証履歴**: auth-api.js の appendAdminAuthLog で **logs/admin-auth.json** に記録。アクションは login / logout / failed_login。項目は at, action, adminId, adminName, ip。.gitignore の logs/*.json でリポジトリには含めない。
-- **顧客認証履歴**: auth-api.js の appendCustomerAuthLog で **logs/customer-auth.json** に記録。アクションは login / logout / failed_login。項目は at, action, customerId, customerName, ip。.gitignore の logs/*.json でリポジトリには含めない。
+- **管理者認証履歴**: **services/authAuditLogService.js** の **appendAdminAuthLog** → **logs/admin-auth.json**。アクションは login / logout / failed_login。項目は at, action, adminId, adminName, ip。.gitignore の logs/*.json でリポジトリには含めない。
+- **顧客認証履歴**: **services/authAuditLogService.js** の **appendCustomerAuthLog** → **logs/customer-auth.json**。アクションは login / logout / failed_login。項目は at, action, customerId, customerName, ip。.gitignore の logs/*.json でリポジトリには含めない。
 
 ### F-9. サポート可視化（顧客向け）
 - **UI**: support.html は「✉️申請フォーム」「📋問い合わせ履歴」の2タブで切替。初期表示はフォームタブ。
@@ -416,9 +434,11 @@
 ※[]内は依存ファイル・参照DBを示す
 
 web-order/
-├── server.js               ... [Core] 司令塔/120分監視/stockPoller起動・**CSP 有効**（helmet contentSecurityPolicy）[Deps: routes/*, jobs/stockPoller]
+├── server.js               ... [Core] アプリ組み立て・**middlewares/**（helmet/CORS/session/120分/responseTime）・静的・**/api** 他ルート・stockPoller起動 [Deps: middlewares/*, routes/*, jobs/stockPoller]
+├── REFACTOR_INVENTORY.md   ... [Doc] リファクタ棚卸し（行数表はスナップショットあり。**実装後メモ**・**JSON キュー適用箇所**・**未キュー化候補**・**マルチプロセス限界**を参照）
+├── middlewares/            ... [MW] **helmetIfAvailable**, **corsAllowlist**, **sessionMiddleware**, **slidingSessionTimeout**, **responseTime**, **validate.js**（Zod・validateBody/Query/Params）[Ref: server.js, routes]
 ├── package.json            ... [Config] scripts: test, test:s, test:a, test:b, test:risk, test:api, test:flake, test:load, test:e2e, test:e2e:headed, test:all。**dev**: nodemon --legacy-watch server.js。nodemonConfig: watch, ext js, delay 800, ignore *.json/sessions/node_modules/coverage/tests
-├── jest.config.js          ... [Test Config] Jest設定・**setupFiles: tests/setupJestDataDir.js（DATA_DIR 未設定時は tests/_sandbox_data を自動設定）**・カバレッジ閾値（global 80/67、auth 80/66、admin 80/62、orders 90/62、validate/priceCalc 個別）
+├── jest.config.js          ... [Test Config] Jest設定・**setupFiles: tests/setupJestDataDir.js**・カバレッジ閾値（**admin-api.js** は薄型・実体は **routes/admin/**。閾値の正は **jest.config.js**）
 ├── .github/workflows/ci.yml ... [CI] push/PR時にtest:all自動実行
 ├── .github/workflows/step3-periodic.yml ... [CI] 週次（日曜3:00 UTC）負荷試験・flake監視
 ├── package-lock.json
@@ -450,7 +470,7 @@ web-order/
 ├── admin_reset_tokens.json ... [DB] 管理者パスワード再設定トークン（24時間・1回使用） [Ref: auth-api]
 ├── reset_rate_limit.json   ... [Data] パスワード再設定申込のレート制限（IP別・15分窓・5回まで） [Ref: auth-api]
 ├── login_rate_limit.json   ... [Data] ログイン失敗レート制限（アカウント別・5回/15分で15分ロック） [Ref: auth-api] .gitignore で除外推奨
-├── proxy_requests.json     ... [Data] 代理ログイン申請（顧客ID→requestedAt, adminName, approved）10分有効 [Ref: admin-api, auth-api]
+├── proxy_requests.json     ... [Data] 代理ログイン申請（顧客ID→requestedAt, adminName, approved）10分有効 [Ref: admin-api, auth-api, **utils/proxyRequestsStore**]
 ├── stocks.json             ... [DB] 在庫 [Ref: stockService] ※商品コードはAPI参照時に大文字小文字同一視
 ├── config/stocks-adapters.json ... [Config] 在庫アダプタ設定・登録倉庫名(warehousePresets) [Ref: stockService]
 ├── logs/stocks-history.json ... [Log] 在庫取込履歴 [Ref: stockService]
@@ -479,36 +499,41 @@ web-order/
 │   │   ├── admin-kaitori.html    ... [Page] 買取管理
 │   │   ├── admin-orders.html     ... [Page] 受注管理
 │   │   ├── admin-prices.html     ... [Page] 価格設定・**ランク別価格Excel取込**（POST /admin/import-rank-prices-excel・credentials: "include"）・**ランク別価格表DL**（CSV: GET /admin/download-pricelist-by-rank/:rank、Excel: GET /admin/download-pricelist-excel-by-rank/:rank・メーカー別・送料規定付き）・ランク選択は GET /admin/rank-list で動的生成
-│   │   ├── admin-products.html   ... [Page] 商品マスタ管理
-│   │   ├── admin-settings.html   ... [Page] システム設定（メール・SMTP・**👤 管理者アカウント**（ID/表示名/メール/パスワード・「管理者アカウントを保存」）・招待/パスワード再設定/パスワード変更完了通知テンプレート・**🔐 ログインCAPTCHA**（reCAPTCHA サイトキー/シークレットキー）・機能ON/OFF・**🏷️ ランクの名前**・**🚚 送料規定・カートお知らせ**（cartShippingNotice・shippingRules）・**🔧 汎用・連携**（dataFormats）・**お知らせ・バナー管理**）
+│   │   ├── admin-products.html   ... [Page] 商品マスタ管理（**admin-products-stock.js** を **admin-products.js の後**に読込）
+│   │   ├── admin-settings.html   ... [Page] システム設定（**admin-settings-dataformats.js** を **admin-settings.js より前**に読込。その他は従来どおり：管理者アカウント・CAPTCHA・ランク名・送料/カートお知らせ・汎用連携・お知らせ等）
 │   │   └── admin-support.html    ... [Page] サポート管理
 │   │
 │   ├── js/                 ... [Logic] フロントエンド
-│   │   ├── admin-common.js ... [Core] 共通UI/120分監視/サイドバーfeatures出し分け・**escapeHtml**/トーストエスケープ [API: /admin/*, /admin/settings]
-│   │   ├── admin-customers.js ... [Logic] 招待（メール送信 or URL表示）・**代理ログイン**（確認ポップアップ→proxy-request→許可待ちモーダル→proxy-login）[API: /admin/invite-reset, /admin/send-invite-email, /admin/proxy-request, /admin/proxy-request-status, /admin/proxy-login]
+│   │   ├── admin-common.js ... [Core] 共通UI/120分監視/サイドバーfeatures出し分け・**escapeHtml**/トースト・**adminApiFetch**（401→ログイン誘導）[API: /admin/*, /admin/settings]
+│   │   ├── admin-customers.js ... [Logic] 上記と同様・API 呼び出しは **adminApiFetch**・**God Hand（fillGodSuggestList）** [API: /admin/invite-reset, /admin/send-invite-email, /admin/proxy-*]
 │   │   ├── admin-kaitori.js   ... [Logic] admin-ready 後に **GET /api/admin/settings** で **manufacturerSplitCategory** を取得し KaitoriView に反映 [API: /kaitori, /api/admin/settings]
 │   │   ├── admin-kaitori-view.js
 │   │   ├── admin-orders.js    ... [Logic] 受注管理・納期目安更新 [API: /admin/orders, /api/update-order-status]
 │   │   ├── admin-orders-view.js ... [Logic] 注文カードHTML生成・出荷オペレーションUI
-│   │   ├── admin-products.js  ... [Logic] [API: /products]
-│   │   ├── admin-settings.js    ... [Logic] システム設定画面（recaptcha・**ランクの名前**・**dataFormats**（collectDataFormats/loadDataFormatsTab）・お知らせ・保存時に collectAnnouncementsData で全件DOMから送信） [API: /admin/settings]
+│   │   ├── admin-products.js  ... [Logic] API は **adminApiFetch** [API: /api/admin/*, /api/add-product, …]
+│   │   ├── admin-products-stock.js ... [Logic] 管理画面商品ページの在庫ブロック（**admin-products.html** で products.js の後に読込）
+│   │   ├── admin-settings-dataformats.js ... [Logic] **window.AdminSettingsDataFormats**（データ形式タブ。settings.js より前に読込）
+│   │   ├── admin-settings.js    ... [Logic] システム設定画面（recaptcha・**ランクの名前**・**dataFormats** は DataFormats モジュール経由・お知らせ・保存時に collectAnnouncementsData） [API: /admin/settings]
 │   │   ├── admin-support.js   ... [Logic] サポートチケット一覧・**添付ダウンロードリンク** [API: /admin/support-tickets, /support/attachment/…]
 │   │   ├── products.js         ... [Logic] 商品一覧・**6列（メーカー/商品名/仕様/価格/在庫/発注）**・**価格0円は「要問合」→ support.html 別タブ（見積依頼）**・タブ・お気に入り・在庫列・ページネーション [API: /products] ※cart-modalは削除済み、通知はtoastのみ
 │   │   ├── announcements.js   ... [Logic] お知らせページ表示（category=general のみ） [API: /api/settings/public]
-│   │   └── cart.js            ... [Logic] カート機能・公開設定取得（cartShippingNotice + **publicBranding**） [API: /orders, /api/settings/public]
-│   │   │
-│   │   ├── utils/              
-│   │   │   └── estimatePdf.js ... [Util] 見積印刷用HTML生成（**generate(cartItems, customerInfo, publicBranding)**・発行元は設定ベース）
+│   │   ├── cart.js            ... [Logic] カート機能・公開設定取得（cartShippingNotice + **publicBranding**） [API: /orders, /api/settings/public]
+│   │   └── utils/              
+│   │       └── estimatePdf.js ... [Util] 見積印刷用HTML生成（**generate(cartItems, customerInfo, publicBranding)**・発行元は設定ベース）
 │
 ├── routes/                 ... [API] サーバーサイド処理
-│   ├── admin-api.js        ... [API] 管理系全般・**システム設定API**・**管理者アカウント**（GET/PUT /admin/account）・**招待メール送信**・**update-order-status**・**在庫テンプレート**（GET /admin/stocks/template）・**買取Excel解析**（POST /admin/kaitori/parse-excel）・**ランク価格Excel取込**（POST /admin/import-rank-prices-excel・Uploadシート・ヘッダー判定・商品名全件上書き）・**ランク一覧**（GET /admin/rank-list）・**代理ログイン**（proxy-request/proxy-request-status/proxy-login/proxy-logout）[Deps: all Services, settingsService, mailService, excelReader]
-│   ├── auth-api.js         ... [API] 認証/招待リセット・setup・request-password-reset（顧客/管理者両方・admin_reset_tokens.json）・**ログイン失敗レート制限**（login_rate_limit.json・5回/15分→15分ロック）・**連続失敗5回メール**（sendLoginFailureAlert）・**reCAPTCHA v2**（2回失敗で必須・verifyRecaptcha）・**ログイン成功時 session.regenerate によるIDローテーション**・GET /session・/account/proxy-request・/account/settings・**管理者表示名サニタイズ**（sanitizeAdminName）・**管理者認証履歴**（appendAdminAuthLog→logs/admin-auth.json）[Deps: customerService, mailService, settingsService]
-│   ├── kaitori-api.js      ... [API] 買取 [Deps: kaitori_*.json]
+│   ├── admin-api.js        ... [API] **子ルータマウントのみ**（**routes/admin/*.js** を use）
+│   ├── admin/              ... [API] **settingsRoutes**, **productsRoutes**, **customersRoutes**（招待・代理ログイン・**sessionAsync**）, **pricesRoutes**, **ordersRoutes**, **stocksRoutes**, **requireAdmin** [Deps: services/*, settingsService, mailService, excelReader, **utils/proxyRequestsStore**, **utils/sessionAsync**]
+│   ├── auth-api.js         ... [API] 認証・setup・**request-password-reset**（**passwordResetRequestService**）・**routes/auth/loginRateLimit**・**routes/auth/recaptcha**・**sessionAsync**・GET /session・proxy（**proxyRequestsStore.mutateProxyRequests**）・**authAuditLogService** [Deps: customerService, mailService, settingsService, **utils/proxyRequestsStore**, **utils/jsonWriteQueue**, **utils/sessionAsync**, **services/authAuditLogService**, **services/passwordResetRequestService**]
+│   ├── auth/               ... [API] **loginRateLimit.js**, **recaptcha.js**, **sanitizeAdminName.js**（auth-api から require）
+│   ├── kaitori-api.js      ... [API] 買取・**JSON 直列化**・**requestId** [Deps: kaitori_*.json, **utils/jsonWriteQueue**]
 │   ├── orders-api.js       ... [API] 注文・受注CSV DL（**getOrderCsvExportSpec**）・外部受注CSV取込（/api/import-orders-csv）・出荷CSV取込（/api/import-shipping-csv）[Deps: orderService, mailService, csvService, **settingsService**]
-│   ├── products-api.js     ... [API] 商品・**よく注文API**・**stockInfo付与** [Deps: productService, stockService] [/products/frequent→orders.json参照]
-│   └── support-api.js      ... [API] サポート（**POST request-support** JSON|multipart・**GET support/attachment/:ticketId/:storedName**・support/my-tickets・admin/support-tickets・admin/update-ticket）[Deps: support_tickets.json, **DATA_ROOT/support_attachments/**, mailService]
+│   ├── products-api.js     ... [API] 商品・**よく注文API**・**stockInfo付与** [Deps: **utils/stockPresentation**, specialPriceService, stockService] [/products/frequent→orders.json参照]
+│   └── support-api.js      ... [API] サポート（**POST request-support** JSON|multipart・チケット更新は **jsonWriteQueue** 対象・**GET support/attachment/…**・support/my-tickets 等）[Deps: support_tickets.json, **DATA_ROOT/support_attachments/**, mailService, **utils/jsonWriteQueue**]
 │
 ├── services/               ... [Logic] 実務ロジック部隊
+│   ├── authAuditLogService.js ... [Svc] **appendAdminAuthLog** / **appendCustomerAuthLog**（**logs/admin-auth.json** / **logs/customer-auth.json**）[Ref: auth-api]
+│   ├── passwordResetRequestService.js ... [Svc] **requestPasswordReset**（POST /api/request-password-reset の本体・reset_rate_limit・トークン・メール）[Ref: auth-api]
 │   ├── settingsService.js  ... [Svc] システム設定の読み書き・メール設定・features・getAnnouncements・**getRankList()**・テンプレート置換・**recaptcha**・**dataFormats 既定（DEFAULTS.dataFormats）**・**getOrderCsvExportSpec / getPriceListFormatConfig / getLogisticsCsvImportConfig / getLogisticsFixedColumnImportConfig / getPublicBranding**。updateSettings で announcements 配列を明示マージ [DB: settings.json]
 │   ├── csvService.js       ... [Svc] CSV/Excel。**resolveOrderCsvSpec**・**generateOrdersCsv(..., exportSpec)**・**parseEstimatesData(..., aliases)**・**importFlamData(..., indices)**・parseExternalOrdersCsv/parseShippingCsv。Excel は **utils/excelReader** [Deps: iconv-lite, excelReader]
 │   ├── customerService.js  ... [Svc] 顧客DB/PW更新・getCustomerById（email含む）・updateCustomerAllowProxy（アカウント設定用・代理ログイン事前許可は廃止だがAPIは残置）。Excel一括取込は **excelReader** 使用 [DB: customers.json]
@@ -517,7 +542,7 @@ web-order/
 │   ├── priceService.js     ... [Svc] 価格計算。ランク価格Excel取込は **excelReader**（Upload シート・ヘッダー判定・**getRankList()** 等）。**ランク別価格表CSV/Excel**（getPricelistCsvForRank / getPricelistExcelForRank）は **getPriceListFormatConfig()** でヘッダー・カテゴリ並び・シート規則を反映（既定は従来仕様）。normalizeManufacturerKey・shippingRules・parsePriceCell [Deps: priceCalc, excelReader, settingsService]
 │   ├── productService.js   ... [Svc] 商品DB操作。Excel/CSV一括取込（isExcelBuffer で判別・parseCsvToRowArrays で CSV）。**ヘッダーで列判定**（商品コード必須・商品名/メーカー/定価・**仕様または規格またはカテゴリ**・在庫＋**ランク列は getRankList() の表示名またはランク1/ランクA**）。**addProduct** はリクエストを正規化し category 等を確実に保存。テンプレートDL・マスタ全件DL（getProductTemplateBuffer/getProductMasterExportBuffer）は rank_prices と時系列マージ。rankPricesUpdatedAt はランクが1件以上ある行のみ設定 [DB: products.json] [Ref: priceService.getRankPrices, getRankPricesUpdatedAt, settingsService.getRankList]
 │   ├── specialPriceService.js ... [Svc] 見積データ管理・削除 [DB: estimates.json] [Deps: settingsService for blocked*]
-│   ├── stockService.js     ... [Svc] 在庫CRUD・引当・解放・履歴 [DB: stocks.json, config, logs]
+│   ├── stockService.js     ... [Svc] 在庫CRUD・引当・解放・履歴。**stocks.json 書き込みはプロセス内で直列化**（**_withStocksLock** / **jsonWriteQueue**）[DB: stocks.json, config, logs]
 │   └── stockAdapters/      ... [Svc] 在庫連携アダプタ
 │       ├── baseAdapter.js  ... 共通IF
 │       ├── csvAdapter.js   ... CSV/Excel取込（Shift_JIS/UTF-8自動判定・Excelは **excelReader** で解析）
@@ -543,7 +568,11 @@ web-order/
 │
 ├── utils/
 │   ├── priceCalc.js        ... [Core] 価格計算エンジン [Pure Function]
-│   └── excelReader.js      ... [Excel] exceljs による安全な Excel 読込（readToRowArrays, readToObjects, cellToDateString 等）[Deps: exceljs]
+│   ├── excelReader.js      ... [Excel] exceljs による安全な Excel 読込（readToRowArrays, readToObjects, cellToDateString 等）[Deps: exceljs]
+│   ├── sessionAsync.js     ... [Session] **regenerateSession** / **saveSession**（express-session を Promise 化）[Ref: auth-api, routes/admin/customersRoutes]
+│   ├── jsonWriteQueue.js   ... [Concurrency] **runWithJsonFileWriteLock(filePath, task)** — 同一ファイルへの更新をプロセス内 Promise キューで直列化 [Ref: loginRateLimit, proxyRequestsStore, kaitori-api, support-api, stockService]
+│   ├── stockPresentation.js ... [Domain] 顧客向け **buildStockInfo** / **getStockContext** / **buildStockUiConfig** 等 [Ref: routes/products-api.js]
+│   └── proxyRequestsStore.js ... [Data] 代理ログイン **proxy_requests.json**。**mutateProxyRequests**（ロック付き RMW）・**loadProxyRequests**・**PROXY_REQUEST_EXPIRY_MS** [Deps: dbPaths, **jsonWriteQueue**] [Ref: routes/admin/customersRoutes, auth-api]
 │
 ├── docs/
 │   ├── CAPTCHAの説明.md       ... [Doc] CAPTCHA（ログインでの利用イメージ・reCAPTCHA の見た目）の説明

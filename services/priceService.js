@@ -6,6 +6,7 @@ const ExcelJS = require("exceljs");
 const { readToRowArrays } = require("../utils/excelReader");
 const { dbPath } = require("../dbPaths");
 const settingsService = require("./settingsService");
+const { parsePriceCell, normalizeManufacturerKey } = require("./priceManufacturerNormalize");
 
 // DBパス設定
 const PRICES_DB_PATH = dbPath("prices.json");             // 個別特価
@@ -13,46 +14,6 @@ const RANK_PRICES_DB_PATH = dbPath("rank_prices.json");   // ランク価格
 const RANK_PRICES_UPDATED_AT_PATH = dbPath("rank_prices_updated_at.json"); // ランク価格の最終更新日時（商品コード → タイムスタンプ）
 const PRODUCTS_DB_PATH = dbPath("products.json");         // 商品マスタ(名称参照用)
 const CUSTOMERS_DB_PATH = dbPath("customers.json");       // 顧客マスタ(名称参照用)
-
-/** Excelセル値から整数円を取得。小数・文字列・浮動小数点誤差を安全に整数に丸める。上限 999,999,999 円 */
-function parsePriceCell(val) {
-    if (val === "" || val === undefined || val === null) return null;
-    const n = Number(val);
-    if (!Number.isFinite(n) || n < 0) return null;
-    const rounded = Math.round(n);
-    return rounded <= 999999999 ? rounded : null;
-}
-
-/**
- * 半角カナ → 全角カナ（1対1対応。ﾞﾟはそのまま）
- * シート分けで「富士フイルム」と「富士ﾌｲﾙﾑ」を同一扱いするため
- */
-const HALF_KATAKANA = "ｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ";
-const FULL_KATAKANA = "ヲァィゥェォャュョッーアイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワン";
-
-/**
- * メーカー名をシート分け・並び順用に正規化する（半角/全角・大文字/小文字を同一扱い）
- * - 英数字: 全角→半角、小文字→大文字
- * - カナ: 半角カナ→全角カナ（富士ﾌｲﾙﾑ → 富士フイルム）
- * @param {string} str - メーカー名
- * @returns {string} 正規化キー（英数字は半角大文字、カナは全角・trim）
- */
-function normalizeManufacturerKey(str) {
-    if (typeof str !== "string") return "";
-    let s = str.trim();
-    if (!s) return "";
-    // 半角カナ → 全角カナ（富士ﾌｲﾙﾑ と 富士フイルム を同一キーに）
-    let out = "";
-    for (let i = 0; i < s.length; i++) {
-        const idx = HALF_KATAKANA.indexOf(s[i]);
-        out += idx >= 0 ? FULL_KATAKANA[idx] : s[i];
-    }
-    s = out;
-    // 全角英数字 → 半角
-    s = s.replace(/[０-９]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
-    s = s.replace(/[Ａ-Ｚａ-ｚ]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
-    return s.toUpperCase();
-}
 
 class PriceService {
 

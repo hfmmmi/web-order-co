@@ -2,13 +2,13 @@
 // 【役割】注文データのCRUD、出荷管理、およびFLAM連携を担当
 // [Updated] データの欠損（code/price/name）に対する強力な自己修復・補完ロジックを追加
 
-const path = require("path");
 const fs = require("fs").promises;
 const { parse } = require('csv-parse/sync'); // FLAM用
 const iconv = require('iconv-lite');      // FLAM用
 const { calculateFinalPrice } = require("../utils/priceCalc"); // 価格計算
 const stockService = require("./stockService");
 const settingsService = require("./settingsService");
+const { runWithJsonFileWriteLock } = require("../utils/jsonWriteQueue");
 
 /** 物流CSVの1行から、候補列名のうち最初に値があるものを返す */
 function firstCsvRowValue(row, keys) {
@@ -37,10 +37,6 @@ const fromPublicId = (publicId) => {
 };
 
 class OrderService {
-    constructor() {
-        this._ordersWriteQueue = Promise.resolve();
-    }
-
     // 内部ヘルパー: JSON読み込み
     async _loadJson(filePath) {
         try {
@@ -69,13 +65,6 @@ class OrderService {
         return "未発送";
     }
 
-    _withOrdersWriteLock(task) {
-        const run = this._ordersWriteQueue.then(() => task());
-        // 失敗してもキューは継続させる
-        this._ordersWriteQueue = run.catch(() => {});
-        return run;
-    }
-
     _generateNextOrderId(orders) {
         const now = Date.now();
         const maxNumericId = orders.reduce((max, row) => {
@@ -91,7 +80,7 @@ class OrderService {
 
     // 新規注文作成
     async placeOrder(customerId, cart, deliveryInfo, myRank) {
-        return await this._withOrdersWriteLock(async () => {
+        return await runWithJsonFileWriteLock(ORDERS_DB, async () => {
             const [productMaster, priceList, rankPriceMap, orders] = await Promise.all([
                 this._loadJson(PRODUCTS_DB),
                 this._loadJson(PRICES_DB),
@@ -271,7 +260,7 @@ class OrderService {
 
     // ステータス・配送情報更新
     async updateOrderStatus(orderId, updates) {
-        return await this._withOrdersWriteLock(async () => {
+        return await runWithJsonFileWriteLock(ORDERS_DB, async () => {
             const orders = await this._loadJson(ORDERS_DB);
             const targetIndex = orders.findIndex(o => String(o.orderId) === String(orderId));
 
@@ -310,7 +299,7 @@ class OrderService {
 
     // 出荷登録
     async registerShipment(orderId, shipmentDataArray) {
-        return await this._withOrdersWriteLock(async () => {
+        return await runWithJsonFileWriteLock(ORDERS_DB, async () => {
             const orders = await this._loadJson(ORDERS_DB);
             const targetIndex = orders.findIndex(o => String(o.orderId) === String(orderId));
 
@@ -341,7 +330,7 @@ class OrderService {
 
     // 出荷修正
     async updateShipment(orderId, shipmentId, updates) {
-        return await this._withOrdersWriteLock(async () => {
+        return await runWithJsonFileWriteLock(ORDERS_DB, async () => {
             const orders = await this._loadJson(ORDERS_DB);
             const targetIndex = orders.findIndex(o => String(o.orderId) === String(orderId));
 
@@ -383,7 +372,7 @@ class OrderService {
     }
 
     async markOrdersAsExported(orderIds) {
-        await this._withOrdersWriteLock(async () => {
+        await runWithJsonFileWriteLock(ORDERS_DB, async () => {
             const orders = await this._loadJson(ORDERS_DB);
             const nowISO = new Date().toISOString();
 
@@ -397,7 +386,7 @@ class OrderService {
     }
 
     async resetExportStatus(orderId) {
-        return await this._withOrdersWriteLock(async () => {
+        return await runWithJsonFileWriteLock(ORDERS_DB, async () => {
             const orders = await this._loadJson(ORDERS_DB);
             const target = orders.find(o => String(o.orderId) === String(orderId));
             if (target) {
@@ -436,7 +425,7 @@ class OrderService {
                     ? String(cfg.importSourceLabel).trim()
                     : "FLAM";
 
-            return await this._withOrdersWriteLock(async () => {
+            return await runWithJsonFileWriteLock(ORDERS_DB, async () => {
                 const orders = await this._loadJson(ORDERS_DB);
                 const stats = { updated: 0, created: 0, skipped: 0 };
                 const historyLog = [];
@@ -500,7 +489,7 @@ class OrderService {
         if (!Array.isArray(importedOrders)) {
             throw new Error("importedOrders must be an array");
         }
-        return await this._withOrdersWriteLock(async () => {
+        return await runWithJsonFileWriteLock(ORDERS_DB, async () => {
             const orders = await this._loadJson(ORDERS_DB);
 
             let createdCount = 0;

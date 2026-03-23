@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">61.72% </span>
+                <span class="strong">62.26% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>129/209</span>
+                <span class='fraction'>132/212</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">75% </span>
+                <span class="strong">77.14% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>24/32</span>
+                <span class='fraction'>27/35</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">65.51% </span>
+                <span class="strong">66.1% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>114/174</span>
+                <span class='fraction'>117/177</span>
             </div>
         
             
@@ -386,7 +386,11 @@
 <a name='L321'></a><a href='#L321'>321</a>
 <a name='L322'></a><a href='#L322'>322</a>
 <a name='L323'></a><a href='#L323'>323</a>
-<a name='L324'></a><a href='#L324'>324</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L324'></a><a href='#L324'>324</a>
+<a name='L325'></a><a href='#L325'>325</a>
+<a name='L326'></a><a href='#L326'>326</a>
+<a name='L327'></a><a href='#L327'>327</a>
+<a name='L328'></a><a href='#L328'>328</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">62x</span>
 <span class="cline-any cline-yes">62x</span>
@@ -460,6 +464,7 @@
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
@@ -487,6 +492,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -501,6 +508,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -510,6 +519,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -573,6 +583,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -643,6 +654,7 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -702,21 +714,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">62x</span></td><td class="text"><pre class="prettyprint lang-js">// services/productService.js
 // 商品管理に関する実務ロジック（CRUD + Excel取込・CSV取込）を担当
-const path = require("path");
 const fs = require("fs").promises;
 const iconv = require("iconv-lite");
 const { parse } = require("csv-parse/sync");
 const { readToRowArrays, ExcelJS } = require("../utils/excelReader");
 const { dbPath } = require("../dbPaths");
+const { runWithJsonFileWriteLock } = require("../utils/jsonWriteQueue");
 const settingsService = require("./settingsService");
 const priceService = require("./priceService");
 &nbsp;
@@ -780,59 +788,65 @@ class ProductService {
 &nbsp;
     // 2. 商品追加（リクエストから正規化して category 等を確実に保存）
     async addProduct(newProduct) {
-        const productMaster = await this.getAllProducts();
-        const code = (newProduct &amp;&amp; newProduct.productCode != null) ? String(newProduct.productCode).trim() : <span class="branch-1 cbranch-no" title="branch not covered" >"";</span>
-        <span class="missing-if-branch" title="if path not taken" >I</span>if (!code) {
-<span class="cstat-no" title="statement not covered" >            return { success: false, message: "商品コードは必須です" };</span>
-        }
-        const exists = productMaster.find(p =&gt; p.productCode === code);
-        if (exists) {
-            return { success: false, message: "この商品コードは既に存在します" };
-        }
+        return runWithJsonFileWriteLock(PRODUCTS_DB_PATH, async () =&gt; {
+            const productMaster = await this.getAllProducts();
+            const code = (newProduct &amp;&amp; newProduct.productCode != null) ? String(newProduct.productCode).trim() : <span class="branch-1 cbranch-no" title="branch not covered" >"";</span>
+            <span class="missing-if-branch" title="if path not taken" >I</span>if (!code) {
+<span class="cstat-no" title="statement not covered" >                return { success: false, message: "商品コードは必須です" };</span>
+            }
+            const exists = productMaster.find(p =&gt; p.productCode === code);
+            if (exists) {
+                return { success: false, message: "この商品コードは既に存在します" };
+            }
 &nbsp;
-        const normalized = {
-            productCode: code,
-            name: (newProduct.name != null &amp;&amp; newProduct.name !== "") ? String(newProduct.name).trim() : <span class="branch-1 cbranch-no" title="branch not covered" >code,</span>
-            manufacturer: (newProduct.manufacturer != null) ? String(newProduct.manufacturer).trim() : <span class="branch-1 cbranch-no" title="branch not covered" >"",</span>
-            category: (newProduct.category != null) ? String(newProduct.category).trim() : <span class="branch-1 cbranch-no" title="branch not covered" >"",</span>
-            basePrice: typeof newProduct.basePrice === "number" &amp;&amp; Number.isFinite(newProduct.basePrice) ? Math.max(0, Math.round(newProduct.basePrice)) : <span class="branch-1 cbranch-no" title="branch not covered" >0,</span>
-            stockStatus: (newProduct.stockStatus != null &amp;&amp; String(newProduct.stockStatus).trim() !== "") ? String(newProduct.stockStatus).trim() : <span class="branch-1 cbranch-no" title="branch not covered" >"即納",</span>
-            active: newProduct.active !== false,
-            rankPrices: (newProduct.rankPrices &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >typeof newProduct.rankPrices === "object")</span> ? <span class="branch-0 cbranch-no" title="branch not covered" >newProduct.rankPrices </span>: {}
-        };
-        <span class="missing-if-branch" title="if path not taken" >I</span>if (Object.keys(normalized.rankPrices || <span class="branch-1 cbranch-no" title="branch not covered" >{})</span>.length &gt; 0) {
-<span class="cstat-no" title="statement not covered" >            normalized.rankPricesUpdatedAt = Date.now();</span>
-        }
-        productMaster.push(normalized);
-        await this._save(productMaster);
-        return { success: true };
+            const normalized = {
+                productCode: code,
+                name: (newProduct.name != null &amp;&amp; newProduct.name !== "") ? String(newProduct.name).trim() : <span class="branch-1 cbranch-no" title="branch not covered" >code,</span>
+                manufacturer: (newProduct.manufacturer != null) ? String(newProduct.manufacturer).trim() : <span class="branch-1 cbranch-no" title="branch not covered" >"",</span>
+                category: (newProduct.category != null) ? String(newProduct.category).trim() : <span class="branch-1 cbranch-no" title="branch not covered" >"",</span>
+                basePrice: typeof newProduct.basePrice === "number" &amp;&amp; Number.isFinite(newProduct.basePrice) ? Math.max(0, Math.round(newProduct.basePrice)) : <span class="branch-1 cbranch-no" title="branch not covered" >0,</span>
+                stockStatus: (newProduct.stockStatus != null &amp;&amp; String(newProduct.stockStatus).trim() !== "") ? String(newProduct.stockStatus).trim() : <span class="branch-1 cbranch-no" title="branch not covered" >"即納",</span>
+                active: newProduct.active !== false,
+                rankPrices: (newProduct.rankPrices &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >typeof newProduct.rankPrices === "object")</span> ? <span class="branch-0 cbranch-no" title="branch not covered" >newProduct.rankPrices </span>: {}
+            };
+            <span class="missing-if-branch" title="if path not taken" >I</span>if (Object.keys(normalized.rankPrices || <span class="branch-1 cbranch-no" title="branch not covered" >{})</span>.length &gt; 0) {
+<span class="cstat-no" title="statement not covered" >                normalized.rankPricesUpdatedAt = Date.now();</span>
+            }
+            productMaster.push(normalized);
+            await fs.writeFile(PRODUCTS_DB_PATH, JSON.stringify(productMaster, null, 2));
+            return { success: true };
+        });
     }
 &nbsp;
     // 3. 商品更新
     async updateProduct(updateData) {
-        const productMaster = await this.getAllProducts();
-        const index = productMaster.findIndex(p =&gt; p.productCode === updateData.productCode);
+        return runWithJsonFileWriteLock(PRODUCTS_DB_PATH, async () =&gt; {
+            const productMaster = await this.getAllProducts();
+            const index = productMaster.findIndex(p =&gt; p.productCode === updateData.productCode);
 &nbsp;
-        if (index === -1) {
-            return { success: false, message: "商品が見つかりません" };
-        }
+            if (index === -1) {
+                return { success: false, message: "商品が見つかりません" };
+            }
 &nbsp;
-        productMaster[index] = updateData;
-        await this._save(productMaster);
-        return { success: true };
+            productMaster[index] = updateData;
+            await fs.writeFile(PRODUCTS_DB_PATH, JSON.stringify(productMaster, null, 2));
+            return { success: true };
+        });
     }
 &nbsp;
     // 4. 商品削除
     async deleteProduct(productCode) {
-        const productMaster = await this.getAllProducts();
-        const newMaster = productMaster.filter(p =&gt; p.productCode !== productCode);
-        
-        <span class="missing-if-branch" title="else path not taken" >E</span>if (productMaster.length === newMaster.length) {
-            return { success: false, message: "削除対象が見つかりません" };
-        }
+        return runWithJsonFileWriteLock(PRODUCTS_DB_PATH, async () =&gt; {
+            const productMaster = await this.getAllProducts();
+            const newMaster = productMaster.filter(p =&gt; p.productCode !== productCode);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >        await this._save(newMaster);</span>
-<span class="cstat-no" title="statement not covered" >        return { success: true };</span>
+            <span class="missing-if-branch" title="else path not taken" >E</span>if (productMaster.length === newMaster.length) {
+                return { success: false, message: "削除対象が見つかりません" };
+            }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            await fs.writeFile(PRODUCTS_DB_PATH, JSON.stringify(newMaster, null, 2));</span>
+<span class="cstat-no" title="statement not covered" >            return { success: true };</span>
+        });
     }
 &nbsp;
     /** Base64 または Buffer を受け取り、Excel一括取込を実行（API用） */
@@ -894,6 +908,7 @@ class ProductService {
                 });
             }
 &nbsp;
+            return await runWithJsonFileWriteLock(PRODUCTS_DB_PATH, async () =&gt; {
             const productMaster = await this.getAllProducts();
             let updateCount = 0, addCount = 0;
 &nbsp;
@@ -962,8 +977,9 @@ class ProductService {
                 }
             });
 &nbsp;
-            await this._save(productMaster);
+            await fs.writeFile(PRODUCTS_DB_PATH, JSON.stringify(productMaster, null, 2));
             return { success: true, message: `処理完了: 更新${updateCount}件 / 新規${addCount}件` };
+            });
 &nbsp;
         } catch (error) {
             console.error("[ProductService] Import Error:", error);
@@ -1026,10 +1042,6 @@ class ProductService {
 <span class="cstat-no" title="statement not covered" >        return workbook.xlsx.writeBuffer();</span>
     }
 &nbsp;
-    // 内部用: 保存処理
-    async _save(data) {
-        await fs.writeFile(PRODUCTS_DB_PATH, JSON.stringify(data, null, 2));
-    }
 }
 &nbsp;
 module.exports = new ProductService();</pre></td></tr></table></pre>
@@ -1039,7 +1051,7 @@ module.exports = new ProductService();</pre></td></tr></table></pre>
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-21T22:14:58.248Z
+                at 2026-03-23T00:12:25.447Z
             </div>
         <script src="../prettify.js"></script>
         <script>

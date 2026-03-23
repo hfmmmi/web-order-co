@@ -56,7 +56,8 @@ describe("Aランク: 買取API", () => {
             });
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(true);
-            expect(typeof res.body.requestId).toBe("number");
+            expect(typeof res.body.requestId).toBe("string");
+            expect(res.body.requestId).toMatch(/^KR-\d+-[a-f0-9]{8}$/);
 
             const requests = await readJson("kaitori_requests.json");
             expect(requests.length).toBe(1);

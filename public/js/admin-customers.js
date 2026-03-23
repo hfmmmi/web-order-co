@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", function () {
         proxyRequestPollTimer = setInterval(async function () {
             if (!proxyRequestCustomerId) return;
             try {
-                const r = await fetch("/api/admin/proxy-request-status?customerId=" + encodeURIComponent(proxyRequestCustomerId));
+                const r = await adminApiFetch("/api/admin/proxy-request-status?customerId=" + encodeURIComponent(proxyRequestCustomerId));
                 const d = await r.json();
                 if (d.status === "approved") {
                     if (proxyRequestPollTimer) { clearInterval(proxyRequestPollTimer); proxyRequestPollTimer = null; }
@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!proxyRequestCustomerId) return;
             this.disabled = true;
             try {
-                const res = await fetch("/api/admin/proxy-login", {
+                const res = await adminApiFetch("/api/admin/proxy-login", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ customerId: proxyRequestCustomerId })
@@ -139,7 +139,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         try {
             // ★修正: サーバー側の定義に合わせて URL を /customers に変更 (-list を削除)
-            const res = await fetch(`/api/admin/customers?keyword=${encodeURIComponent(keyword)}&page=${page}`);
+            const res = await adminApiFetch(`/api/admin/customers?keyword=${encodeURIComponent(keyword)}&page=${page}`);
 
             if (res.status === 401) {
                 custTableBody.innerHTML = "<tr><td colspan='4'>認証待ち...</td></tr>";
@@ -211,7 +211,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     try {
                         if (hasEmail) {
-                            const res = await fetch("/api/admin/send-invite-email", {
+                            const res = await adminApiFetch("/api/admin/send-invite-email", {
                                 method: "POST",
                                 headers: { "Content-Type": "application/json" },
                                 body: JSON.stringify({ customerId: id })
@@ -223,7 +223,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                 toastError(d.message || "送信に失敗しました");
                             }
                         } else {
-                            const res = await fetch("/api/admin/invite-reset", {
+                            const res = await adminApiFetch("/api/admin/invite-reset", {
                                 method: "POST",
                                 headers: { "Content-Type": "application/json" },
                                 body: JSON.stringify({ customerId: id })
@@ -257,7 +257,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     btn.textContent = "申請中...";
                     btn.disabled = true;
                     try {
-                        const res = await fetch("/api/admin/proxy-request", {
+                        const res = await adminApiFetch("/api/admin/proxy-request", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({ customerId: id })
@@ -390,7 +390,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             try {
-                const res = await fetch(endpoint, {
+                const res = await adminApiFetch(endpoint, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload)
@@ -421,7 +421,7 @@ document.addEventListener("DOMContentLoaded", function () {
         reader.onload = async function (e) {
             const base64 = e.target.result.split(",")[1];
             try {
-                const res = await fetch(apiEndpoint, {
+                const res = await adminApiFetch(apiEndpoint, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ fileData: base64 })
@@ -446,6 +446,29 @@ document.addEventListener("DOMContentLoaded", function () {
         priceCsvBtn.addEventListener("click", () => uploadCsv(priceCsvInput, "/api/upload-price-data"));
     }
 
+    function fillGodSuggestList(container, items, formatLabel, onSelect) {
+        if (!container) return;
+        container.innerHTML = "";
+        if (!items || items.length === 0) {
+            container.style.display = "none";
+            return;
+        }
+        container.style.display = "block";
+        items.forEach((item) => {
+            const div = document.createElement("div");
+            div.textContent = formatLabel(item);
+            div.style.padding = "5px";
+            div.style.cursor = "pointer";
+            div.onmouseover = () => { div.style.background = "#eee"; };
+            div.onmouseout = () => { div.style.background = "white"; };
+            div.onclick = () => {
+                onSelect(item);
+                container.style.display = "none";
+            };
+            container.appendChild(div);
+        });
+    }
+
     // -------------------------------------------------------------
     // God Hand Mode (個別価格設定)
     // -------------------------------------------------------------
@@ -454,32 +477,23 @@ document.addEventListener("DOMContentLoaded", function () {
             const val = this.value;
             if (val.length < 2) { godSuggestCust.style.display = "none"; return; }
             try {
-                // ★修正: こちらも合わせて URL を /customers に変更
-                const res = await fetch(`/api/admin/customers?keyword=${encodeURIComponent(val)}&page=1`);
+                const res = await adminApiFetch(`/api/admin/customers?keyword=${encodeURIComponent(val)}&page=1`);
                 if (res.status === 401) return;
 
                 const d = await res.json();
-                godSuggestCust.innerHTML = "";
-                if (d.customers.length > 0) {
-                    godSuggestCust.style.display = "block";
-                    d.customers.forEach(c => {
-                        const div = document.createElement("div");
-                        div.textContent = `${c.customerId} : ${c.customerName}`;
-                        div.style.padding = "5px";
-                        div.style.cursor = "pointer";
-                        div.onmouseover = () => div.style.background = "#eee";
-                        div.onmouseout = () => div.style.background = "white";
-                        div.onclick = () => {
-                            godCustId.value = c.customerId;
-                            godSuggestCust.style.display = "none";
-                            checkCurrentPrice();
-                        };
-                        godSuggestCust.appendChild(div);
-                    });
-                } else {
-                    godSuggestCust.style.display = "none";
-                }
-            } catch (e) { }
+                const list = Array.isArray(d.customers) ? d.customers : [];
+                fillGodSuggestList(
+                    godSuggestCust,
+                    list,
+                    (c) => `${c.customerId} : ${c.customerName}`,
+                    (c) => {
+                        godCustId.value = c.customerId;
+                        checkCurrentPrice();
+                    }
+                );
+            } catch (e) {
+                godSuggestCust.style.display = "none";
+            }
         });
     }
 
@@ -488,33 +502,24 @@ document.addEventListener("DOMContentLoaded", function () {
             const val = this.value;
             if (val.length < 2) { godSuggestProd.style.display = "none"; return; }
             try {
-                const res = await fetch("/api/admin/products");
+                const res = await adminApiFetch("/api/admin/products");
                 if (res.status === 401) return;
 
                 const products = await res.json();
                 const filtered = products.filter(p => p.productCode.includes(val) || p.name.includes(val)).slice(0, 10);
 
-                godSuggestProd.innerHTML = "";
-                if (filtered.length > 0) {
-                    godSuggestProd.style.display = "block";
-                    filtered.forEach(p => {
-                        const div = document.createElement("div");
-                        div.textContent = `${p.productCode} : ${p.name}`;
-                        div.style.padding = "5px";
-                        div.style.cursor = "pointer";
-                        div.onmouseover = () => div.style.background = "#eee";
-                        div.onmouseout = () => div.style.background = "white";
-                        div.onclick = () => {
-                            godProdCode.value = p.productCode;
-                            godSuggestProd.style.display = "none";
-                            checkCurrentPrice();
-                        };
-                        godSuggestProd.appendChild(div);
-                    });
-                } else {
-                    godSuggestProd.style.display = "none";
-                }
-            } catch (e) { }
+                fillGodSuggestList(
+                    godSuggestProd,
+                    filtered,
+                    (p) => `${p.productCode} : ${p.name}`,
+                    (p) => {
+                        godProdCode.value = p.productCode;
+                        checkCurrentPrice();
+                    }
+                );
+            } catch (e) {
+                godSuggestProd.style.display = "none";
+            }
         });
     }
 
@@ -527,7 +532,7 @@ document.addEventListener("DOMContentLoaded", function () {
         currentPriceDisplay.textContent = "確認中...";
 
         try {
-            const res = await fetch(`/api/get-price?customerId=${cId}&productCode=${pCode}`);
+            const res = await adminApiFetch(`/api/get-price?customerId=${cId}&productCode=${pCode}`);
             const d = await res.json();
             if (d.success) {
                 const prefix = d.isSpecial ? "特価" : "定価";
@@ -547,7 +552,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!cId || !pCode || !price) { toastWarning("全項目を入力してください"); return; }
 
             try {
-                const res = await fetch("/api/update-single-price", {
+                const res = await adminApiFetch("/api/update-single-price", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -583,7 +588,7 @@ document.addEventListener("DOMContentLoaded", function () {
         specialPriceTableBody.innerHTML = "<tr><td colspan='4' style='text-align:center'>データ読み込み中...</td></tr>";
 
         try {
-            const res = await fetch("/api/admin/special-prices-list");
+            const res = await adminApiFetch("/api/admin/special-prices-list");
             if (res.status === 401) return;
 
             const list = await res.json();
@@ -632,7 +637,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // 特価を削除する関数
     async function deleteSpecialPrice(customerId, productCode) {
         try {
-            const res = await fetch("/api/delete-special-price", {
+            const res = await adminApiFetch("/api/delete-special-price", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ customerId, productCode })
@@ -660,7 +665,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // ランク一覧をAPIから取得してdatalistを更新（表示名付き）
     const rankListEl = document.getElementById("rank-list");
     if (rankListEl) {
-        fetch("/api/admin/rank-list", { credentials: "include" })
+        adminApiFetch("/api/admin/rank-list", { credentials: "include" })
             .then(r => r.ok ? r.json() : [])
             .then(list => {
                 rankListEl.innerHTML = list.map(item =>
