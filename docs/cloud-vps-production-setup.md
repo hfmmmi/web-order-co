@@ -72,6 +72,21 @@
 
 ---
 
+## 9. 定期保守（OS）
+
+**初回だけでなく、運用中も繰り返す保守**です。メンテナンス時間帯に実施すること。
+
+- [ ] **`apt update && apt upgrade -y`**（または対話で確認するなら `apt upgrade`）  
+  - セキュリティ修正の適用のため、**月1回程度**、または Ubuntu の重要な脆弱性情報が出たタイミングで実施するのが目安。  
+  - 本番では変更内容を把握できるよう、必要に応じて事前に `apt list --upgradable` で確認してからでもよい。
+- [ ] **`reboot`**  
+  - ログイン時の案内に **`* System restart required *`** や **カーネル更新後の再起動が必要** と出たときに実施。  
+  - 毎週必須ではない。**再起動後**は SSH・Web・常駐プロセス（PM2 / systemd）が意図どおり戻るか確認する。
+
+**補足:** パッケージ更新と再起動は **自分の PC（Windows）の PowerShell ではなく、サーバに SSH ログインしたシェル**（`root@...#` など）で実行する。接続を終了するときは `exit`。Windows からサーバへ接続するときだけ `ssh -i %USERPROFILE%\.ssh\id_ed25519 root@サーバIP`（PowerShell では `$env:USERPROFILE\.ssh\id_ed25519`）を使う。
+
+---
+
 ## 参照
 
 - [session-production.md](session-production.md) … `SESSION_PATH` の詳細  

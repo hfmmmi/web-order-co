@@ -20,6 +20,16 @@
 - **顧客 A/B のデータ分離（現仕様）**: 顧客ログイン後の API は **session の `customerId`** に基づき注文・サポート等を絞り込み（**管理者は全件**が仕様）。**SaaS の「テナント（契約企業）間分離」**とは別レイヤーの話。
 - **本番シークレット（再掲・齟齬防止）**: **`SESSION_SECRET`** は **環境変数のみ**（`settings.json` からは読まない。未設定時は開発用フォールバックあり、本番では必ず設定）。**`MAIL_PASSWORD`** は本番 **環境変数**；`settingsService.updateSettings` は **`NODE_ENV=production` で `mail.smtp.password` をファイルに残さない**。**`NODE_ENV=production`** で Cookie `secure` 等の本番挙動（[middlewares/sessionMiddleware.js](middlewares/sessionMiddleware.js)）。**同一オリジン運用**なら **`ALLOWED_ORIGINS` 未設定でよい**（別オリジンのみ要設定）。
 
+### 直近スレッド反映済み（2026-03-25 本番VPS・Phase F）
+- **ホスト例**: Ubuntu 24.04 LTS（エックスサーバーVPS 等）。**UFW** で **22 / 80 / 443** のみ許可。Node の **3000** は **外向きに開けない**（Nginx が **127.0.0.1:3000** にプロキシする想定）。
+- **配置**: **`/opt/weborder`** に clone、**`npm ci --omit=dev`**。**Node 20**（NodeSource `setup_20.x` → `apt install nodejs`）。
+- **永続セッション用**: **`/var/lib/weborder/sessions`** を作成し権限設定（**`chmod 700`** 等）。アプリは **`SESSION_PATH=/var/lib/weborder/sessions`** で参照。
+- **`.env`（Phase F）**: **`SESSION_SECRET`**、**`NODE_ENV=production`**（**`#` なしの独立行**）、**`MAIL_PASSWORD`**（値に **`#` が含まれる場合はダブルクォート**で囲む）、**`TRUST_PROXY=1`**、同一オリジンなら **`ALLOWED_ORIGINS` 空で可**。**`SESSION_PATH=...` は必ず `/opt/weborder/.env` ファイル内に1行で書く**。**シェルで `SESSION_PATH=/var/lib/weborder/sessions` と打つだけでは `.env` に保存されず、Node（dotenv）は読まない** → 正: **`nano /opt/weborder/.env` で追記**し保存。確認は **`grep SESSION_PATH /opt/weborder/.env`**。
+- **権限**: **`chmod 600 /opt/weborder/.env`**（F-5 推奨）。
+- **よくある誤り**: (1) **サーバ内（bash）で** Windows 用の **`ssh -i $env:USERPROFILE\...`** を実行しない（鍵パスが壊れる）。(2) **`nano` で Enter は改行のみ**；保存 **Ctrl+O**、終了 **Ctrl+X**。
+- **Phase F 完了の目安**: `.env` に上記が揃い、**`grep SESSION_PATH` で1行出る**、`chmod 600` 済み。
+- **参照**: **`docs/cloud-vps-production-setup.md`**、**`docs/production-environment-checklist.md`**。
+
 ### 共同編集・別スレ継続について
 - 本ルールは**共同編集や別スレッドでの続き**を想定して記載している。途中から別スレで再開する場合は、**「次回スレッドで優先対応すべき事項」** と **「直近スレッド反映済み」** の日付付き項目を確認し、`docs/` 内の該当ドキュメント（test-execution.md、調査メモ_顧客アドレス消失.md、**共同編集の手順.md**、**operational-risk-index.md**（運用リスク対策・本番チェック一覧）等）を参照して作業を継続すること。
 - **共同編集の手順**は **`docs/共同編集の手順.md`** に集約している。招待方法・初回の流れ（Accept → clone → cd → npm install → Cursor でフォルダを開く）・2回目からの流れ（**pull → 編集 → テスト（推奨）→ push**）・用語（ターミナル／pull／push／コミット）・push 手順（git add . → git commit -m "..." → git push origin main）をエンジニアでない人にも分かるように記載。共同編集者に渡す一文のコピペ用も同 doc にあり。
@@ -43,6 +53,7 @@
 - **回帰**: 変更後 **`npm run test:api`**（または **test:all**）で既存テストを維持すること。新規ルートファイル追加時は **nodemon** の **watch** に **routes/** が含まれていれば **routes/admin/** も監視対象。
 
 ### 次回スレッドで優先対応すべき事項
+- **【本番VPS】次回は Phase G から再開（2026-03-25 時点）**: オーナー作業は **Phase F の最終確認**として **`/opt/weborder/.env` に `SESSION_PATH=/var/lib/weborder/sessions` がファイルとして存在するか**（`grep SESSION_PATH`）と **`chmod 600 .env`** を確認してから **Phase G** へ。**Phase G（本番公開の残り）**: (1) **`cd /opt/weborder && node server.js`** で手動起動し、別 SSH セッションで **`curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:3000/`** 等で応答確認 → 確認後 **Ctrl+C** で停止。(2) **Nginx** 導入・**`/etc/nginx/sites-available/weborder`**（`server_name` は実ドメイン、`location /` で **`proxy_pass http://127.0.0.1:3000`** と **`X-Forwarded-Proto` 等**）→ `sites-enabled` 有効化、`nginx -t`、`systemctl reload nginx`。(3) **DNS の A レコード**が VPS に向いたあと **`certbot --nginx -d ドメイン`** で **HTTPS**。(4) **systemd** **`/etc/systemd/system/weborder.service`**（`WorkingDirectory=/opt/weborder`、`EnvironmentFile=/opt/weborder/.env`、`ExecStart=/usr/bin/node /opt/weborder/server.js`、`Restart=always`）→ `daemon-reload`、`enable`、`start`。**`NODE_ENV=production` 時のブラウザログイン試験には HTTPS が必要**。**次回スレッドでは上記 Phase G を手順どおり案内すること**。
 - **カバレッジ向上計画は現時点で完了扱い**：`npm run test:all`（API（S+A+B+Risk・カバレッジ付き）+ E2E + 負荷試験 + flake監視）が安定して PASS。Phase 1（カバレッジ理想値到達）は「global 80/70 を絶対条件にはせず、運用コスパを踏まえてここで完了」とする（詳細は `docs/coverage-improvement-plan.md` §12.7 と `docs/branch-coverage-70-proposal.md`）。
 - **Jest のカバレッジ閾値**（2026-03-19 更新）：**jest.config.js** で **global branches 50%**、**routes/auth-api.js** / **routes/admin-api.js** は **lines・branches 各 50%** に緩和済み。実測は行 82% 前後・分岐 61% 前後でも API テストは通過可能。理想値はドキュメント参照、**閾値の実体は常に jest.config.js を正とする**。
 - **カバレッジは今後“必要に応じて局所追加”**：全体分岐の高い数値目標は追わず、新機能追加や不具合修正時にその周辺のテストを増やす方針。P0 ファイル（auth-api / admin-api / orders-api / validate.js / priceCalc.js）の品質維持を優先。
