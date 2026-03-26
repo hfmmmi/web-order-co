@@ -53,6 +53,38 @@
             font-size: 1.05rem;
             font-weight: 600;
             color: #374151;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .dashboard-analytics h3 .admin-page-icon {
+            margin-right: 0;
+            flex-shrink: 0;
+            color: #6b7280;
+        }
+
+        .dashboard-analytics h3 .admin-page-icon svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        h3.dashboard-section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        h3.dashboard-section-title .admin-page-icon {
+            margin-right: 0;
+            flex-shrink: 0;
+            color: #9ca3af;
+        }
+
+        h3.dashboard-section-title .admin-page-icon svg {
+            width: 18px;
+            height: 18px;
         }
 
         .dashboard-analytics p {
@@ -164,16 +196,16 @@
 
         <main class="admin-main-content dashboard-surface">
             <header class="dashboard-header-block">
-                <h2><span class="admin-page-icon" data-admin-icon="dashboard" aria-hidden="true"></span>経営ダッシュボード (Executive Cockpit)</h2>
+                <h2><span class="admin-page-icon" data-admin-icon="dashboard" aria-hidden="true"></span>ダッシュボード</h2>
                 <p id="dashboard-today-line" class="dashboard-today"></p>
             </header>
 
             <section class="dashboard-analytics" aria-label="アナリティクス予定エリア">
-                <h3>📈 Analytics Area</h3>
+                <h3><span class="admin-page-icon" data-admin-icon="analyticsChart" aria-hidden="true"></span>Analytics Area</h3>
                 <p>売上推移・利益率分析グラフ (Coming Soon in Phase 4)</p>
             </section>
 
-            <h3 class="dashboard-section-title">🚀 Quick Access &amp; Status</h3>
+            <h3 class="dashboard-section-title"><span class="admin-page-icon" data-admin-icon="quickSection" aria-hidden="true"></span>Quick Access &amp; Status</h3>
             <div class="dashboard-grid" id="dashboard-cards">
                 <div class="dash-card card-orders" data-feature="adminOrders" onclick="location.href='admin-orders.html'" role="link" tabindex="0" onkeydown="if(event.key==='Enter')location.href='admin-orders.html'">
                     <div class="dash-card-accent" aria-hidden="true"></div>

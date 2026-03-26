@@ -19,25 +19,34 @@
 
         .admin-main-content {
             flex-grow: 1;
-            background: #f4f6f9;
+            background: #eef1f5;
             padding: 20px;
             overflow-y: auto;
             height: 100vh;
             box-sizing: border-box;
         }
 
-        /* 共通パーツ */
+        /* 共通パーツ（ダッシュボードと同系色） */
         .page-header {
             margin-bottom: 20px;
-            border-bottom: 2px solid #dee2e6;
-            padding-bottom: 10px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 12px;
+        }
+
+        .page-header h2 {
+            margin: 0;
+            font-size: 1.65rem;
+            font-weight: 700;
+            color: #111827;
+            letter-spacing: 0.02em;
         }
 
         .admin-section {
-            background: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            background: #fff;
+            padding: 22px 24px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
             margin-bottom: 20px;
         }
 
@@ -53,7 +62,7 @@
             top: 50%;
             transform: translateY(-50%);
             cursor: pointer;
-            color: #999;
+            color: #9ca3af;
             font-weight: bold;
             font-size: 1.2rem;
             display: none;
@@ -64,45 +73,45 @@
             display: block;
         }
 
-        /* ★連携ステータスバッジ */
+        /* 連携ステータスバッジ（ダッシュボードのアクセントに合わせる） */
         .badge-exported {
-            background-color: #28a745;
-            color: white;
-            padding: 2px 6px;
-            border-radius: 4px;
+            background-color: #22c55e;
+            color: #fff;
+            padding: 3px 8px;
+            border-radius: 6px;
             font-size: 0.75rem;
-            border: 1px solid #28a745;
+            font-weight: 600;
+            border: 1px solid #22c55e;
         }
 
         .badge-unexported {
             background-color: #fff;
-            color: #dc3545;
-            padding: 2px 6px;
-            border-radius: 4px;
+            color: #ef4444;
+            padding: 3px 8px;
+            border-radius: 6px;
             font-size: 0.75rem;
-            border: 1px solid #dc3545;
-            font-weight: bold;
+            border: 1px solid #ef4444;
+            font-weight: 600;
         }
 
         /* ★ドラッグ＆ドロップエリアのスタイル */
         .drop-area {
-            border: 3px dashed #ccc;
-            border-radius: 10px;
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
             padding: 20px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s ease;
-            background-color: #fafafa;
-            color: #666;
+            transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+            background-color: #f9fafb;
+            color: #6b7280;
             margin-bottom: 20px;
         }
 
-        /* ドラッグ中のハイライト */
         .drop-area.highlight {
-            border-color: #007bff;
-            background-color: #e9f7ff;
-            color: #007bff;
-            transform: scale(1.01);
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+            color: #2563eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
         }
 
         .drop-icon {
@@ -116,6 +125,80 @@
             font-weight: bold;
             display: none;
         }
+
+        /* 注文一覧テーブル */
+        .orders-list-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .orders-list-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .orders-list-table thead th {
+            text-align: left;
+            padding: 10px 12px;
+            background: #f3f4f6;
+            color: #374151;
+            font-weight: 600;
+            border-bottom: 1px solid #e5e7eb;
+            white-space: nowrap;
+        }
+
+        .orders-list-table tbody td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: middle;
+            color: #111827;
+        }
+
+        .orders-list-table .order-summary-row:hover {
+            background: #f9fafb;
+        }
+
+        .orders-list-table .col-numeric,
+        .orders-list-table th.col-numeric {
+            text-align: right;
+        }
+
+        .orders-list-table .col-action {
+            text-align: center;
+            width: 1%;
+            white-space: nowrap;
+        }
+
+        .orders-list-table .col-date {
+            white-space: nowrap;
+            color: #6b7280;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .orders-list-table .col-party {
+            max-width: 260px;
+        }
+
+        .orders-list-table .col-product {
+            max-width: 220px;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .orders-list-table .order-detail-row td.order-detail-cell {
+            padding: 0;
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .orders-list-table .order-detail-cell > .order-detail-inner {
+            padding: 16px 18px;
+            border-top: 1px dashed #e5e7eb;
+        }
     </style>
 </head>
 
@@ -126,15 +209,15 @@
 
         <main class="admin-main-content">
             <div class="page-header">
-                <h2><span class="admin-page-icon" data-admin-icon="orders" aria-hidden="true"></span>受注管理 (Order Fulfillment)</h2>
+                <h2><span class="admin-page-icon" data-admin-icon="orders" aria-hidden="true"></span>受注管理</h2>
             </div>
 
             <div class="admin-section">
-                <h4 style="margin-top:0; color:#495057;">📂 出荷データ一括取込 (Import)</h4>
+                <h4 style="margin-top:0; color:#374151; font-weight:600;">📂 出荷データ一括取込 (Import)</h4>
                 <div id="drop-area" class="drop-area">
                     <span class="drop-icon">📤</span>
                     <p style="margin: 0; font-size: 1.1rem; font-weight:bold;">ここにCSV / Excelファイルをドロップ</p>
-                    <p style="margin: 5px 0 0; font-size: 0.85rem; color: #999;">またはクリックしてファイルを選択</p>
+                    <p style="margin: 5px 0 0; font-size: 0.85rem; color: #9ca3af;">またはクリックしてファイルを選択</p>
                     <input type="file" id="file-input" style="display: none;" accept=".csv, .xlsx, .xls">
                     <div id="upload-status" class="upload-status-msg"></div>
                 </div>
@@ -142,7 +225,7 @@
 
             <div class="admin-section">
                 <div class="search-box"
-                    style="margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 5px; border: 1px solid #e9ecef;">
+                    style="margin-bottom: 20px; background: #f9fafb; padding: 16px; border-radius: 12px; border: 1px solid #e5e7eb;">
 
                     <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-bottom: 10px;">
                         <div>
@@ -163,41 +246,41 @@
 
                     <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end;">
                         <div style="flex-grow: 1; max-width: 250px;">
-                            <label style="font-size:0.8rem; font-weight:bold; color:#007bff;">① 得意先 (ID/社名)</label>
+                            <label style="font-size:0.8rem; font-weight:bold; color:#3b82f6;">① 得意先 (ID/社名)</label>
                             <div class="input-with-clear">
                                 <input type="text" id="order-search-cust" placeholder="会社名を入力..."
                                     list="order-customer-list"
-                                    style="width: 100%; box-sizing: border-box; border: 1px solid #ced4da; border-radius: 4px; padding: 8px;">
+                                    style="width: 100%; box-sizing: border-box; border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px;">
                                 <span class="clear-input-btn" id="clear-cust-btn">×</span>
                             </div>
                             <datalist id="order-customer-list"></datalist>
                         </div>
 
-                        <span style="font-weight:bold; font-size:1.2rem; color:#6c757d; padding-bottom: 5px;">＋</span>
+                        <span style="font-weight:bold; font-size:1.2rem; color:#9ca3af; padding-bottom: 5px;">＋</span>
 
                         <div style="flex-grow: 1; max-width: 250px;">
-                            <label style="font-size:0.8rem; font-weight:bold; color:#28a745;">② 商品 (コード/品名)</label>
+                            <label style="font-size:0.8rem; font-weight:bold; color:#22c55e;">② 商品 (コード/品名)</label>
                             <div class="input-with-clear">
                                 <input type="text" id="order-search-prod" placeholder="商品名を入力..."
                                     list="order-product-list"
-                                    style="width: 100%; box-sizing: border-box; border: 1px solid #ced4da; border-radius: 4px; padding: 8px;">
+                                    style="width: 100%; box-sizing: border-box; border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px;">
                                 <span class="clear-input-btn" id="clear-prod-btn">×</span>
                             </div>
                             <datalist id="order-product-list"></datalist>
                         </div>
 
                         <button id="order-search-btn"
-                            style="padding: 8px 20px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 3px; font-weight: bold;">
+                            style="padding: 8px 20px; cursor: pointer; background: #3b82f6; color: white; border: none; border-radius: 8px; font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
                             検索
                         </button>
 
                         <div style="margin-left: auto; display: flex; gap: 10px; align-items: center;">
                             <button id="btn-csv-unexported"
-                                style="padding: 8px 15px; cursor: pointer; background-color: #dc3545; color: white; border: none; border-radius: 3px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                                style="padding: 8px 15px; cursor: pointer; background-color: #ef4444; color: white; border: none; border-radius: 8px; font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
                                 📤 未連携データ出力
                             </button>
                             <button id="btn-csv-search-result"
-                                style="padding: 8px 15px; cursor: pointer; background-color: #6c757d; color: white; border: none; border-radius: 3px; font-size: 0.9rem;">
+                                style="padding: 8px 15px; cursor: pointer; background-color: #6b7280; color: white; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600;">
                                 📥 検索結果DL(再)
                             </button>
                         </div>
@@ -214,7 +297,7 @@
     <script src="../js/admin-icons.js"></script>
     <script src="../js/admin-common.js"></script>
     <script src="../js/admin-orders-view.js"></script>
-    <script src="../js/admin-orders.js?v=8.1"></script>
+    <script src="../js/admin-orders.js?v=8.3"></script>
 </body>
 
 </html>

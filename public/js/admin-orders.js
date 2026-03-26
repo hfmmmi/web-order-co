@@ -96,7 +96,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if(uploadStatus) {
                 uploadStatus.style.display = 'block';
                 uploadStatus.innerHTML = "⏳ <strong>" + (typeof escapeHtml !== "undefined" ? escapeHtml(file.name) : String(file.name).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")) + "</strong> を送信中...";
-                uploadStatus.style.color = '#007bff';
+                uploadStatus.style.color = '#3b82f6';
             }
 
             const formData = new FormData();
@@ -112,7 +112,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         if (result.success) {
                             if(uploadStatus) {
                                 uploadStatus.innerHTML = "✅ 完了: " + (typeof escapeHtml !== "undefined" ? escapeHtml(result.message) : String(result.message).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"));
-                                uploadStatus.style.color = '#28a745';
+                                uploadStatus.style.color = '#22c55e';
                             }
                             setTimeout(() => fetchOrders(), 1000);
                         } else {
@@ -136,7 +136,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 console.error("Upload Error:", msg);
                 if(uploadStatus) {
                     uploadStatus.innerHTML = "❌ エラー: " + (typeof escapeHtml !== "undefined" ? escapeHtml(msg) : String(msg).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"));
-                    uploadStatus.style.color = '#dc3545';
+                    uploadStatus.style.color = '#ef4444';
                 }
             }
         }
@@ -408,7 +408,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const resultInfo = document.createElement("div");
         resultInfo.style.marginBottom = "10px";
         resultInfo.style.fontSize = "0.9rem";
-        resultInfo.style.color = "#666";
+        resultInfo.style.color = "#6b7280";
         
         if (orders.length > DISPLAY_LIMIT) {
             resultInfo.innerHTML = `該当: <strong>${orders.length}</strong> 件中、上位 <strong>${DISPLAY_LIMIT}</strong> 件を表示しています。<br><span style="font-size:0.8rem">※過去データは「顧客名」等で検索して絞り込んでください。</span>`;
@@ -423,47 +423,73 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
+        const tableWrap = document.createElement("div");
+        tableWrap.className = "orders-list-wrap";
+
+        const table = document.createElement("table");
+        table.className = "orders-list-table";
+        table.setAttribute("role", "grid");
+        table.innerHTML =
+            "<thead><tr>" +
+            '<th scope="col">注文日</th>' +
+            '<th scope="col">注文ID</th>' +
+            '<th scope="col">ステータス</th>' +
+            '<th scope="col">納品先・請求先</th>' +
+            '<th scope="col">商品</th>' +
+            '<th scope="col" class="col-numeric">合計金額</th>' +
+            '<th scope="col">連携</th>' +
+            '<th scope="col" class="col-action">操作</th>' +
+            "</tr></thead>";
+
+        const tbody = document.createElement("tbody");
+        table.appendChild(tbody);
+        tableWrap.appendChild(table);
+        orderListContainer.appendChild(tableWrap);
+
+        const actions = {
+            updateDeliveryEstimate: updateDeliveryEstimate,
+            registerBatch: registerShipmentBatch
+        };
+
         limitedOrders.forEach(order => {
-            // ★Viewへ委譲: カードHTML生成
             const htmlData = window.OrderView.generateOrderCardHTML(order);
-            
-            const card = document.createElement("div");
-            card.className = "order-card";
-            Object.assign(card.style, {
-                border: "1px solid #ccc", padding: "15px", marginBottom: "10px",
-                backgroundColor: "#fff", borderRadius: "5px", boxShadow: "0 1px 3px rgba(0,0,0,0.1)"
-            });
-            card.innerHTML = htmlData.summary;
 
-            const detailDiv = document.createElement("div");
-            Object.assign(detailDiv.style, {
-                display: "none", marginTop: "15px", paddingTop: "15px", borderTop: "1px dashed #ccc"
-            });
-            detailDiv.innerHTML = htmlData.detailContent;
+            const sumTr = document.createElement("tr");
+            sumTr.className = "order-summary-row";
+            sumTr.innerHTML = htmlData.summaryCellsHtml;
 
-            // ★Viewへ委譲: 操作エリア生成（コールバック関数を渡す）
-            const actions = {
-                updateDeliveryEstimate: updateDeliveryEstimate,
-                registerBatch: registerShipmentBatch
-            };
+            const detTr = document.createElement("tr");
+            detTr.className = "order-detail-row";
+            detTr.style.display = "none";
+
+            const detTd = document.createElement("td");
+            detTd.colSpan = 8;
+            detTd.className = "order-detail-cell";
+
+            const detailInner = document.createElement("div");
+            detailInner.className = "order-detail-inner";
+            detailInner.innerHTML = htmlData.detailContent;
+
             const operationArea = window.OrderView.createOperationArea(order, actions);
-            detailDiv.appendChild(operationArea);
-            
-            card.appendChild(detailDiv);
+            detailInner.appendChild(operationArea);
 
-            // 詳細エリア内のイベントバインド (履歴修正・リセット等)
-            setupDetailEvents(detailDiv, order);
+            detTd.appendChild(detailInner);
+            detTr.appendChild(detTd);
 
-            // 開閉ボタン
-            const toggleBtn = card.querySelector(".btn-toggle-detail");
-            toggleBtn.addEventListener("click", function () {
-                const isHidden = detailDiv.style.display === "none";
-                detailDiv.style.display = isHidden ? "block" : "none";
-                toggleBtn.textContent = isHidden ? "閉じる ▲" : "詳細を見る ▼";
-                toggleBtn.style.backgroundColor = isHidden ? "#6c757d" : "#17a2b8"; 
-            });
+            setupDetailEvents(detailInner, order);
 
-            orderListContainer.appendChild(card);
+            const toggleBtn = sumTr.querySelector(".btn-toggle-detail");
+            if (toggleBtn) {
+                toggleBtn.addEventListener("click", function () {
+                    const isHidden = detTr.style.display === "none";
+                    detTr.style.display = isHidden ? "table-row" : "none";
+                    toggleBtn.textContent = isHidden ? "閉じる ▲" : "詳細 ▼";
+                    toggleBtn.style.backgroundColor = isHidden ? "#64748b" : "#3b82f6";
+                });
+            }
+
+            tbody.appendChild(sumTr);
+            tbody.appendChild(detTr);
         });
     }
 
