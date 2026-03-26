@@ -3,41 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <title>ダッシュボード - WEB受注システム</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../style.css">
     <style>
-        /* 管理画面レイアウト */
-        body { margin: 0; overflow: hidden; }
-        .admin-layout-wrapper { display: flex; height: 100vh; }
-        .admin-sidebar { width: 250px; background: #343a40; color: white; display: flex; flex-direction: column; flex-shrink: 0; }
-        .admin-main-content { flex-grow: 1; background: #f4f6f9; padding: 20px; overflow-y: auto; height: 100vh; box-sizing: border-box; }
-        
-        /* ダッシュボード専用カードスタイル */
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: "Noto Sans JP", sans-serif;
+        }
+
+        .admin-main-content.dashboard-surface {
+            background: #eef1f5;
+        }
+
+        .dashboard-header-block {
+            margin-bottom: 28px;
+        }
+
+        .dashboard-header-block h2 {
+            margin: 0 0 8px 0;
+            font-size: 1.65rem;
+            font-weight: 700;
+            color: #111827;
+            letter-spacing: 0.02em;
+        }
+
+        .dashboard-header-block .dashboard-today {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #6b7280;
+            font-weight: 400;
+        }
+
+        .dashboard-analytics {
+            background: #fff;
+            padding: 22px 24px;
+            border-radius: 12px;
+            margin-bottom: 28px;
+            text-align: center;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            color: #6b7280;
+        }
+
+        .dashboard-analytics h3 {
+            margin: 0 0 8px 0;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .dashboard-analytics p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .dashboard-section-title {
+            margin: 0 0 16px 0;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #6b7280;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 18px;
         }
+
         .dash-card {
-            background: white; padding: 20px; border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
             cursor: pointer;
-            border-left: 5px solid #ccc;
+            transition: box-shadow 0.2s, border-color 0.2s;
+            overflow: hidden;
         }
+
         .dash-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            border-color: #d1d5db;
         }
-        .dash-card h3 { margin: 0 0 10px 0; font-size: 1.1rem; color: #333; }
-        .dash-card p { margin: 0; color: #666; font-size: 0.9rem; }
-        .stat-value { font-size: 1.5rem; font-weight: bold; margin-top: 10px; display: block; color: #333; }
-        
-        /* カード色分け */
-        .card-orders { border-left-color: #28a745; }
-        .card-kaitori { border-left-color: #ffc107; }
-        .card-support { border-left-color: #dc3545; }
-        .card-system { border-left-color: #17a2b8; }
+
+        .dash-card:focus-visible {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
+        }
+
+        .dash-card-accent {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 5px;
+            border-radius: 12px 0 0 12px;
+        }
+
+        .dash-card-inner {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            padding: 18px 20px 18px 22px;
+            min-height: 72px;
+            box-sizing: border-box;
+        }
+
+        .dash-card-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .dash-card-body h3 {
+            margin: 0 0 6px 0;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #111827;
+            line-height: 1.35;
+        }
+
+        .dash-card-body p {
+            margin: 0 0 8px 0;
+            color: #6b7280;
+            font-size: 0.875rem;
+            line-height: 1.45;
+        }
+
+        .dash-card .stat-value {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #4b5563;
+            display: block;
+            margin-top: 0;
+        }
+
+        .dash-card-chevron {
+            flex-shrink: 0;
+            margin-left: 12px;
+            color: #9ca3af;
+            font-size: 1.35rem;
+            font-weight: 300;
+            line-height: 1;
+        }
+
+        .card-orders .dash-card-accent { background: #22c55e; }
+        .card-kaitori .dash-card-accent { background: #eab308; }
+        .card-support .dash-card-accent { background: #ec4899; }
+        .card-system .dash-card-accent { background: #38bdf8; }
     </style>
 </head>
 <body>
@@ -45,38 +162,62 @@
     <div class="admin-layout-wrapper">
         <aside class="admin-sidebar"></aside>
 
-        <main class="admin-main-content">
-            <div style="margin-bottom: 20px; border-bottom: 2px solid #dee2e6; padding-bottom: 10px;">
+        <main class="admin-main-content dashboard-surface">
+            <header class="dashboard-header-block">
                 <h2>📊 経営ダッシュボード (Executive Cockpit)</h2>
-                <p style="color: #666;">ようこそ、管理者様。本日の業務状況概要です。</p>
-            </div>
+                <p id="dashboard-today-line" class="dashboard-today"></p>
+            </header>
 
-            <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; text-align: center; border: 2px dashed #ddd; color: #999;">
+            <section class="dashboard-analytics" aria-label="アナリティクス予定エリア">
                 <h3>📈 Analytics Area</h3>
                 <p>売上推移・利益率分析グラフ (Coming Soon in Phase 4)</p>
-            </div>
+            </section>
 
-            <h3 style="color:#555;">🚀 Quick Access & Status</h3>
+            <h3 class="dashboard-section-title">🚀 Quick Access &amp; Status</h3>
             <div class="dashboard-grid" id="dashboard-cards">
-                <div class="dash-card card-orders" data-feature="adminOrders" onclick="location.href='admin-orders.html'">
-                    <h3>🛒 受注・出荷</h3>
-                    <p>本日の未発送注文</p>
-                    <span class="stat-value">確認する &rarr;</span>
+                <div class="dash-card card-orders" data-feature="adminOrders" onclick="location.href='admin-orders.html'" role="link" tabindex="0" onkeydown="if(event.key==='Enter')location.href='admin-orders.html'">
+                    <div class="dash-card-accent" aria-hidden="true"></div>
+                    <div class="dash-card-inner">
+                        <div class="dash-card-body">
+                            <h3>🛒 受注・出荷</h3>
+                            <p>本日の未発送注文</p>
+                            <span class="stat-value">確認する &rarr;</span>
+                        </div>
+                        <span class="dash-card-chevron" aria-hidden="true">›</span>
+                    </div>
                 </div>
-                <div class="dash-card card-kaitori" data-feature="adminKaitori" onclick="location.href='admin-kaitori.html'">
-                    <h3>💰 買取査定</h3>
-                    <p>待機中の査定依頼</p>
-                    <span class="stat-value">確認する &rarr;</span>
+                <div class="dash-card card-kaitori" data-feature="adminKaitori" onclick="location.href='admin-kaitori.html'" role="link" tabindex="0" onkeydown="if(event.key==='Enter')location.href='admin-kaitori.html'">
+                    <div class="dash-card-accent" aria-hidden="true"></div>
+                    <div class="dash-card-inner">
+                        <div class="dash-card-body">
+                            <h3>💰 買取査定</h3>
+                            <p>待機中の査定依頼</p>
+                            <span class="stat-value">確認する &rarr;</span>
+                        </div>
+                        <span class="dash-card-chevron" aria-hidden="true">›</span>
+                    </div>
                 </div>
-                <div class="dash-card card-support" data-feature="adminSupport" onclick="location.href='admin-support.html'">
-                    <h3>🔔 サポート/不具合</h3>
-                    <p>未対応のチケット</p>
-                    <span class="stat-value" style="color:#dc3545;">要確認 &rarr;</span>
+                <div class="dash-card card-support" data-feature="adminSupport" onclick="location.href='admin-support.html'" role="link" tabindex="0" onkeydown="if(event.key==='Enter')location.href='admin-support.html'">
+                    <div class="dash-card-accent" aria-hidden="true"></div>
+                    <div class="dash-card-inner">
+                        <div class="dash-card-body">
+                            <h3>🔔 サポート/不具合</h3>
+                            <p>未対応のチケット</p>
+                            <span class="stat-value" style="color:#dc3545;">要確認 &rarr;</span>
+                        </div>
+                        <span class="dash-card-chevron" aria-hidden="true">›</span>
+                    </div>
                 </div>
-                <div class="dash-card card-system" data-feature="adminProducts" onclick="location.href='admin-products.html'">
-                    <h3>📦 商品マスタ</h3>
-                    <p>登録商品数</p>
-                    <span class="stat-value">2,000+ Items</span>
+                <div class="dash-card card-system" data-feature="adminProducts" onclick="location.href='admin-products.html'" role="link" tabindex="0" onkeydown="if(event.key==='Enter')location.href='admin-products.html'">
+                    <div class="dash-card-accent" aria-hidden="true"></div>
+                    <div class="dash-card-inner">
+                        <div class="dash-card-body">
+                            <h3>📦 商品マスタ</h3>
+                            <p>登録商品数</p>
+                            <span class="stat-value">2,000+ Items</span>
+                        </div>
+                        <span class="dash-card-chevron" aria-hidden="true">›</span>
+                    </div>
                 </div>
             </div>
         </main>
@@ -84,6 +225,15 @@
 
     <script src="../js/admin-common.js"></script>
     <script>
+        (function () {
+            var el = document.getElementById("dashboard-today-line");
+            if (!el) return;
+            var d = new Date();
+            var w = ["日", "月", "火", "水", "木", "金", "土"];
+            el.textContent =
+                "本日は" + (d.getMonth() + 1) + "月" + d.getDate() + "日（" + w[d.getDay()] + "）です。";
+        })();
+
         document.addEventListener("admin-ready", async function() {
             try {
                 const res = await fetch("/api/admin/settings");

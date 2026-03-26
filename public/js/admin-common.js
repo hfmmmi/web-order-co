@@ -153,11 +153,11 @@ function renderSidebar(features) {
     });
 
     menuHtml += `</ul>
-        <div style="margin-top:auto; padding:10px;">
-            <button id="admin-logout-btn" style="width:100%; background:#dc3545; color:white; border:none; padding:10px; cursor:pointer; font-weight:bold;">🚪 ログアウト</button>
+        <div class="sidebar-footer">
+            <button type="button" id="admin-logout-btn" class="sidebar-logout-btn">🚪 ログアウト</button>
         </div>
-        <div style="padding: 20px; font-size: 0.8rem; color: #6c757d; text-align: center;">
-            Build: Federal Model<br>Module: ${currentPath}
+        <div class="sidebar-build-info">
+            Build: Federal Model<br>Module: ${escapeHtml(currentPath)}
         </div>
     `;
 
