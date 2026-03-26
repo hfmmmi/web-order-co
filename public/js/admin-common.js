@@ -99,11 +99,26 @@ function resetTimer() {
 });
 
 
+function adminIconHtml(iconKey) {
+    return window.ADMIN_ICONS && ADMIN_ICONS[iconKey] ? ADMIN_ICONS[iconKey] : "";
+}
+
+/** data-admin-icon を持つ要素に共通SVGを注入（ページ見出し・ダッシュカード等） */
+function injectDataAdminIcons() {
+    if (!window.ADMIN_ICONS) return;
+    document.querySelectorAll("[data-admin-icon]").forEach(function (el) {
+        var k = el.getAttribute("data-admin-icon");
+        if (k && ADMIN_ICONS[k]) el.innerHTML = ADMIN_ICONS[k];
+    });
+}
+
 document.addEventListener("DOMContentLoaded", async function () {
     console.log("🚀 Admin System Booting...");
     
     // タイマー始動
     resetTimer();
+
+    injectDataAdminIcons();
 
     // 1. 共通サイドバーの生成 (DOM操作) - 初回は全メニュー表示
     renderSidebar(null);
@@ -123,14 +138,14 @@ function renderSidebar(features) {
     const currentPath = window.location.pathname.split('/').pop();
 
     const allItems = [
-        { name: 'ダッシュボード', icon: '📊', link: 'admin-dashboard.html', id: 'dashboard', featureKey: null },
-        { name: '買取管理', icon: '💰', link: 'admin-kaitori.html', id: 'kaitori', featureKey: 'adminKaitori' },
-        { name: '受注管理', icon: '🛒', link: 'admin-orders.html', id: 'orders', featureKey: 'adminOrders' },
-        { name: '商品マスタ管理', icon: '📦', link: 'admin-products.html', id: 'products', featureKey: 'adminProducts' },
-        { name: '顧客管理', icon: '👥', link: 'admin-customers.html', id: 'customers', featureKey: 'adminCustomers' },
-        { name: '価格・掛率設定', icon: '💎', link: 'admin-prices.html', id: 'prices', featureKey: 'adminPrices' },
-        { name: 'サポート・不具合', icon: '🔔', link: 'admin-support.html', id: 'support', featureKey: 'adminSupport' },
-        { name: 'システム設定', icon: '⚙️', link: 'admin-settings.html', id: 'settings', featureKey: null }
+        { name: 'ダッシュボード', iconKey: 'dashboard', link: 'admin-dashboard.html', id: 'dashboard', featureKey: null },
+        { name: '買取管理', iconKey: 'kaitori', link: 'admin-kaitori.html', id: 'kaitori', featureKey: 'adminKaitori' },
+        { name: '受注管理', iconKey: 'orders', link: 'admin-orders.html', id: 'orders', featureKey: 'adminOrders' },
+        { name: '商品マスタ管理', iconKey: 'products', link: 'admin-products.html', id: 'products', featureKey: 'adminProducts' },
+        { name: '顧客管理', iconKey: 'customers', link: 'admin-customers.html', id: 'customers', featureKey: 'adminCustomers' },
+        { name: '価格・掛率設定', iconKey: 'prices', link: 'admin-prices.html', id: 'prices', featureKey: 'adminPrices' },
+        { name: 'サポート・不具合', iconKey: 'support', link: 'admin-support.html', id: 'support', featureKey: 'adminSupport' },
+        { name: 'システム設定', iconKey: 'settings', link: 'admin-settings.html', id: 'settings', featureKey: null }
     ];
 
     const menuItems = features
@@ -145,16 +160,18 @@ function renderSidebar(features) {
     menuItems.forEach(item => {
         // active判定も部分一致などで柔軟に対応
         const isActive = (currentPath === item.link) ? 'active' : '';
+        const iconMarkup = adminIconHtml(item.iconKey);
         menuHtml += `
             <li class="menu-item ${isActive}" onclick="window.location.href='${item.link}'">
-                <span class="icon-box">${item.icon}</span> ${item.name}
+                <span class="icon-box" aria-hidden="true">${iconMarkup}</span> ${item.name}
             </li>
         `;
     });
 
+    const logoutIcon = adminIconHtml("logout");
     menuHtml += `</ul>
         <div class="sidebar-footer">
-            <button type="button" id="admin-logout-btn" class="sidebar-logout-btn">🚪 ログアウト</button>
+            <button type="button" id="admin-logout-btn" class="sidebar-logout-btn"><span class="icon-box" aria-hidden="true">${logoutIcon}</span><span>ログアウト</span></button>
         </div>
         <div class="sidebar-build-info">
             Build: Federal Model<br>Module: ${escapeHtml(currentPath)}

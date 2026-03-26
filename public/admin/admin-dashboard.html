@@ -164,7 +164,7 @@
 
         <main class="admin-main-content dashboard-surface">
             <header class="dashboard-header-block">
-                <h2>📊 経営ダッシュボード (Executive Cockpit)</h2>
+                <h2><span class="admin-page-icon" data-admin-icon="dashboard" aria-hidden="true"></span>経営ダッシュボード (Executive Cockpit)</h2>
                 <p id="dashboard-today-line" class="dashboard-today"></p>
             </header>
 
@@ -178,8 +178,9 @@
                 <div class="dash-card card-orders" data-feature="adminOrders" onclick="location.href='admin-orders.html'" role="link" tabindex="0" onkeydown="if(event.key==='Enter')location.href='admin-orders.html'">
                     <div class="dash-card-accent" aria-hidden="true"></div>
                     <div class="dash-card-inner">
+                        <span class="dash-card-icon" data-admin-icon="orders" aria-hidden="true"></span>
                         <div class="dash-card-body">
-                            <h3>🛒 受注・出荷</h3>
+                            <h3>受注・出荷</h3>
                             <p>本日の未発送注文</p>
                             <span class="stat-value">確認する &rarr;</span>
                         </div>
@@ -189,8 +190,9 @@
                 <div class="dash-card card-kaitori" data-feature="adminKaitori" onclick="location.href='admin-kaitori.html'" role="link" tabindex="0" onkeydown="if(event.key==='Enter')location.href='admin-kaitori.html'">
                     <div class="dash-card-accent" aria-hidden="true"></div>
                     <div class="dash-card-inner">
+                        <span class="dash-card-icon" data-admin-icon="kaitori" aria-hidden="true"></span>
                         <div class="dash-card-body">
-                            <h3>💰 買取査定</h3>
+                            <h3>買取査定</h3>
                             <p>待機中の査定依頼</p>
                             <span class="stat-value">確認する &rarr;</span>
                         </div>
@@ -200,8 +202,9 @@
                 <div class="dash-card card-support" data-feature="adminSupport" onclick="location.href='admin-support.html'" role="link" tabindex="0" onkeydown="if(event.key==='Enter')location.href='admin-support.html'">
                     <div class="dash-card-accent" aria-hidden="true"></div>
                     <div class="dash-card-inner">
+                        <span class="dash-card-icon" data-admin-icon="support" aria-hidden="true"></span>
                         <div class="dash-card-body">
-                            <h3>🔔 サポート/不具合</h3>
+                            <h3>サポート/不具合</h3>
                             <p>未対応のチケット</p>
                             <span class="stat-value" style="color:#dc3545;">要確認 &rarr;</span>
                         </div>
@@ -211,8 +214,9 @@
                 <div class="dash-card card-system" data-feature="adminProducts" onclick="location.href='admin-products.html'" role="link" tabindex="0" onkeydown="if(event.key==='Enter')location.href='admin-products.html'">
                     <div class="dash-card-accent" aria-hidden="true"></div>
                     <div class="dash-card-inner">
+                        <span class="dash-card-icon" data-admin-icon="products" aria-hidden="true"></span>
                         <div class="dash-card-body">
-                            <h3>📦 商品マスタ</h3>
+                            <h3>商品マスタ</h3>
                             <p>登録商品数</p>
                             <span class="stat-value">2,000+ Items</span>
                         </div>
@@ -223,6 +227,7 @@
         </main>
     </div>
 
+    <script src="../js/admin-icons.js"></script>
     <script src="../js/admin-common.js"></script>
     <script>
         (function () {

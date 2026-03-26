@@ -468,6 +468,52 @@ input[type="text"], input[type="password"] {
     text-align: center;
     flex-shrink: 0;
     opacity: 0.95;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-box svg {
+    display: block;
+    width: 20px;
+    height: 20px;
+}
+
+.sidebar-logout-btn .icon-box {
+    width: 20px;
+}
+
+/* 管理ページ見出し・ダッシュボードカード用（data-admin-icon + inject） */
+.admin-page-icon {
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+    margin-right: 10px;
+    color: #374151;
+}
+
+.admin-page-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.dashboard-header-block .admin-page-icon svg {
+    width: 28px;
+    height: 28px;
+}
+
+.dash-card-icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 14px;
+    color: #4b5563;
+}
+
+.dash-card-icon svg {
+    width: 22px;
+    height: 22px;
 }
 
 .sidebar-footer {
@@ -488,6 +534,10 @@ input[type="text"], input[type="password"] {
     font-weight: 600;
     font-size: 0.9rem;
     transition: background 0.15s, border-color 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
 }
 
 .sidebar-logout-btn:hover {
