@@ -7,6 +7,7 @@ const specialPriceService = require("../../services/specialPriceService");
 const csvService = require("../../services/csvService");
 const settingsService = require("../../services/settingsService");
 const { requireAdmin } = require("./requireAdmin");
+const orderListExport = require("../../utils/orderListExport");
 
 router.post("/update-order-status", (req, res, next) => {
     if (!req.session.isAdmin && !req.session.customerId) return res.status(401).json({ message: "権限なし" });
@@ -22,6 +23,43 @@ router.get("/admin/orders", requireAdmin, async (req, res) => {
     } catch (e) {
         console.error("Order Fetch Error:", e);
         res.status(500).json({ success: false, message: "注文データの取得に失敗しました" });
+    }
+});
+
+/** 受注管理の一覧（画面上の絞り込み結果）を CSV / Excel でダウンロード */
+router.post("/admin/orders-list-export", requireAdmin, async (req, res) => {
+    try {
+        const { format, orders } = req.body || {};
+        if (format !== "csv" && format !== "xlsx") {
+            return res.status(400).json({
+                success: false,
+                message: "format には csv または xlsx を指定してください"
+            });
+        }
+        if (!Array.isArray(orders)) {
+            return res.status(400).json({ success: false, message: "orders は配列である必要があります" });
+        }
+        const rows = orderListExport.buildOrderListExportRows(orders);
+        if (rows.length <= 1) {
+            return res.status(400).json({ success: false, message: "出力する注文がありません" });
+        }
+        const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+        if (format === "csv") {
+            const csv = orderListExport.rowsToCsvString(rows);
+            res.setHeader("Content-Type", "text/csv; charset=utf-8");
+            res.setHeader("Content-Disposition", `attachment; filename="orders_list_${stamp}.csv"`);
+            return res.send(csv);
+        }
+        const buf = await orderListExport.rowsToXlsxBuffer(rows);
+        res.setHeader(
+            "Content-Type",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        );
+        res.setHeader("Content-Disposition", `attachment; filename="orders_list_${stamp}.xlsx"`);
+        return res.send(buf);
+    } catch (e) {
+        console.error("orders-list-export", e);
+        return res.status(500).json({ success: false, message: "エクスポートに失敗しました" });
     }
 });
 

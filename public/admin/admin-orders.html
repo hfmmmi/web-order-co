@@ -31,14 +31,92 @@
             margin-bottom: 20px;
             border-bottom: 1px solid #e5e7eb;
             padding-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
         }
 
-        .page-header h2 {
+        .page-header-leading {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .page-header-leading h2 {
             margin: 0;
             font-size: 1.65rem;
             font-weight: 700;
             color: #111827;
             letter-spacing: 0.02em;
+        }
+
+        .page-header-inline-actions {
+            display: inline-flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            align-items: center;
+            gap: 8px;
+            flex: 0 0 auto;
+        }
+
+        .page-header-toolbar-btn {
+            box-sizing: border-box;
+            width: max-content;
+            flex: 0 0 auto;
+            white-space: nowrap;
+            padding: 8px 10px;
+            cursor: pointer;
+            background: #fff;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: inherit;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .orders-download-wrap {
+            position: relative;
+            flex: 0 0 auto;
+        }
+
+        .orders-download-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 4px;
+            min-width: 160px;
+            padding: 4px;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 50;
+        }
+
+        .orders-download-menu.is-open {
+            display: block;
+        }
+
+        .orders-download-menu button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 8px 12px;
+            border: none;
+            background: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        .orders-download-menu button:hover {
+            background: #f3f4f6;
         }
 
         .admin-section {
@@ -73,57 +151,48 @@
             display: block;
         }
 
-        /* 連携ステータスバッジ（ダッシュボードのアクセントに合わせる） */
-        .badge-exported {
-            background-color: #22c55e;
-            color: #fff;
-            padding: 3px 8px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            border: 1px solid #22c55e;
-        }
-
-        .badge-unexported {
-            background-color: #fff;
-            color: #ef4444;
-            padding: 3px 8px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            border: 1px solid #ef4444;
-            font-weight: 600;
-        }
-
-        /* ★ドラッグ＆ドロップエリアのスタイル */
-        .drop-area {
-            border: 2px dashed #d1d5db;
-            border-radius: 12px;
-            padding: 20px;
+        .orders-list-table .col-export {
             text-align: center;
+            vertical-align: middle;
+        }
+
+        .orders-list-table .col-export-mark {
+            display: inline-block;
+            font-size: 1.15rem;
+            font-weight: 700;
+            line-height: 1;
+            font-family: system-ui, "Segoe UI", sans-serif;
+        }
+
+        .orders-list-table .col-export-yes {
+            color: #22c55e;
+        }
+
+        .orders-list-table .col-export-no {
+            color: #ef4444;
+        }
+
+        .order-search-btn {
+            box-sizing: border-box;
+            width: max-content;
+            flex: 0 0 auto;
+            white-space: nowrap;
+            padding: 8px 10px;
             cursor: pointer;
-            transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
-            background-color: #f9fafb;
-            color: #6b7280;
-            margin-bottom: 20px;
-        }
-
-        .drop-area.highlight {
-            border-color: #3b82f6;
-            background-color: #eff6ff;
-            color: #2563eb;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-        }
-
-        .drop-icon {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            display: block;
+            background: #3b82f6;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: inherit;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
         }
 
         .upload-status-msg {
-            margin-top: 10px;
+            margin-top: 0;
             font-weight: bold;
             display: none;
+            font-size: 0.9rem;
         }
 
         /* 注文一覧テーブル */
@@ -209,18 +278,25 @@
 
         <main class="admin-main-content">
             <div class="page-header">
-                <h2><span class="admin-page-icon" data-admin-icon="orders" aria-hidden="true"></span>受注管理</h2>
-            </div>
-
-            <div class="admin-section">
-                <h4 style="margin-top:0; color:#374151; font-weight:600;">📂 出荷データ一括取込 (Import)</h4>
-                <div id="drop-area" class="drop-area">
-                    <span class="drop-icon">📤</span>
-                    <p style="margin: 0; font-size: 1.1rem; font-weight:bold;">ここにCSV / Excelファイルをドロップ</p>
-                    <p style="margin: 5px 0 0; font-size: 0.85rem; color: #9ca3af;">またはクリックしてファイルを選択</p>
-                    <input type="file" id="file-input" style="display: none;" accept=".csv, .xlsx, .xls">
-                    <div id="upload-status" class="upload-status-msg"></div>
+                <div class="page-header-leading">
+                    <h2><span class="admin-page-icon" data-admin-icon="orders" aria-hidden="true"></span>受注管理</h2>
+                    <div class="page-header-inline-actions">
+                        <input type="file" id="file-input" style="display: none;" accept=".csv,.xlsx,.xls">
+                        <button type="button" id="btn-csv-excel-import" class="page-header-toolbar-btn">
+                            CSV/Excel
+                        </button>
+                        <div class="orders-download-wrap">
+                            <button type="button" id="btn-orders-download" class="page-header-toolbar-btn">
+                                Download
+                            </button>
+                            <div id="orders-download-menu" class="orders-download-menu" role="menu" aria-hidden="true">
+                                <button type="button" role="menuitem" data-export-format="csv">CSV で保存</button>
+                                <button type="button" role="menuitem" data-export-format="xlsx">Excel で保存</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                <div id="upload-status" class="upload-status-msg"></div>
             </div>
 
             <div class="admin-section">
@@ -228,20 +304,17 @@
                     style="margin-bottom: 20px; background: #f9fafb; padding: 16px; border-radius: 12px; border: 1px solid #e5e7eb;">
 
                     <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-bottom: 10px;">
-                        <div>
-                            <label style="font-size:0.8rem; font-weight:bold; display:block;">ステータス</label>
-                            <select id="order-status-filter" style="padding: 6px; width: 120px;">
-                                <option value="">全ステータス</option>
-                                <option value="未発送">未発送</option>
-                                <option value="発送済">発送済</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label style="font-size:0.8rem; font-weight:bold; display:block;">期間指定</label>
-                            <input type="date" id="filter-date-start" style="padding: 5px;" onclick="this.showPicker()">
-                            <span>～</span>
-                            <input type="date" id="filter-date-end" style="padding: 5px;" onclick="this.showPicker()">
-                        </div>
+                        <select id="order-status-filter" style="padding: 6px; width: 120px;">
+                            <option value="">全ステータス</option>
+                            <option value="未発送">未発送</option>
+                            <option value="発送済">発送済</option>
+                        </select>
+                        <input type="date" id="filter-date-start" style="padding: 5px;" onclick="this.showPicker()">
+                        <span style="color:#6b7280;">～</span>
+                        <input type="date" id="filter-date-end" style="padding: 5px;" onclick="this.showPicker()">
+                        <button type="button" id="order-search-btn" class="order-search-btn">
+                            検索
+                        </button>
                     </div>
 
                     <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end;">
@@ -269,11 +342,6 @@
                             <datalist id="order-product-list"></datalist>
                         </div>
 
-                        <button id="order-search-btn"
-                            style="padding: 8px 20px; cursor: pointer; background: #3b82f6; color: white; border: none; border-radius: 8px; font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
-                            検索
-                        </button>
-
                         <div style="margin-left: auto; display: flex; gap: 10px; align-items: center;">
                             <button id="btn-csv-unexported"
                                 style="padding: 8px 15px; cursor: pointer; background-color: #ef4444; color: white; border: none; border-radius: 8px; font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
@@ -296,8 +364,8 @@
 
     <script src="../js/admin-icons.js"></script>
     <script src="../js/admin-common.js"></script>
-    <script src="../js/admin-orders-view.js"></script>
-    <script src="../js/admin-orders.js?v=8.3"></script>
+    <script src="../js/admin-orders-view.js?v=8.5.4"></script>
+    <script src="../js/admin-orders.js?v=8.7"></script>
 </body>
 
 </html>

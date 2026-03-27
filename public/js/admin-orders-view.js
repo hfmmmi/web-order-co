@@ -67,35 +67,32 @@
         const totalAmount = order.totalAmount || 0;
         const info = order.deliveryInfo || {};
         
-        let statusColor = "#ef4444";
-        let statusFg = "#fff";
+        let statusColor = "#fee2e2";
+        let statusFg = "#b91c1c";
+        let statusBorder = "#fecaca";
         if (order.status === "発送済") {
-            statusColor = "#22c55e";
+            statusColor = "#dcfce7";
+            statusFg = "#166534";
+            statusBorder = "#bbf7d0";
         } else if (order.status === "一部発送") {
-            statusColor = "#eab308";
-            statusFg = "#111827";
+            statusColor = "#fef9c3";
+            statusFg = "#854d0e";
+            statusBorder = "#fde68a";
         }
 
-        // 連携ステータス表示
-        let exportBadge = `<span class="badge-unexported">未連携</span>`;
+        // 連携ステータス表示（一覧は記号のみ／title で補足）
+        let exportBadge =
+            '<span class="col-export-mark col-export-no" title="未連携" aria-label="未連携">✕</span>';
         if (order.exported_at) {
-            exportBadge = `<span class="badge-exported">連携済</span>`;
-        }
-
-        let itemSummary = "商品なし";
-        if (order.items && order.items.length > 0) {
-            const firstItem = order.items[0];
-            const extraCount = order.items.length - 1;
-            itemSummary = extraCount > 0 ? `${firstItem.name} <span style="color:#6b7280;">(+他${extraCount}点)</span>` : firstItem.name;
+            exportBadge =
+                '<span class="col-export-mark col-export-yes" title="連携済" aria-label="連携済">◯</span>';
         }
 
         const deliveryName = info.name || "（宛名なし）";
         const cName = order.customerName || "名称不明";
-        let headerInfo = `<span style="font-weight:bold; font-size:1.05rem;">➡ ${deliveryName} 様</span>`;
-        headerInfo += ` <span style="font-size:0.85rem; color:#6b7280;">(請求: ${cName})</span>`;
+        const customerCellHtml = `<span style="font-weight:bold; font-size:1.02rem;">${cName}</span>`;
 
-        if (info.clientOrderNumber) headerInfo = `<span style="color:#3b82f6; font-weight:bold;">[No:${info.clientOrderNumber}]</span> ` + headerInfo;
-        if (info.shipper && info.shipper.name) headerInfo += ` <span style="color:#22c55e; font-size:0.9em;">(荷主:${info.shipper.name})</span>`;
+        const deliveryCellHtml = `<span style="font-weight:bold; font-size:1.05rem;">${deliveryName} 様</span>`;
 
         let historyHTML = "";
         if (order.shipments && order.shipments.length > 0) {
@@ -182,12 +179,12 @@
             <td class="col-date">${orderDateStr}</td>
             <td class="col-id"><strong>${order.orderId}</strong></td>
             <td class="col-status">
-                <span style="background-color: ${statusColor}; color: ${statusFg}; padding: 3px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; white-space: nowrap;">
+                <span style="background-color: ${statusColor}; color: ${statusFg}; border: 1px solid ${statusBorder}; padding: 3px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; white-space: nowrap;">
                     ${order.status || "未発送"}
                 </span>
             </td>
-            <td class="col-party">${headerInfo}</td>
-            <td class="col-product">${itemSummary}</td>
+            <td class="col-party">${customerCellHtml}</td>
+            <td class="col-product">${deliveryCellHtml}</td>
             <td class="col-numeric"><strong>¥${totalAmount.toLocaleString()}</strong></td>
             <td class="col-export">${exportBadge}</td>
             <td class="col-action">

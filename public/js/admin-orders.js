@@ -26,10 +26,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const btnCsvUnexported = document.querySelector("#btn-csv-unexported");
     const btnCsvSearchResult = document.querySelector("#btn-csv-search-result");
 
-    // ドラッグ＆ドロップ要素
-    const dropArea = document.getElementById("drop-area");
     const fileInput = document.getElementById("file-input");
     const uploadStatus = document.getElementById("upload-status");
+    const btnCsvExcelImport = document.getElementById("btn-csv-excel-import");
+    const btnOrdersDownload = document.getElementById("btn-orders-download");
+    const ordersDownloadMenu = document.getElementById("orders-download-menu");
 
     // 候補リスト(datalist)
     const custCandidatesList = document.querySelector("#order-customer-list");
@@ -38,9 +39,18 @@ document.addEventListener("DOMContentLoaded", function () {
     // 全データを保持するメモリ
     let allOrderList = [];
 
-    // 初期化
-    if(dateStartInput) dateStartInput.value = "";
-    if(dateEndInput) dateEndInput.value = "";
+    // 初期化：開始は3年前の今日、終了は本日（ローカル日付）
+    function localDateYmd(d) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return y + "-" + m + "-" + day;
+    }
+    const today = new Date();
+    const threeYearsAgo = new Date(today);
+    threeYearsAgo.setFullYear(threeYearsAgo.getFullYear() - 3);
+    if (dateStartInput) dateStartInput.value = localDateYmd(threeYearsAgo);
+    if (dateEndInput) dateEndInput.value = localDateYmd(today);
     
     // =========================================================
     // Admin Ready待機
@@ -53,38 +63,14 @@ document.addEventListener("DOMContentLoaded", function () {
     // =========================================================
     // ファイルアップロード処理 (Robust XHR Version)
     // =========================================================
-    if (dropArea && fileInput) {
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, preventDefaults, false);
+    if (fileInput && btnCsvExcelImport) {
+        btnCsvExcelImport.addEventListener("click", function () {
+            fileInput.click();
         });
-
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropArea.addEventListener(eventName, () => dropArea.classList.add('highlight'), false);
+        fileInput.addEventListener("change", function (e) {
+            handleFiles(e.target.files);
+            e.target.value = "";
         });
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, () => dropArea.classList.remove('highlight'), false);
-        });
-
-        dropArea.addEventListener('drop', handleDrop, false);
-        
-        dropArea.addEventListener('click', (e) => {
-            if (e.target !== fileInput) {
-                e.preventDefault();
-                fileInput.click();
-            }
-        });
-        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
-
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            handleFiles(files);
-        }
 
         function handleFiles(files) {
             if (files.length > 0) {
@@ -314,14 +300,14 @@ document.addEventListener("DOMContentLoaded", function () {
     // ---------------------------------------------------------
     // 検索・描画実行
     // ---------------------------------------------------------
-    function execClientSearch() {
+    function computeFilteredOrders() {
         const status = statusSelect ? statusSelect.value : "";
         const start = dateStartInput ? dateStartInput.value : "";
         const end = dateEndInput ? dateEndInput.value : "";
-        
+
         const rawCustVal = custInput ? custInput.value : "";
         const rawProdVal = prodInput ? prodInput.value : "";
-        
+
         const custKeyword = normalizeString(rawCustVal);
         const prodKeyword = normalizeString(rawProdVal);
 
@@ -329,25 +315,22 @@ document.addEventListener("DOMContentLoaded", function () {
             const match = str.match(/^\((.+?)\)/);
             return match && match[1] ? match[1].trim() : null;
         };
-        const custCodeRaw = extractCode(rawCustVal); 
+        const custCodeRaw = extractCode(rawCustVal);
         const prodCodeRaw = extractCode(rawProdVal);
 
-        const filtered = allOrderList.filter(order => {
-            // ステータス
+        return allOrderList.filter(order => {
             if (status && order.status !== status) return false;
 
-            // 日付
             if (start || end) {
                 const d = new Date(order.orderDate);
-                const jstTime = d.getTime() + (9 * 60 * 60 * 1000); 
+                const jstTime = d.getTime() + (9 * 60 * 60 * 1000);
                 const jstDateObj = new Date(jstTime);
-                const orderDateJST = jstDateObj.toISOString().split("T")[0]; 
+                const orderDateJST = jstDateObj.toISOString().split("T")[0];
 
                 if (start && orderDateJST < start) return false;
                 if (end && orderDateJST > end) return false;
             }
 
-            // 顧客
             if (custKeyword) {
                 let isCustMatch = false;
                 const safeId = String(order.customerId || "");
@@ -359,20 +342,18 @@ document.addEventListener("DOMContentLoaded", function () {
                     const targetText = `${safeId} ${safeName}`;
                     if (normalizeString(targetText).includes(custKeyword)) isCustMatch = true;
                 }
-                if (!isCustMatch) return false; 
+                if (!isCustMatch) return false;
             }
 
-            // 商品
             if (prodKeyword) {
                 let isProdMatch = false;
                 if (order.items) {
                     isProdMatch = order.items.some(item => {
                         if (prodCodeRaw) {
                             return item.code === prodCodeRaw;
-                        } else {
-                            const itemText = `${item.code} ${item.name}`;
-                            return normalizeString(itemText).includes(prodKeyword);
                         }
+                        const itemText = `${item.code} ${item.name}`;
+                        return normalizeString(itemText).includes(prodKeyword);
                     });
                 }
                 if (!isProdMatch) return false;
@@ -380,14 +361,92 @@ document.addEventListener("DOMContentLoaded", function () {
 
             return true;
         });
+    }
 
-        // ★Viewへ委譲: 候補リスト生成
+    function execClientSearch() {
+        const filtered = computeFilteredOrders();
+
         if (window.OrderView) {
             window.OrderView.generateSplitCandidates(filtered, custCandidatesList, prodCandidatesList);
             displayOrders(filtered);
         } else {
             console.error("OrderView module not loaded!");
         }
+    }
+
+    function setOrdersDownloadMenuOpen(open) {
+        if (!ordersDownloadMenu) return;
+        if (open) {
+            ordersDownloadMenu.classList.add("is-open");
+            ordersDownloadMenu.setAttribute("aria-hidden", "false");
+        } else {
+            ordersDownloadMenu.classList.remove("is-open");
+            ordersDownloadMenu.setAttribute("aria-hidden", "true");
+        }
+    }
+
+    async function downloadOrdersListExport(format) {
+        const orders = computeFilteredOrders();
+        if (orders.length === 0) {
+            toastError("出力する注文がありません");
+            return;
+        }
+        try {
+            const response = await fetch("/api/admin/orders-list-export", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ format: format, orders: orders })
+            });
+            if (!response.ok) {
+                let msg = "ダウンロードに失敗しました (" + response.status + ")";
+                try {
+                    const j = await response.json();
+                    if (j.message) msg = j.message;
+                } catch (_) { /* binary or plain */ }
+                toastError(msg);
+                return;
+            }
+            const blob = await response.blob();
+            const cd = response.headers.get("Content-Disposition") || "";
+            const match = cd.match(/filename="([^"]+)"/);
+            const fallback =
+                format === "xlsx" ? "orders_list.xlsx" : "orders_list.csv";
+            const filename = match ? match[1] : fallback;
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+            toastSuccess("ダウンロードを開始しました");
+        } catch (e) {
+            console.error(e);
+            toastError("ダウンロードに失敗しました");
+        }
+    }
+
+    if (btnOrdersDownload && ordersDownloadMenu) {
+        btnOrdersDownload.addEventListener("click", function (e) {
+            e.stopPropagation();
+            const isOpen = ordersDownloadMenu.classList.contains("is-open");
+            setOrdersDownloadMenuOpen(!isOpen);
+        });
+        ordersDownloadMenu.querySelectorAll("[data-export-format]").forEach(function (btn) {
+            btn.addEventListener("click", function (e) {
+                e.stopPropagation();
+                const fmt = btn.getAttribute("data-export-format");
+                setOrdersDownloadMenuOpen(false);
+                if (fmt === "csv" || fmt === "xlsx") {
+                    downloadOrdersListExport(fmt);
+                }
+            });
+        });
+        document.addEventListener("click", function () {
+            setOrdersDownloadMenuOpen(false);
+        });
     }
 
     // ---------------------------------------------------------
@@ -434,10 +493,10 @@ document.addEventListener("DOMContentLoaded", function () {
             '<th scope="col">注文日</th>' +
             '<th scope="col">注文ID</th>' +
             '<th scope="col">ステータス</th>' +
-            '<th scope="col">納品先・請求先</th>' +
-            '<th scope="col">商品</th>' +
+            '<th scope="col">得意先</th>' +
+            '<th scope="col">納品先</th>' +
             '<th scope="col" class="col-numeric">合計金額</th>' +
-            '<th scope="col">連携</th>' +
+            '<th scope="col" class="col-export">連携</th>' +
             '<th scope="col" class="col-action">操作</th>' +
             "</tr></thead>";
 
