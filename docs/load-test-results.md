@@ -184,3 +184,9 @@ p99 が閾値（500ms）を超えた場合は exit code 1 で終了する。
 | GET /api/settings/public | 19796 | 0.00ms | 0.01ms | 0 |
 | POST /api/login (認証負荷) | 1150 | 0.04ms | 0.09ms | 0 |
 
+## 2026-03-26T21:18:50.389Z
+| API | requests | avg | p99 | errors |
+|-----|----------|-----|-----|--------|
+| GET /api/settings/public | 3715 | 0.01ms | 0.03ms | 0 |
+| POST /api/login (認証負荷) | 1476 | 0.03ms | 0.17ms | 0 |
+

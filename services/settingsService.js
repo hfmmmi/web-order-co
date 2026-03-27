@@ -235,6 +235,12 @@ async function getSettings() {
     return _cache;
 }
 
+/** ファイルを tests 等から直接書き換えた直後にキャッシュと中身を一致させる（API テストの seed 用） */
+function invalidateSettingsCache() {
+    _cache = null;
+    _cacheTime = 0;
+}
+
 /**
  * メール設定を取得（本番は環境変数 MAIL_PASSWORD のみ使用）
  * @returns {Promise<Object>}
@@ -522,6 +528,7 @@ async function getPublicBranding() {
 
 module.exports = {
     getSettings,
+    invalidateSettingsCache,
     getMailConfig,
     getFeatures,
     getProductSchema,

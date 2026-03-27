@@ -55,10 +55,13 @@ describe("Sランク: セッションCookieセキュリティ属性", () => {
     });
 
     test("本番環境では Cookie に Secure が付与される", async () => {
+        const os = require("os");
+        const path = require("path");
         const app = loadAppWithEnv({
             NODE_ENV: "production",
             SESSION_SECRET: "test-production-secret",
-            TRUST_PROXY: "1"
+            TRUST_PROXY: "1",
+            SESSION_PATH: path.join(os.tmpdir(), `jest-cookie-prod-${Date.now()}`)
         });
         const login = await request(app)
             .post("/api/login")

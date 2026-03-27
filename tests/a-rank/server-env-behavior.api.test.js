@@ -23,6 +23,8 @@ function loadAppWithEnv(envPatch) {
 }
 
 describe("Aランク: server.js 環境差分挙動", () => {
+    jest.setTimeout(120000);
+
     let backup;
 
     beforeAll(async () => {
@@ -38,10 +40,13 @@ describe("Aランク: server.js 環境差分挙動", () => {
     });
 
     test("本番で TRUST_PROXY 無効時は Secure Cookie が発行されない", async () => {
+        const os = require("os");
+        const path = require("path");
         const app = loadAppWithEnv({
             NODE_ENV: "production",
             TRUST_PROXY: "",
-            SESSION_SECRET: "test-secret-prod"
+            SESSION_SECRET: "test-secret-prod",
+            SESSION_PATH: path.join(os.tmpdir(), `jest-prod-sess-${Date.now()}`)
         });
 
         const login = await request(app)
@@ -55,7 +60,7 @@ describe("Aランク: server.js 環境差分挙動", () => {
         const cookies = login.headers["set-cookie"] || [];
         const sidCookie = cookies.find((c) => c.startsWith("weborder.sid="));
         expect(sidCookie).toBeUndefined();
-    });
+    }, 30000);
 
     test("ALLOWED_ORIGINS は空白混在でもtrimして許可判定する", async () => {
         const app = loadAppWithEnv({

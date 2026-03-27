@@ -294,6 +294,149 @@ describe("Bランク: サポートAPI境界", () => {
         if (t) expect(Array.isArray(t.history)).toBe(true);
     });
 
+    test("support/attachment は ticketId 不正で400", async () => {
+        const customer = request.agent(app);
+        await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        const res = await customer.get("/support/attachment/bad-id/0_1_aabbccdd.pdf");
+        expect(res.statusCode).toBe(400);
+    });
+
+    test("support/attachment は storedName 不正で400", async () => {
+        const customer = request.agent(app);
+        await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        const res = await customer.get("/support/attachment/T-ABC/evil.pdf");
+        expect(res.statusCode).toBe(400);
+    });
+
+    test("support/attachment は未ログインで401", async () => {
+        const res = await request(app).get("/support/attachment/T-ABC/0_1_aabbccdd.pdf");
+        expect(res.statusCode).toBe(401);
+    });
+
+    test("support/attachment は添付ファイルがあれば200でダウンロード", async () => {
+        const fsSync = require("fs");
+        const ticketId = "T-ATT200";
+        const storedName = "0_1_aabbccdd.pdf";
+        const attachDir = path.join(DATA_ROOT, "support_attachments", ticketId);
+        await fs.mkdir(attachDir, { recursive: true });
+        const full = path.join(attachDir, storedName);
+        await fs.writeFile(full, "%PDF-1.4 test", "utf-8");
+        try {
+            await writeJson("support_tickets.json", [
+                {
+                    ticketId,
+                    customerId: "TEST001",
+                    customerName: "テスト",
+                    status: "open",
+                    category: "support",
+                    timestamp: new Date().toISOString(),
+                    attachments: [{ storedName, originalName: "doc.pdf", size: 10, mimeType: "application/pdf" }]
+                }
+            ]);
+            const customer = request.agent(app);
+            await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            const res = await customer.get(`/support/attachment/${ticketId}/${storedName}`);
+            expect(res.statusCode).toBe(200);
+        } finally {
+            try {
+                fsSync.unlinkSync(full);
+            } catch (e) {
+                /* ignore */
+            }
+            try {
+                fsSync.rmSync(attachDir, { recursive: true, force: true });
+            } catch (e) {
+                /* ignore */
+            }
+        }
+    });
+
+    test("support/attachment は管理者なら他顧客の添付もダウンロードできる", async () => {
+        const fsSync = require("fs");
+        const ticketId = "T-ADM200";
+        const storedName = "0_2_cafebabe.pdf";
+        const attachDir = path.join(DATA_ROOT, "support_attachments", ticketId);
+        await fs.mkdir(attachDir, { recursive: true });
+        const full = path.join(attachDir, storedName);
+        await fs.writeFile(full, "%PDF-1.4 admin", "utf-8");
+        try {
+            await writeJson("support_tickets.json", [
+                {
+                    ticketId,
+                    customerId: "TEST002",
+                    customerName: "他人",
+                    status: "open",
+                    category: "support",
+                    timestamp: new Date().toISOString(),
+                    attachments: [{ storedName, originalName: "x.pdf", size: 5, mimeType: "application/pdf" }]
+                }
+            ]);
+            const admin = request.agent(app);
+            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            const res = await admin.get(`/support/attachment/${ticketId}/${storedName}`);
+            expect(res.statusCode).toBe(200);
+        } finally {
+            try {
+                fsSync.unlinkSync(full);
+            } catch (e) {
+                /* ignore */
+            }
+            try {
+                fsSync.rmSync(attachDir, { recursive: true, force: true });
+            } catch (e) {
+                /* ignore */
+            }
+        }
+    });
+
+    test("support/attachment はチケットに添付メタが無ければ404", async () => {
+        await writeJson("support_tickets.json", [
+            {
+                ticketId: "T-NOATT",
+                customerId: "TEST001",
+                customerName: "テスト",
+                status: "open",
+                category: "support",
+                timestamp: new Date().toISOString(),
+                attachments: []
+            }
+        ]);
+        const customer = request.agent(app);
+        await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        const res = await customer.get("/support/attachment/T-NOATT/0_3_deadbeef.pdf");
+        expect(res.statusCode).toBe(404);
+    });
+
+    test("request-support は小さなPDF添付で申請成功", async () => {
+        const customer = request.agent(app);
+        await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        const res = await customer
+            .post("/request-support")
+            .field("category", "support")
+            .field("detail", "添付テスト")
+            .attach("attachments", Buffer.from("%PDF-1.4"), { filename: "note.pdf" });
+        expect(res.statusCode).toBe(200);
+        expect(res.body.success).toBe(true);
+    });
+
+    test("support/attachment は他顧客のチケットで403", async () => {
+        await writeJson("support_tickets.json", [
+            {
+                ticketId: "T-COV403X",
+                customerId: "TEST002",
+                customerName: "他人",
+                status: "open",
+                category: "support",
+                timestamp: new Date().toISOString(),
+                attachments: [{ storedName: "0_1_aabbccdd.pdf", originalName: "a.pdf" }]
+            }
+        ]);
+        const customer = request.agent(app);
+        await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        const res = await customer.get("/support/attachment/T-COV403X/0_1_aabbccdd.pdf");
+        expect(res.statusCode).toBe(403);
+    });
+
     // Phase 5: admin/update-ticket の読込失敗時500（破損JSONで parse が throw する経路）
     test("admin/update-ticket は support_tickets.json 破損時500を返す", async () => {
         const dbPath = path.join(DATA_ROOT, "support_tickets.json");

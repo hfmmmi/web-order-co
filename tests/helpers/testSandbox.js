@@ -222,6 +222,9 @@ async function seedBaseData() {
     await fs.writeFile(abs("logs/admin-auth.json"), JSON.stringify([], null, 2), "utf-8");
     await fs.writeFile(abs("logs/customer-auth.json"), JSON.stringify([], null, 2), "utf-8");
     await fs.writeFile(abs("logs/stocks-history.json"), JSON.stringify([], null, 2), "utf-8");
+
+    const { invalidateSettingsCache } = require("../../services/settingsService");
+    invalidateSettingsCache();
 }
 
 async function readJson(relPath) {

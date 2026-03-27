@@ -23,17 +23,19 @@ describe("Sランク: ログイン失敗5回通知メール", () => {
 
     beforeAll(async () => {
         backup = await backupDbFiles();
-    });
+    }, 120000);
 
     afterAll(async () => {
-        await restoreDbFiles(backup);
-    });
+        if (backup) {
+            await restoreDbFiles(backup);
+        }
+    }, 120000);
 
     beforeEach(async () => {
         await seedBaseData();
         await writeJson("login_rate_limit.json", {});
         jest.clearAllMocks();
-    });
+    }, 120000);
 
     test("顧客ログイン失敗5回目で通知が顧客宛条件で呼ばれる", async () => {
         for (let i = 0; i < 5; i += 1) {

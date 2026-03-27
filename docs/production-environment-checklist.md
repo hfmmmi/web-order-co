@@ -44,5 +44,6 @@
 
 ## 参照
 
+- [vps-production-runbook.md](vps-production-runbook.md) … **本番 VPS の作業手順（SSH・DNS・Phase F/G・systemd・コピペ用）**
 - [cloud-vps-production-setup.md](cloud-vps-production-setup.md) … VPS 上での具体的な組み立て例  
 - [backup-and-restore-policy.md](backup-and-restore-policy.md) … バックアップと復旧

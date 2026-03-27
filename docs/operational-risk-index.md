@@ -16,6 +16,7 @@
 | [operational-risk-learning.md](operational-risk-learning.md) | バグ/ダウン/迷惑の分け方、顧客ジャーニー例、読む順番 |
 | [production-environment-checklist.md](production-environment-checklist.md) | 本番環境変数・HTTPS・セッション・デプロイ前チェック |
 | [cloud-vps-production-setup.md](cloud-vps-production-setup.md) | クラウド VPS・常駐・プロキシ・ファイアウォールの要点 |
+| [vps-production-runbook.md](vps-production-runbook.md) | **本番 VPS の実作業まとめ（SSH・Phase F/G・DNS・systemd・貼り付け用）** |
 | [backup-and-restore-policy.md](backup-and-restore-policy.md) | バックアップ頻度・対象・復旧手順のテンプレ |
 | [release-test-discipline.md](release-test-discipline.md) | `test:api` / `test:all` の使い分けと本番ルール |
 | [post-deploy-smoke-test.md](post-deploy-smoke-test.md) | デプロイ後の手動確認手順と実施記録 |

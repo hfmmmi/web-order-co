@@ -89,5 +89,6 @@
 
 ## 参照
 
+- [vps-production-runbook.md](vps-production-runbook.md) … **SSH・Nginx・certbot・systemd などの貼り付け用手順（社内本番のまとめ）**
 - [session-production.md](session-production.md) … `SESSION_PATH` の詳細  
 - [backup-and-restore-policy.md](backup-and-restore-policy.md) … スナップショットとファイルコピー

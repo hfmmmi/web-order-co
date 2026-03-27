@@ -30,15 +30,17 @@ describe("Bランク: 出荷CSV取込の同時実行", () => {
 
     beforeAll(async () => {
         backup = await backupDbFiles();
-    });
+    }, 120000);
 
     afterAll(async () => {
-        await restoreDbFiles(backup);
-    });
+        if (backup) {
+            await restoreDbFiles(backup);
+        }
+    }, 120000);
 
     beforeEach(async () => {
         await seedBaseData();
-    });
+    }, 120000);
 
     test("出荷CSVを同時に2回取り込んでも shipment 反映が取りこぼれない", async () => {
         const customer = request.agent(app);

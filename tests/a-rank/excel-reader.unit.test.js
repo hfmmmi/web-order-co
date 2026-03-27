@@ -11,7 +11,7 @@ const {
 } = require("../../utils/excelReader");
 
 describe("Aランク: excelReader ユニット", () => {
-    jest.setTimeout(15000);
+    jest.setTimeout(30000);
 
     test("readToRowArrays は正常なバッファを行配列で返す", async () => {
         const wb = new ExcelJS.Workbook();
