@@ -20,41 +20,31 @@
     };
 
     /**
-     * 候補リストのoption生成
+     * 候補リストのoption生成（得意先・商品を1つの datalist に統合）
      */
-    OrderView.generateSplitCandidates = function(orders, custCandidatesList, prodCandidatesList) {
-        const custSet = new Set();
-        const prodSet = new Set();
+    OrderView.generateSearchCandidates = function(orders, suggestionsList) {
+        const merged = new Set();
 
         orders.forEach(order => {
             const cId = order.customerId || "ID不明";
             const cName = order.customerName || "名称不明";
-            custSet.add(`(${cId}) ${cName}`);
-            
+            merged.add(`(${cId}) ${cName}`);
+
             if (order.items) {
                 order.items.forEach(item => {
-                    prodSet.add(`(${item.code}) ${item.name}`);
+                    merged.add(`(${item.code}) ${item.name}`);
                 });
             }
         });
 
-        const CANDIDATE_LIMIT = 20;
+        const CANDIDATE_LIMIT = 40;
 
-        if (custCandidatesList) {
-            custCandidatesList.innerHTML = "";
-            Array.from(custSet).sort().slice(0, CANDIDATE_LIMIT).forEach(val => {
+        if (suggestionsList) {
+            suggestionsList.innerHTML = "";
+            Array.from(merged).sort().slice(0, CANDIDATE_LIMIT).forEach(val => {
                 const option = document.createElement("option");
                 option.value = val;
-                custCandidatesList.appendChild(option);
-            });
-        }
-
-        if (prodCandidatesList) {
-            prodCandidatesList.innerHTML = "";
-            Array.from(prodSet).sort().slice(0, CANDIDATE_LIMIT).forEach(val => {
-                const option = document.createElement("option");
-                option.value = val;
-                prodCandidatesList.appendChild(option);
+                suggestionsList.appendChild(option);
             });
         }
     };

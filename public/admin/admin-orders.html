@@ -268,6 +268,161 @@
             padding: 16px 18px;
             border-top: 1px dashed #e5e7eb;
         }
+
+        .orders-pagination {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 8px 10px;
+            margin-top: 18px;
+            padding: 14px 12px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+
+        .orders-pagination-pages {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .orders-pagination-btn {
+            min-width: 2.25rem;
+            padding: 6px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: #fff;
+            color: #374151;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .orders-pagination-btn:hover:not(:disabled) {
+            background: #f3f4f6;
+            border-color: #9ca3af;
+        }
+
+        .orders-pagination-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        .orders-pagination-btn.is-current {
+            background: #3b82f6;
+            border-color: #2563eb;
+            color: #fff;
+        }
+
+        .orders-pagination-ellipsis {
+            padding: 0 4px;
+            color: #9ca3af;
+            font-weight: 600;
+            user-select: none;
+        }
+
+        /* 受注検索: 全ステータス〜検索結果DL まで1行・高さ40pxで揃える */
+        .orders-search-toolbar {
+            display: flex;
+            flex-wrap: nowrap;
+            align-items: center;
+            gap: 10px;
+            overflow-x: auto;
+            overflow-y: visible;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .orders-search-toolbar__tilde {
+            color: #6b7280;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+
+        .orders-search-toolbar__field {
+            box-sizing: border-box;
+            height: 40px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background-color: #fff;
+        }
+
+        #order-status-filter {
+            width: 120px;
+            padding: 0 10px;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+
+        .orders-search-toolbar__date {
+            flex-shrink: 0;
+            min-width: 8.75rem;
+            padding: 0 8px;
+        }
+
+        .orders-search-toolbar .input-with-clear {
+            flex: 1 1 200px;
+            min-width: 160px;
+            max-width: 520px;
+            width: auto;
+        }
+
+        .orders-search-toolbar__keyword {
+            width: 100%;
+            padding: 0 34px 0 10px;
+        }
+
+        .orders-search-toolbar .order-search-btn {
+            height: 40px;
+            padding: 0 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        .search-box-csv-actions {
+            margin-left: auto;
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 10px;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .btn-csv-toolbar {
+            box-sizing: border-box;
+            width: max-content;
+            flex: 0 0 auto;
+            height: 40px;
+            padding: 0 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .btn-csv-toolbar--danger {
+            background-color: #ef4444;
+            color: #fff;
+        }
+
+        .btn-csv-toolbar--muted {
+            background-color: #6b7280;
+            color: #fff;
+        }
     </style>
 </head>
 
@@ -303,53 +458,34 @@
                 <div class="search-box"
                     style="margin-bottom: 20px; background: #f9fafb; padding: 16px; border-radius: 12px; border: 1px solid #e5e7eb;">
 
-                    <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-bottom: 10px;">
-                        <select id="order-status-filter" style="padding: 6px; width: 120px;">
+                    <div class="orders-search-toolbar">
+                        <select id="order-status-filter" class="orders-search-toolbar__field">
                             <option value="">全ステータス</option>
                             <option value="未発送">未発送</option>
                             <option value="発送済">発送済</option>
                         </select>
-                        <input type="date" id="filter-date-start" style="padding: 5px;" onclick="this.showPicker()">
-                        <span style="color:#6b7280;">～</span>
-                        <input type="date" id="filter-date-end" style="padding: 5px;" onclick="this.showPicker()">
+                        <input type="date" id="filter-date-start" class="orders-search-toolbar__field orders-search-toolbar__date"
+                            onclick="this.showPicker()">
+                        <span class="orders-search-toolbar__tilde">～</span>
+                        <input type="date" id="filter-date-end" class="orders-search-toolbar__field orders-search-toolbar__date"
+                            onclick="this.showPicker()">
                         <button type="button" id="order-search-btn" class="order-search-btn">
                             検索
                         </button>
-                    </div>
-
-                    <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end;">
-                        <div style="flex-grow: 1; max-width: 250px;">
-                            <label style="font-size:0.8rem; font-weight:bold; color:#3b82f6;">① 得意先 (ID/社名)</label>
-                            <div class="input-with-clear">
-                                <input type="text" id="order-search-cust" placeholder="会社名を入力..."
-                                    list="order-customer-list"
-                                    style="width: 100%; box-sizing: border-box; border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px;">
-                                <span class="clear-input-btn" id="clear-cust-btn">×</span>
-                            </div>
-                            <datalist id="order-customer-list"></datalist>
+                        <div class="input-with-clear">
+                            <input type="text" id="order-search-text" class="orders-search-toolbar__field orders-search-toolbar__keyword"
+                                placeholder="得意先または商品で検索…"
+                                aria-label="得意先または商品で検索"
+                                list="order-search-suggestions">
+                            <span class="clear-input-btn" id="clear-order-search-btn">×</span>
                         </div>
-
-                        <span style="font-weight:bold; font-size:1.2rem; color:#9ca3af; padding-bottom: 5px;">＋</span>
-
-                        <div style="flex-grow: 1; max-width: 250px;">
-                            <label style="font-size:0.8rem; font-weight:bold; color:#22c55e;">② 商品 (コード/品名)</label>
-                            <div class="input-with-clear">
-                                <input type="text" id="order-search-prod" placeholder="商品名を入力..."
-                                    list="order-product-list"
-                                    style="width: 100%; box-sizing: border-box; border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px;">
-                                <span class="clear-input-btn" id="clear-prod-btn">×</span>
-                            </div>
-                            <datalist id="order-product-list"></datalist>
-                        </div>
-
-                        <div style="margin-left: auto; display: flex; gap: 10px; align-items: center;">
-                            <button id="btn-csv-unexported"
-                                style="padding: 8px 15px; cursor: pointer; background-color: #ef4444; color: white; border: none; border-radius: 8px; font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
-                                📤 未連携データ出力
+                        <datalist id="order-search-suggestions"></datalist>
+                        <div class="search-box-csv-actions">
+                            <button type="button" id="btn-csv-unexported" class="btn-csv-toolbar btn-csv-toolbar--danger">
+                                未連携データ出力
                             </button>
-                            <button id="btn-csv-search-result"
-                                style="padding: 8px 15px; cursor: pointer; background-color: #6b7280; color: white; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600;">
-                                📥 検索結果DL(再)
+                            <button type="button" id="btn-csv-search-result" class="btn-csv-toolbar btn-csv-toolbar--muted">
+                                📥 検索結果DL（再）
                             </button>
                         </div>
                     </div>
@@ -364,8 +500,8 @@
 
     <script src="../js/admin-icons.js"></script>
     <script src="../js/admin-common.js"></script>
-    <script src="../js/admin-orders-view.js?v=8.5.4"></script>
-    <script src="../js/admin-orders.js?v=8.7"></script>
+    <script src="../js/admin-orders-view.js?v=8.6.0"></script>
+    <script src="../js/admin-orders.js?v=8.9"></script>
 </body>
 
 </html>

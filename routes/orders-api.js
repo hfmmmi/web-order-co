@@ -156,6 +156,36 @@ router.get("/shipper-history", async (req, res) => {
 // ==========================================
 // ※ admin-orders.js 等から呼ばれる
 
+/**
+ * 受注CSVの keyword は管理画面の統合検索と同様に、得意先ID・社名・注文ID・明細のコード/品名のいずれかに一致すれば true。
+ * 先頭が "(コード)" のときは得意先IDまたは商品コードの完全一致のみ。
+ */
+function orderMatchesDownloadCsvKeyword(order, keywordRaw) {
+    if (keywordRaw === undefined || keywordRaw === null || String(keywordRaw).trim() === "") return true;
+    const raw = String(keywordRaw);
+    const key = raw.toLowerCase();
+    const orderIdStr = String(order.orderId);
+    const custIdStr = order.customerId || "";
+    const codeMatch = raw.match(/^\((.+?)\)/);
+    if (codeMatch && codeMatch[1]) {
+        const codeRaw = codeMatch[1].trim();
+        if (String(custIdStr) === codeRaw) return true;
+        if (order.items && order.items.some(it => String(it.code || "") === codeRaw)) return true;
+        return false;
+    }
+    if (orderIdStr.toLowerCase().includes(key)) return true;
+    if (custIdStr.toLowerCase().includes(key)) return true;
+    const cname = (order.customerName || "").toLowerCase();
+    if (cname.includes(key)) return true;
+    if (order.items && Array.isArray(order.items)) {
+        for (const it of order.items) {
+            const blob = `${it.code || ""} ${it.name || ""}`.toLowerCase();
+            if (blob.includes(key)) return true;
+        }
+    }
+    return false;
+}
+
 // CSVダウンロード API
 router.get("/api/download-csv", async (req, res) => {
     if (!req.session.isAdmin) return res.status(401).send("権限がありません");
@@ -168,10 +198,7 @@ router.get("/api/download-csv", async (req, res) => {
         const filteredOrders = rawOrders.filter(order => {
             if (isUnexportedOnly && order.exported_at) return false;
             
-            const orderIdStr = String(order.orderId);
-            const custIdStr = order.customerId || "";
-            const key = keyword ? keyword.toLowerCase() : "";
-            const matchKeyword = (key === "") || orderIdStr.includes(key) || custIdStr.toLowerCase().includes(key);
+            const matchKeyword = orderMatchesDownloadCsvKeyword(order, keyword);
             const currentStatus = order.status || "未発送";
             const matchStatus = (status === "") || (status === undefined) || (currentStatus === status);
             

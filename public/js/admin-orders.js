@@ -12,13 +12,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const dateStartInput = document.querySelector("#filter-date-start");
     const dateEndInput = document.querySelector("#filter-date-end");
     
-    // 検索窓
-    const custInput = document.querySelector("#order-search-cust");
-    const prodInput = document.querySelector("#order-search-prod");
-    
-    // クリアボタン
-    const clearCustBtn = document.querySelector("#clear-cust-btn");
-    const clearProdBtn = document.querySelector("#clear-prod-btn");
+    // 検索窓（得意先・商品共通）
+    const searchTextInput = document.querySelector("#order-search-text");
+
+    const clearSearchBtn = document.querySelector("#clear-order-search-btn");
     
     const searchBtn = document.querySelector("#order-search-btn");
     
@@ -32,12 +29,13 @@ document.addEventListener("DOMContentLoaded", function () {
     const btnOrdersDownload = document.getElementById("btn-orders-download");
     const ordersDownloadMenu = document.getElementById("orders-download-menu");
 
-    // 候補リスト(datalist)
-    const custCandidatesList = document.querySelector("#order-customer-list");
-    const prodCandidatesList = document.querySelector("#order-product-list");
+    const searchSuggestionsList = document.querySelector("#order-search-suggestions");
 
     // 全データを保持するメモリ
     let allOrderList = [];
+    let lastFilteredOrders = [];
+    let ordersCurrentPage = 1;
+    const ORDERS_PAGE_SIZE = 25;
 
     // 初期化：開始は3年前の今日、終了は本日（ローカル日付）
     function localDateYmd(d) {
@@ -154,16 +152,14 @@ document.addEventListener("DOMContentLoaded", function () {
     // イベント設定
     // ---------------------------------------------------------
     
-    [custInput, prodInput].forEach(input => {
-        if(input) {
-            input.addEventListener("keydown", function(e) {
-                if(e.key === "Enter") {
-                    e.preventDefault();
-                    if(searchBtn) searchBtn.click();
-                }
-            });
-        }
-    });
+    if (searchTextInput) {
+        searchTextInput.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                if (searchBtn) searchBtn.click();
+            }
+        });
+    }
 
     function setupClearButton(btn, input) {
         if (!btn || !input) return;
@@ -173,8 +169,7 @@ document.addEventListener("DOMContentLoaded", function () {
             input.dispatchEvent(new Event("input"));
         });
     }
-    setupClearButton(clearCustBtn, custInput);
-    setupClearButton(clearProdBtn, prodInput);
+    setupClearButton(clearSearchBtn, searchTextInput);
 
 
     // ---------------------------------------------------------
@@ -305,18 +300,40 @@ document.addEventListener("DOMContentLoaded", function () {
         const start = dateStartInput ? dateStartInput.value : "";
         const end = dateEndInput ? dateEndInput.value : "";
 
-        const rawCustVal = custInput ? custInput.value : "";
-        const rawProdVal = prodInput ? prodInput.value : "";
-
-        const custKeyword = normalizeString(rawCustVal);
-        const prodKeyword = normalizeString(rawProdVal);
+        const rawSearchVal = searchTextInput ? searchTextInput.value : "";
+        const searchKeyword = normalizeString(rawSearchVal);
 
         const extractCode = (str) => {
             const match = str.match(/^\((.+?)\)/);
             return match && match[1] ? match[1].trim() : null;
         };
-        const custCodeRaw = extractCode(rawCustVal);
-        const prodCodeRaw = extractCode(rawProdVal);
+        const leadingCodeRaw = extractCode(rawSearchVal);
+
+        function orderMatchesUnifiedSearch(order) {
+            if (!searchKeyword) return true;
+
+            const safeId = String(order.customerId || "");
+            const safeName = order.customerName || "";
+
+            if (leadingCodeRaw) {
+                if (safeId === leadingCodeRaw) return true;
+                if (order.items) {
+                    return order.items.some(item => item.code === leadingCodeRaw);
+                }
+                return false;
+            }
+
+            const custBlob = normalizeString(`${safeId} ${safeName}`);
+            if (custBlob.includes(searchKeyword)) return true;
+
+            if (order.items) {
+                return order.items.some(item => {
+                    const itemText = `${item.code} ${item.name}`;
+                    return normalizeString(itemText).includes(searchKeyword);
+                });
+            }
+            return false;
+        }
 
         return allOrderList.filter(order => {
             if (status && order.status !== status) return false;
@@ -331,33 +348,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (end && orderDateJST > end) return false;
             }
 
-            if (custKeyword) {
-                let isCustMatch = false;
-                const safeId = String(order.customerId || "");
-                const safeName = order.customerName || "";
-
-                if (custCodeRaw) {
-                    if (safeId === custCodeRaw) isCustMatch = true;
-                } else {
-                    const targetText = `${safeId} ${safeName}`;
-                    if (normalizeString(targetText).includes(custKeyword)) isCustMatch = true;
-                }
-                if (!isCustMatch) return false;
-            }
-
-            if (prodKeyword) {
-                let isProdMatch = false;
-                if (order.items) {
-                    isProdMatch = order.items.some(item => {
-                        if (prodCodeRaw) {
-                            return item.code === prodCodeRaw;
-                        }
-                        const itemText = `${item.code} ${item.name}`;
-                        return normalizeString(itemText).includes(prodKeyword);
-                    });
-                }
-                if (!isProdMatch) return false;
-            }
+            if (!orderMatchesUnifiedSearch(order)) return false;
 
             return true;
         });
@@ -365,13 +356,89 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function execClientSearch() {
         const filtered = computeFilteredOrders();
+        lastFilteredOrders = filtered;
+        ordersCurrentPage = 1;
 
         if (window.OrderView) {
-            window.OrderView.generateSplitCandidates(filtered, custCandidatesList, prodCandidatesList);
+            window.OrderView.generateSearchCandidates(filtered, searchSuggestionsList);
             displayOrders(filtered);
         } else {
             console.error("OrderView module not loaded!");
         }
+    }
+
+    function buildPageNumberItems(totalPages, current) {
+        if (totalPages <= 1) return [];
+        const nums = new Set([1, totalPages, current]);
+        for (let d = -2; d <= 2; d++) nums.add(current + d);
+        const sorted = [...nums].filter(n => n >= 1 && n <= totalPages).sort((a, b) => a - b);
+        const out = [];
+        for (let i = 0; i < sorted.length; i++) {
+            if (i > 0 && sorted[i] - sorted[i - 1] > 1) out.push(null);
+            out.push(sorted[i]);
+        }
+        return out;
+    }
+
+    function buildOrdersPaginationNav(totalPages, currentPage) {
+        const nav = document.createElement("nav");
+        nav.className = "orders-pagination";
+        nav.setAttribute("aria-label", "ページ送り");
+
+        const prevBtn = document.createElement("button");
+        prevBtn.type = "button";
+        prevBtn.className = "orders-pagination-btn orders-pagination-prev";
+        prevBtn.textContent = "前へ";
+        prevBtn.disabled = currentPage <= 1;
+        prevBtn.addEventListener("click", function () {
+            if (ordersCurrentPage <= 1) return;
+            ordersCurrentPage--;
+            displayOrders(lastFilteredOrders);
+        });
+
+        const pagesWrap = document.createElement("div");
+        pagesWrap.className = "orders-pagination-pages";
+
+        buildPageNumberItems(totalPages, currentPage).forEach(function (entry) {
+            if (entry === null) {
+                const ell = document.createElement("span");
+                ell.className = "orders-pagination-ellipsis";
+                ell.textContent = "…";
+                ell.setAttribute("aria-hidden", "true");
+                pagesWrap.appendChild(ell);
+                return;
+            }
+            const p = entry;
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "orders-pagination-btn orders-pagination-page";
+            btn.textContent = String(p);
+            if (p === currentPage) {
+                btn.classList.add("is-current");
+                btn.setAttribute("aria-current", "page");
+            }
+            btn.addEventListener("click", function () {
+                ordersCurrentPage = p;
+                displayOrders(lastFilteredOrders);
+            });
+            pagesWrap.appendChild(btn);
+        });
+
+        const nextBtn = document.createElement("button");
+        nextBtn.type = "button";
+        nextBtn.className = "orders-pagination-btn orders-pagination-next";
+        nextBtn.textContent = "次へ";
+        nextBtn.disabled = currentPage >= totalPages;
+        nextBtn.addEventListener("click", function () {
+            if (ordersCurrentPage >= totalPages) return;
+            ordersCurrentPage++;
+            displayOrders(lastFilteredOrders);
+        });
+
+        nav.appendChild(prevBtn);
+        nav.appendChild(pagesWrap);
+        nav.appendChild(nextBtn);
+        return nav;
     }
 
     function setOrdersDownloadMenuOpen(open) {
@@ -454,33 +521,37 @@ document.addEventListener("DOMContentLoaded", function () {
     // ---------------------------------------------------------
     function displayOrders(orders) {
         orderListContainer.innerHTML = "";
-        
+
         if (orders.length === 0) {
             orderListContainer.innerHTML = "<p>該当する注文はありません</p>";
             return;
         }
 
-        const DISPLAY_LIMIT = 100;
-        const limitedOrders = orders.slice(0, DISPLAY_LIMIT);
-
-        // 結果件数表示
-        const resultInfo = document.createElement("div");
-        resultInfo.style.marginBottom = "10px";
-        resultInfo.style.fontSize = "0.9rem";
-        resultInfo.style.color = "#6b7280";
-        
-        if (orders.length > DISPLAY_LIMIT) {
-            resultInfo.innerHTML = `該当: <strong>${orders.length}</strong> 件中、上位 <strong>${DISPLAY_LIMIT}</strong> 件を表示しています。<br><span style="font-size:0.8rem">※過去データは「顧客名」等で検索して絞り込んでください。</span>`;
-        } else {
-            resultInfo.innerHTML = `該当: <strong>${orders.length}</strong> 件`;
-        }
-        orderListContainer.appendChild(resultInfo);
-
-        // Viewモジュールの関数呼び出し
         if (!window.OrderView) {
             orderListContainer.innerHTML = "<p style='color:red;'>OrderView module is missing.</p>";
             return;
         }
+
+        const totalPages = Math.max(1, Math.ceil(orders.length / ORDERS_PAGE_SIZE));
+        if (ordersCurrentPage > totalPages) ordersCurrentPage = totalPages;
+        const page = ordersCurrentPage;
+        const startIdx = (page - 1) * ORDERS_PAGE_SIZE;
+        const limitedOrders = orders.slice(startIdx, startIdx + ORDERS_PAGE_SIZE);
+        const fromN = startIdx + 1;
+        const toN = startIdx + limitedOrders.length;
+
+        const resultInfo = document.createElement("div");
+        resultInfo.style.marginBottom = "10px";
+        resultInfo.style.fontSize = "0.9rem";
+        resultInfo.style.color = "#6b7280";
+
+        if (totalPages > 1) {
+            resultInfo.innerHTML =
+                `該当: <strong>${orders.length}</strong> 件 · <strong>${fromN}</strong>〜<strong>${toN}</strong> 件を表示`;
+        } else {
+            resultInfo.innerHTML = `該当: <strong>${orders.length}</strong> 件`;
+        }
+        orderListContainer.appendChild(resultInfo);
 
         const tableWrap = document.createElement("div");
         tableWrap.className = "orders-list-wrap";
@@ -550,6 +621,10 @@ document.addEventListener("DOMContentLoaded", function () {
             tbody.appendChild(sumTr);
             tbody.appendChild(detTr);
         });
+
+        if (totalPages > 1) {
+            orderListContainer.appendChild(buildOrdersPaginationNav(totalPages, page));
+        }
     }
 
     function setupDetailEvents(detailDiv, order) {
@@ -614,8 +689,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (dateEndInput) dateEndInput.addEventListener("change", execClientSearch);
     if (statusSelect) statusSelect.addEventListener("change", execClientSearch);
 
-    if (custInput) custInput.addEventListener("input", debouncedSearch);
-    if (prodInput) prodInput.addEventListener("input", debouncedSearch);
+    if (searchTextInput) searchTextInput.addEventListener("input", debouncedSearch);
 
     if (searchBtn) searchBtn.addEventListener("click", execClientSearch);
 
@@ -640,7 +714,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 status: statusSelect.value,
                 start: dateStartInput.value,
                 end: dateEndInput.value,
-                keyword: custInput.value 
+                keyword: searchTextInput ? searchTextInput.value : ""
             });
             window.location.href = `/api/download-csv?${params.toString()}`;
         });
