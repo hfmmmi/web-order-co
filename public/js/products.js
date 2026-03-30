@@ -661,11 +661,49 @@ function toggleFavorite(productCode, buttonElement) {
     localStorage.setItem("favorites", JSON.stringify(favoriteList));
 }
 
-// ページネーション生成 (1 2 3 ... 9 ... 154 形式)
+/** 表示する連番ページ番号（最大 maxSlots 個、総ページが多いときは現在付近を窓表示） */
+function getVisiblePageNumbers(current, total, maxSlots = 9) {
+    if (total <= maxSlots) {
+        return Array.from({ length: total }, (_, i) => i + 1);
+    }
+    const half = Math.floor(maxSlots / 2);
+    let start = Math.max(1, current - half);
+    let end = Math.min(total, start + maxSlots - 1);
+    if (end - start + 1 < maxSlots) {
+        start = Math.max(1, end - maxSlots + 1);
+    }
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+}
+
+function createProductPaginationNavButton(label, pageNum, iconChar, iconFirst) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "product-pagination__nav";
+    const icon = document.createElement("span");
+    icon.className = "product-pagination__nav-icon";
+    icon.setAttribute("aria-hidden", "true");
+    icon.textContent = iconChar;
+    const text = document.createElement("span");
+    text.textContent = label;
+    if (iconFirst) {
+        btn.appendChild(icon);
+        btn.appendChild(text);
+    } else {
+        btn.appendChild(text);
+        btn.appendChild(icon);
+    }
+    btn.addEventListener("click", () => {
+        fetchProducts(pageNum);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+    return btn;
+}
+
+// ページネーション: 角枠付き連番 + 前へ／次へ
 function setupPagination(pagination) {
     const container = document.querySelector("#pagination-container");
     if (!container) return;
-    
+
     container.innerHTML = "";
 
     if (!pagination || pagination.totalPages <= 1) return;
@@ -674,61 +712,32 @@ function setupPagination(pagination) {
     const total = pagination.totalPages;
 
     if (current > 1) {
-        container.appendChild(createPageBtn("前へ", current - 1));
+        container.appendChild(createProductPaginationNavButton("前へ", current - 1, "‹", true));
     }
 
-    // 表示するページ番号を決定: 1, 2..9, ..., 中央付近, ..., 末尾
-    const pagesToShow = new Set();
-    pagesToShow.add(1);
-    pagesToShow.add(total);
-    // 先頭付近: 2〜9
-    for (let p = 2; p <= Math.min(9, total); p++) pagesToShow.add(p);
-    // 現在ページの前後
-    for (let p = Math.max(1, current - 2); p <= Math.min(total, current + 2); p++) pagesToShow.add(p);
-
-    let sortedPages = Array.from(pagesToShow).filter(p => p > 0 && p <= total).sort((a, b) => a - b);
-
-    let lastPage = 0;
-    sortedPages.forEach(p => {
-        if (lastPage > 0 && p - lastPage > 1) {
-            const dots = document.createElement("span");
-            dots.textContent = "...";
-            dots.style.padding = "0 5px";
-            dots.style.color = "#666";
-            container.appendChild(dots);
-        }
-        
-        const btn = createPageBtn(String(p), p);
+    getVisiblePageNumbers(current, total, 5).forEach((p) => {
         if (p === current) {
-            btn.style.background = "#007bff";
-            btn.style.color = "white";
-            btn.style.borderColor = "#007bff";
+            const cur = document.createElement("span");
+            cur.className = "product-pagination__page is-current";
+            cur.textContent = String(p);
+            cur.setAttribute("aria-current", "page");
+            container.appendChild(cur);
+            return;
         }
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "product-pagination__page";
+        btn.textContent = String(p);
+        btn.addEventListener("click", () => {
+            fetchProducts(p);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
         container.appendChild(btn);
-        lastPage = p;
     });
 
     if (current < total) {
-        container.appendChild(createPageBtn("次へ", current + 1));
+        container.appendChild(createProductPaginationNavButton("次へ", current + 1, "›", false));
     }
-}
-
-function createPageBtn(text, pageNum) {
-    const btn = document.createElement("button");
-    btn.textContent = text;
-    btn.style.margin = "0 2px";
-    btn.style.padding = "5px 10px";
-    btn.style.border = "1px solid #ccc";
-    btn.style.background = "white";
-    btn.style.color = "#333";
-    btn.style.cursor = "pointer";
-    btn.style.borderRadius = "4px";
-
-    btn.addEventListener("click", () => {
-        fetchProducts(pageNum);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-    return btn;
 }
 
 // =========================================================

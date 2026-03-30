@@ -32,14 +32,19 @@ body {
     white-space: nowrap;
 }
 
-/* ★修正: 全ボタン共通設定 */
-button {
+/* ログイン画面の送信ボタンのみ全幅（他ページの button に width:100% を当てない） */
+.login-container button {
     width: 100%;
     padding: 10px;
     background-color: #007bff;
     color: white;
     border: none;
     border-radius: 4px;
+    cursor: pointer;
+}
+
+button {
+    font-family: inherit;
     cursor: pointer;
 }
 
@@ -219,37 +224,106 @@ input[type="text"], input[type="password"] {
     box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
-/* ページネーションボタン */
+/* ページネーション（商品一覧）: 枠付き連番 + 前へ／次へ（ピル型） */
 .pagination-area {
     display: flex;
+    flex-wrap: nowrap;
     justify-content: center;
-    gap: 5px;
+    align-items: center;
+    gap: 8px;
     margin-top: 20px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
 }
 
-/* ★修正: ページネーションボタンのスタイル強化 */
-.page-btn {
-    width: auto; /* 全幅強制を解除 */
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    background-color: white;
-    color: #007bff; /* ★重要: 文字色を青に見えるように変更 */
+.pagination-area .product-pagination__page {
+    box-sizing: border-box;
+    flex: 0 0 auto;
+    width: max-content;
+    min-width: 0;
+    height: 36px;
+    padding: 0 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    line-height: 1;
+    border: 1px solid #86efac;
+    border-radius: 2px;
+    background: #fff;
+    color: #2563eb;
+    text-decoration: underline;
     cursor: pointer;
-    border-radius: 4px;
-    font-weight: bold;
-    transition: all 0.2s;
+    font-family: inherit;
+    transition: background 0.15s, color 0.15s;
 }
 
-.page-btn:hover {
-    background-color: #e9ecef;
-    color: #0056b3;
+.pagination-area .product-pagination__page:hover:not(:disabled) {
+    background: #f9fafb;
+    color: #1d4ed8;
 }
 
-.page-btn.active {
-    background-color: #007bff;
-    color: white;
-    border-color: #007bff;
+.pagination-area .product-pagination__page.is-current {
+    background: #e5e7eb;
+    color: #111827;
+    text-decoration: none;
     cursor: default;
+    font-weight: 600;
+}
+
+.pagination-area .product-pagination__nav {
+    box-sizing: border-box;
+    flex: 0 0 auto;
+    width: max-content;
+    min-width: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 36px;
+    padding: 0 10px;
+    margin: 0 2px;
+    border: 1px solid #d1d5db;
+    border-radius: 999px;
+    background: #fff;
+    color: #6b7280;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.pagination-area .product-pagination__nav:hover:not(:disabled) {
+    background: #f9fafb;
+    border-color: #9ca3af;
+    color: #4b5563;
+}
+
+.pagination-area .product-pagination__nav:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.pagination-area .product-pagination__nav-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.35em;
+    height: 1.35em;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    font-size: 0.75em;
+    line-height: 1;
+    font-weight: 700;
+}
+
+/* <button> の UA 既定の最小幅を抑え、ラベル幅に合わせる */
+.pagination-area button.product-pagination__page,
+.pagination-area button.product-pagination__nav {
+    appearance: none;
+    -webkit-appearance: none;
+    min-inline-size: 0;
 }
 
 /* --- Global Navigation (SaaS Header) --- */
@@ -389,6 +463,16 @@ input[type="text"], input[type="password"] {
     padding: 8px 15px;
     border-radius: 4px;
     cursor: pointer;
+}
+
+/* ログインページ・パスワード再設定モーダル内の本文ボタン（.login-container 外のため別指定） */
+#forgot-password-modal .modal-body > button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
 }
 
 /* Admin Control Tower Layout */
@@ -559,8 +643,27 @@ input[type="text"], input[type="password"] {
     background-color: #eef1f5;
     padding: 28px 32px;
     height: 100vh;
-    overflow-y: auto;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    --admin-main-bg: #eef1f5;
+}
+
+/* ページ名・ツールバーはスクロールしない（本文は .admin-main-scroll 内のみスクロール） */
+.admin-main-content > .admin-main-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.admin-main-content > .page-header:first-child,
+.admin-main-content > header.dashboard-header-block:first-child {
+    flex-shrink: 0;
+    background-color: var(--admin-main-bg);
+    box-shadow: 0 1px 0 rgba(15, 23, 42, 0.06);
 }
 
 .page-header {

@@ -27,7 +27,10 @@
         .admin-main-content {
             flex-grow: 1;
             padding: 20px;
-            overflow-y: auto;
+            --admin-main-bg: #eef1f5;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
             height: 100vh;
             box-sizing: border-box;
         }
@@ -147,6 +150,7 @@
                 <p style="color:#666;">商品の登録、編集、および価格設定を行います。</p>
             </div>
 
+            <div class="admin-main-scroll">
             <div class="admin-section">
                 <h2>✏️ 商品の追加・編集</h2>
                 <form id="add-product-form" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
@@ -412,6 +416,7 @@
                         <div id="manual-stock-status" style="margin-top:10px; font-size:0.9rem;"></div>
                     </form>
                 </div>
+            </div>
             </div>
 
         </main>

@@ -20,8 +20,11 @@
         .admin-main-content {
             flex-grow: 1;
             background: #f4f6f9;
+            --admin-main-bg: #f4f6f9;
             padding: 20px;
-            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
             height: 100vh;
             box-sizing: border-box;
         }
@@ -173,6 +176,7 @@
                 <h2><span class="admin-page-icon" data-admin-icon="kaitori" aria-hidden="true"></span>買取管理</h2>
             </div>
 
+            <div class="admin-main-scroll">
             <div class="sub-tabs">
                 <button class="sub-tab-btn active" onclick="switchKaitoriSub('requests', this)">📦 査定依頼リスト</button>
                 <button class="sub-tab-btn" onclick="switchKaitoriSub('master', this)">⚙️ 買取価格マスタ設定</button>
@@ -249,6 +253,7 @@
                         </table>
                     </div>
                 </section>
+            </div>
             </div>
         </main>
     </div>

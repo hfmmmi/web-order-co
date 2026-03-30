@@ -29,8 +29,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const btnOrdersDownload = document.getElementById("btn-orders-download");
     const ordersDownloadMenu = document.getElementById("orders-download-menu");
 
-    const searchSuggestionsList = document.querySelector("#order-search-suggestions");
-
     // 全データを保持するメモリ
     let allOrderList = [];
     let lastFilteredOrders = [];
@@ -360,7 +358,7 @@ document.addEventListener("DOMContentLoaded", function () {
         ordersCurrentPage = 1;
 
         if (window.OrderView) {
-            window.OrderView.generateSearchCandidates(filtered, searchSuggestionsList);
+            window.OrderView.generateSearchCandidates(filtered, null);
             displayOrders(filtered);
         } else {
             console.error("OrderView module not loaded!");
@@ -513,6 +511,19 @@ document.addEventListener("DOMContentLoaded", function () {
         });
         document.addEventListener("click", function () {
             setOrdersDownloadMenuOpen(false);
+        });
+    }
+
+    const btnCloseAllOrderDetails = document.getElementById("btn-close-all-order-details");
+    if (btnCloseAllOrderDetails && orderListContainer) {
+        btnCloseAllOrderDetails.addEventListener("click", function () {
+            orderListContainer.querySelectorAll(".order-detail-row").forEach(function (row) {
+                row.style.display = "none";
+            });
+            orderListContainer.querySelectorAll(".btn-toggle-detail").forEach(function (btn) {
+                btn.textContent = "詳細 ▼";
+                btn.style.backgroundColor = "#3b82f6";
+            });
         });
     }
 

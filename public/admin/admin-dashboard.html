@@ -16,6 +16,10 @@
 
         .admin-main-content.dashboard-surface {
             background: #eef1f5;
+            --admin-main-bg: #eef1f5;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
 
         .dashboard-header-block {
@@ -200,6 +204,7 @@
                 <p id="dashboard-today-line" class="dashboard-today"></p>
             </header>
 
+            <div class="admin-main-scroll">
             <section class="dashboard-analytics" aria-label="アナリティクス予定エリア">
                 <h3><span class="admin-page-icon" data-admin-icon="analyticsChart" aria-hidden="true"></span>Analytics Area</h3>
                 <p>売上推移・利益率分析グラフ (Coming Soon in Phase 4)</p>
@@ -255,6 +260,7 @@
                         <span class="dash-card-chevron" aria-hidden="true">›</span>
                     </div>
                 </div>
+            </div>
             </div>
         </main>
     </div>

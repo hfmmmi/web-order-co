@@ -8,7 +8,7 @@
         /* 管理画面レイアウト */
         body { margin: 0; overflow: hidden; }
         .admin-layout-wrapper { display: flex; height: 100vh; }
-        .admin-main-content { flex-grow: 1; background: #f4f6f9; padding: 20px; overflow-y: auto; height: 100vh; box-sizing: border-box; }
+        .admin-main-content { flex-grow: 1; background: #f4f6f9; --admin-main-bg: #f4f6f9; padding: 20px; display: flex; flex-direction: column; overflow: hidden; height: 100vh; box-sizing: border-box; }
         
         /* 共通パーツ */
         .page-header { margin-bottom: 20px; border-bottom: 2px solid #dee2e6; padding-bottom: 10px; }
@@ -48,6 +48,7 @@
                 <h2><span class="admin-page-icon" data-admin-icon="customers" aria-hidden="true"></span>顧客管理 (Customer Relations)</h2>
             </div>
 
+            <div class="admin-main-scroll">
             <div class="admin-section" style="border-left: 5px solid #28a745;">
                 <div style="display:flex; gap:10px; margin-bottom:15px; background:#f1f3f5; padding:10px; border-radius:4px; align-items:center;">
                     <input type="text" id="cust-search-keyword" placeholder="顧客ID・社名で検索..." style="padding:8px; width:250px;">
@@ -83,6 +84,7 @@
                     <span id="cust-page-info" style="font-weight:bold;">Page 1 / 1</span>
                     <button id="cust-next-btn" disabled style="padding:5px 15px;">次へ »</button>
                 </div>
+            </div>
             </div>
         </main>
     </div>

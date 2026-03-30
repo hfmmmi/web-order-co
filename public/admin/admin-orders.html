@@ -20,8 +20,11 @@
         .admin-main-content {
             flex-grow: 1;
             background: #eef1f5;
+            --admin-main-bg: #eef1f5;
             padding: 20px;
-            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
             height: 100vh;
             box-sizing: border-box;
         }
@@ -271,27 +274,37 @@
 
         .orders-pagination {
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: row;
+            flex-wrap: nowrap;
             align-items: center;
             justify-content: center;
-            gap: 8px 10px;
+            gap: 8px;
             margin-top: 18px;
-            padding: 14px 12px;
+            padding: 10px 12px;
             background: #f9fafb;
             border: 1px solid #e5e7eb;
             border-radius: 8px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            max-width: 100%;
         }
 
         .orders-pagination-pages {
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: row;
+            flex-wrap: nowrap;
             align-items: center;
             justify-content: center;
             gap: 6px;
+            flex: 0 0 auto;
         }
 
         .orders-pagination-btn {
-            min-width: 2.25rem;
+            box-sizing: border-box;
+            flex: 0 0 auto;
+            width: max-content;
+            min-width: 0;
+            min-inline-size: 0;
             padding: 6px 10px;
             border: 1px solid #d1d5db;
             border-radius: 6px;
@@ -301,6 +314,8 @@
             font-weight: 600;
             cursor: pointer;
             font-variant-numeric: tabular-nums;
+            appearance: none;
+            -webkit-appearance: none;
         }
 
         .orders-pagination-btn:hover:not(:disabled) {
@@ -449,11 +464,15 @@
                                 <button type="button" role="menuitem" data-export-format="xlsx">Excel で保存</button>
                             </div>
                         </div>
+                        <button type="button" id="btn-close-all-order-details" class="page-header-toolbar-btn">
+                            一括で詳細を閉じる
+                        </button>
                     </div>
                 </div>
                 <div id="upload-status" class="upload-status-msg"></div>
             </div>
 
+            <div class="admin-main-scroll">
             <div class="admin-section">
                 <div class="search-box"
                     style="margin-bottom: 20px; background: #f9fafb; padding: 16px; border-radius: 12px; border: 1px solid #e5e7eb;">
@@ -469,17 +488,15 @@
                         <span class="orders-search-toolbar__tilde">～</span>
                         <input type="date" id="filter-date-end" class="orders-search-toolbar__field orders-search-toolbar__date"
                             onclick="this.showPicker()">
+                        <div class="input-with-clear">
+                            <input type="text" id="order-search-text" class="orders-search-toolbar__field orders-search-toolbar__keyword"
+                                placeholder="得意先名または商品名で検索…"
+                                aria-label="得意先名または商品名で検索">
+                            <span class="clear-input-btn" id="clear-order-search-btn">×</span>
+                        </div>
                         <button type="button" id="order-search-btn" class="order-search-btn">
                             検索
                         </button>
-                        <div class="input-with-clear">
-                            <input type="text" id="order-search-text" class="orders-search-toolbar__field orders-search-toolbar__keyword"
-                                placeholder="得意先または商品で検索…"
-                                aria-label="得意先または商品で検索"
-                                list="order-search-suggestions">
-                            <span class="clear-input-btn" id="clear-order-search-btn">×</span>
-                        </div>
-                        <datalist id="order-search-suggestions"></datalist>
                         <div class="search-box-csv-actions">
                             <button type="button" id="btn-csv-unexported" class="btn-csv-toolbar btn-csv-toolbar--danger">
                                 未連携データ出力
@@ -495,13 +512,14 @@
                     <p>データ読込中...</p>
                 </div>
             </div>
+            </div>
         </main>
     </div>
 
     <script src="../js/admin-icons.js"></script>
     <script src="../js/admin-common.js"></script>
     <script src="../js/admin-orders-view.js?v=8.6.0"></script>
-    <script src="../js/admin-orders.js?v=8.9"></script>
+    <script src="../js/admin-orders.js?v=8.10"></script>
 </body>
 
 </html>
