@@ -3,10 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>買取管理 - WEB受注システム</title>
+    <title>買取査定 - WEB受注システム</title>
     <link rel="stylesheet" href="../style.css">
     <style>
-        /* 管理画面レイアウト */
+        /* 管理画面レイアウト（受注管理ページとタイポ・密度を揃える） */
         body {
             margin: 0;
             overflow: hidden;
@@ -19,8 +19,8 @@
 
         .admin-main-content {
             flex-grow: 1;
-            background: #f4f6f9;
-            --admin-main-bg: #f4f6f9;
+            background: #eef1f5;
+            --admin-main-bg: #eef1f5;
             padding: 20px;
             display: flex;
             flex-direction: column;
@@ -29,22 +29,124 @@
             box-sizing: border-box;
         }
 
+        .admin-main-scroll {
+            font-size: 1rem;
+            color: #111827;
+        }
+
         /* 共通パーツ */
         .page-header {
             margin-bottom: 20px;
-            border-bottom: 2px solid #dee2e6;
-            padding-bottom: 10px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 12px;
         }
 
         .admin-section {
-            background: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            background: #fff;
+            padding: 22px 24px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
             margin-bottom: 20px;
         }
 
+        .admin-section h3,
+        .modal-header h3 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+        }
+
+        .kaitori-section-title-accent {
+            margin: 0;
+            border-left: 5px solid #ffc107;
+            padding-left: 10px;
+        }
+
+        .kaitori-toolbar-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: nowrap;
+        }
+
+        .kaitori-toolbar-row--tight {
+            margin-bottom: 10px;
+        }
+
+        .kaitori-muted {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .kaitori-import-box {
+            background: #f9fafb;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .kaitori-import-box h3 {
+            margin-top: 0;
+        }
+
+        .kaitori-btn {
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            white-space: nowrap;
+            border-radius: 8px;
+            border: none;
+            font-family: inherit;
+        }
+
+        .kaitori-btn--amber {
+            padding: 8px 14px;
+            background: #ffc107;
+            color: #111827;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .kaitori-btn--primary {
+            padding: 8px 14px;
+            background: #3b82f6;
+            color: #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .kaitori-btn--success {
+            padding: 8px 18px;
+            background: #22c55e;
+            color: #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .kaitori-file-input {
+            font-size: 0.9rem;
+        }
+
         /* サブタブUI (買取画面独自) */
+        .page-header-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px 16px;
+        }
+
+        .page-header-row h2 {
+            margin: 0;
+            font-size: 1.65rem;
+            font-weight: 700;
+            color: #111827;
+            letter-spacing: 0.02em;
+        }
+
         .sub-tabs {
             display: flex;
             gap: 10px;
@@ -53,20 +155,29 @@
             padding-bottom: 10px;
         }
 
+        .sub-tabs.sub-tabs--header {
+            margin-bottom: 0;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
         .sub-tab-btn {
-            padding: 8px 15px;
-            border: 1px solid #dee2e6;
-            background: #f8f9fa;
+            padding: 8px 10px;
+            border: 1px solid #d1d5db;
+            background: #fff;
             cursor: pointer;
-            border-radius: 4px;
-            font-weight: bold;
-            color: #495057;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #374151;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            font-family: inherit;
         }
 
         .sub-tab-btn.active {
             background: #ffc107;
-            color: #212529;
-            border-color: #ffc107;
+            color: #111827;
+            border-color: #eab308;
         }
 
         .sub-view {
@@ -77,16 +188,135 @@
             display: block;
         }
 
+        /* 一覧テーブル（.orders-list-table に合わせる） */
+        .kaitori-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .kaitori-data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .kaitori-data-table thead th {
+            text-align: left;
+            padding: 10px 12px;
+            background: #f3f4f6;
+            color: #374151;
+            font-weight: 600;
+            border-bottom: 1px solid #e5e7eb;
+            white-space: nowrap;
+        }
+
+        .kaitori-data-table tbody td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: middle;
+            color: #111827;
+        }
+
+        .kaitori-data-table thead th.kaitori-th-numeric,
+        .kaitori-data-table tbody td.kaitori-td-numeric {
+            text-align: right;
+        }
+
+        .kaitori-data-table thead th.kaitori-th-center,
+        .kaitori-data-table tbody td.kaitori-td-center {
+            text-align: center;
+        }
+
+        .kaitori-master-scroll {
+            max-height: 600px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+
+        .kaitori-master-table thead th {
+            background: #1f2937;
+            color: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        #status-tab-container button {
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-family: inherit;
+        }
+
+        #kaitori-master-body .btn-edit-master,
+        #kaitori-master-body .btn-del-master {
+            font-size: 0.875rem;
+            font-weight: 600;
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            color: #374151;
+        }
+
+        #kaitori-master-body .btn-del-master {
+            color: #dc2626;
+            border-color: #fecaca;
+        }
+
+        #kaitori-modal .btn-add-item-osaka,
+        #kaitori-modal .btn-add-item-hyogo {
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        #kaitori-modal #m-item-list input,
+        #kaitori-modal #m-status-select,
+        #kaitori-modal #m-admin-note {
+            font-size: 0.9rem;
+        }
+
+        #kaitori-modal #m-item-list input {
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+            box-sizing: border-box;
+        }
+
+        #kaitori-modal #m-item-list td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: middle;
+        }
+
+        #kaitori-master-modal input,
+        #kaitori-master-modal select,
+        #kaitori-master-modal label,
+        #kaitori-master-modal button[type="submit"] {
+            font-size: 0.9rem;
+        }
+
+        #kaitori-master-modal label {
+            font-weight: 600;
+            color: #374151;
+        }
+
         /* 買取リスト用 */
         .kaitori-row:hover {
-            background-color: #f1f1f1;
+            background-color: #f9fafb;
             cursor: pointer;
         }
 
         .badge {
             padding: 3px 8px;
-            border-radius: 4px;
+            border-radius: 6px;
             font-size: 0.8rem;
+            font-weight: 600;
             color: #fff;
         }
 
@@ -140,6 +370,17 @@
 
         .modal-body {
             padding: 20px;
+            font-size: 0.9rem;
+            color: #111827;
+        }
+
+        .modal-body table {
+            font-size: 0.9rem;
+        }
+
+        .modal-body .kaitori-modal-total {
+            font-size: 1.05rem;
+            font-weight: 700;
         }
 
         .close-btn {
@@ -173,36 +414,35 @@
 
         <main class="admin-main-content">
             <div class="page-header">
-                <h2><span class="admin-page-icon" data-admin-icon="kaitori" aria-hidden="true"></span>買取管理</h2>
+                <div class="page-header-row">
+                    <h2><span class="admin-page-icon" data-admin-icon="kaitori" aria-hidden="true"></span>買取査定</h2>
+                    <div class="sub-tabs sub-tabs--header">
+                        <button class="sub-tab-btn active" onclick="switchKaitoriSub('requests', this)">査定依頼リスト</button>
+                        <button class="sub-tab-btn" onclick="switchKaitoriSub('master', this)">買取価格マスタ設定</button>
+                    </div>
+                </div>
             </div>
 
             <div class="admin-main-scroll">
-            <div class="sub-tabs">
-                <button class="sub-tab-btn active" onclick="switchKaitoriSub('requests', this)">📦 査定依頼リスト</button>
-                <button class="sub-tab-btn" onclick="switchKaitoriSub('master', this)">⚙️ 買取価格マスタ設定</button>
-            </div>
-
             <div id="kaitori-sub-requests" class="sub-view active">
                 <section class="admin-section">
-                    <div
-                        style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap: nowrap;">
-                        <h3 style="margin:0; border-left:5px solid #ffc107; padding-left:10px;">現在の依頼</h3>
-                        <button id="btn-refresh-kaitori"
-                            style="cursor:pointer; padding:5px 15px; background:#ffc107; border:none; border-radius:3px; white-space: nowrap;">再読込</button>
+                    <div class="kaitori-toolbar-row">
+                        <h3 class="kaitori-section-title-accent">現在の依頼</h3>
+                        <button type="button" id="btn-refresh-kaitori" class="kaitori-btn kaitori-btn--amber">再読込</button>
                     </div>
 
                     <div id="kaitori-req-search-area" style="margin-bottom:10px;"></div>
 
-                    <div style="overflow-x: auto;">
-                        <table style="width:100%; border-collapse:collapse; font-size:0.9rem; min-width: 600px;">
-                            <thead style="background:#f8f9fa; border-bottom:2px solid #dee2e6;">
+                    <div class="kaitori-table-wrap">
+                        <table class="kaitori-data-table" style="min-width: 600px;">
+                            <thead>
                                 <tr>
-                                    <th style="padding:10px; text-align:left; white-space: nowrap;">ID</th>
-                                    <th style="padding:10px; text-align:left; white-space: nowrap;">申請日時</th>
-                                    <th style="padding:10px; text-align:left; white-space: nowrap;">顧客名</th>
-                                    <th style="padding:10px; text-align:left; white-space: nowrap;">状態</th>
-                                    <th style="padding:10px; text-align:right; white-space: nowrap;">点数</th>
-                                    <th style="padding:10px; text-align:right; white-space: nowrap;">査定合計</th>
+                                    <th>ID</th>
+                                    <th>申請日時</th>
+                                    <th>顧客名</th>
+                                    <th>状態</th>
+                                    <th class="kaitori-th-numeric">点数</th>
+                                    <th class="kaitori-th-numeric">査定合計</th>
                                 </tr>
                             </thead>
                             <tbody id="kaitori-list-body"></tbody>
@@ -213,40 +453,37 @@
 
             <div id="kaitori-sub-master" class="sub-view">
                 <section class="admin-section">
-                    <div style="background:#e9ecef; padding:15px; border-radius:5px; margin-bottom:20px;">
-                        <h3 style="margin-top:0;">📤 Excel / CSV 一括取込</h3>
-                        <p style="font-size:0.9rem; color:#555;">
+                    <div class="kaitori-import-box">
+                        <h3>📤 Excel / CSV 一括取込</h3>
+                        <p class="kaitori-muted">
                             Excel(.xlsx) または CSVファイルをアップロードしてマスタを一括更新します。<br>
                             必須列: <code>メーカー</code>, <code>商品名</code>, <code>区分</code>, <code>買取単価</code>,
                             <code>買取先</code>(または納品先)
                         </p>
-                        <div style="display:flex; gap:10px;">
-                            <input type="file" id="kaitori-file-input" accept=".csv, .xlsx, .xls">
-                            <button id="btn-import-kaitori-master"
-                                style="background:#28a745; color:white; border:none; padding:8px 20px; font-weight:bold; cursor:pointer;">取込実行</button>
+                        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                            <input type="file" id="kaitori-file-input" class="kaitori-file-input" accept=".csv, .xlsx, .xls">
+                            <button type="button" id="btn-import-kaitori-master" class="kaitori-btn kaitori-btn--success">取込実行</button>
                         </div>
                     </div>
 
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <div class="kaitori-toolbar-row kaitori-toolbar-row--tight">
                         <h3 style="margin:0;">登録済みマスタ一覧</h3>
-                        <button id="btn-add-kaitori-item"
-                            style="background:#007bff; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer;">＋
-                            新規追加</button>
+                        <button type="button" id="btn-add-kaitori-item" class="kaitori-btn kaitori-btn--primary">＋ 新規追加</button>
                     </div>
 
                     <div id="kaitori-master-search-area" style="margin-bottom:10px;"></div>
 
-                    <div style="max-height:600px; overflow-y:auto; border:1px solid #dee2e6;">
-                        <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
-                            <thead style="background:#343a40; color:white; position:sticky; top:0;">
+                    <div class="kaitori-master-scroll">
+                        <table class="kaitori-data-table kaitori-master-table">
+                            <thead>
                                 <tr>
-                                    <th style="padding:8px;">ID</th>
-                                    <th style="padding:8px;">メーカー</th>
-                                    <th style="padding:8px;">商品名</th>
-                                    <th style="padding:8px;">区分</th>
-                                    <th style="padding:8px; text-align:right;">買取単価</th>
-                                    <th style="padding:8px;">納品先</th>
-                                    <th style="padding:8px; text-align:center;">操作</th>
+                                    <th>ID</th>
+                                    <th>メーカー</th>
+                                    <th>商品名</th>
+                                    <th>区分</th>
+                                    <th class="kaitori-th-numeric">買取単価</th>
+                                    <th>納品先</th>
+                                    <th class="kaitori-th-center">操作</th>
                                 </tr>
                             </thead>
                             <tbody id="kaitori-master-body"></tbody>
@@ -276,52 +513,49 @@
                     </div>
                 </div>
 
-                <div style="max-height: 300px; overflow-y: auto; border: 1px solid #eee; margin-bottom: 15px;">
+                <div style="max-height: 300px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 15px;">
                     <table style="width:100%; border-collapse:collapse;">
-                        <thead style="background:#eee; position: sticky; top: 0;">
+                        <thead style="background:#f3f4f6; position: sticky; top: 0;">
                             <tr>
-                                <th style="padding:5px; text-align:left;">商品名</th>
-                                <th style="padding:5px; text-align:right;">単価</th>
-                                <th style="padding:5px; text-align:right;">数量</th>
-                                <th style="padding:5px; text-align:right;">小計</th>
+                                <th style="padding:10px 12px; text-align:left; font-weight:600; color:#374151;">商品名</th>
+                                <th style="padding:10px 12px; text-align:right; font-weight:600; color:#374151;">単価</th>
+                                <th style="padding:10px 12px; text-align:right; font-weight:600; color:#374151;">数量</th>
+                                <th style="padding:10px 12px; text-align:right; font-weight:600; color:#374151;">小計</th>
                             </tr>
                         </thead>
                         <tbody id="m-item-list"></tbody>
                         <tfoot>
-                            <tr style="border-top:2px solid #333; background: #fff;">
-                                <td colspan="3" style="text-align:right; padding:10px; font-weight:bold;">査定合計:</td>
-                                <td style="text-align:right; padding:10px; font-weight:bold; font-size:1.2rem; color:#d63384;"
+                            <tr style="border-top:2px solid #e5e7eb; background: #fff;">
+                                <td colspan="3" style="text-align:right; padding:10px 12px; font-weight:700;">査定合計:</td>
+                                <td class="kaitori-modal-total" style="text-align:right; padding:10px 12px; color:#db2777;"
                                     id="m-total">¥0</td>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
 
-                <div style="background:#fff3cd; padding:15px; border-radius:4px; border:1px solid #ffeeba;">
-                    <label style="font-weight:bold; display:block; margin-bottom:5px;">⚙️ ステータス操作</label>
+                <div style="background:#fffbeb; padding:16px; border-radius:12px; border:1px solid #fde68a;">
+                    <label style="font-weight:600; font-size:0.9rem; display:block; margin-bottom:8px; color:#374151;">⚙️ ステータス操作</label>
                     <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom: 10px;">
                         <select id="m-status-select"
-                            style="padding:8px; border-radius:4px; border:1px solid #ccc; font-size:1rem;">
+                            style="padding:8px 10px; border-radius:8px; border:1px solid #e5e7eb;">
                             <option value="査定中">⏳ 査定中</option>
                             <option value="成立">✅ 成立 (承認)</option>
                             <option value="キャンセル">🚫 キャンセル</option>
                             <option value="保留">🤔 保留</option>
                         </select>
-                        <button id="btn-update-status"
-                            style="padding:8px 20px; background:#28a745; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">更新を保存</button>
+                        <button type="button" id="btn-update-status" class="kaitori-btn kaitori-btn--success">更新を保存</button>
                     </div>
 
-                    <label style="font-weight:bold; display:block; margin-bottom:5px;">✉️ メール送信</label>
+                    <label style="font-weight:600; font-size:0.9rem; display:block; margin-bottom:8px; color:#374151;">✉️ メール送信</label>
                     <div style="display:flex; gap:10px;">
-                        <button id="btn-create-email-osaka"
-                            style="flex: 1; padding:8px; background:#007bff; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">🏢
+                        <button type="button" id="btn-create-email-osaka" class="kaitori-btn kaitori-btn--primary" style="flex:1;">🏢
                             大阪送付用メール作成</button>
-                        <button id="btn-create-email-hyogo"
-                            style="flex: 1; padding:8px; background:#6610f2; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">⚓
+                        <button type="button" id="btn-create-email-hyogo" class="kaitori-btn" style="flex:1; padding:8px 10px; background:#7c3aed; color:#fff; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.08);">⚓
                             兵庫送付用メール作成</button>
                     </div>
                     <input type="text" id="m-admin-note" placeholder="管理者メモ (顧客には見えません)"
-                        style="width:100%; margin-top:10px; padding:8px; box-sizing:border-box;">
+                        style="width:100%; margin-top:10px; padding:8px 10px; box-sizing:border-box; border:1px solid #e5e7eb; border-radius:8px;">
                 </div>
             </div>
         </div>
@@ -339,27 +573,26 @@
                     <input type="hidden" id="km-id">
                     <label>メーカー</label>
                     <input type="text" id="km-maker"
-                        style="width:100%; padding:8px; margin-bottom:10px; box-sizing:border-box;">
+                        style="width:100%; padding:8px 10px; margin-bottom:10px; box-sizing:border-box; border:1px solid #e5e7eb; border-radius:8px;">
                     <label>商品名 (必須)</label>
                     <input type="text" id="km-name" required
-                        style="width:100%; padding:8px; margin-bottom:10px; box-sizing:border-box;">
+                        style="width:100%; padding:8px 10px; margin-bottom:10px; box-sizing:border-box; border:1px solid #e5e7eb; border-radius:8px;">
                     <label>区分 (純正/再生)</label>
-                    <select id="km-type" style="width:100%; padding:8px; margin-bottom:10px; box-sizing:border-box;">
+                    <select id="km-type" style="width:100%; padding:8px 10px; margin-bottom:10px; box-sizing:border-box; border:1px solid #e5e7eb; border-radius:8px;">
                         <option value="純正">純正</option>
                         <option value="再生">再生</option>
                         <option value="その他">その他</option>
                     </select>
                     <label>買取単価</label>
                     <input type="number" id="km-price" required
-                        style="width:100%; padding:8px; margin-bottom:10px; box-sizing:border-box;">
+                        style="width:100%; padding:8px 10px; margin-bottom:10px; box-sizing:border-box; border:1px solid #e5e7eb; border-radius:8px;">
                     <label>納品先 (自動振分用)</label>
                     <select id="km-destination"
-                        style="width:100%; padding:8px; margin-bottom:20px; box-sizing:border-box;">
+                        style="width:100%; padding:8px 10px; margin-bottom:20px; box-sizing:border-box; border:1px solid #e5e7eb; border-radius:8px;">
                         <option value="兵庫">兵庫</option>
                         <option value="大阪">大阪</option>
                     </select>
-                    <button type="submit"
-                        style="width:100%; padding:10px; background:#007bff; color:white; border:none; font-weight:bold; cursor: pointer;">保存</button>
+                    <button type="submit" class="kaitori-btn kaitori-btn--primary" style="width:100%; padding:10px;">保存</button>
                 </form>
             </div>
         </div>

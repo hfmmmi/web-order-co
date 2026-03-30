@@ -1,5 +1,5 @@
 // public/js/admin-kaitori.js
-// 買取管理画面の「司令塔（Controller）」
+// 買取査定画面の「司令塔（Controller）」
 // ※ Viewクラスを操作し、サーバーと通信を行う
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -98,8 +98,8 @@ document.addEventListener("DOMContentLoaded", function () {
         container.id = "status-tab-container";
         container.style.cssText = "display:flex; gap:10px; margin-bottom:10px;";
 
-        const btnActive = createTabBtn("🔥 未完了アクション", "btn-warning");
-        const btnClosed = createTabBtn("🏁 完了・履歴", "btn-secondary");
+        const btnActive = createTabBtn("未完了アクション", "btn-warning");
+        const btnClosed = createTabBtn("完了・履歴", "btn-secondary");
 
         btnActive.onclick = () => {
             currentFilterType = "active";

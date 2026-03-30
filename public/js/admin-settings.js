@@ -42,7 +42,7 @@ const FEATURE_DEFS = {
         { key: "announcements", label: "お知らせページ" }
     ],
     admin: [
-        { key: "adminKaitori", label: "買取管理" },
+        { key: "adminKaitori", label: "買取査定" },
         { key: "adminOrders", label: "受注管理" },
         { key: "adminProducts", label: "商品マスタ管理" },
         { key: "adminCustomers", label: "顧客管理" },

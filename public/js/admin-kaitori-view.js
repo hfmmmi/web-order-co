@@ -1,6 +1,18 @@
 // public/js/admin-kaitori-view.js
-// 買取管理画面の「表示（View）」を担当するクラス
+// 買取査定画面の「表示（View）」を担当するクラス
 // ※ DOM操作はすべてここに集約し、ロジックから分離する
+
+/** 申請日時: YYYY/MM/DD HH:mm（秒なし・ローカル） */
+function formatKaitoriRequestDateTime(value) {
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return "";
+    const y = d.getFullYear();
+    const mo = String(d.getMonth() + 1).padStart(2, "0");
+    const da = String(d.getDate()).padStart(2, "0");
+    const h = String(d.getHours()).padStart(2, "0");
+    const mi = String(d.getMinutes()).padStart(2, "0");
+    return `${y}/${mo}/${da} ${h}:${mi}`;
+}
 
 class KaitoriView {
     constructor() {
@@ -45,7 +57,7 @@ class KaitoriView {
         list.forEach(req => {
             const totalAmount = req.items.reduce((sum, item) => sum + (item.subtotal || 0), 0);
             const itemCount = req.items.reduce((sum, item) => sum + (item.qty || 0), 0);
-            const dateStr = new Date(req.requestDate).toLocaleString("ja-JP");
+            const dateStr = formatKaitoriRequestDateTime(req.requestDate);
             
             let status = req.status && req.status.trim() !== "" ? req.status : "未対応";
 
@@ -93,7 +105,7 @@ class KaitoriView {
     openRequestModal(req, onCalculate, onDeleteItem) {
         this.mReqId.textContent = req.requestId;
         this.mCustName.textContent = req.customerName;
-        this.mDate.textContent = new Date(req.requestDate).toLocaleString();
+        this.mDate.textContent = formatKaitoriRequestDateTime(req.requestDate);
         
         let status = req.status && req.status.trim() !== "" ? req.status : "未対応";
         this.setupStatusOptions();
@@ -147,7 +159,7 @@ class KaitoriView {
         // 兵庫グループ描画
         if (hyogoGroup.length > 0) {
             const hRow = document.createElement("tr");
-            hRow.innerHTML = `<td colspan="5" style="background:#e8f0fe; font-weight:bold; color:#6610f2; padding:5px;">⚓ 兵庫納品分 (${hyogoGroup.length}件)</td>`;
+            hRow.innerHTML = `<td colspan="5" style="background:#eef2ff; font-weight:600; color:#4338ca; padding:10px 12px; font-size:0.9rem;">⚓ 兵庫納品分 (${hyogoGroup.length}件)</td>`;
             this.mItemList.appendChild(hRow);
             hyogoGroup.forEach(x => this.mItemList.appendChild(this._createEditableRow(x.item, x.index, onCalculate, onDeleteItem)));
         }
@@ -155,7 +167,7 @@ class KaitoriView {
         // 大阪グループ描画
         if (osakaGroup.length > 0) {
             const oRow = document.createElement("tr");
-            oRow.innerHTML = `<td colspan="5" style="background:#fff3cd; font-weight:bold; color:#856404; padding:5px;">🏢 大阪納品分 (${osakaGroup.length}件)</td>`;
+            oRow.innerHTML = `<td colspan="5" style="background:#fffbeb; font-weight:600; color:#854d0e; padding:10px 12px; font-size:0.9rem;">🏢 大阪納品分 (${osakaGroup.length}件)</td>`;
             this.mItemList.appendChild(oRow);
             osakaGroup.forEach(x => this.mItemList.appendChild(this._createEditableRow(x.item, x.index, onCalculate, onDeleteItem)));
         }
@@ -164,8 +176,8 @@ class KaitoriView {
         const trAdd = document.createElement("tr");
         trAdd.innerHTML = `
             <td colspan="5" style="text-align:center; padding-top:10px;">
-                <button class="btn-add-item-osaka" style="font-size:0.8rem; cursor:pointer; margin-right:10px; background:#fff3cd; border:1px solid #856404; color:#856404; padding:4px 8px; border-radius:4px;">＋ 大阪へ追加</button>
-                <button class="btn-add-item-hyogo" style="font-size:0.8rem; cursor:pointer; background:#e8f0fe; border:1px solid #6610f2; color:#6610f2; padding:4px 8px; border-radius:4px;">＋ 兵庫へ追加</button>
+                <button type="button" class="btn-add-item-osaka" style="cursor:pointer; margin-right:10px; background:#fffbeb; border:1px solid #ca8a04; color:#854d0e; padding:6px 10px; border-radius:8px;">＋ 大阪へ追加</button>
+                <button type="button" class="btn-add-item-hyogo" style="cursor:pointer; background:#eef2ff; border:1px solid #6366f1; color:#4338ca; padding:6px 10px; border-radius:8px;">＋ 兵庫へ追加</button>
             </td>`;
         this.mItemList.appendChild(trAdd);
     }
@@ -243,8 +255,8 @@ class KaitoriView {
                 <td style="text-align:right; font-weight:bold;">¥${item.price.toLocaleString()}</td>
                 <td>${item.destination || "大阪"}</td>
                 <td style="text-align:center;">
-                    <button class="btn-edit-master" data-id="${item.id}" style="font-size:0.8rem; cursor:pointer;">編集</button>
-                    <button class="btn-del-master" data-id="${item.id}" style="font-size:0.8rem; cursor:pointer; color:red;">削除</button>
+                    <button type="button" class="btn-edit-master" data-id="${item.id}">編集</button>
+                    <button type="button" class="btn-del-master" data-id="${item.id}">削除</button>
                 </td>
             `;
             this.masterBody.appendChild(tr);
