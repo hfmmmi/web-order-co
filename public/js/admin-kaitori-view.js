@@ -247,6 +247,7 @@ class KaitoriView {
 
         list.forEach(item => {
             const tr = document.createElement("tr");
+            tr.className = "kaitori-master-row";
             tr.innerHTML = `
                 <td>${item.id}</td>
                 <td>${item.maker}</td>
@@ -254,9 +255,8 @@ class KaitoriView {
                 <td><span class="badge ${item.type===this.primaryProductCategoryForBadge?'badge-success':'badge-secondary'}">${item.type}</span></td>
                 <td style="text-align:right; font-weight:bold;">¥${item.price.toLocaleString()}</td>
                 <td>${item.destination || "大阪"}</td>
-                <td style="text-align:center;">
+                <td class="kaitori-td-center">
                     <button type="button" class="btn-edit-master" data-id="${item.id}">編集</button>
-                    <button type="button" class="btn-del-master" data-id="${item.id}">削除</button>
                 </td>
             `;
             this.masterBody.appendChild(tr);
@@ -271,6 +271,8 @@ class KaitoriView {
         document.getElementById("km-type").value = item ? item.type : this.primaryProductCategoryForBadge;
         document.getElementById("km-price").value = item ? item.price : 0;
         document.getElementById("km-destination").value = item ? item.destination : "大阪";
+        const delBtn = document.getElementById("km-btn-delete");
+        if (delBtn) delBtn.style.display = item ? "block" : "none";
         this.masterModal.style.display = "flex";
     }
 

@@ -178,7 +178,7 @@
             <td class="col-numeric"><strong>¥${totalAmount.toLocaleString()}</strong></td>
             <td class="col-export">${exportBadge}</td>
             <td class="col-action">
-                <button type="button" class="btn-toggle-detail" style="padding: 6px 12px; background-color: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem;">
+                <button type="button" class="btn-toggle-detail" style="padding: 6px 12px; background-color: #b7dbff; color: #111827; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem;">
                     詳細 ▼
                 </button>
             </td>`;

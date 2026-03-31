@@ -522,7 +522,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
             orderListContainer.querySelectorAll(".btn-toggle-detail").forEach(function (btn) {
                 btn.textContent = "詳細 ▼";
-                btn.style.backgroundColor = "#3b82f6";
+                btn.style.backgroundColor = "#b7dbff";
             });
         });
     }
@@ -625,7 +625,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     const isHidden = detTr.style.display === "none";
                     detTr.style.display = isHidden ? "table-row" : "none";
                     toggleBtn.textContent = isHidden ? "閉じる ▲" : "詳細 ▼";
-                    toggleBtn.style.backgroundColor = isHidden ? "#64748b" : "#3b82f6";
+                    toggleBtn.style.backgroundColor = "#b7dbff";
                 });
             }
 

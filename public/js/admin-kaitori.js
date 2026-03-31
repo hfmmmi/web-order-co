@@ -33,6 +33,16 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    if (view.masterBody) {
+        view.masterBody.addEventListener("click", (e) => {
+            const btn = e.target.closest(".btn-edit-master");
+            if (!btn || !btn.dataset.id) return;
+            e.stopPropagation();
+            const item = allMasterData.find((m) => String(m.id) === btn.dataset.id);
+            if (item) view.openMasterModal(item);
+        });
+    }
+
     // タブ切り替え
     const tabRequests = document.querySelector("button[onclick*='requests']");
     const tabMaster = document.querySelector("button[onclick*='master']");
@@ -276,32 +286,191 @@ document.addEventListener("DOMContentLoaded", function () {
     // 3. マスタ管理
     // =========================================
 
+    const masterSearchTextInput = document.getElementById("kaitori-master-search-text");
+    const masterSearchBtn = document.getElementById("btn-kaitori-master-search");
+    const clearMasterSearchBtn = document.getElementById("clear-kaitori-master-search");
+    const masterResultInfoEl = document.getElementById("kaitori-master-result-info");
+    const masterPaginationEl = document.getElementById("kaitori-master-pagination");
+
+    let masterCurrentPage = 1;
+    const MASTER_PAGE_SIZE = 25;
+
+    function normalizeMasterSearchString(str) {
+        if (!str) return "";
+        return String(str)
+            .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xfee0))
+            .toLowerCase();
+    }
+
+    function getFilteredMasterData() {
+        const raw = masterSearchTextInput ? masterSearchTextInput.value : "";
+        const q = normalizeMasterSearchString(raw.trim());
+        if (!q) return allMasterData;
+        return allMasterData.filter((m) => {
+            const maker = normalizeMasterSearchString(m.maker || "");
+            const name = normalizeMasterSearchString(m.name || "");
+            const id = normalizeMasterSearchString(m.id != null ? String(m.id) : "");
+            return maker.includes(q) || name.includes(q) || id.includes(q);
+        });
+    }
+
+    function buildMasterPageNumberItems(totalPages, current) {
+        if (totalPages <= 1) return [];
+        const nums = new Set([1, totalPages, current]);
+        for (let d = -2; d <= 2; d++) nums.add(current + d);
+        const sorted = [...nums].filter((n) => n >= 1 && n <= totalPages).sort((a, b) => a - b);
+        const out = [];
+        for (let i = 0; i < sorted.length; i++) {
+            if (i > 0 && sorted[i] - sorted[i - 1] > 1) out.push(null);
+            out.push(sorted[i]);
+        }
+        return out;
+    }
+
+    function buildMasterPaginationNav(totalPages, currentPage) {
+        const nav = document.createElement("nav");
+        nav.className = "orders-pagination";
+        nav.setAttribute("aria-label", "マスタ一覧ページ送り");
+
+        const prevBtn = document.createElement("button");
+        prevBtn.type = "button";
+        prevBtn.className = "orders-pagination-btn orders-pagination-prev";
+        prevBtn.textContent = "前へ";
+        prevBtn.disabled = currentPage <= 1;
+        prevBtn.addEventListener("click", () => {
+            if (masterCurrentPage <= 1) return;
+            masterCurrentPage--;
+            renderMasterListPaged(false);
+        });
+
+        const pagesWrap = document.createElement("div");
+        pagesWrap.className = "orders-pagination-pages";
+
+        buildMasterPageNumberItems(totalPages, currentPage).forEach((entry) => {
+            if (entry === null) {
+                const ell = document.createElement("span");
+                ell.className = "orders-pagination-ellipsis";
+                ell.textContent = "…";
+                ell.setAttribute("aria-hidden", "true");
+                pagesWrap.appendChild(ell);
+                return;
+            }
+            const p = entry;
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "orders-pagination-btn orders-pagination-page";
+            btn.textContent = String(p);
+            if (p === currentPage) {
+                btn.classList.add("is-current");
+                btn.setAttribute("aria-current", "page");
+            }
+            btn.addEventListener("click", () => {
+                masterCurrentPage = p;
+                renderMasterListPaged(false);
+            });
+            pagesWrap.appendChild(btn);
+        });
+
+        const nextBtn = document.createElement("button");
+        nextBtn.type = "button";
+        nextBtn.className = "orders-pagination-btn orders-pagination-next";
+        nextBtn.textContent = "次へ";
+        nextBtn.disabled = currentPage >= totalPages;
+        nextBtn.addEventListener("click", () => {
+            if (masterCurrentPage >= totalPages) return;
+            masterCurrentPage++;
+            renderMasterListPaged(false);
+        });
+
+        nav.appendChild(prevBtn);
+        nav.appendChild(pagesWrap);
+        nav.appendChild(nextBtn);
+        return nav;
+    }
+
+    function renderMasterListPaged(resetToFirstPage) {
+        const filtered = getFilteredMasterData();
+        if (resetToFirstPage) masterCurrentPage = 1;
+
+        const totalPages = Math.max(1, Math.ceil(filtered.length / MASTER_PAGE_SIZE));
+        if (masterCurrentPage > totalPages) masterCurrentPage = totalPages;
+        const page = masterCurrentPage;
+        const startIdx = (page - 1) * MASTER_PAGE_SIZE;
+        const slice = filtered.slice(startIdx, startIdx + MASTER_PAGE_SIZE);
+        const fromN = filtered.length === 0 ? 0 : startIdx + 1;
+        const toN = startIdx + slice.length;
+
+        if (masterResultInfoEl) {
+            if (totalPages > 1) {
+                masterResultInfoEl.innerHTML =
+                    `該当: <strong>${filtered.length}</strong> 件 · <strong>${fromN}</strong>〜<strong>${toN}</strong> 件を表示`;
+            } else {
+                masterResultInfoEl.innerHTML = `該当: <strong>${filtered.length}</strong> 件`;
+            }
+        }
+
+        if (masterPaginationEl) {
+            masterPaginationEl.innerHTML = "";
+            if (totalPages > 1) {
+                masterPaginationEl.appendChild(buildMasterPaginationNav(totalPages, page));
+            }
+        }
+
+        view.renderMasterList(slice);
+    }
+
+    function debounceMasterSearch(fn, wait) {
+        let t;
+        return function (...args) {
+            clearTimeout(t);
+            t = setTimeout(() => fn.apply(this, args), wait);
+        };
+    }
+
+    const debouncedMasterSearch = debounceMasterSearch(() => renderMasterListPaged(true), 300);
+
+    if (masterSearchTextInput) {
+        masterSearchTextInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                masterSearchBtn?.click();
+            }
+        });
+        masterSearchTextInput.addEventListener("input", () => debouncedMasterSearch());
+    }
+    if (masterSearchBtn) masterSearchBtn.addEventListener("click", () => renderMasterListPaged(true));
+    if (clearMasterSearchBtn && masterSearchTextInput) {
+        clearMasterSearchBtn.addEventListener("click", () => {
+            masterSearchTextInput.value = "";
+            masterSearchTextInput.focus();
+            masterSearchTextInput.dispatchEvent(new Event("input"));
+        });
+    }
+
     async function loadMasterList() {
+        if (masterResultInfoEl) masterResultInfoEl.innerHTML = "";
+        if (masterPaginationEl) masterPaginationEl.innerHTML = "";
         view.masterBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">読込中...</td></tr>';
         try {
-            // ★修正: /api を削除 (/kaitori-master)
             const res = await fetch("/kaitori-master");
             if (res.status === 401) return;
             allMasterData = await res.json();
-            view.renderMasterList(allMasterData);
-            
-            document.querySelectorAll(".btn-edit-master").forEach(btn => {
-                btn.addEventListener("click", () => {
-                    const item = allMasterData.find(m => String(m.id) === btn.dataset.id);
-                    view.openMasterModal(item);
-                });
-            });
-            document.querySelectorAll(".btn-del-master").forEach(btn => {
-                btn.addEventListener("click", () => deleteMasterItem(btn.dataset.id));
-            });
-
+            renderMasterListPaged(true);
         } catch (e) {
+            if (masterResultInfoEl) masterResultInfoEl.innerHTML = "";
+            if (masterPaginationEl) masterPaginationEl.innerHTML = "";
             view.masterBody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:red;">読込失敗</td></tr>';
         }
     }
 
     // 新規追加ボタン
     document.getElementById("btn-add-kaitori-item")?.addEventListener("click", () => view.openMasterModal(null));
+
+    document.getElementById("km-btn-delete")?.addEventListener("click", () => {
+        const id = document.getElementById("km-id").value;
+        if (!id) return;
+        deleteMasterItem(id);
+    });
 
     // マスタ保存
     document.getElementById("km-form")?.addEventListener("submit", async (e) => {
@@ -335,21 +504,31 @@ document.addEventListener("DOMContentLoaded", function () {
     async function deleteMasterItem(id) {
         if (!confirm("本当に削除しますか？")) return;
         try {
-            // ★修正: /api を削除
-            await fetch("/admin/kaitori-master/delete", {
+            const res = await fetch("/admin/kaitori-master/delete", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ id })
             });
+            const data = await res.json().catch(() => ({}));
+            if (res.ok && data.success) {
+                toastSuccess("削除しました");
+                view.closeMasterModal();
+            } else if (!res.ok) {
+                toastError(data.message || "削除に失敗しました");
+            }
             loadMasterList();
         } catch (e) { toastError("通信エラー"); }
     }
 
-    // Excel一括取込（サーバー側で解析・社外アップロード対応）
-    document.getElementById("btn-import-kaitori-master")?.addEventListener("click", async () => {
+    // CSV/Excel 一括取込（ファイル選択で即実行）
+    document.getElementById("btn-kaitori-csv-excel")?.addEventListener("click", () => {
+        document.getElementById("kaitori-file-input")?.click();
+    });
+
+    document.getElementById("kaitori-file-input")?.addEventListener("change", async () => {
         const fileInput = document.getElementById("kaitori-file-input");
-        const file = fileInput.files[0];
-        if (!file) return toastWarning("ファイルを選択してください");
+        const file = fileInput?.files?.[0];
+        if (!file) return;
 
         const formData = new FormData();
         formData.append("excelFile", file);
@@ -360,9 +539,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 body: formData
             });
             const result = await res.json();
-            if (!result.success) return toastError(result.message || "Excelの読み込みに失敗しました");
+            if (!result.success) {
+                toastError(result.message || "ファイルの読み込みに失敗しました");
+                fileInput.value = "";
+                return;
+            }
             const rawData = result.data || [];
-            if (rawData.length === 0) return toastWarning("データがありません");
+            if (rawData.length === 0) {
+                toastWarning("データがありません");
+                fileInput.value = "";
+                return;
+            }
 
             const masterData = rawData.map((row, idx) => ({
                 id: row["ID"] || `K-IMP-${Date.now()}-${idx}`,
@@ -372,17 +559,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 price: row["買取単価"] || row["Price"] || 0,
                 destination: row["納品先"] || row["買取先"] || row["Destination"] || "大阪"
             }));
-            sendImportData(masterData);
+            await sendImportData(masterData);
         } catch (err) {
             console.error(err);
             toastError("ファイル読込失敗。形式を確認してください。");
+        } finally {
+            fileInput.value = "";
         }
     });
 
     async function sendImportData(data) {
         if (!confirm(`${data.length}件のデータをインポートしますか？\n既存のマスタは上書きされます。`)) return;
         try {
-            // ★修正: /api を削除
             const res = await fetch("/admin/kaitori-master/import", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -392,7 +580,6 @@ document.addEventListener("DOMContentLoaded", function () {
             if (result.success) {
                 toastSuccess(result.message, 4000);
                 loadMasterList();
-                document.getElementById("kaitori-file-input").value = ""; 
             } else {
                 toastError("エラー: " + result.message);
             }
