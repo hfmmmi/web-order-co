@@ -214,4 +214,46 @@ describe("priceService getPricelistExcelForRank 分岐", () => {
         const { buffer } = await priceService.getPricelistExcelForRank("A");
         expect(buffer.length).toBeGreaterThan(200);
     });
+
+    test("純正メーカー名の / と : が sanitize で同一シート名になり連番で重複解消", async () => {
+        jest.spyOn(settingsService, "getPriceListFormatConfig").mockResolvedValue({
+            csvHeaderLine: "h\n",
+            categoryOrder: { 純正: 1 },
+            productNameStripFromDisplay: "",
+            manufacturerSplitCategory: "純正",
+            sheetNamesByCategory: { 純正: "純正" },
+            sheetManufacturerSortCategory: "純正",
+            excelHeaderRow: ["商品ｺｰﾄﾞ", "メーカー名", "商品名", "定価", "仕様", "価格", "掛率", "備考"]
+        });
+        jest.spyOn(settingsService, "getSettings").mockResolvedValue({ shippingRules: {} });
+
+        await fs.writeFile(rankPath, JSON.stringify({ DS1: { A: 100 }, DS2: { A: 200 } }, null, 2), "utf-8");
+        await fs.writeFile(
+            productsPath,
+            JSON.stringify(
+                [
+                    {
+                        productCode: "DS1",
+                        name: "n1",
+                        manufacturer: "甲/乙株式会社",
+                        category: "純正",
+                        basePrice: 1000
+                    },
+                    {
+                        productCode: "DS2",
+                        name: "n2",
+                        manufacturer: "甲:乙株式会社",
+                        category: "純正",
+                        basePrice: 1000
+                    }
+                ],
+                null,
+                2
+            ),
+            "utf-8"
+        );
+
+        const { buffer } = await priceService.getPricelistExcelForRank("A");
+        expect(buffer.length).toBeGreaterThan(1200);
+    });
 });

@@ -376,3 +376,5 @@ router.post("/api/update-shipment-info", async (req, res) => {
 });
 
 module.exports = router;
+/** @type {typeof orderMatchesDownloadCsvKeyword} ユニットテスト用（本番ルーティングには影響しない） */
+module.exports.orderMatchesDownloadCsvKeyword = orderMatchesDownloadCsvKeyword;

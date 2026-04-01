@@ -97,5 +97,6 @@ function validateParams(schema) {
 module.exports = {
     validateBody,
     validateQuery,
-    validateParams
+    validateParams,
+    formatZodErrors
 };

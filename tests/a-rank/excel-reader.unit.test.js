@@ -129,4 +129,16 @@ describe("Aランク: excelReader ユニット", () => {
         const objs = await readToObjects(buffer);
         expect(objs[0].k).toBe("2025-01-05");
     });
+
+    test("readToObjects は defval で欠損セルを埋める", async () => {
+        const wb = new ExcelJS.Workbook();
+        const ws = wb.addWorksheet("Sheet1");
+        ws.getCell("A1").value = "c1";
+        ws.getCell("B1").value = "c2";
+        ws.getCell("A2").value = "onlyA";
+        const buffer = await wb.xlsx.writeBuffer();
+        const objs = await readToObjects(buffer, { defval: "__" });
+        expect(objs[0].c1).toBe("onlyA");
+        expect(objs[0].c2).toBe("__");
+    });
 });

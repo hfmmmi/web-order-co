@@ -100,6 +100,46 @@ describe("priceService 分岐（updateRankPricesFromExcel / saveRankPrices）", 
         expect(r.message).toContain("商品名");
     });
 
+    test("updateRankPricesFromExcel は ランクA ヘッダーで letter 分岐（rankIds に含むとき）を通す", async () => {
+        readToRowArrays.mockResolvedValue([
+            ["商品コード", "ランクA"],
+            ["P001", 42]
+        ]);
+        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
+        expect(r.success).toBe(true);
+        const map = JSON.parse(await fs.readFile(RANK_PATH, "utf-8"));
+        expect(map.P001.A).toBe(42);
+    });
+
+    test("updateRankPricesFromExcel は表示名が rankIds に無い id ならその列はスキップ", async () => {
+        settingsService.getRankList.mockResolvedValueOnce([
+            { id: "X", name: "孤立ランク名" },
+            { id: "A", name: "ゴールド" }
+        ]);
+        readToRowArrays.mockResolvedValue([
+            ["商品コード", "孤立ランク名", "ランク1"],
+            ["P001", 99, 11]
+        ]);
+        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
+        expect(r.success).toBe(true);
+        const map = JSON.parse(await fs.readFile(RANK_PATH, "utf-8"));
+        expect(map.P001.X).toBeUndefined();
+        expect(map.P001.A).toBe(11);
+    });
+
+    test("updateRankPricesFromExcel は ランク番号が rankIds 範囲外ならその列は無視", async () => {
+        readToRowArrays.mockResolvedValue([
+            ["商品コード", "ランク1", "ランク9"],
+            ["P001", 5, 77]
+        ]);
+        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
+        expect(r.success).toBe(true);
+        const map = JSON.parse(await fs.readFile(RANK_PATH, "utf-8"));
+        expect(map.P001.A).toBe(5);
+        expect(map.P001["9"]).toBeUndefined();
+        expect(Object.keys(map.P001).filter((k) => k !== "A").length).toBe(0);
+    });
+
     test("updateRankPricesFromExcel は商品名セルが Excel エラー表記なら空文字で上書き", async () => {
         const products = JSON.parse(origProducts);
         if (!products.some((p) => p.productCode === "PX_ERR")) {

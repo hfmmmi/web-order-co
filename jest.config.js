@@ -16,11 +16,10 @@ module.exports = {
         "/tests/"
     ],
     coverageThreshold: {
-        // 分岐82%が目標。テキストレポートの Branch% と閾値判定の内部値がわずかにずれるため、
-        // 実測が 76.9〜77.1% 程度でブレるときは 77 だと閾値エラーになる。安定して 77% 超が続くまで 76。
+        // 分岐85%を長期目標とする。現状は ~79% 前後（2026-04 時点）。ブレ対策でやや下げめに設定。
         global: {
             lines: 85,
-            branches: 76
+            branches: 78
         },
         "middlewares/validate.js": { lines: 90, branches: 70 },
         "utils/priceCalc.js": { lines: 99, branches: 99 }

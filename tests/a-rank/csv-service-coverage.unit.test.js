@@ -210,6 +210,25 @@ describe("csvService 分岐カバレッジ", () => {
         test("1行のみは空", () => {
             expect(csvService.parseExternalOrdersCsv(Buffer.from("only\n", "utf-8"))).toEqual([]);
         });
+
+        test("伝票まとめ番号 ヘッダーで orderId 列として認識", () => {
+            const csv =
+                "伝票まとめ番号,得意先コード,得意先名,商品コード,商品名,単価,数量,受注日\n" +
+                "EXT1,C1,顧客,PCX,品,100,1,2024-01-01\n";
+            const out = csvService.parseExternalOrdersCsv(Buffer.from(csv, "utf-8"));
+            expect(out.length).toBe(1);
+            expect(out[0].orderId).toBe("EXT1");
+            expect(out[0].items[0].code).toBe("PCX");
+        });
+
+        test("受注日 空のとき ISO 文字列にフォールバック", () => {
+            const csv =
+                "orderId,customerId,customerName,productCode,productName,price,quantity,orderDate\n" +
+                "EXT2,C2,N2,PC2,PN2,50,1,\n";
+            const out = csvService.parseExternalOrdersCsv(Buffer.from(csv, "utf-8"));
+            expect(out.length).toBe(1);
+            expect(String(out[0].orderDate).length).toBeGreaterThan(5);
+        });
     });
 
     describe("parseShippingCsv", () => {
@@ -224,6 +243,13 @@ describe("csvService 分岐カバレッジ", () => {
 
         test("行数不足は空", () => {
             expect(csvService.parseShippingCsv(Buffer.from("x\n", "utf-8"))).toEqual([]);
+        });
+
+        test("UTF-8 BOM 付きバッファは utf-8 デコード経路", () => {
+            const body = "\uFEFF社内メモ,送り状番号\nOID1,TRK1\n";
+            const out = csvService.parseShippingCsv(Buffer.from(body, "utf-8"));
+            expect(out.length).toBe(1);
+            expect(out[0]["社内メモ"]).toBe("OID1");
         });
     });
 

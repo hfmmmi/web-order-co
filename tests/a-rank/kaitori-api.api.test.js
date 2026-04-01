@@ -138,6 +138,28 @@ describe("Aランク: 買取API", () => {
             expect(r.internalMemo).toBe("社内メモ");
             expect(r.customerNote).toBe("顧客向けメモ");
         });
+
+        test("items 配列を渡すと明細を更新できる", async () => {
+            await writeJson("kaitori_requests.json", [
+                {
+                    requestId: 200,
+                    customerId: "TEST001",
+                    status: "未対応",
+                    items: [{ name: "旧" }],
+                    requestDate: new Date().toISOString()
+                }
+            ]);
+            const admin = request.agent(app);
+            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            const res = await admin.post("/admin/kaitori-update").send({
+                requestId: 200,
+                items: [{ name: "新アイテム", quantity: 3 }]
+            });
+            expect(res.statusCode).toBe(200);
+            const requests = await readJson("kaitori_requests.json");
+            const r = requests.find((x) => x.requestId === 200);
+            expect(r.items).toEqual([{ name: "新アイテム", quantity: 3 }]);
+        });
     });
 
     describe("GET /kaitori-master", () => {
@@ -210,6 +232,29 @@ describe("Aランク: 買取API", () => {
             expect(master.length).toBe(2);
             expect(master[0].destination).toBe("大阪");
             expect(master[1].price).toBe(200);
+        });
+
+        test("マスタ一括更新でファイル書込が失敗すると500", async () => {
+            const fsp = require("fs").promises;
+            const origWrite = fsp.writeFile.bind(fsp);
+            let masterWrites = 0;
+            jest.spyOn(fsp, "writeFile").mockImplementation(async (p, ...args) => {
+                if (String(p).replace(/\\/g, "/").includes("kaitori_master.json")) {
+                    masterWrites += 1;
+                    if (masterWrites === 1) {
+                        throw new Error("simulated write failure");
+                    }
+                }
+                return origWrite(p, ...args);
+            });
+            const admin = request.agent(app);
+            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            const res = await admin.post("/admin/kaitori-master/import").send({
+                masterData: [{ maker: "M", name: "N", price: 1 }]
+            });
+            expect(res.statusCode).toBe(500);
+            expect(String(res.body.message || "")).toMatch(/マスタ|失敗/);
+            jest.restoreAllMocks();
         });
     });
 

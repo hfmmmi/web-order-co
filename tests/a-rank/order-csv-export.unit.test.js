@@ -37,6 +37,24 @@ describe("orderCsvExport", () => {
         expect(r).toEqual(d);
     });
 
+    test("resolveOrderCsvSpec は headerLine が空白のみならデフォルト", () => {
+        const d = getDefaultOrderCsvSpec();
+        const r = resolveOrderCsvSpec({ headerLine: "   ", columnKeys: d.columnKeys });
+        expect(r).toEqual(d);
+    });
+
+    test("resolveOrderCsvSpec は columnKeys が組み込み列数と同じ長なら採用", () => {
+        const builtIn = getDefaultOrderCsvSpec();
+        const alt = builtIn.columnKeys.map((k, i) => (i === 0 ? "orderId" : k));
+        const r = resolveOrderCsvSpec({ columnKeys: alt });
+        expect(r.columnKeys[0]).toBe("orderId");
+        expect(r.columnKeys.length).toBe(builtIn.columnKeys.length);
+    });
+
+    test("resolveOrderCsvSpec は custom が非オブジェクトならデフォルト", () => {
+        expect(resolveOrderCsvSpec("bad")).toEqual(getDefaultOrderCsvSpec());
+    });
+
     test("resolveOrderCsvSpec は columnKeys を builtIn 長に合わせて採用", () => {
         const builtIn = getDefaultOrderCsvSpec();
         const altKeys = builtIn.columnKeys.map((k) => (k === "empty" ? "empty" : k));

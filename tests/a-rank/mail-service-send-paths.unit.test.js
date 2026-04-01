@@ -355,6 +355,71 @@ describe("Aランク: mailService 送信経路カバレッジ", () => {
         expect(result.message).toContain("メール認証エラー");
     });
 
+    test("sendInviteEmail は EAUTH かつ NODE_ENV=production で本番向けメッセージ", async () => {
+        const prevNodeEnv = process.env.NODE_ENV;
+        const prevMailPass = process.env.MAIL_PASSWORD;
+        process.env.NODE_ENV = "production";
+        process.env.MAIL_PASSWORD = "x";
+        try {
+            jest.resetModules();
+            const nodemailer = require("nodemailer");
+            nodemailer.createTransport = jest.fn(() => ({
+                sendMail: jest.fn().mockRejectedValue(Object.assign(new Error("auth failed"), { code: "EAUTH" }))
+            }));
+            const ss = require("../../services/settingsService");
+            ss.getMailConfig = jest.fn().mockResolvedValue({
+                from: "from@test",
+                templates: {
+                    inviteSubject: "招待{{customerName}}",
+                    inviteBody: "{{inviteUrl}}"
+                },
+                transporter: { host: "smtp.test", auth: { user: "u", pass: "p" } }
+            });
+            const mailService = require("../../services/mailService");
+            const result = await mailService.sendInviteEmail(
+                { customerId: "C1", customerName: "顧客", email: "c1@test" },
+                "http://setup?id=1&key=k",
+                "temp123",
+                false
+            );
+            expect(result.success).toBe(false);
+            expect(result.message).toContain("MAIL_PASSWORD");
+            expect(result.message).toContain("本番環境");
+        } finally {
+            process.env.NODE_ENV = prevNodeEnv;
+            if (prevMailPass === undefined) {
+                delete process.env.MAIL_PASSWORD;
+            } else {
+                process.env.MAIL_PASSWORD = prevMailPass;
+            }
+        }
+    });
+
+    test("sendInviteEmail は Missing credentials メッセージでも認証エラー扱い", async () => {
+        jest.resetModules();
+        const nodemailer = require("nodemailer");
+        nodemailer.createTransport = jest.fn(() => ({
+            sendMail: jest.fn().mockRejectedValue(new Error("Missing credentials for LOGIN"))
+        }));
+        settingsService.getMailConfig = jest.fn().mockResolvedValue({
+            from: "from@test",
+            templates: {
+                inviteSubject: "招待{{customerName}}",
+                inviteBody: "{{inviteUrl}}"
+            },
+            transporter: { host: "smtp.test", auth: { user: "u", pass: "p" } }
+        });
+        const mailService = require("../../services/mailService");
+        const result = await mailService.sendInviteEmail(
+            { customerId: "C1", customerName: "顧客", email: "c1@test" },
+            "http://setup?id=1&key=k",
+            "temp123",
+            false
+        );
+        expect(result.success).toBe(false);
+        expect(result.message).toContain("メール認証エラー");
+    });
+
     test("sendPasswordChangedNotification は送信失敗時に false を返す", async () => {
         jest.resetModules();
         const nodemailer = require("nodemailer");
