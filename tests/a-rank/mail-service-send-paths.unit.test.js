@@ -22,6 +22,27 @@ describe("Aランク: mailService 送信経路カバレッジ", () => {
         settingsService.getMailConfig = origGetMailConfig;
     });
 
+    test("sendOrderConfirmation は荷主名がなければ荷主ブロックを付けない", async () => {
+        settingsService.getMailConfig = jest.fn().mockResolvedValue({
+            from: "from@test",
+            orderNotifyTo: "to@test",
+            templates: {
+                orderSubject: "注文{{orderId}}",
+                orderBody: "{{shipperInfo}}"
+            },
+            transporter: { host: "smtp.test", port: 587, auth: { user: "u", pass: "p" } }
+        });
+        const mailService = require("../../services/mailService");
+        const result = await mailService.sendOrderConfirmation(
+            {
+                orderId: "ORD-N",
+                deliveryInfo: { shipper: { address: "住所のみ" } }
+            },
+            "顧客名"
+        );
+        expect(result).toBe(true);
+    });
+
     test("sendOrderConfirmation は荷主ありで shipperInfo を本文に含めて送信する", async () => {
         settingsService.getMailConfig = jest.fn().mockResolvedValue({
             from: "from@test",
@@ -43,6 +64,27 @@ describe("Aランク: mailService 送信経路カバレッジ", () => {
             },
             "顧客名"
         );
+        expect(result).toBe(true);
+    });
+
+    test("sendSupportNotification は category が bug 以外でサポート用ラベルになる", async () => {
+        settingsService.getMailConfig = jest.fn().mockResolvedValue({
+            from: "from@test",
+            supportNotifyTo: "support@test",
+            templates: {
+                supportSubject: "{{categoryLabel}}",
+                supportBody: "{{ticketId}} {{detail}}"
+            },
+            transporter: { host: "smtp.test", port: 587, auth: { user: "u", pass: "p" } }
+        });
+        const mailService = require("../../services/mailService");
+        const result = await mailService.sendSupportNotification({
+            ticketId: "T-NONBUG",
+            category: "question",
+            customerName: "テスト",
+            customerId: "C001",
+            detail: "内容"
+        });
         expect(result).toBe(true);
     });
 
@@ -183,6 +225,60 @@ describe("Aランク: mailService 送信経路カバレッジ", () => {
     });
 
     // Phase 3: mailService 失敗経路カバレッジ
+    test("sendSupportNotification は添付が大きすぎるとメールに含めない", async () => {
+        settingsService.getMailConfig = jest.fn().mockResolvedValue({
+            from: "from@test",
+            supportNotifyTo: "support@test",
+            templates: {
+                supportSubject: "S",
+                supportBody: "{{detail}} {{attachmentsList}}"
+            },
+            transporter: { host: "smtp.test", auth: { user: "u", pass: "p" } }
+        });
+        const mailService = require("../../services/mailService");
+        const big = 6 * 1024 * 1024;
+        const result = await mailService.sendSupportNotification({
+            ticketId: "T-BIG",
+            category: "bug",
+            customerName: "テスト",
+            customerId: "C001",
+            detail: "詳細",
+            attachments: [{ storedName: "huge.bin", originalName: "huge.bin", size: big }]
+        });
+        expect(result).toBe(true);
+    });
+
+    test("sendSupportNotification は添付ファイルが存在すると path 添付で送信する", async () => {
+        const fs = require("fs").promises;
+        const path = require("path");
+        const { DATA_ROOT } = require("../../dbPaths");
+        const tid = "T-ATT-MAIL";
+        const dir = path.join(DATA_ROOT, "support_attachments", tid);
+        await fs.mkdir(dir, { recursive: true });
+        const fp = path.join(dir, "note.txt");
+        await fs.writeFile(fp, "hello", "utf8");
+        settingsService.getMailConfig = jest.fn().mockResolvedValue({
+            from: "from@test",
+            supportNotifyTo: "support@test",
+            templates: {
+                supportSubject: "S",
+                supportBody: "{{detail}}"
+            },
+            transporter: { host: "smtp.test", auth: { user: "u", pass: "p" } }
+        });
+        const mailService = require("../../services/mailService");
+        const result = await mailService.sendSupportNotification({
+            ticketId: tid,
+            category: "bug",
+            customerName: "テスト",
+            customerId: "C001",
+            detail: "詳細",
+            attachments: [{ storedName: "note.txt", originalName: "note.txt", size: 10 }]
+        });
+        expect(result).toBe(true);
+        await fs.unlink(fp).catch(() => {});
+    });
+
     test("sendSupportNotification は送信失敗時に false を返す", async () => {
         jest.resetModules();
         const nodemailer = require("nodemailer");
@@ -207,6 +303,31 @@ describe("Aランク: mailService 送信経路カバレッジ", () => {
             detail: "詳細"
         });
         expect(result).toBe(false);
+    });
+
+    test("sendInviteEmail は EAUTH 以外の送信エラーで汎用メッセージを返す", async () => {
+        jest.resetModules();
+        const nodemailer = require("nodemailer");
+        nodemailer.createTransport = jest.fn(() => ({
+            sendMail: jest.fn().mockRejectedValue(new Error("connection reset"))
+        }));
+        settingsService.getMailConfig = jest.fn().mockResolvedValue({
+            from: "from@test",
+            templates: {
+                inviteSubject: "招待{{customerName}}",
+                inviteBody: "{{inviteUrl}}"
+            },
+            transporter: { host: "smtp.test", auth: { user: "u", pass: "p" } }
+        });
+        const mailService = require("../../services/mailService");
+        const result = await mailService.sendInviteEmail(
+            { customerId: "C1", customerName: "顧客", email: "c1@test" },
+            "http://setup?id=1&key=k",
+            "temp123",
+            false
+        );
+        expect(result.success).toBe(false);
+        expect(result.message).toContain("connection reset");
     });
 
     test("sendInviteEmail は EAUTH エラー時にメール認証エラーのメッセージを返す", async () => {
@@ -252,6 +373,27 @@ describe("Aランク: mailService 送信経路カバレッジ", () => {
             email: "c1@test"
         });
         expect(result.success).toBe(false);
+    });
+
+    test("sendLoginFailureAlert は admin で supportNotifyTo が無いと false", async () => {
+        jest.resetModules();
+        const ss = require("../../services/settingsService");
+        ss.getMailConfig = jest.fn().mockResolvedValue({
+            from: "from@test",
+            templates: {
+                loginFailureAlertAdminSubject: "S{{adminId}}",
+                loginFailureAlertAdminBody: "B"
+            },
+            transporter: { host: "smtp.test", auth: { user: "u", pass: "p" } }
+        });
+        const mailService = require("../../services/mailService");
+        const result = await mailService.sendLoginFailureAlert({
+            type: "admin",
+            adminId: "admin1",
+            adminName: "管理者",
+            count: 5
+        });
+        expect(result).toBe(false);
     });
 
     test("sendLoginFailureAlert は内部エラー時に false を返す", async () => {

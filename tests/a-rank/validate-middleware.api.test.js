@@ -2,7 +2,7 @@
 const express = require("express");
 const { z } = require("zod");
 const request = require("supertest");
-const { validateQuery, validateParams } = require("../../middlewares/validate");
+const { validateBody, validateQuery, validateParams } = require("../../middlewares/validate");
 
 const querySchema = z.object({ page: z.coerce.number().int().min(1).optional() }).strict();
 const paramsSchema = z.object({ id: z.string().min(1).max(50) }).strict();
@@ -16,7 +16,36 @@ app.get("/with-params/:id", validateParams(paramsSchema), (req, res) => {
     res.json({ ok: true, id: req.params.id });
 });
 
-describe("Aランク: validate ミドルウェア（query/params）", () => {
+describe("Aランク: validate ミドルウェア（body/query/params）", () => {
+    test("validateBody: Zod 以外の例外で 400（汎用メッセージ）", async () => {
+        const app = express();
+        app.use(express.json());
+        const boomSchema = { parse: () => { throw new Error("not zod"); } };
+        app.post("/vb", validateBody(boomSchema), (req, res) => res.json({ ok: true }));
+        const res = await request(app).post("/vb").send({});
+        expect(res.statusCode).toBe(400);
+        expect(res.body.errors[0].path).toBe("body");
+        expect(res.body.errors[0].message).toContain("不正な");
+    });
+
+    test("validateQuery: Zod 以外の例外で 400", async () => {
+        const app = express();
+        const boomSchema = { parse: () => { throw new Error("boom"); } };
+        app.get("/vq", validateQuery(boomSchema), (req, res) => res.json({ ok: true }));
+        const res = await request(app).get("/vq");
+        expect(res.statusCode).toBe(400);
+        expect(res.body.errors[0].path).toBe("query");
+    });
+
+    test("validateParams: Zod 以外の例外で 400", async () => {
+        const app = express();
+        const boomSchema = { parse: () => { throw new Error("boom"); } };
+        app.get("/vp/:id", validateParams(boomSchema), (req, res) => res.json({ ok: true }));
+        const res = await request(app).get("/vp/x");
+        expect(res.statusCode).toBe(400);
+        expect(res.body.errors[0].path).toBe("params");
+    });
+
     test("validateQuery: 有効な query で next", async () => {
         const res = await request(app).get("/with-query").query({ page: 1 });
         expect(res.statusCode).toBe(200);

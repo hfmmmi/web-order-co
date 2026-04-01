@@ -84,6 +84,33 @@ describe("csvService 分岐カバレッジ", () => {
                 spy.mockRestore();
             }
         });
+
+        test("明細行が空配列ならスキップする", async () => {
+            readToRowArrays.mockResolvedValue([["h"], []]);
+            const orders = await csvService.importFlamData(Buffer.from("x"));
+            expect(orders).toEqual([]);
+        });
+
+        test("受注番号セルが空ならスキップ", async () => {
+            readToRowArrays.mockResolvedValue([
+                ["h"],
+                [, "2024-01-01", "c", "n", "p", "pn", "1", "1"]
+            ]);
+            const orders = await csvService.importFlamData(Buffer.from("x"));
+            expect(orders.length).toBe(0);
+        });
+
+        test("cellToDateString が日付を返すとき orderDate に反映", async () => {
+            readToRowArrays.mockResolvedValue([["h"], ["OID-D", "2024-06-15", "c", "n", "p", "pn", "10", "1"]]);
+            const excelModule = require("../../utils/excelReader");
+            const spy = jest.spyOn(excelModule, "cellToDateString").mockReturnValue("2024-06-15");
+            try {
+                const orders = await csvService.importFlamData(Buffer.from("x"));
+                expect(orders[0].orderDate).toBe("2024-06-15");
+            } finally {
+                spy.mockRestore();
+            }
+        });
     });
 
     describe("parseEstimatesData", () => {
@@ -141,6 +168,15 @@ describe("csvService 分岐カバレッジ", () => {
             });
             expect(out.length).toBe(1);
             expect(out[0].unitPrice).toBe(400);
+        });
+
+        test("estimateImportAliasesOverride が配列でないキーは無視される", async () => {
+            const csv = "得意先コード,商品コード,単価\nC6,P6,600\n";
+            const out = await csvService.parseEstimatesData(Buffer.from(csv, "utf-8"), "e2.csv", {
+                customerId: "not-an-array"
+            });
+            expect(out.length).toBe(1);
+            expect(out[0].customerId).toBe("C6");
         });
 
         test("validUntil がセル文字列のとき Date.parse 経路", async () => {

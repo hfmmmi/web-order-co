@@ -88,4 +88,45 @@ describe("Aランク: excelReader ユニット", () => {
     test("壊れたバッファで readToRowArrays は例外", async () => {
         await expect(readToRowArrays(Buffer.from("not excel"))).rejects.toThrow();
     });
+
+    test("readToRowArrays は sheetName でシートを選べる", async () => {
+        const wb = new ExcelJS.Workbook();
+        wb.addWorksheet("Skip");
+        const ws2 = wb.addWorksheet("Data");
+        ws2.getCell("A1").value = "x";
+        const buffer = await wb.xlsx.writeBuffer();
+        const rows = await readToRowArrays(buffer, { sheetName: "Data" });
+        expect(rows[0]).toEqual(["x"]);
+    });
+
+    test("readToRowArrays は存在しない sheetName なら先頭シートにフォールバック", async () => {
+        const wb = new ExcelJS.Workbook();
+        const ws = wb.addWorksheet("FirstOnly");
+        ws.getCell("A1").value = "fallback";
+        const buffer = await wb.xlsx.writeBuffer();
+        const rows = await readToRowArrays(buffer, { sheetName: "NoSuchSheet", sheetIndex: 0 });
+        expect(rows[0]).toEqual(["fallback"]);
+    });
+
+    test("readToObjects は sheetName 指定でオブジェクト化する", async () => {
+        const wb = new ExcelJS.Workbook();
+        const ws = wb.addWorksheet("ObjSheet");
+        ws.getCell("A1").value = "id";
+        ws.getCell("B1").value = "val";
+        ws.getCell("A2").value = "1";
+        ws.getCell("B2").value = "z";
+        const buffer = await wb.xlsx.writeBuffer();
+        const objs = await readToObjects(buffer, { sheetName: "ObjSheet" });
+        expect(objs[0]).toEqual({ id: "1", val: "z" });
+    });
+
+    test("readToObjects はセルが Date のとき YYYY-MM-DD 文字列にする", async () => {
+        const wb = new ExcelJS.Workbook();
+        const ws = wb.addWorksheet("Sheet1");
+        ws.getCell("A1").value = "k";
+        ws.getCell("A2").value = new Date(Date.UTC(2025, 0, 5));
+        const buffer = await wb.xlsx.writeBuffer();
+        const objs = await readToObjects(buffer);
+        expect(objs[0].k).toBe("2025-01-05");
+    });
 });

@@ -11,7 +11,10 @@ jest.mock("../../services/mailService", () => ({
 }));
 
 const request = require("supertest");
+const path = require("path");
+const fs = require("fs").promises;
 const { app } = require("../../server");
+const { DATA_ROOT } = require("../../dbPaths");
 const {
     backupDbFiles,
     restoreDbFiles,
@@ -48,6 +51,48 @@ describe("Aランク: admin-api カバレッジ", () => {
         expect(res.body.adminId).toBe("test-admin");
         expect(res.body.name).toBe("テスト管理者");
         expect(typeof res.body.passwordSet).toBe("boolean");
+    });
+
+    test("GET /api/admin/account は admins が空配列なら空フィールドを返す", async () => {
+        const agent = request.agent(app);
+        await agent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await writeJson("admins.json", []);
+        const res = await agent.get("/api/admin/account");
+        expect(res.statusCode).toBe(200);
+        expect(res.body.adminId).toBe("");
+        expect(res.body.passwordSet).toBe(false);
+    });
+
+    test("GET /api/admin/account は admins.json 欠落時 ENOENT で空フィールド", async () => {
+        const p = path.join(DATA_ROOT, "admins.json");
+        const orig = await fs.readFile(p, "utf-8");
+        const agent = request.agent(app);
+        await agent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        try {
+            await fs.unlink(p);
+            const res = await agent.get("/api/admin/account");
+            expect(res.statusCode).toBe(200);
+            expect(res.body.adminId).toBe("");
+        } finally {
+            await fs.writeFile(p, orig, "utf-8");
+        }
+    });
+
+    test("GET /api/admin/account は admins.json 読込が EACCES で500", async () => {
+        const agent = request.agent(app);
+        await agent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        const origReadFile = fs.readFile;
+        const spy = jest.spyOn(fs, "readFile").mockImplementation(async (targetPath, enc) => {
+            if (String(targetPath).replace(/\\/g, "/").includes("admins.json")) {
+                const e = new Error("denied");
+                e.code = "EACCES";
+                throw e;
+            }
+            return origReadFile.call(fs, targetPath, enc);
+        });
+        const res = await agent.get("/api/admin/account");
+        expect(res.statusCode).toBe(500);
+        spy.mockRestore();
     });
 
     test("PUT /api/admin/account 初回作成でパスワード不足なら 400", async () => {
