@@ -66,12 +66,18 @@
         }
 
         .product-reg-toolbar {
+            flex: 1 1 auto;
             display: flex;
             flex-wrap: wrap;
             align-items: center;
             gap: 6px;
             padding: 8px 12px;
-            margin-left: auto;
+            min-width: 0;
+        }
+
+        .product-reg-toolbar-spacer {
+            flex: 1 1 auto;
+            min-width: 8px;
         }
 
         .reg-tool-btn {
@@ -108,43 +114,6 @@
 
         a.reg-tool-btn:visited {
             color: #fff;
-        }
-
-        .reg-other-wrap {
-            position: relative;
-        }
-
-        .reg-other-wrap > summary.reg-tool-btn {
-            list-style: none;
-        }
-
-        .reg-other-wrap > summary.reg-tool-btn::-webkit-details-marker {
-            display: none;
-        }
-
-        .reg-other-panel {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            margin-top: 4px;
-            min-width: 220px;
-            padding: 8px 0;
-            background: #fff;
-            border: 1px solid #999;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            z-index: 20;
-        }
-
-        .reg-other-panel a {
-            display: block;
-            padding: 8px 14px;
-            color: #1565c0;
-            font-size: 0.88rem;
-            text-decoration: none;
-        }
-
-        .reg-other-panel a:hover {
-            background: #e3f2fd;
         }
 
         .product-reg-form-body {
@@ -202,15 +171,6 @@
         .product-reg-field .form-control:focus {
             outline: 2px solid #7cb342;
             outline-offset: 1px;
-        }
-
-        .product-reg-hint {
-            margin: 8px 16px 12px;
-            padding: 8px 12px;
-            font-size: 0.82rem;
-            color: #546e7a;
-            background: #eceff1;
-            border-left: 3px solid #90a4ae;
         }
 
         .np-extras {
@@ -310,22 +270,14 @@
                             <button type="button" id="np-tool-save" class="reg-tool-btn" title="マスタに保存">
                                 保存
                             </button>
+                            <span class="product-reg-toolbar-spacer" aria-hidden="true"></span>
                             <button type="button" id="np-tool-delete" class="reg-tool-btn reg-tool-btn--danger" title="マスタから削除" style="display: none;">
                                 削除
                             </button>
-                            <details class="reg-other-wrap">
-                                <summary class="reg-tool-btn">その他</summary>
-                                <div class="reg-other-panel">
-                                    <a href="admin-products.html">商品マスタ管理を開く</a>
-                                </div>
-                            </details>
-                            <a href="admin-products.html" class="reg-tool-btn">← 戻る</a>
                         </div>
                     </div>
 
                     <form id="np-add-product-form" class="product-reg-form-body">
-                        <p class="product-reg-hint">この画面では Web 受注マスタへの登録のみ行います（標準価格は税抜）。販売管理ソフトのような複数価格設定・税率の切替は本システムの仕様外です。</p>
-
                         <div class="product-reg-row">
                             <div class="product-reg-label">商品コード<span class="req">*</span></div>
                             <div class="product-reg-field">
