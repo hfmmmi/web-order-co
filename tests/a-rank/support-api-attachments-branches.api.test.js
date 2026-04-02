@@ -73,6 +73,29 @@ describe("Aランク: support-api 添付・DL 分岐", () => {
         }
     });
 
+    test("POST /request-support は support_tickets 書込失敗で500", async () => {
+        const customer = request.agent(app);
+        await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        const orig = fs.writeFile.bind(fs);
+        const spy = jest.spyOn(fs, "writeFile").mockImplementation(async (target, ...args) => {
+            if (String(target).replace(/\\/g, "/").includes("support_tickets.json")) {
+                throw new Error("disk full");
+            }
+            return orig(target, ...args);
+        });
+        try {
+            const res = await customer
+                .post("/request-support")
+                .field("category", "support")
+                .field("detail", "書込エラー")
+                .attach("attachments", Buffer.from("%PDF"), "a.pdf");
+            expect(res.statusCode).toBe(500);
+            expect(res.body.success).toBe(false);
+        } finally {
+            spy.mockRestore();
+        }
+    });
+
     test("GET /support/attachment は support_tickets.json が破損なら500", async () => {
         const p = path.join(DATA_ROOT, "support_tickets.json");
         const orig = await fs.readFile(p, "utf-8");

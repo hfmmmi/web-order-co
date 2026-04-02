@@ -225,6 +225,50 @@ describe("Aランク: mailService 送信経路カバレッジ", () => {
     });
 
     // Phase 3: mailService 失敗経路カバレッジ
+    test("sendSupportNotification は添付に originalName が無いとき storedName を一覧に使う", async () => {
+        settingsService.getMailConfig = jest.fn().mockResolvedValue({
+            from: "from@test",
+            supportNotifyTo: "support@test",
+            templates: {
+                supportSubject: "S",
+                supportBody: "{{attachmentsList}}"
+            },
+            transporter: { host: "smtp.test", auth: { user: "u", pass: "p" } }
+        });
+        const mailService = require("../../services/mailService");
+        const result = await mailService.sendSupportNotification({
+            ticketId: "T-NONAME",
+            category: "bug",
+            customerName: "テスト",
+            customerId: "C001",
+            detail: "d",
+            attachments: [{ storedName: "onlystored.pdf", size: 10 }]
+        });
+        expect(result).toBe(true);
+    });
+
+    test("sendSupportNotification は添付ファイルがディスクに無いとき stat 失敗でスキップして送信", async () => {
+        settingsService.getMailConfig = jest.fn().mockResolvedValue({
+            from: "from@test",
+            supportNotifyTo: "support@test",
+            templates: {
+                supportSubject: "S",
+                supportBody: "{{detail}} {{attachmentsList}}"
+            },
+            transporter: { host: "smtp.test", auth: { user: "u", pass: "p" } }
+        });
+        const mailService = require("../../services/mailService");
+        const result = await mailService.sendSupportNotification({
+            ticketId: "T-NOFILE-ON-DISK",
+            category: "support",
+            customerName: "テスト",
+            customerId: "C001",
+            detail: "詳細",
+            attachments: [{ storedName: "ghost.pdf", originalName: "ghost.pdf", size: 100 }]
+        });
+        expect(result).toBe(true);
+    });
+
     test("sendSupportNotification は添付が大きすぎるとメールに含めない", async () => {
         settingsService.getMailConfig = jest.fn().mockResolvedValue({
             from: "from@test",

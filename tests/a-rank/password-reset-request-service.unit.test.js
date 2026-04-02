@@ -146,4 +146,37 @@ describe("Aランク: passwordResetRequestService", () => {
         });
         expect(r.message).toBe(safeMessage);
     });
+
+    test("reset_rate_limit.json が破損していてもレート処理は空オブジェクトから続行する", async () => {
+        await fs.writeFile(RATE_PATH, "{bad-json", "utf-8");
+        const r = await requestPasswordReset({
+            rawId: "NOBODY",
+            clientIp: "10.0.0.99",
+            protocol: "http",
+            host: "localhost"
+        });
+        expect(r.message).toBe(safeMessage);
+    });
+
+    test("管理者に admin.email も supportNotifyTo も無いときメール送信をスキップしても safeMessage", async () => {
+        const sendSpy = jest.spyOn(mailService, "sendInviteEmail");
+        await settingsService.updateSettings({ mail: { supportNotifyTo: "" } });
+        const admins = JSON.parse(await fs.readFile(dbPath("admins.json"), "utf-8"));
+        const a0 = admins[0];
+        const prevEmail = a0.email;
+        a0.email = "";
+        await fs.writeFile(dbPath("admins.json"), JSON.stringify(admins, null, 2), "utf-8");
+        const r = await requestPasswordReset({
+            rawId: a0.adminId,
+            clientIp: "10.0.0.88",
+            protocol: "http",
+            host: "localhost"
+        });
+        expect(r.message).toBe(safeMessage);
+        expect(sendSpy).not.toHaveBeenCalled();
+        a0.email = prevEmail;
+        await fs.writeFile(dbPath("admins.json"), JSON.stringify(admins, null, 2), "utf-8");
+        await settingsService.updateSettings({ mail: { supportNotifyTo: "" } });
+        sendSpy.mockRestore();
+    });
 });
