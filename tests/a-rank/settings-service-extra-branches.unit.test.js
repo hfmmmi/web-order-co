@@ -3,6 +3,7 @@
 const fs = require("fs").promises;
 const settingsService = require("../../services/settingsService");
 const { dbPath } = require("../../dbPaths");
+const { seedBaseData } = require("../helpers/testSandbox");
 
 const SETTINGS = dbPath("settings.json");
 
@@ -10,12 +11,15 @@ describe("settingsService 追加分岐（フォーマット・物流・スキー
     let orig;
 
     beforeAll(async () => {
+        await seedBaseData();
         orig = await fs.readFile(SETTINGS, "utf-8");
     });
 
     afterAll(async () => {
-        await fs.writeFile(SETTINGS, orig, "utf-8");
-        settingsService.invalidateSettingsCache();
+        if (typeof orig === "string") {
+            await fs.writeFile(SETTINGS, orig, "utf-8");
+            settingsService.invalidateSettingsCache();
+        }
     });
 
     async function mergeSettings(partial) {
