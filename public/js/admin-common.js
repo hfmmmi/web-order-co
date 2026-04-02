@@ -159,7 +159,10 @@ function renderSidebar(features) {
 
     menuItems.forEach(item => {
         // active判定も部分一致などで柔軟に対応
-        const isActive = (currentPath === item.link) ? 'active' : '';
+        const isProductsFamily =
+            item.id === "products" &&
+            (currentPath === "admin-products.html" || currentPath === "admin-products-new.html");
+        const isActive = currentPath === item.link || isProductsFamily ? "active" : "";
         const iconMarkup = adminIconHtml(item.iconKey);
         menuHtml += `
             <li class="menu-item ${isActive}" onclick="window.location.href='${item.link}'">

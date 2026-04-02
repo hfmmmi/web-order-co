@@ -35,12 +35,69 @@
             box-sizing: border-box;
         }
 
-        /* コンテンツブロック */
+        /* ページ見出し（受注管理と同系） */
         .page-header {
             margin-bottom: 20px;
-            border-bottom: 2px solid #dee2e6;
-            padding-bottom: 10px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
         }
+
+        .page-header-leading {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .page-header-leading h2 {
+            margin: 0;
+            font-size: 1.65rem;
+            font-weight: 700;
+            color: #111827;
+            letter-spacing: 0.02em;
+        }
+
+        .page-header-inline-actions {
+            display: inline-flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            align-items: center;
+            gap: 8px;
+            flex: 0 0 auto;
+        }
+
+        .page-header-toolbar-btn {
+            box-sizing: border-box;
+            width: max-content;
+            flex: 0 0 auto;
+            white-space: nowrap;
+            padding: 8px 10px;
+            cursor: pointer;
+            background: #fff;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: inherit;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        a.page-header-toolbar-btn {
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        a.page-header-toolbar-btn:visited {
+            color: #374151;
+        }
+
+        /* コンテンツブロック */
 
         .admin-section {
             background: white;
@@ -146,63 +203,16 @@
 
         <main class="admin-main-content">
             <div class="page-header">
-                <h1><span class="admin-page-icon" data-admin-icon="products" aria-hidden="true"></span>商品マスタ管理</h1>
-                <p style="color:#666;">商品の登録、編集、および価格設定を行います。</p>
+                <div class="page-header-leading">
+                    <h2><span class="admin-page-icon" data-admin-icon="products" aria-hidden="true"></span>商品マスタ管理</h2>
+                    <div class="page-header-inline-actions">
+                        <a href="admin-products-new.html" id="btn-product-new-add" class="page-header-toolbar-btn" target="_blank" rel="noopener noreferrer">新規追加</a>
+                    </div>
+                </div>
             </div>
 
             <div class="admin-main-scroll">
             <div class="admin-section">
-                <h2>✏️ 商品の追加・編集</h2>
-                <form id="add-product-form" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div>
-                        <div class="form-group">
-                            <label>商品コード <span style="color:red">*</span></label>
-                            <input type="text" id="product-code" class="form-control" placeholder="例: PRD-001" required>
-                        </div>
-                        <div class="form-group">
-                            <label>商品名 <span style="color:red">*</span></label>
-                            <input type="text" id="product-name" class="form-control" placeholder="商品名を入力" required>
-                        </div>
-                        <div class="form-group">
-                            <label>メーカー名</label>
-                            <input type="text" id="product-manufacturer" class="form-control" placeholder="例: RICOH, Canon（価格表のメーカー列に表示）">
-                        </div>
-                        <div class="form-group">
-                            <label>規格（価格表の並び順）</label>
-                            <input type="text" id="product-category" class="form-control" placeholder="純正 / 再生 / 汎用 / 海外純正">
-                        </div>
-                    </div>
-                    <div>
-                        <div class="form-group">
-                            <label>標準価格 (税抜)</label>
-                            <input type="number" id="product-price" class="form-control" placeholder="0">
-                        </div>
-                        <div class="form-group">
-                            <label>納期区分 (在庫状況)</label>
-                            <select id="product-stock" class="form-control">
-                                <option value="即納">即納 (在庫あり)</option>
-                                <option value="2-3営業日">2-3営業日</option>
-                                <option value="取寄">メーカー取寄</option>
-                                <option value="欠品中">欠品中</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>公開状態</label>
-                            <select id="product-active" class="form-control">
-                                <option value="true">公開</option>
-                                <option value="false">非公開</option>
-                            </select>
-                        </div>
-                        <div style="margin-top: 30px; text-align: right;">
-                            <button type="submit" id="add-btn" class="btn-primary">追加 / 保存</button>
-                            <button type="button" id="update-btn" class="btn-primary" style="background:#28a745; display:none;">更新反映</button>
-                            <button type="button" id="cancel-edit-btn" style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:4px; display:none;">キャンセル</button>
-                        </div>
-                    </div>
-                </form>
-
-                <hr style="margin: 30px 0;">
-
                 <div class="embedded-csv-area">
                     <h3>📥 商品マスタ一括登録 (CSV/Excel)</h3>
                     <div style="display:flex; flex-wrap:wrap; gap:10px; align-items: center; margin-bottom:8px;">
