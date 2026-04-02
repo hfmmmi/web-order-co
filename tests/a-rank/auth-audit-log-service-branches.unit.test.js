@@ -88,4 +88,22 @@ describe("authAuditLogService 分岐", () => {
         const list = JSON.parse(await fs.readFile(CUST_LOG, "utf-8"));
         expect(list.some((x) => x.action === "cust_after_fail")).toBe(true);
     });
+
+    test("appendCustomerAuthLog はログが配列でないJSONなら空配列から再構築する", async () => {
+        await fs.mkdir(path.dirname(CUST_LOG), { recursive: true });
+        await fs.writeFile(CUST_LOG, JSON.stringify({ x: 1 }, null, 2), "utf-8");
+        await appendCustomerAuthLog({ action: "cust_reset", customerId: "C3" });
+        const list = JSON.parse(await fs.readFile(CUST_LOG, "utf-8"));
+        expect(list).toEqual([expect.objectContaining({ action: "cust_reset" })]);
+    });
+
+    test("appendCustomerAuthLog は書込失敗を握りつぶす", async () => {
+        jest.spyOn(fs, "writeFile").mockImplementation(async (p, ...rest) => {
+            if (String(p).replace(/\\/g, "/").includes("logs/customer-auth.json")) {
+                throw new Error("no space");
+            }
+            return origWrite(p, ...rest);
+        });
+        await expect(appendCustomerAuthLog({ action: "noop" })).resolves.toBeUndefined();
+    });
 });

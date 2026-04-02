@@ -105,4 +105,38 @@ describe("customerService 追加分岐", () => {
         const r = await customerService.getAllCustomers();
         expect(r.customers.length).toBeGreaterThanOrEqual(1);
     });
+
+    test("updateCustomer は email に空文字を渡すとメールを空にできる", async () => {
+        const r = await customerService.updateCustomer({
+            customerId: "TEST001",
+            customerName: "テスト顧客",
+            password: "",
+            priceRank: "A",
+            email: ""
+        });
+        expect(r.success).toBe(true);
+        const after = await readJson("customers.json");
+        expect(after.find((c) => c.customerId === "TEST001").email).toBe("");
+    });
+
+    test("importFromExcel は既存顧客にメール列があれば email を更新する", async () => {
+        readToRowArrays.mockResolvedValueOnce([
+            ["ID", "パスワード", "名前", "ランク", "メール"],
+            ["TEST001", "x", "名前", "A", "newmail@example.com"]
+        ]);
+        const r = await customerService.importFromExcel(Buffer.from([1]));
+        expect(r.success).toBe(true);
+        const after = await readJson("customers.json");
+        expect(after.find((c) => c.customerId === "TEST001").email).toBe("newmail@example.com");
+    });
+
+    test("importFromExcel は行が短い場合スキップする", async () => {
+        readToRowArrays.mockResolvedValueOnce([
+            ["ID", "パスワード"],
+            ["ONLY_ID"]
+        ]);
+        const r = await customerService.importFromExcel(Buffer.from([1]));
+        expect(r.success).toBe(true);
+        expect(r.message).toMatch(/0件/);
+    });
 });

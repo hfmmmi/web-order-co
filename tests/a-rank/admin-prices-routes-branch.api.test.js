@@ -132,6 +132,27 @@ describe("Aランク: admin pricesRoutes 分岐", () => {
         expect(res.statusCode).toBe(500);
     });
 
+    test("POST /api/admin/import-rank-prices-excel はファイル無しで400", async () => {
+        const admin = request.agent(app);
+        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        const res = await admin.post("/api/admin/import-rank-prices-excel");
+        expect(res.statusCode).toBe(400);
+        expect(res.body.success).toBe(false);
+    });
+
+    test("GET /api/admin/download-pricelist-by-rank は数字のみの rank を A に正規化する", async () => {
+        const admin = request.agent(app);
+        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        const spy = jest.spyOn(priceService, "getPricelistCsvForRank").mockResolvedValueOnce({
+            csv: "ok",
+            filename: "f.csv"
+        });
+        const res = await admin.get("/api/admin/download-pricelist-by-rank/123");
+        expect(res.statusCode).toBe(200);
+        expect(spy).toHaveBeenCalledWith("A");
+        spy.mockRestore();
+    });
+
     test("POST /api/admin/import-rank-prices-excel は rankExcelFile 無しで file のみでも取込む", async () => {
         jest.spyOn(priceService, "updateRankPricesFromExcel").mockResolvedValueOnce({
             success: true,

@@ -119,6 +119,27 @@ describe("stockAdapters 境界・エラー分岐", () => {
                 })
             );
         });
+
+        test("run は config に id/type が無いとき adapterId が stock-adapter・source が manual", async () => {
+            const mockStockService = { syncStocks: jest.fn().mockResolvedValue({ ok: true }) };
+            const OkAdapter = class extends BaseAdapter {
+                async pull() {
+                    return [{ productCode: "P0", totalQty: 1 }];
+                }
+                async normalize(data) {
+                    return Array.isArray(data) ? data : [];
+                }
+            };
+            const adapter = new OkAdapter({}, mockStockService);
+            await adapter.run();
+            expect(mockStockService.syncStocks).toHaveBeenCalledWith(
+                [{ productCode: "P0", totalQty: 1 }],
+                expect.objectContaining({
+                    adapterId: "stock-adapter",
+                    source: "manual"
+                })
+            );
+        });
     });
 
     describe("CsvAdapter", () => {
