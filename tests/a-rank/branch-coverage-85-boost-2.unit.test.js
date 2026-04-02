@@ -179,16 +179,23 @@ describe("branch boost 2: settingsService キャッシュ・テンプレート",
     });
 
     test("getRankIds は rankCount を反映（極小）", async () => {
-        const orig = await fs.readFile(SETTINGS_PATH, "utf-8");
+        let prevRankCount = 10;
         try {
-            const j = JSON.parse(orig);
-            j.rankCount = 3;
-            await fs.writeFile(SETTINGS_PATH, JSON.stringify(j, null, 2), "utf-8");
+            try {
+                const raw = await fs.readFile(SETTINGS_PATH, "utf-8");
+                const j = JSON.parse(raw);
+                if (j.rankCount != null) prevRankCount = j.rankCount;
+            } catch {
+                prevRankCount = 10;
+            }
+            await settingsService.updateSettings({ rankCount: 3 });
             settingsService.invalidateSettingsCache();
             const ids = await settingsService.getRankIds();
             expect(ids.length).toBe(3);
+            expect(ids[0]).toBe("A");
+            expect(ids[2]).toBe("C");
         } finally {
-            await fs.writeFile(SETTINGS_PATH, orig, "utf-8");
+            await settingsService.updateSettings({ rankCount: prevRankCount });
             settingsService.invalidateSettingsCache();
         }
     });

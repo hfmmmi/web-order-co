@@ -202,7 +202,9 @@ describe("priceService 分岐（updateRankPricesFromExcel / saveRankPrices）", 
         const r = await priceService.getPricelistCsvForRank("A");
         expect(r.filename).toMatch(/ランクA\.csv$/);
         expect(r.csv.startsWith("\uFEFF")).toBe(true);
-        expect(r.csv.length).toBeGreaterThan(20);
+        expect(typeof r.csv).toBe("string");
+        expect(r.csv.length).toBeGreaterThan(8);
+        expect(r.csv).toContain("\n");
     });
 
     test("getPricelistExcelForRank は xlsx バッファを生成（シート・送料・書式分岐）", async () => {

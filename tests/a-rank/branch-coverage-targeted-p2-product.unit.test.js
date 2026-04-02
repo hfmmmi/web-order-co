@@ -28,8 +28,12 @@ describe("branch-coverage-targeted-p2: productService", () => {
     });
 
     test("addProduct: 重複コードは失敗", async () => {
-        const r = await productService.addProduct({ productCode: "P001", name: "dup" });
+        const code = "P_DUP_" + Date.now();
+        const first = await productService.addProduct({ productCode: code, name: "first" });
+        expect(first.success).toBe(true);
+        const r = await productService.addProduct({ productCode: code, name: "dup" });
         expect(r.success).toBe(false);
+        await cleanupByPrefix("P_DUP_");
     });
 
     test("addProduct: 名前空はコードを名前に", async () => {

@@ -342,9 +342,12 @@ describe("branch coverage 90: priceService 追加分岐", () => {
     });
 
     test("getPriceForAdmin は特価なしで isSpecial false・定価", async () => {
+        const products = JSON.parse(await fs.readFile(PRODUCTS_PATH, "utf-8"));
+        const master = products.find((p) => p.productCode === "P001");
+        const base = master && typeof master.basePrice === "number" ? master.basePrice : 0;
         const r = await priceService.getPriceForAdmin("NOBODY", "P001");
         expect(r.isSpecial).toBe(false);
-        expect(r.currentPrice).toBeGreaterThan(0);
+        expect(r.currentPrice).toBe(base);
     });
 
     test("getCustomerPriceList はマスタ無しで商品名が不明", async () => {

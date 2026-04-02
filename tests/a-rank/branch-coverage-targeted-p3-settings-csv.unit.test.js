@@ -21,11 +21,17 @@ describe("branch-coverage-targeted-p3: settingsService", () => {
     let origSettings;
 
     beforeEach(async () => {
-        origSettings = await fs.readFile(SETTINGS_PATH, "utf-8");
+        try {
+            origSettings = await fs.readFile(SETTINGS_PATH, "utf-8");
+        } catch {
+            origSettings = "{}";
+        }
     });
 
     afterEach(async () => {
-        await fs.writeFile(SETTINGS_PATH, origSettings, "utf-8");
+        if (typeof origSettings === "string") {
+            await fs.writeFile(SETTINGS_PATH, origSettings, "utf-8");
+        }
         settingsService.invalidateSettingsCache();
     });
 
