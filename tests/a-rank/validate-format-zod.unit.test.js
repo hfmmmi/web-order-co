@@ -45,4 +45,14 @@ describe("formatZodErrors", () => {
         );
         expect(rows[0].path).toBe("nested.x");
     });
+
+    test("unrecognized_keys だが keys が空なら通常行として処理", () => {
+        const rows = formatZodErrors(
+            [{ code: "unrecognized_keys", keys: [], path: [], message: "mk" }],
+            "body"
+        );
+        expect(rows).toHaveLength(1);
+        expect(rows[0].path).toBe("body");
+        expect(rows[0].message).toBe("mk");
+    });
 });

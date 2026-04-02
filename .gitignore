@@ -34,6 +34,7 @@ logs/*.json
 !logs/.gitkeep
 
 # カバレッジレポート（CI で生成するためコミットしない）
+# npm run coverage:baseline:save は coverage/baselines/ にスナップショットを置く（coverage/ 配下のため未コミット）
 coverage/
 
 # サポート申請の添付ファイル（業務データ・容量大のためコミットしない）

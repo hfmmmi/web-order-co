@@ -238,3 +238,56 @@
 
 ---
 
+## 2026-04-01T11:24:49.149Z - flake検出
+不安定と判定されたスイート:
+- tests/b-rank/stock-visibility-combinations.api.test.js
+- tests/s-rank/auth-audit-log-corruption.api.test.js
+- tests/a-rank/recaptcha-verify-failure.api.test.js
+- tests/b-rank/product-cart-and-announcements.api.test.js
+- tests/a-rank/auth-api-captcha-verify-failure.api.test.js
+- tests/risk-driven/regression-risk.api.test.js
+- tests/a-rank/branch-coverage-85-boost-2.unit.test.js
+
+実行結果:
+- Run 1: PASS 
+- Run 2: PASS 
+- Run 3: FAIL (tests/b-rank/stock-visibility-combinations.api.test.js, tests/s-rank/auth-audit-log-corruption.api.test.js, tests/a-rank/recaptcha-verify-failure.api.test.js, tests/b-rank/product-cart-and-announcements.api.test.js, tests/a-rank/auth-api-captcha-verify-failure.api.test.js, tests/risk-driven/regression-risk.api.test.js, tests/a-rank/branch-coverage-85-boost-2.unit.test.js)
+
+---
+
+## 2026-04-01T22:22:33.276Z - flake検出
+不安定と判定されたスイート:
+- tests/a-rank/auth-api-coverage.api.test.js (8.346 s)
+- tests/s-rank/session-fixation-and-rate-limit-boundary.api.test.js (5.245 s)
+- tests/s-rank/auth-security.api.test.js (6.111 s)
+- tests/a-rank/orders-api-delivery-shipper-history.api.test.js (5.913 s)
+- tests/s-rank/login-failure-alert-mail.api.test.js (6.239 s)
+- tests/b-rank/stock-visibility-combinations.api.test.js
+- tests/a-rank/proxy-request-concurrency.api.test.js
+- tests/a-rank/branch-coverage-90-admin-plain-password.api.test.js
+- tests/b-rank/order-estimate-message.api.test.js
+- tests/a-rank/customer-service-import-new-row.unit.test.js
+- tests/s-rank/login-failure-alert-mail.api.test.js (5.336 s)
+- tests/s-rank/auth-security.api.test.js (5.256 s)
+- tests/s-rank/session-fixation-and-rate-limit-boundary.api.test.js
+- tests/a-rank/coverage-auth-orders-admin.api.test.js (104.882 s)
+- tests/a-rank/kaitori-api.api.test.js (17.683 s)
+- tests/b-rank/products-api-boundaries.api.test.js (15.247 s)
+- tests/a-rank/recaptcha-verify-failure.api.test.js
+- tests/a-rank/sanitize-admin-name.api.test.js
+- tests/a-rank/coverage-auth-orders-admin.api.test.js (102.235 s)
+- tests/a-rank/kaitori-api.api.test.js (13.968 s)
+- tests/s-rank/login-failure-alert-mail.api.test.js (6.969 s)
+- tests/s-rank/auth-security.api.test.js (6.915 s)
+- tests/s-rank/session-fixation-and-rate-limit-boundary.api.test.js (6.454 s)
+- tests/a-rank/catalog-branch-coverage-80.api.test.js (14.629 s)
+- tests/a-rank/branch-coverage-admin-orders-prices.api.test.js (8.885 s)
+- tests/a-rank/branch-coverage-90-price-service.unit.test.js
+
+実行結果:
+- Run 1: FAIL (tests/a-rank/auth-api-coverage.api.test.js (8.346 s), tests/s-rank/session-fixation-and-rate-limit-boundary.api.test.js (5.245 s), tests/s-rank/auth-security.api.test.js (6.111 s), tests/a-rank/orders-api-delivery-shipper-history.api.test.js (5.913 s), tests/s-rank/login-failure-alert-mail.api.test.js (6.239 s), tests/s-rank/auth-audit-log.api.test.js, tests/b-rank/stock-visibility-combinations.api.test.js, tests/a-rank/captcha-required-response.api.test.js, tests/a-rank/proxy-request-concurrency.api.test.js, tests/a-rank/branch-coverage-90-admin-plain-password.api.test.js, tests/b-rank/order-estimate-message.api.test.js, tests/a-rank/customer-service-import-new-row.unit.test.js)
+- Run 2: FAIL (tests/s-rank/login-failure-alert-mail.api.test.js (5.336 s), tests/s-rank/auth-security.api.test.js (5.256 s), tests/s-rank/session-fixation-and-rate-limit-boundary.api.test.js, tests/s-rank/auth-audit-log.api.test.js, tests/a-rank/captcha-required-response.api.test.js, tests/a-rank/branch-coverage-90-admin-plain-password.api.test.js, tests/a-rank/coverage-auth-orders-admin.api.test.js (104.882 s), tests/a-rank/kaitori-api.api.test.js (17.683 s), tests/b-rank/products-api-boundaries.api.test.js (15.247 s), tests/a-rank/recaptcha-verify-failure.api.test.js, tests/a-rank/sanitize-admin-name.api.test.js)
+- Run 3: FAIL (tests/a-rank/coverage-auth-orders-admin.api.test.js (102.235 s), tests/a-rank/kaitori-api.api.test.js (13.968 s), tests/s-rank/login-failure-alert-mail.api.test.js (6.969 s), tests/s-rank/auth-security.api.test.js (6.915 s), tests/s-rank/session-fixation-and-rate-limit-boundary.api.test.js (6.454 s), tests/a-rank/captcha-required-response.api.test.js, tests/s-rank/auth-audit-log.api.test.js, tests/a-rank/catalog-branch-coverage-80.api.test.js (14.629 s), tests/a-rank/branch-coverage-admin-orders-prices.api.test.js (8.885 s), tests/a-rank/branch-coverage-90-price-service.unit.test.js)
+
+---
+

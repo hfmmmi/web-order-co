@@ -51,6 +51,23 @@ describe("sessionMiddleware 環境分岐", () => {
         }
     });
 
+    test("Windows 開発・PERSIST_SESSION 未設定でメモリセッション案内ログ", () => {
+        const origPlatform = process.platform;
+        Object.defineProperty(process, "platform", { value: "win32", configurable: true });
+        process.env.NODE_ENV = "development";
+        delete process.env.PERSIST_SESSION;
+        jest.resetModules();
+        const log = jest.spyOn(console, "log").mockImplementation(() => {});
+        try {
+            const { createSessionMiddleware } = require("../../middlewares/sessionMiddleware");
+            createSessionMiddleware();
+            expect(log).toHaveBeenCalledWith(expect.stringContaining("メモリセッション"));
+        } finally {
+            log.mockRestore();
+            Object.defineProperty(process, "platform", { value: origPlatform, configurable: true });
+        }
+    });
+
     test("本番で SESSION_PATH が cwd/sessions のとき永続化警告", () => {
         process.env.NODE_ENV = "production";
         process.env.SESSION_SECRET = "not-default-secret-for-test";

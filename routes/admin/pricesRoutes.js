@@ -4,6 +4,7 @@ const express = require("express");
 const router = express.Router();
 const priceService = require("../../services/priceService");
 const settingsService = require("../../services/settingsService");
+const { getRankPriceImportBuffer } = require("../../utils/rankPriceImportBuffer");
 const { requireAdmin } = require("./requireAdmin");
 
 router.post("/admin/save-rank-prices", requireAdmin, async (req, res) => {
@@ -70,14 +71,12 @@ router.get("/admin/download-pricelist-excel-by-rank/:rank", requireAdmin, async 
 });
 
 router.post("/admin/import-rank-prices-excel", requireAdmin, async (req, res) => {
-    const uploaded = req.files && (req.files.rankExcelFile || req.files.file);
-    if (!uploaded) {
+    const resolved = getRankPriceImportBuffer(req);
+    if (!resolved.ok) {
         return res.status(400).json({ success: false, message: "Excelファイルを選択してください" });
     }
     try {
-        const file = uploaded.data ? uploaded : (req.files.rankExcelFile || req.files.file);
-        const fileBuffer = Buffer.isBuffer(file.data) ? file.data : Buffer.from(file.data || []);
-        const result = await priceService.updateRankPricesFromExcel(fileBuffer);
+        const result = await priceService.updateRankPricesFromExcel(resolved.fileBuffer);
         if (result.success) {
             return res.json({ success: true, message: result.message });
         }

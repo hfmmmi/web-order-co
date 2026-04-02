@@ -68,6 +68,13 @@ describe("Aランク: CORS許可リスト挙動", () => {
         expect(denied.body.message).toContain("CORS origin is not allowed");
     });
 
+    test("許可リストがあっても Origin ヘッダーなしは next のみ（CORS ヘッダーなし）", async () => {
+        const app = loadAppWithEnv({ ALLOWED_ORIGINS: "https://good.example" });
+        const res = await request(app).get("/api/settings/public");
+        expect(res.statusCode).toBe(200);
+        expect(res.headers["access-control-allow-origin"]).toBeUndefined();
+    });
+
     test("許可Originの preflight(OPTIONS) は 204 と必要ヘッダーを返す", async () => {
         const app = loadAppWithEnv({ ALLOWED_ORIGINS: "https://good.example" });
 
