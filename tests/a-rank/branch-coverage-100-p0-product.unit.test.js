@@ -93,14 +93,24 @@ describe("branch coverage 100 P0: productService", () => {
     });
 
     test("addProduct は重複コードで失敗", async () => {
+        const code = "P_DUP_P0_" + Date.now();
+        const first = await productService.addProduct({
+            productCode: code,
+            name: "first",
+            manufacturer: "M",
+            category: "猫",
+            basePrice: 1
+        });
+        expect(first.success).toBe(true);
         const r = await productService.addProduct({
-            productCode: "P001",
+            productCode: code,
             name: "dup",
             manufacturer: "M",
             category: "猫",
             basePrice: 1
         });
         expect(r.success).toBe(false);
+        await productService.deleteProduct(code);
     });
 
     test("updateProduct は存在すれば置換", async () => {

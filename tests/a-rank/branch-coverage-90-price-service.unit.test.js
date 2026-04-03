@@ -67,6 +67,16 @@ describe("branch coverage 90: priceService 追加分岐", () => {
     });
 
     test("getPriceForAdmin は特価ありで currentPrice が特価・isSpecial true", async () => {
+        let list;
+        try {
+            list = JSON.parse(origPrices);
+        } catch {
+            list = [];
+        }
+        if (!Array.isArray(list)) list = [];
+        const next = list.filter((p) => !(p.customerId === "TEST001" && p.productCode === "P001"));
+        next.push({ customerId: "TEST001", productCode: "P001", specialPrice: 900 });
+        await fs.writeFile(PRICES_PATH, JSON.stringify(next, null, 2), "utf-8");
         const r = await priceService.getPriceForAdmin("TEST001", "P001");
         expect(r.success).toBe(true);
         expect(r.isSpecial).toBe(true);
