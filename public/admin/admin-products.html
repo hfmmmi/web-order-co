@@ -97,6 +97,22 @@
             color: #374151;
         }
 
+        button.page-header-toolbar-btn {
+            margin: 0;
+            font-family: inherit;
+            font-size: inherit;
+            font-weight: 600;
+        }
+
+        .product-master-csv-input-hidden {
+            position: fixed;
+            left: -9999px;
+            top: 0;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+        }
+
         /* コンテンツブロック */
 
         .admin-section {
@@ -194,6 +210,57 @@
             cursor: pointer;
             font-weight: bold;
         }
+
+        .admin-section--product-list {
+            padding-top: 10px;
+        }
+
+        .admin-product-list-heading-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            margin: 0 0 10px;
+        }
+
+        .admin-product-list-heading-row .admin-product-list-title {
+            margin: 0;
+            font-size: 1.32em;
+            line-height: 1.3;
+            font-weight: 700;
+        }
+
+        .admin-product-list-search-mount {
+            position: relative;
+            flex: 0 1 auto;
+            min-width: 0;
+        }
+
+        .admin-product-list-search-mount .admin-product-list-search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #6b7280;
+        }
+
+        .admin-product-list-search-mount .admin-product-list-search-field {
+            box-sizing: border-box;
+            width: 27.5rem;
+            max-width: 100%;
+            margin: 0;
+            padding: 0.12em 0.5em 0.12em 2.05em;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 0.9375rem;
+            line-height: 1.35;
+        }
+
+        .admin-product-list-search-mount .admin-product-list-search-field::placeholder {
+            color: #9ca3af;
+            font-size: 0.92em;
+        }
     </style>
 </head>
 
@@ -207,28 +274,23 @@
                     <h2><span class="admin-page-icon" data-admin-icon="products" aria-hidden="true"></span>商品マスタ管理</h2>
                     <div class="page-header-inline-actions">
                         <a href="admin-products-new.html" id="btn-product-new-add" class="page-header-toolbar-btn" target="_blank" rel="noopener noreferrer">新規追加</a>
+                        <button type="button" id="btn-product-csv-excel" class="page-header-toolbar-btn">CSV/Excel</button>
+                        <button type="button" class="page-header-toolbar-btn js-product-template-dl">テンプレートDL</button>
+                        <button type="button" class="page-header-toolbar-btn js-product-export-dl">全件DL</button>
                     </div>
                 </div>
             </div>
 
-            <div class="admin-main-scroll">
-            <div class="admin-section">
-                <div class="embedded-csv-area">
-                    <h3>📥 商品マスタ一括登録 (CSV/Excel)</h3>
-                    <div style="display:flex; flex-wrap:wrap; gap:10px; align-items: center; margin-bottom:8px;">
-                        <input type="file" id="csv-file-input" accept=".csv, .xlsx, .xls">
-                        <button id="csv-upload-btn" style="background:#17a2b8; color:white; border:none; padding:8px 16px; border-radius:4px; cursor:pointer;">一括登録を実行</button>
-                        <button type="button" id="product-template-dl-btn" style="background:#6c757d; color:white; border:none; padding:8px 16px; border-radius:4px; cursor:pointer;">📋 テンプレートをダウンロード</button>
-                        <button type="button" id="product-export-dl-btn" style="background:#28a745; color:white; border:none; padding:8px 16px; border-radius:4px; cursor:pointer;">📦 マスタ全件ダウンロード</button>
-                    </div>
-                    <small style="color:#666;">※既存の商品コードは上書き更新されます。テンプレートは一括取込用のヘッダー付きExcelです。マスタ全件DLで現在の登録データを同じ形式で取得できます。</small>
-                </div>
+            <input type="file" id="csv-file-input" class="product-master-csv-input-hidden" accept=".csv,.xlsx,.xls" tabindex="-1" aria-label="商品マスタCSV/Excel取込">
 
-                <div style="margin-top: 20px;">
-                    <h3>📋 登録済み商品リスト</h3>
-                    <div id="admin-product-list" style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd;">
-                        <div style="padding:20px; text-align:center;">読み込み中...</div>
-                    </div>
+            <div class="admin-main-scroll">
+            <div class="admin-section admin-section--product-list">
+                <div class="admin-product-list-heading-row">
+                    <h3 class="admin-product-list-title">登録済み商品リスト</h3>
+                    <div id="admin-product-search-mount" class="admin-product-list-search-mount"></div>
+                </div>
+                <div id="admin-product-list" style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd;">
+                    <div style="padding:20px; text-align:center;">読み込み中...</div>
                 </div>
             </div>
 

@@ -7,7 +7,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const productListContainer = document.querySelector("#admin-product-list");
 
     const csvFileInput = document.querySelector("#csv-file-input");
-    const csvUploadBtn = document.querySelector("#csv-upload-btn");
+    const csvExcelHeaderBtn = document.getElementById("btn-product-csv-excel");
+
+    csvExcelHeaderBtn?.addEventListener("click", function () {
+        csvFileInput?.click();
+    });
 
     let allProducts = [];
 
@@ -57,21 +61,32 @@ document.addEventListener("DOMContentLoaded", function () {
     function setupSearchBox() {
         if (document.getElementById("admin-prod-dynamic-search")) return;
 
-        const searchWrapper = document.createElement("div");
-        searchWrapper.style.marginBottom = "10px";
-        searchWrapper.style.padding = "0 5px";
+        const searchMount = document.getElementById("admin-product-search-mount");
+        if (!searchMount) return;
+
+        const searchIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        searchIcon.setAttribute("class", "admin-product-list-search-icon");
+        searchIcon.setAttribute("viewBox", "0 0 24 24");
+        searchIcon.setAttribute("width", "16");
+        searchIcon.setAttribute("height", "16");
+        searchIcon.setAttribute("aria-hidden", "true");
+        const searchIconPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        searchIconPath.setAttribute("fill", "currentColor");
+        searchIconPath.setAttribute(
+            "d",
+            "M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
+        );
+        searchIcon.appendChild(searchIconPath);
 
         const searchInput = document.createElement("input");
         searchInput.id = "admin-prod-dynamic-search";
         searchInput.type = "text";
-        searchInput.placeholder = "🔍 コード、商品名、メーカー、カテゴリで検索...";
-        searchInput.style.width = "100%";
-        searchInput.style.padding = "10px";
-        searchInput.style.border = "2px solid #007bff";
-        searchInput.style.borderRadius = "4px";
+        searchInput.className = "admin-product-list-search-field";
+        searchInput.placeholder = "コード、商品名、メーカー、カテゴリで検索…";
+        searchInput.setAttribute("aria-label", "コード、商品名、メーカー、カテゴリで検索");
 
-        searchWrapper.appendChild(searchInput);
-        productListContainer.parentNode.insertBefore(searchWrapper, productListContainer);
+        searchMount.appendChild(searchIcon);
+        searchMount.appendChild(searchInput);
 
         searchInput.addEventListener("input", function (e) {
             const term = e.target.value.normalize("NFKC").toLowerCase();
@@ -155,21 +170,20 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    if (csvUploadBtn) {
-        csvUploadBtn.addEventListener("click", function () {
+    if (csvFileInput) {
+        csvFileInput.addEventListener("change", function () {
             const file = csvFileInput.files[0];
-            if (!file) {
-                toastWarning("ファイルを選択してください");
-                return;
-            }
+            if (!file) return;
 
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = async function (event) {
                 try {
                     const base64Data = event.target.result.split(",")[1];
-                    csvUploadBtn.disabled = true;
-                    csvUploadBtn.textContent = "処理中...";
+                    if (csvExcelHeaderBtn) {
+                        csvExcelHeaderBtn.disabled = true;
+                        csvExcelHeaderBtn.textContent = "処理中...";
+                    }
 
                     const response = await adminApiFetch("/api/upload-product-data", {
                         method: "POST",
@@ -181,7 +195,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     if (data.success) {
                         toastSuccess(data.message, 4000);
                         fetchProductList();
-                        csvFileInput.value = "";
                     } else {
                         toastError("取込失敗: " + data.message);
                     }
@@ -189,23 +202,24 @@ document.addEventListener("DOMContentLoaded", function () {
                     console.error(error);
                     toastError("通信エラーまたはファイル形式エラー");
                 } finally {
-                    csvUploadBtn.disabled = false;
-                    csvUploadBtn.textContent = "一括登録を実行";
+                    csvFileInput.value = "";
+                    if (csvExcelHeaderBtn) {
+                        csvExcelHeaderBtn.disabled = false;
+                        csvExcelHeaderBtn.textContent = "CSV/Excel";
+                    }
                 }
             };
         });
     }
 
-    const productTemplateDlBtn = document.querySelector("#product-template-dl-btn");
-    const productExportDlBtn = document.querySelector("#product-export-dl-btn");
-    if (productTemplateDlBtn) {
-        productTemplateDlBtn.addEventListener("click", function () {
+    document.querySelectorAll(".js-product-template-dl").forEach(function (btn) {
+        btn.addEventListener("click", function () {
             window.location.href = "/api/admin/product-master/template";
         });
-    }
-    if (productExportDlBtn) {
-        productExportDlBtn.addEventListener("click", function () {
+    });
+    document.querySelectorAll(".js-product-export-dl").forEach(function (btn) {
+        btn.addEventListener("click", function () {
             window.location.href = "/api/admin/product-master/export";
         });
-    }
+    });
 });
