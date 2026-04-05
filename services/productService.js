@@ -323,6 +323,33 @@ class ProductService {
         return workbook.xlsx.writeBuffer();
     }
 
+    /**
+     * 販管連携用: 商品マスタのスナップショット（ランク別単価の詳細は含めず basePrice 中心）
+     * @param {{ limit?: string|number, activeOnly?: string|boolean }} opts
+     */
+    async getProductsSnapshotForIntegration(opts = {}) {
+        let productMaster;
+        try {
+            productMaster = await this.getAllProducts();
+        } catch {
+            return { products: [], count: 0 };
+        }
+        const lim = Math.min(Math.max(1, parseInt(String(opts.limit), 10) || 2000), 5000);
+        const list = Array.isArray(productMaster) ? productMaster : [];
+        const activeOnly = opts.activeOnly === true || opts.activeOnly === "1" || opts.activeOnly === "true";
+        const filtered = activeOnly ? list.filter((p) => p && p.active !== false) : list;
+        const slice = filtered.slice(0, lim);
+        const products = slice.map((p) => ({
+            productCode: p.productCode,
+            name: p.name,
+            manufacturer: p.manufacturer || "",
+            category: p.category || "",
+            basePrice: typeof p.basePrice === "number" && Number.isFinite(p.basePrice) ? Math.max(0, Math.round(p.basePrice)) : 0,
+            active: p.active !== false,
+            stockStatus: p.stockStatus || ""
+        }));
+        return { products, count: products.length };
+    }
 }
 
 module.exports = new ProductService();

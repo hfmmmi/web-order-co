@@ -22,6 +22,21 @@ describe("Aランク: mailService 送信経路カバレッジ", () => {
         settingsService.getMailConfig = origGetMailConfig;
     });
 
+    test("sendOrderConfirmation は deliveryInfo 自体が無くても送信する", async () => {
+        settingsService.getMailConfig = jest.fn().mockResolvedValue({
+            from: "from@test",
+            orderNotifyTo: "to@test",
+            templates: {
+                orderSubject: "注文{{orderId}}",
+                orderBody: "{{customerName}}"
+            },
+            transporter: { host: "smtp.test", port: 587, auth: { user: "u", pass: "p" } }
+        });
+        const mailService = require("../../services/mailService");
+        const result = await mailService.sendOrderConfirmation({ orderId: "ORD-NODEL" }, "顧客名");
+        expect(result).toBe(true);
+    });
+
     test("sendOrderConfirmation は荷主名がなければ荷主ブロックを付けない", async () => {
         settingsService.getMailConfig = jest.fn().mockResolvedValue({
             from: "from@test",
@@ -64,6 +79,28 @@ describe("Aランク: mailService 送信経路カバレッジ", () => {
             },
             "顧客名"
         );
+        expect(result).toBe(true);
+    });
+
+    test("sendSupportNotification は attachments が配列でなければ添付なし扱い", async () => {
+        settingsService.getMailConfig = jest.fn().mockResolvedValue({
+            from: "from@test",
+            supportNotifyTo: "support@test",
+            templates: {
+                supportSubject: "S",
+                supportBody: "{{attachmentsList}}"
+            },
+            transporter: { host: "smtp.test", port: 587, auth: { user: "u", pass: "p" } }
+        });
+        const mailService = require("../../services/mailService");
+        const result = await mailService.sendSupportNotification({
+            ticketId: "T-NOARR",
+            category: "bug",
+            customerName: "テスト",
+            customerId: "C001",
+            detail: "d",
+            attachments: null
+        });
         expect(result).toBe(true);
     });
 
@@ -170,6 +207,19 @@ describe("Aランク: mailService 送信経路カバレッジ", () => {
         expect(result.message).toContain("メールアドレス");
     });
 
+    test("sendPasswordChangedNotification は customer が null で失敗", async () => {
+        jest.resetModules();
+        settingsService.getMailConfig = jest.fn().mockResolvedValue({
+            from: "from@test",
+            templates: {},
+            transporter: { host: "smtp.test", auth: { user: "u", pass: "p" } }
+        });
+        const mailService = require("../../services/mailService");
+        const result = await mailService.sendPasswordChangedNotification(null);
+        expect(result.success).toBe(false);
+        expect(result.message).toContain("メールアドレス");
+    });
+
     test("sendPasswordChangedNotification は email なしで失敗を返す", async () => {
         jest.resetModules();
         settingsService.getMailConfig = jest.fn().mockResolvedValue({
@@ -208,6 +258,25 @@ describe("Aランク: mailService 送信経路カバレッジ", () => {
         expect(result).toBe(true);
     });
 
+    test("sendLoginFailureAlert は customer でメールありなら送信成功", async () => {
+        jest.resetModules();
+        settingsService.getMailConfig = jest.fn().mockResolvedValue({
+            from: "from@test",
+            templates: {
+                loginFailureAlertSubject: "失敗{{customerName}}",
+                loginFailureAlertBody: "{{date}}"
+            },
+            transporter: { host: "smtp.test", auth: { user: "u", pass: "p" } }
+        });
+        const mailService = require("../../services/mailService");
+        const result = await mailService.sendLoginFailureAlert({
+            type: "customer",
+            customer: { customerId: "C1", customerName: "顧客", email: "cust-alert@test.example" },
+            count: 5
+        });
+        expect(result).toBe(true);
+    });
+
     test("sendLoginFailureAlert は customer で email なしなら false", async () => {
         jest.resetModules();
         settingsService.getMailConfig = jest.fn().mockResolvedValue({
@@ -225,6 +294,33 @@ describe("Aランク: mailService 送信経路カバレッジ", () => {
     });
 
     // Phase 3: mailService 失敗経路カバレッジ
+    test("sendSupportNotification は添付4件で先頭3件のみ処理し無名は一覧で file になる", async () => {
+        settingsService.getMailConfig = jest.fn().mockResolvedValue({
+            from: "from@test",
+            supportNotifyTo: "support@test",
+            templates: {
+                supportSubject: "S",
+                supportBody: "{{attachmentsList}}"
+            },
+            transporter: { host: "smtp.test", port: 587, auth: { user: "u", pass: "p" } }
+        });
+        const mailService = require("../../services/mailService");
+        const result = await mailService.sendSupportNotification({
+            ticketId: "T-FOUR-ATT",
+            category: "bug",
+            customerName: "テスト",
+            customerId: "C001",
+            detail: "d",
+            attachments: [
+                { storedName: "a.pdf", size: 100 },
+                { storedName: "b.pdf", originalName: "B", size: 100 },
+                {},
+                { storedName: "d.pdf", size: 100 }
+            ]
+        });
+        expect(result).toBe(true);
+    });
+
     test("sendSupportNotification は添付に originalName が無いとき storedName を一覧に使う", async () => {
         settingsService.getMailConfig = jest.fn().mockResolvedValue({
             from: "from@test",
@@ -525,5 +621,22 @@ describe("Aランク: mailService 送信経路カバレッジ", () => {
             count: 5
         });
         expect(result).toBe(false);
+    });
+
+    test("getTransporter は2回目以降キャッシュし createTransport を1回だけ呼ぶ", async () => {
+        const nodemailer = require("nodemailer");
+        const mailService = require("../../services/mailService");
+        settingsService.getMailConfig = jest.fn().mockResolvedValue({
+            from: "from@test",
+            orderNotifyTo: "to@test",
+            supportNotifyTo: "s@test",
+            templates: {},
+            transporter: { host: "smtp.test", port: 587, auth: { user: "u", pass: "p" } }
+        });
+        mailService.clearTransporterCache();
+        nodemailer.createTransport.mockClear();
+        await mailService.getTransporter();
+        await mailService.getTransporter();
+        expect(nodemailer.createTransport).toHaveBeenCalledTimes(1);
     });
 });

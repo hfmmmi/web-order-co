@@ -1,8 +1,21 @@
 # VPS 本番セットアップ・運用ランブック（貼り付け用）
 
-本番は **Ubuntu LTS + Node + Nginx + Let's Encrypt + systemd** を想定。社内実績（エックスサーバー VPS・サブドメイン）に基づく手順を **コピペ用**にまとめる。  
-前提のチェックリストは [production-environment-checklist.md](production-environment-checklist.md)、要点の骨子は [cloud-vps-production-setup.md](cloud-vps-production-setup.md)。  
-**初回セットアップ後の運用（リリースの流れ・定期メンテ・障害時の考え方）は「10. 運用フェーズの流れ（詳細）」**。
+エックスサーバー VPS 等、**Ubuntu 上に Node + Nginx + HTTPS + systemd** で載せるときのメモです。
+
+---
+
+## この文書の読み方
+
+**迷ったら次だけ決めれば大丈夫です。**
+
+| やりたいこと | 読むところ |
+|--------------|------------|
+| **いま、本番のプログラムを最新にしたい** | **「11. 本番デプロイ」** だけ。ほかは読まなくてよい。 |
+| **パソコンからサーバに入りたい（SSH）** | **「1. SSH」** |
+| **サーバを初めて用意するとき（初回だけ）** | **「2」～「6」** と [cloud-vps-production-setup.md](cloud-vps-production-setup.md) |
+| **月1回の更新や、止まったとき** | **「10」** 付近 |
+
+チェックリスト全般は [production-environment-checklist.md](production-environment-checklist.md)。運用ドキュメント一覧は [operational-risk-index.md](operational-risk-index.md)。
 
 ---
 
@@ -10,14 +23,31 @@
 
 **※ 実行場所は自分の PC の PowerShell。** サーバに入ったあとの Linux では `ssh`（Windows 用のパス）は使わない。
 
-### 秘密鍵で接続（例: ed25519）
+### まず試す: パスワードで入る（エックスサーバー VPS でよくある）
+
+VPS パネルで **SSH 鍵を登録していない**、または普段 **パスワード**で入っている場合は、**次だけで足ります**（`-i` は不要）。
+
+```powershell
+ssh root@VPSのIPアドレス
+```
+
+- **ユーザー名**: エックスサーバー VPS の初期例は **`root`**（パネル・マニュアルで確認）。
+- パスワードを聞かれたら、**VPS 作成時に設定した root のパスワード**を入力（画面に文字は出ません）。
+
+### 秘密鍵で入る場合だけ（`-i` を使う）
+
+**次の条件がそろっているときだけ**使います。
+
+- 自分の PC の **`C:\Users\（自分）\.ssh\`** に、使いたい **秘密鍵ファイル**がある。  
+- かつ **サーバ側**に、その鍵に対応する **公開鍵を登録済み**（エックスサーバー VPS の「SSH Key」で設定した、など）。
 
 ```powershell
 ssh -i $env:USERPROFILE\.ssh\id_ed25519 root@VPSのIPアドレス
 ```
 
-- **ユーザー名**: エックスサーバー VPS の初期例は **`root`**（パネル・マニュアルで確認）。
-- 鍵ファイル名が違う場合は `id_ed25519` を実名に合わせる。
+- 鍵のファイル名が違うときは **`id_ed25519`** を実名に変える（例: `id_rsa`、パネルでダウンロードした `.pem`）。  
+- **`-i` で入れない**のに **パスワードなら入れる** → **普通は `ssh root@IP` だけを使えばよい**（サーバは鍵ログインにしていないため）。  
+- **`Warning: Identity file ... not accessible`** → そのパスに鍵がない。**パスワード接続に切り替える**か、鍵の実際の場所を指定する。
 
 ### SSH を終了してローカルに戻る
 
@@ -186,7 +216,7 @@ curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:3000/
 | 1 | **ローカル** | 修正・`git` でコミット。共同編集は [共同編集の手順.md](共同編集の手順.md)（pull → 編集 → push） |
 | 2 | **ローカル** | **`npm run test:api`** を PASS（日常の変更のたび）。大きな変更や本番直前は **`npm run test:all`** を検討（[release-test-discipline.md](release-test-discipline.md)） |
 | 3 | **GitHub** | **`main`** にマージ・push（チームのルールに従う） |
-| 4 | **VPS（SSH）** | **`git pull` → `npm ci --omit=dev`（依存が変わったとき）→ `systemctl restart weborder`**（下記「11. デプロイ」のコマンド例） |
+| 4 | **VPS（SSH）** | **`git pull origin main` → `npm ci --omit=dev` → `systemctl restart weborder`**（下記「11. 本番デプロイ」と同じ） |
 | 5 | **ブラウザ** | [post-deploy-smoke-test.md](post-deploy-smoke-test.md) に沿った **短い確認** |
 
 **本番 VPS 上では `npm test` / `npm run test:api` を実行しない**（本番 JSON を誤って壊す恐れがあるため）。テストは **ローカルまたは CI**（[release-test-discipline.md](release-test-discipline.md)）。
@@ -230,21 +260,114 @@ curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:3000/
 
 ---
 
-## 11. デプロイ（コード更新の典型・コマンド）
+## 11. 本番デプロイ（プログラムを最新にする）
 
-VPS 上（パスは環境に合わせる）:
+**普段はこの章だけ見れば足ります。** FTP でファイルを上げる代わりに、**GitHub に上げた内容をサーバが取りに行く**形です。
+
+### 流れは2か所だけ
+
+1. **自分のパソコン** … 変更を **GitHub の `main`** に送る（`git push`）。  
+2. **本番サーバ** … SSH で入り、下の **4行のコマンド** を順に実行する。
+
+**GitHub の `main` に載っていない変更は、本番には出ません。**
+
+---
+
+### ① パソコンで（まだ push していないとき）
+
+[共同編集の手順.md](共同編集の手順.md) と同じでよいです。
+
+- 編集する  
+- `git add .` → `git commit -m "説明"` → **`git push origin main`**
+
+余力があれば、push の前に **`npm run test:api`**（詳細は [release-test-discipline.md](release-test-discipline.md)）。
+
+---
+
+### ② サーバで（まず SSH で入る → そのあとコマンド）
+
+#### ステップA: パソコンからサーバに入る（SSH）
+
+**どこで:** 自分の **Windows の PowerShell** か **Cursor のターミナル**（プロンプトが `PS C:\...>` のような **パソコン側**の画面）。
+
+**※ すでに `root@...#` と出ていれば SSH 済みなので、ステップAは飛ばしてステップBへ。**
+
+1. **まずこれ**を **1行** 打って Enter（**`VPSのIP`** を実際の IP に置き換える。例: `162.43.47.219`）。
+
+   ```powershell
+   ssh root@VPSのIP　(現在：ssh root@162.43.47.219)
+   ```
+
+   エックスサーバー VPS で **パスワードで入っているなら、これだけで問題ありません。**  
+   **`ssh -i $env:USERPROFILE\.ssh\id_ed25519 ...` は、PC にその鍵があり、かつサーバに公開鍵を登録しているときだけ**使います。入れない場合は **`-i` の行は使わず**、上の **`ssh root@IP`** に統一してください。
+
+2. 初めての接続で `Are you sure you want to continue connecting (yes/no)?` と出たら **`yes`** と入力して Enter。
+
+3. `root@... password:` と出たら、**VPS 作成時に設定した root のパスワード**を入力して Enter（画面には文字が出なくてよい）。
+
+4. プロンプトが **`root@xxxxxxxx:~#`** のようになれば、**サーバの中に入れた状態**です。  
+   **この画面はパソコン上のウィンドウですが、打っているコマンドはサーバに届きます。**
+
+5. **サーバに入ったあと**、もう一度 `ssh ...` を打つ必要はありません（エラーになることがあります）。
+
+**抜けるとき:** `exit` と打って Enter → プロンプトが `PS C:\...` に戻ればパソコン側に戻りました。
+
+詳細やエックスサーバー固有の注意は、この文書の **「1. ローカル（Windows / PowerShell）から VPS へ SSH」** も参照してください。
+
+#### ステップB: サーバ上でデプロイ用コマンドを実行する
+
+**アプリのフォルダが `/opt/weborder` のとき**、次を **この順で** 打ちます（まとめてコピペ可）。
 
 ```bash
 cd /opt/weborder
-git pull
+git pull origin main
 npm ci --omit=dev
 systemctl restart weborder
 ```
 
-Nginx の設定を変えたときだけ **`nginx -t && systemctl reload nginx`**。
+- ブランチ名が `main` でない場合は、`git pull origin main` の `main` を実名に変える。  
+- フォルダが違う場合は、1行目だけ実際のパスに変える。  
+- サービス名が `weborder` でない場合は、最後の行を `systemctl restart （実際の名前）` に変える。
 
-**本番の JSON データ**が `git pull` で上書きされないよう、**`.gitignore` と運用**を守る。  
-デプロイ後は [post-deploy-smoke-test.md](post-deploy-smoke-test.md) を推奨。
+---
+
+### ③ 動いているか（任意）
+
+```bash
+systemctl status weborder --no-pager
+```
+
+**`Active: active (running)`** と出ていれば起動しています。
+
+---
+
+### ブラウザの見た目が古いとき
+
+**Ctrl + F5**（強制再読み込み）するか、**シークレットウィンドウ**で開き直してください。
+
+---
+
+### ここだけは覚えておく（短く）
+
+- **本番サーバで `npm test` はしない**（顧客データなどを壊す恐れがあるため）。テストはパソコンで。  
+- **パスワード（メールなど）** は **`/opt/weborder/.env`** にだけ書く。Git には入れない。  
+- **顧客・注文などの JSON** はサーバ上のファイルが本番のデータ。通常 **`git pull` だけでは消えません**（それらを Git にコミットしない運用が前提）。  
+- **Nginx の設定や HTTPS** をいじったあとだけ、追加で次を実行します。
+
+```bash
+nginx -t && systemctl reload nginx
+```
+
+---
+
+### トラブル時
+
+| 症状・状況 | まず |
+|------------|------|
+| 画面や機能を軽く確認したい | [post-deploy-smoke-test.md](post-deploy-smoke-test.md) |
+| サイトが開かない・502 など | この文書の **「8. よく使う確認コマンド」** と **「10.6 困ったときの切り分け」** |
+| `git pull` でエラー | サーバ上でプログラムを直接編集していないか確認。基本は **パソコンで直して push → もう一度 pull** |
+| `Permission denied`（Git） | リポジトリが非公開のときは、サーバ用の鍵やトークンが必要なことがあります |
 
 ---
 

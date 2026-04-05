@@ -110,6 +110,12 @@ async function seedBaseData() {
             customerName: "テスト顧客2",
             priceRank: "B",
             email: "test002@example.com"
+        },
+        {
+            customerId: "TEST003",
+            password: customerPassword,
+            customerName: "ランク未設定顧客",
+            email: "test003@example.com"
         }
     ];
 

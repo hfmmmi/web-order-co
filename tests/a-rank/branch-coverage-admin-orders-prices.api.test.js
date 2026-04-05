@@ -17,6 +17,8 @@ const orderService = require("../../services/orderService");
 const priceService = require("../../services/priceService");
 const settingsService = require("../../services/settingsService");
 const orderListExport = require("../../utils/orderListExport");
+const csvService = require("../../services/csvService");
+const specialPriceService = require("../../services/specialPriceService");
 const { backupDbFiles, restoreDbFiles, seedBaseData } = require("../helpers/testSandbox");
 
 const sampleOrderRow = {
@@ -126,6 +128,76 @@ describe("Aランク: admin orders / prices 分岐カバレッジ", () => {
         expect(res.statusCode).toBe(500);
     });
 
+    test("POST /api/admin/orders-list-export は buildOrderListExportRows が throw すると 500", async () => {
+        jest.spyOn(orderListExport, "buildOrderListExportRows").mockImplementationOnce(() => {
+            throw new Error("build rows");
+        });
+        const agent = request.agent(app);
+        await agent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        const res = await agent
+            .post("/api/admin/orders-list-export")
+            .send({ format: "csv", orders: [sampleOrderRow] });
+        expect(res.statusCode).toBe(500);
+        expect(res.body.success).toBe(false);
+    });
+
+    test("POST /api/update-order-status は顧客セッションでも 200", async () => {
+        const customer = request.agent(app);
+        await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        const place = await customer.post("/place-order").send({
+            cart: [{ code: "P001", name: "テストトナーA", price: 1000, quantity: 1 }],
+            deliveryInfo: {
+                name: "届先",
+                zip: "100-0001",
+                address: "大阪",
+                tel: "06-0000",
+                clientOrderNumber: "BR-ORD-1"
+            }
+        });
+        expect(place.statusCode).toBe(200);
+        const res = await customer.post("/api/update-order-status").send({
+            orderId: place.body.orderId,
+            deliveryEstimate: "顧客からの更新テスト"
+        });
+        expect(res.statusCode).toBe(200);
+        expect(res.body.success).toBe(true);
+    });
+
+    test("POST /api/admin/import-estimates は estimateImportAliases を parse に渡す", async () => {
+        const aliases = { 見積ID: "estimateId" };
+        const parseSpy = jest.spyOn(csvService, "parseEstimatesData").mockResolvedValueOnce([]);
+        const admin = request.agent(app);
+        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        jest.spyOn(settingsService, "getSettings").mockResolvedValueOnce({
+            dataFormats: { estimateImportAliases: aliases }
+        });
+        const buf = Buffer.from("x", "utf8");
+        const res = await admin.post("/api/admin/import-estimates").attach("estimateFile", buf, "named-est.csv");
+        expect(res.statusCode).toBe(400);
+        const callBuf = parseSpy.mock.calls[0][0];
+        expect(Buffer.isBuffer(callBuf)).toBe(true);
+        expect(parseSpy).toHaveBeenCalledWith(callBuf, "named-est.csv", aliases);
+        parseSpy.mockRestore();
+    });
+
+    test("POST /api/admin/delete-estimates-by-manufacturer はサービス失敗で 500", async () => {
+        jest.spyOn(specialPriceService, "deleteEstimatesByManufacturer").mockRejectedValueOnce(new Error("del fail"));
+        const admin = request.agent(app);
+        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        const res = await admin.post("/api/admin/delete-estimates-by-manufacturer").send({ manufacturer: "X社" });
+        expect(res.statusCode).toBe(500);
+        expect(res.body.success).toBe(false);
+    });
+
+    test("POST /api/admin/delete-estimates-by-products はサービス失敗で 500", async () => {
+        jest.spyOn(specialPriceService, "deleteEstimatesByProductCodes").mockRejectedValueOnce(new Error("del pc"));
+        const admin = request.agent(app);
+        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        const res = await admin.post("/api/admin/delete-estimates-by-products").send({ productCodes: ["P001"] });
+        expect(res.statusCode).toBe(500);
+        expect(res.body.success).toBe(false);
+    });
+
     test("POST /api/import-flam はファイルなしで 400", async () => {
         const agent = request.agent(app);
         await agent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
@@ -141,6 +213,75 @@ describe("Aランク: admin orders / prices 分岐カバレッジ", () => {
         expect(res.statusCode).toBe(200);
         expect(res.body.success).toBe(true);
         expect(res.body.stats).toBeDefined();
+    });
+
+    test("POST /api/import-flam は importFlamData が失敗すると 500", async () => {
+        jest.spyOn(orderService, "importFlamData").mockRejectedValueOnce(new Error("flam read"));
+        const agent = request.agent(app);
+        await agent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        const res = await agent
+            .post("/api/import-flam")
+            .attach("csvFile", Buffer.from("a", "utf8"), "x.csv");
+        expect(res.statusCode).toBe(500);
+        expect(res.body.success).toBe(false);
+    });
+
+    test("POST /api/admin/import-estimates は有効行があれば 200", async () => {
+        const row = {
+            estimateId: "E-BR",
+            customerId: "TEST001",
+            productCode: "P001",
+            productName: "n",
+            price: 100,
+            validUntil: "2099-01-01",
+            manufacturer: "m",
+            subject: "s"
+        };
+        jest.spyOn(settingsService, "getSettings").mockResolvedValueOnce({ dataFormats: {} });
+        jest.spyOn(csvService, "parseEstimatesData").mockResolvedValueOnce([row]);
+        jest.spyOn(specialPriceService, "saveEstimates").mockResolvedValueOnce({ count: 1 });
+        const admin = request.agent(app);
+        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        const res = await admin.post("/api/admin/import-estimates").attach("estimateFile", Buffer.from("x"), "ok.csv");
+        expect(res.statusCode).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.count).toBe(1);
+    });
+
+    test("POST /api/admin/import-estimates は saveEstimates が失敗すると 500", async () => {
+        jest.spyOn(settingsService, "getSettings").mockResolvedValueOnce({ dataFormats: {} });
+        jest.spyOn(csvService, "parseEstimatesData").mockResolvedValueOnce([
+            {
+                estimateId: "E2",
+                customerId: "TEST001",
+                productCode: "P002",
+                productName: "n",
+                price: 1,
+                validUntil: "2099-01-01",
+                manufacturer: "m",
+                subject: "s"
+            }
+        ]);
+        jest.spyOn(specialPriceService, "saveEstimates").mockRejectedValueOnce(new Error("save fail"));
+        const admin = request.agent(app);
+        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        const res = await admin.post("/api/admin/import-estimates").attach("estimateFile", Buffer.from("x"), "z.csv");
+        expect(res.statusCode).toBe(500);
+        expect(res.body.success).toBe(false);
+    });
+
+    test("POST /api/admin/delete-estimates-by-manufacturer は manufacturer 不正で 400", async () => {
+        const admin = request.agent(app);
+        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        const res = await admin.post("/api/admin/delete-estimates-by-manufacturer").send({ manufacturer: 123 });
+        expect(res.statusCode).toBe(400);
+    });
+
+    test("POST /api/admin/delete-estimates-by-products は productCodes 空で 400", async () => {
+        const admin = request.agent(app);
+        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        const res = await admin.post("/api/admin/delete-estimates-by-products").send({ productCodes: [] });
+        expect(res.statusCode).toBe(400);
     });
 
     test("GET /api/admin/customer-price-list は取得失敗時も空配列 200", async () => {

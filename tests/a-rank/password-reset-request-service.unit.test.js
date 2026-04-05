@@ -158,6 +158,126 @@ describe("Aランク: passwordResetRequestService", () => {
         expect(r.message).toBe(safeMessage);
     });
 
+    test("レート制限 JSON の IP 値が配列でなければ空配列に正規化して処理する", async () => {
+        await fs.writeFile(RATE_PATH, JSON.stringify({ "10.20.30.40": "not-array" }, null, 2), "utf-8");
+        jest.spyOn(mailService, "sendInviteEmail").mockResolvedValue({ success: true });
+        const r = await requestPasswordReset({
+            rawId: "TEST001",
+            clientIp: "10.20.30.40",
+            protocol: "http",
+            host: "localhost"
+        });
+        expect(r.success).toBe(true);
+        expect(r.message).toBe(safeMessage);
+    });
+
+    test("protocol / host が空でも inviteUrl は http://localhost 系になる", async () => {
+        jest.spyOn(mailService, "sendInviteEmail").mockResolvedValue({ success: true });
+        const r = await requestPasswordReset({
+            rawId: "TEST001",
+            clientIp: "10.20.30.41",
+            protocol: "",
+            host: ""
+        });
+        expect(r.success).toBe(true);
+        const inviteUrl = mailService.sendInviteEmail.mock.calls[0][1];
+        expect(String(inviteUrl)).toContain("http://localhost");
+    });
+
+    test("管理者リセットで getSettings が失敗しても外側 catch で safeMessage", async () => {
+        jest.spyOn(settingsService, "getSettings").mockRejectedValueOnce(new Error("settings unavailable"));
+        jest.spyOn(mailService, "sendInviteEmail").mockResolvedValue({ success: true });
+        const admins = JSON.parse(await fs.readFile(dbPath("admins.json"), "utf-8"));
+        const a0 = admins[0];
+        const r = await requestPasswordReset({
+            rawId: a0.adminId,
+            clientIp: "10.20.30.42",
+            protocol: "https",
+            host: "x.example"
+        });
+        expect(r.message).toBe(safeMessage);
+    });
+
+    test("管理者リセットメール成功時はログ経路を通す", async () => {
+        const logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+        jest.spyOn(mailService, "sendInviteEmail").mockResolvedValue({ success: true });
+        const admins = JSON.parse(await fs.readFile(dbPath("admins.json"), "utf-8"));
+        const a0 = { ...admins[0], email: "admin-ok-log@test.example" };
+        await fs.writeFile(dbPath("admins.json"), JSON.stringify([a0], null, 2), "utf-8");
+        await requestPasswordReset({
+            rawId: a0.adminId,
+            clientIp: "10.20.30.43",
+            protocol: "https",
+            host: "ok.example"
+        });
+        expect(logSpy.mock.calls.some((c) => String(c[0]).includes("Sent admin reset link"))).toBe(true);
+        logSpy.mockRestore();
+    });
+
+    test("顧客が見つかるがメール未登録のときトークン作成せず safeMessage", async () => {
+        const list = JSON.parse(await fs.readFile(dbPath("customers.json"), "utf-8"));
+        const c = list.find((x) => x.customerId === "TEST001");
+        const prevEmail = c.email;
+        c.email = "";
+        await fs.writeFile(dbPath("customers.json"), JSON.stringify(list, null, 2), "utf-8");
+        const sendSpy = jest.spyOn(mailService, "sendInviteEmail");
+        const r = await requestPasswordReset({
+            rawId: "TEST001",
+            clientIp: "10.88.88.1",
+            protocol: "http",
+            host: "localhost"
+        });
+        expect(r.message).toBe(safeMessage);
+        expect(sendSpy).not.toHaveBeenCalled();
+        c.email = prevEmail;
+        await fs.writeFile(dbPath("customers.json"), JSON.stringify(list, null, 2), "utf-8");
+        sendSpy.mockRestore();
+    });
+
+    test("admin_reset_tokens.json が壊れていても管理者リセットは続行できる", async () => {
+        await fs.writeFile(dbPath("admin_reset_tokens.json"), "{bad", "utf-8");
+        jest.spyOn(mailService, "sendInviteEmail").mockResolvedValue({ success: true });
+        const admins = JSON.parse(await fs.readFile(dbPath("admins.json"), "utf-8"));
+        const a0 = { ...admins[0], email: "tok-fix@test.example" };
+        await fs.writeFile(dbPath("admins.json"), JSON.stringify([a0], null, 2), "utf-8");
+        const r = await requestPasswordReset({
+            rawId: a0.adminId,
+            clientIp: "10.88.88.2",
+            protocol: "https",
+            host: "tok.example"
+        });
+        expect(r.success).toBe(true);
+    });
+
+    test("admins.json が読めないエラーでも管理者検索は続行する", async () => {
+        const origRead = fs.readFile.bind(fs);
+        jest.spyOn(fs, "readFile").mockImplementation(async (p, enc) => {
+            if (String(p).replace(/\\/g, "/").includes("admins.json")) {
+                throw new Error("admins io");
+            }
+            return origRead(p, enc);
+        });
+        const r = await requestPasswordReset({
+            rawId: "NO_SUCH_USER",
+            clientIp: "10.0.0.200",
+            protocol: "http",
+            host: "localhost"
+        });
+        expect(r.message).toBe(safeMessage);
+    });
+
+    test("reset_tokens.json が壊れていても顧客向けリセットは続行できる", async () => {
+        await fs.writeFile(dbPath("reset_tokens.json"), "{bad", "utf-8");
+        jest.spyOn(mailService, "sendInviteEmail").mockResolvedValue({ success: true });
+        const r = await requestPasswordReset({
+            rawId: "TEST001",
+            clientIp: "10.99.99.9",
+            protocol: "http",
+            host: "localhost"
+        });
+        expect(r.success).toBe(true);
+    });
+
     test("管理者に admin.email も supportNotifyTo も無いときメール送信をスキップしても safeMessage", async () => {
         const sendSpy = jest.spyOn(mailService, "sendInviteEmail");
         await settingsService.updateSettings({ mail: { supportNotifyTo: "" } });

@@ -118,6 +118,14 @@ describe("Aランク: admin pricesRoutes 分岐", () => {
         expect(res.statusCode).toBe(500);
     });
 
+    test("GET /api/admin/rank-list は成功時にランク一覧JSONを返す", async () => {
+        const admin = request.agent(app);
+        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        const res = await admin.get("/api/admin/rank-list");
+        expect(res.statusCode).toBe(200);
+        expect(Array.isArray(res.body)).toBe(true);
+    });
+
     test("GET /api/admin/customer-price-list は取得失敗時に空配列", async () => {
         jest.spyOn(priceService, "getCustomerPriceList").mockRejectedValueOnce(new Error("db"));
         const admin = request.agent(app);
@@ -186,6 +194,19 @@ describe("Aランク: admin pricesRoutes 分岐", () => {
             filename: "f.csv"
         });
         const res = await admin.get("/api/admin/download-pricelist-by-rank/@@@");
+        expect(res.statusCode).toBe(200);
+        expect(spy).toHaveBeenCalledWith("A");
+        spy.mockRestore();
+    });
+
+    test("GET /api/admin/download-pricelist-excel-by-rank は数字のみ rank を A に正規化する", async () => {
+        const admin = request.agent(app);
+        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        const spy = jest.spyOn(priceService, "getPricelistExcelForRank").mockResolvedValueOnce({
+            buffer: Buffer.from([1, 2]),
+            filename: "f.xlsx"
+        });
+        const res = await admin.get("/api/admin/download-pricelist-excel-by-rank/999");
         expect(res.statusCode).toBe(200);
         expect(spy).toHaveBeenCalledWith("A");
         spy.mockRestore();

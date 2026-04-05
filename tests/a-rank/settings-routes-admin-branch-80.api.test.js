@@ -424,6 +424,176 @@ describe("Aランク: settingsRoutes 管理API 分岐80%向け", () => {
         expect(res.statusCode).toBe(500);
     });
 
+    test("GET /api/admin/settings は rankCount が不正文字列なら既定10", async () => {
+        const admin = request.agent(app);
+        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        jest.spyOn(settingsService, "getSettings").mockResolvedValueOnce({
+            mail: { smtp: {}, from: "" },
+            recaptcha: {},
+            blockedManufacturers: [],
+            blockedProductCodes: [],
+            announcements: [],
+            rankCount: "xx",
+            rankNames: {},
+            shippingRules: {},
+            cartShippingNotice: "",
+            dataFormats: {},
+            productSchema: null
+        });
+        jest.spyOn(settingsService, "getFeatures").mockResolvedValueOnce({});
+        const res = await admin.get("/api/admin/settings");
+        expect(res.statusCode).toBe(200);
+        expect(res.body.rankCount).toBe(10);
+    });
+
+    test("GET /api/admin/settings は rankCount が上限を超えれば26に丸める", async () => {
+        const admin = request.agent(app);
+        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        jest.spyOn(settingsService, "getSettings").mockResolvedValueOnce({
+            mail: { smtp: {}, from: "" },
+            recaptcha: {},
+            blockedManufacturers: [],
+            blockedProductCodes: [],
+            announcements: [],
+            rankCount: 99,
+            rankNames: {},
+            shippingRules: {},
+            cartShippingNotice: "",
+            dataFormats: {},
+            productSchema: null
+        });
+        jest.spyOn(settingsService, "getFeatures").mockResolvedValueOnce({});
+        const res = await admin.get("/api/admin/settings");
+        expect(res.statusCode).toBe(200);
+        expect(res.body.rankCount).toBe(26);
+    });
+
+    test("GET /api/settings/public は recaptcha.siteKey が空白のみなら空文字", async () => {
+        jest.spyOn(settingsService, "getSettings").mockResolvedValueOnce({
+            recaptcha: { siteKey: "   " },
+            cartShippingNotice: ""
+        });
+        jest.spyOn(settingsService, "getFeatures").mockResolvedValueOnce({
+            orders: true,
+            kaitori: true,
+            support: true,
+            cart: true,
+            history: true,
+            collection: true,
+            announcements: true
+        });
+        jest.spyOn(settingsService, "getAnnouncements").mockResolvedValue([]);
+        jest.spyOn(settingsService, "getPublicBranding").mockResolvedValueOnce({});
+        const res = await request(app).get("/api/settings/public");
+        expect(res.statusCode).toBe(200);
+        expect(res.body.recaptchaSiteKey).toBe("");
+    });
+
+    test("GET /api/settings/public は cartShippingNotice が空白のみなら空文字", async () => {
+        jest.spyOn(settingsService, "getSettings").mockResolvedValueOnce({
+            recaptcha: {},
+            cartShippingNotice: "  \t  "
+        });
+        jest.spyOn(settingsService, "getFeatures").mockResolvedValueOnce({
+            orders: true,
+            kaitori: true,
+            support: true,
+            cart: true,
+            history: true,
+            collection: true,
+            announcements: true
+        });
+        jest.spyOn(settingsService, "getAnnouncements").mockResolvedValue([]);
+        jest.spyOn(settingsService, "getPublicBranding").mockResolvedValueOnce({});
+        const res = await request(app).get("/api/settings/public");
+        expect(res.statusCode).toBe(200);
+        expect(res.body.cartShippingNotice).toBe("");
+    });
+
+    test("GET /api/admin/account は admins.json が無ければ空情報", async () => {
+        const admin = request.agent(app);
+        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await fs.unlink(ADMINS);
+        const res = await admin.get("/api/admin/account");
+        expect(res.statusCode).toBe(200);
+        expect(res.body.adminId).toBe("");
+        expect(res.body.passwordSet).toBe(false);
+    });
+
+    test("GET /api/admin/account は password 無し管理者なら passwordSet false", async () => {
+        const admin = request.agent(app);
+        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await fs.writeFile(
+            ADMINS,
+            JSON.stringify([{ adminId: "nopw", name: "N" }], null, 2),
+            "utf-8"
+        );
+        const res = await admin.get("/api/admin/account");
+        expect(res.statusCode).toBe(200);
+        expect(res.body.passwordSet).toBe(false);
+        expect(res.body.adminId).toBe("nopw");
+    });
+
+    test("PUT /api/admin/account は password 省略時はハッシュを更新しない", async () => {
+        const admin = request.agent(app);
+        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        const before = JSON.parse(await fs.readFile(ADMINS, "utf-8"));
+        const prevHash = before[0].password;
+        const res = await admin.put("/api/admin/account").send({
+            adminId: "test-admin",
+            name: "改名のみ",
+            email: "a@b.com"
+        });
+        expect(res.statusCode).toBe(200);
+        const after = JSON.parse(await fs.readFile(ADMINS, "utf-8"));
+        expect(after[0].password).toBe(prevHash);
+        expect(after[0].name).toBe("改名のみ");
+    });
+
+    test("GET /api/admin/settings は mail.templates 未定義でも空オブジェクト", async () => {
+        const admin = request.agent(app);
+        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        jest.spyOn(settingsService, "getSettings").mockResolvedValueOnce({
+            mail: { smtp: {}, from: "a@b.com" },
+            recaptcha: {},
+            blockedManufacturers: [],
+            blockedProductCodes: [],
+            announcements: [],
+            rankCount: 10,
+            rankNames: {},
+            shippingRules: {},
+            cartShippingNotice: "",
+            dataFormats: {},
+            productSchema: null
+        });
+        jest.spyOn(settingsService, "getFeatures").mockResolvedValueOnce({});
+        const res = await admin.get("/api/admin/settings");
+        expect(res.statusCode).toBe(200);
+        expect(res.body.mail.templates).toEqual({});
+    });
+
+    test("GET /api/admin/settings は blockedManufacturers 未定義でも配列", async () => {
+        const admin = request.agent(app);
+        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        jest.spyOn(settingsService, "getSettings").mockResolvedValueOnce({
+            mail: { smtp: {}, from: "" },
+            recaptcha: {},
+            blockedProductCodes: [],
+            announcements: [],
+            rankCount: 10,
+            rankNames: {},
+            shippingRules: {},
+            cartShippingNotice: "",
+            dataFormats: {},
+            productSchema: null
+        });
+        jest.spyOn(settingsService, "getFeatures").mockResolvedValueOnce({});
+        const res = await admin.get("/api/admin/settings");
+        expect(res.statusCode).toBe(200);
+        expect(Array.isArray(res.body.blockedManufacturers)).toBe(true);
+        expect(res.body.blockedManufacturers).toEqual([]);
+    });
+
     test("PUT /api/admin/account は admins.json への writeFile 失敗で500", async () => {
         const admin = request.agent(app);
         await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });

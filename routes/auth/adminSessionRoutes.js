@@ -11,7 +11,7 @@ const crypto = require("crypto");
 const customerService = require("../../services/customerService");
 const mailService = require("../../services/mailService");
 const settingsService = require("../../services/settingsService");
-const { ADMINS_DB_PATH, INVITE_TOKENS_PATH, mutateJsonFile } = require("../../services/authTokenStore");
+const { ADMINS_DB_PATH, INVITE_TOKENS_PATH } = require("../../services/authTokenStore");
 const { validateBody } = require("../../middlewares/validate");
 const { loginSchema } = require("../../validators/requestSchemas");
 const {
@@ -24,14 +24,13 @@ const {
     clearLoginFailures,
     getLoginFailureCount
 } = require("./loginRateLimit");
-const { verifyRecaptcha } = require("./recaptcha");
 const { sanitizeAdminName } = require("./sanitizeAdminName");
 
 const INVITE_EXPIRY_HOURS = 24;
 
 router.post("/admin/login", validateBody(loginSchema), async (req, res) => {
     const { id, pass, captchaToken } = req.body;
-    const accountKey = "admin:" + (typeof id === "string" ? id.trim() : "");
+    const accountKey = "admin:" + String(id ?? "").trim();
 
     try {
         if (await isLoginLocked(accountKey)) {
@@ -45,7 +44,7 @@ router.post("/admin/login", validateBody(loginSchema), async (req, res) => {
             if (!captchaToken || typeof captchaToken !== "string" || !captchaToken.trim()) {
                 return res.json({ success: false, message: LOGIN_CAPTCHA_REQUIRED_MESSAGE, captchaRequired: true });
             }
-            const valid = await verifyRecaptcha(captchaToken.trim(), recaptchaSecret);
+            const valid = await require("./recaptcha").verifyRecaptcha(captchaToken.trim(), recaptchaSecret);
             if (!valid) {
                 return res.json({ success: false, message: LOGIN_CAPTCHA_FAILED_MESSAGE, captchaRequired: true });
             }
@@ -112,7 +111,7 @@ router.post("/admin/login", validateBody(loginSchema), async (req, res) => {
             if (needUpdate) {
                 console.log("⚠️ 平文パスワードを検知。ハッシュ化して保存します...");
                 const hashedPassword = await bcrypt.hash(pass, 10);
-                await mutateJsonFile(ADMINS_DB_PATH, [], (list) => {
+                await require("../../services/authTokenStore").mutateJsonFile(ADMINS_DB_PATH, [], (list) => {
                     const adm = list.find(a => a.adminId === id);
                     if (adm) adm.password = hashedPassword;
                 });
@@ -193,7 +192,7 @@ router.post("/admin/invite-reset", async (req, res) => {
         }
 
         const expiryMs = Date.now() + INVITE_EXPIRY_HOURS * 60 * 60 * 1000;
-        await mutateJsonFile(INVITE_TOKENS_PATH, {}, (tokens) => {
+        await require("../../services/authTokenStore").mutateJsonFile(INVITE_TOKENS_PATH, {}, (tokens) => {
             tokens[customerId] = expiryMs;
         });
 

@@ -25,6 +25,14 @@ describe("getRankPriceImportBuffer", () => {
         expect(r.fileBuffer.equals(buf)).toBe(true);
     });
 
+    test("file のみで data が無いとき rankExcelFile||file の第2項を評価して空バッファ", () => {
+        const r = getRankPriceImportBuffer({
+            files: { file: { name: "nodata.xlsx" } }
+        });
+        expect(r.ok).toBe(true);
+        expect(r.fileBuffer.length).toBe(0);
+    });
+
     test("rankExcelFile が先で data が無いときは空バッファ（file に data があっても rank を優先）", () => {
         const r = getRankPriceImportBuffer({
             files: {
@@ -55,5 +63,15 @@ describe("getRankPriceImportBuffer", () => {
         });
         expect(r.ok).toBe(true);
         expect(r.fileBuffer.length).toBe(0);
+    });
+
+    test("data が文字列のとき Buffer.from に渡す", () => {
+        const r = getRankPriceImportBuffer({
+            files: {
+                rankExcelFile: { data: "AB", name: "s.xlsx" }
+            }
+        });
+        expect(r.ok).toBe(true);
+        expect(r.fileBuffer.toString()).toBe("AB");
     });
 });

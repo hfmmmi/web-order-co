@@ -366,4 +366,318 @@ describe("branch-coverage-targeted-p2: productService", () => {
             await cleanupByPrefix("P2_");
         }
     });
+
+    test("addProduct: newProduct が null ならコード必須エラー", async () => {
+        const r = await productService.addProduct(null);
+        expect(r.success).toBe(false);
+        expect(r.message).toContain("必須");
+    });
+
+    test("importFromExcel: UTF-8 BOM 付き CSV", async () => {
+        jest.spyOn(settingsService, "getRankIds").mockResolvedValue(["A"]);
+        jest.spyOn(settingsService, "getRankList").mockResolvedValue([{ id: "A", name: "ランク1" }]);
+        const code = "P2_BOM_" + Date.now();
+        try {
+            const body =
+                "商品コード,商品名,定価,仕様,在庫,メーカー,ランク1\n" + `${code},N,1,猫,可,M,2\n`;
+            const buf = Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from(body, "utf-8")]);
+            await productService.importFromExcel(buf);
+            const p = JSON.parse(await fs.readFile(PRODUCTS_DB_PATH, "utf-8")).find((x) => x.productCode === code);
+            expect(p.basePrice).toBe(1);
+        } finally {
+            await cleanupByPrefix("P2_");
+        }
+    });
+
+    test("importFromExcel: 定価が上限超えは basePrice 0", async () => {
+        jest.spyOn(settingsService, "getRankIds").mockResolvedValue(["A"]);
+        jest.spyOn(settingsService, "getRankList").mockResolvedValue([{ id: "A", name: "ランク1" }]);
+        const code = "P2_BIG_" + Date.now();
+        try {
+            const csv =
+                "商品コード,商品名,定価,仕様,在庫,メーカー,ランク1\n" +
+                `${code},N,2000000000,猫,可,M,1\n`;
+            await productService.importFromExcel(Buffer.from(csv, "utf-8"));
+            const p = JSON.parse(await fs.readFile(PRODUCTS_DB_PATH, "utf-8")).find((x) => x.productCode === code);
+            expect(p.basePrice).toBe(0);
+        } finally {
+            await cleanupByPrefix("P2_");
+        }
+    });
+
+    test("importFromExcel: xlsx 先頭 PK で readToRowArrays 失敗時は例外", async () => {
+        await expect(productService.importFromExcel(Buffer.from([0x50, 0x4b, 0x03, 0x04]))).rejects.toThrow();
+    });
+
+    test("importFromExcel: データ行の商品コード空はスキップ", async () => {
+        jest.spyOn(settingsService, "getRankIds").mockResolvedValue(["A"]);
+        jest.spyOn(settingsService, "getRankList").mockResolvedValue([{ id: "A", name: "ランク1" }]);
+        const before = JSON.parse(await fs.readFile(PRODUCTS_DB_PATH, "utf-8")).length;
+        const csv =
+            "商品コード,商品名,定価,仕様,在庫,メーカー,ランク1\n" + ",N,1,猫,可,M,1\n" + "P2_OK_EMPTY,OK,1,猫,可,M,1\n";
+        await productService.importFromExcel(Buffer.from(csv, "utf-8"));
+        const after = JSON.parse(await fs.readFile(PRODUCTS_DB_PATH, "utf-8"));
+        expect(after.find((x) => x.productCode === "P2_OK_EMPTY")).toBeTruthy();
+        await cleanupByPrefix("P2_");
+    });
+
+    test("getProductMasterExportBuffer: useProduct true で商品側 rank をマージ", async () => {
+        jest.spyOn(settingsService, "getRankList").mockResolvedValue([{ id: "A", name: "R1" }]);
+        const code = "P2_MRG_" + Date.now();
+        const tProd = Date.now() + 1e12;
+        const tRank = Date.now();
+        try {
+            let list = JSON.parse(await fs.readFile(PRODUCTS_DB_PATH, "utf-8"));
+            list = list.filter((p) => p.productCode !== code);
+            list.push({
+                productCode: code,
+                name: "m",
+                manufacturer: "M",
+                category: "猫",
+                basePrice: 100,
+                stockStatus: "即納",
+                rankPrices: { A: 77 },
+                rankPricesUpdatedAt: tProd
+            });
+            await fs.writeFile(PRODUCTS_DB_PATH, JSON.stringify(list, null, 2), "utf-8");
+            const priceService = require("../../services/priceService");
+            jest.spyOn(priceService, "getRankPrices").mockResolvedValue({ [code]: { A: 10 } });
+            jest.spyOn(priceService, "getRankPricesUpdatedAt").mockResolvedValue({ [code]: tRank });
+            const buf = await productService.getProductMasterExportBuffer();
+            expect(Buffer.isBuffer(buf)).toBe(true);
+            const ExcelJS = require("../../utils/excelReader").ExcelJS;
+            const wb = new ExcelJS.Workbook();
+            await wb.xlsx.load(buf);
+            const sheet = wb.getWorksheet("商品マスタ");
+            let rankVal;
+            sheet.eachRow((row, rowNumber) => {
+                if (rowNumber === 1) return;
+                if (String(row.getCell(1).value) === code) rankVal = row.getCell(7).value;
+            });
+            expect(rankVal).toBe(77);
+        } finally {
+            jest.restoreAllMocks();
+            await cleanupByPrefix("P2_");
+        }
+    });
+
+    test("importFromExcel: ヘッダがランクIDそのもの（rankIds.includes）", async () => {
+        jest.spyOn(settingsService, "getRankIds").mockResolvedValue(["A", "B"]);
+        jest.spyOn(settingsService, "getRankList").mockResolvedValue([
+            { id: "A", name: "ランク1" },
+            { id: "B", name: "ランク2" }
+        ]);
+        const code = "P2_HDR_" + Date.now();
+        try {
+            const csv =
+                "商品コード,商品名,定価,仕様,在庫,メーカー,A,B\n" + `${code},N,1,猫,可,M,3,4\n`;
+            await productService.importFromExcel(Buffer.from(csv, "utf-8"));
+            const p = JSON.parse(await fs.readFile(PRODUCTS_DB_PATH, "utf-8")).find((x) => x.productCode === code);
+            expect(p.rankPrices.A).toBe(3);
+            expect(p.rankPrices.B).toBe(4);
+        } finally {
+            await cleanupByPrefix("P2_");
+        }
+    });
+
+    test("importFromExcel: Shift_JIS でデコードし replacement なら UTF-8 にフォールバック", async () => {
+        jest.spyOn(settingsService, "getRankIds").mockResolvedValue(["A"]);
+        jest.spyOn(settingsService, "getRankList").mockResolvedValue([{ id: "A", name: "ランク1" }]);
+        const code = "P2_SJ_" + Date.now();
+        try {
+            const line =
+                "商品コード,商品名,定価,仕様,在庫,メーカー,ランク1\n" + `${code},N,1,猫,可,M,1\n`;
+            const sj = require("iconv-lite").encode(line, "Shift_JIS");
+            await productService.importFromExcel(sj);
+            const p = JSON.parse(await fs.readFile(PRODUCTS_DB_PATH, "utf-8")).find((x) => x.productCode === code);
+            expect(p).toBeTruthy();
+        } finally {
+            await cleanupByPrefix("P2_");
+        }
+    });
+
+    test("getProductMasterExportBuffer: 商品 rank より rank 表の方が新しいとき rank 表優先", async () => {
+        jest.spyOn(settingsService, "getRankList").mockResolvedValue([{ id: "A", name: "R1" }]);
+        const code = "P2_TBL_" + Date.now();
+        try {
+            let list = JSON.parse(await fs.readFile(PRODUCTS_DB_PATH, "utf-8"));
+            list = list.filter((p) => p.productCode !== code);
+            list.push({
+                productCode: code,
+                name: "t",
+                manufacturer: "M",
+                category: "猫",
+                basePrice: 50,
+                stockStatus: "即納",
+                rankPrices: { A: 1 },
+                rankPricesUpdatedAt: 100
+            });
+            await fs.writeFile(PRODUCTS_DB_PATH, JSON.stringify(list, null, 2), "utf-8");
+            const priceService = require("../../services/priceService");
+            jest.spyOn(priceService, "getRankPrices").mockResolvedValue({ [code]: { A: 999 } });
+            jest.spyOn(priceService, "getRankPricesUpdatedAt").mockResolvedValue({ [code]: 9e15 });
+            const buf = await productService.getProductMasterExportBuffer();
+            const ExcelJS = require("../../utils/excelReader").ExcelJS;
+            const wb = new ExcelJS.Workbook();
+            await wb.xlsx.load(buf);
+            const sheet = wb.getWorksheet("商品マスタ");
+            let rankVal;
+            sheet.eachRow((row, rowNumber) => {
+                if (rowNumber === 1) return;
+                if (String(row.getCell(1).value) === code) rankVal = row.getCell(7).value;
+            });
+            expect(rankVal).toBe(999);
+        } finally {
+            jest.restoreAllMocks();
+            await cleanupByPrefix("P2_");
+        }
+    });
+
+    test("getProductMasterExportBuffer: 在庫が即納以外は CSV 上で可 以外", async () => {
+        jest.spyOn(settingsService, "getRankList").mockResolvedValue([{ id: "A", name: "R1" }]);
+        const code = "P2_STK_" + Date.now();
+        try {
+            let list = JSON.parse(await fs.readFile(PRODUCTS_DB_PATH, "utf-8"));
+            list = list.filter((p) => p.productCode !== code);
+            list.push({
+                productCode: code,
+                name: "s",
+                manufacturer: "M",
+                category: "猫",
+                basePrice: 10,
+                stockStatus: "手配中",
+                rankPrices: {},
+                rankPricesUpdatedAt: 0
+            });
+            await fs.writeFile(PRODUCTS_DB_PATH, JSON.stringify(list, null, 2), "utf-8");
+            const priceService = require("../../services/priceService");
+            jest.spyOn(priceService, "getRankPrices").mockResolvedValue({});
+            jest.spyOn(priceService, "getRankPricesUpdatedAt").mockResolvedValue({});
+            const buf = await productService.getProductMasterExportBuffer();
+            const ExcelJS = require("../../utils/excelReader").ExcelJS;
+            const wb = new ExcelJS.Workbook();
+            await wb.xlsx.load(buf);
+            const sheet = wb.getWorksheet("商品マスタ");
+            let stockCell;
+            sheet.eachRow((row, rowNumber) => {
+                if (rowNumber === 1) return;
+                if (String(row.getCell(1).value) === code) stockCell = row.getCell(6).value;
+            });
+            expect(String(stockCell)).toBe("手配中");
+        } finally {
+            jest.restoreAllMocks();
+            await cleanupByPrefix("P2_");
+        }
+    });
+
+    test("getProductMasterExportBuffer: ランクセルが負の数は空", async () => {
+        jest.spyOn(settingsService, "getRankList").mockResolvedValue([{ id: "A", name: "R1" }]);
+        const code = "P2_NEG_" + Date.now();
+        try {
+            let list = JSON.parse(await fs.readFile(PRODUCTS_DB_PATH, "utf-8"));
+            list = list.filter((p) => p.productCode !== code);
+            list.push({
+                productCode: code,
+                name: "n",
+                manufacturer: "M",
+                category: "猫",
+                basePrice: 1,
+                stockStatus: "即納",
+                rankPrices: {},
+                rankPricesUpdatedAt: 0
+            });
+            await fs.writeFile(PRODUCTS_DB_PATH, JSON.stringify(list, null, 2), "utf-8");
+            const priceService = require("../../services/priceService");
+            jest.spyOn(priceService, "getRankPrices").mockResolvedValue({ [code]: { A: -5 } });
+            jest.spyOn(priceService, "getRankPricesUpdatedAt").mockResolvedValue({});
+            const buf = await productService.getProductMasterExportBuffer();
+            const ExcelJS = require("../../utils/excelReader").ExcelJS;
+            const wb = new ExcelJS.Workbook();
+            await wb.xlsx.load(buf);
+            const sheet = wb.getWorksheet("商品マスタ");
+            let rankVal;
+            sheet.eachRow((row, rowNumber) => {
+                if (rowNumber === 1) return;
+                if (String(row.getCell(1).value) === code) rankVal = row.getCell(7).value;
+            });
+            expect(rankVal === "" || rankVal == null).toBe(true);
+        } finally {
+            jest.restoreAllMocks();
+            await cleanupByPrefix("P2_");
+        }
+    });
+
+    test("getProductMasterExportBuffer: ランク値が非数は空セル", async () => {
+        jest.spyOn(settingsService, "getRankList").mockResolvedValue([{ id: "A", name: "R1" }]);
+        const code = "P2_NAN_" + Date.now();
+        try {
+            let list = JSON.parse(await fs.readFile(PRODUCTS_DB_PATH, "utf-8"));
+            list = list.filter((p) => p.productCode !== code);
+            list.push({
+                productCode: code,
+                name: "n",
+                manufacturer: "M",
+                category: "猫",
+                basePrice: 1,
+                stockStatus: "即納",
+                rankPrices: {},
+                rankPricesUpdatedAt: 0
+            });
+            await fs.writeFile(PRODUCTS_DB_PATH, JSON.stringify(list, null, 2), "utf-8");
+            const priceService = require("../../services/priceService");
+            jest.spyOn(priceService, "getRankPrices").mockResolvedValue({ [code]: { A: "abc" } });
+            jest.spyOn(priceService, "getRankPricesUpdatedAt").mockResolvedValue({});
+            const buf = await productService.getProductMasterExportBuffer();
+            const ExcelJS = require("../../utils/excelReader").ExcelJS;
+            const wb = new ExcelJS.Workbook();
+            await wb.xlsx.load(buf);
+            const sheet = wb.getWorksheet("商品マスタ");
+            let rankVal;
+            sheet.eachRow((row, rowNumber) => {
+                if (rowNumber === 1) return;
+                if (String(row.getCell(1).value) === code) rankVal = row.getCell(7).value;
+            });
+            expect(rankVal === "" || rankVal == null).toBe(true);
+        } finally {
+            jest.restoreAllMocks();
+            await cleanupByPrefix("P2_");
+        }
+    });
+
+    test("getProductMasterExportBuffer: ランク値が上限超えは空セル", async () => {
+        jest.spyOn(settingsService, "getRankList").mockResolvedValue([{ id: "A", name: "R1" }]);
+        const code = "P2_HUGE_" + Date.now();
+        try {
+            let list = JSON.parse(await fs.readFile(PRODUCTS_DB_PATH, "utf-8"));
+            list = list.filter((p) => p.productCode !== code);
+            list.push({
+                productCode: code,
+                name: "h",
+                manufacturer: "M",
+                category: "猫",
+                basePrice: 1,
+                stockStatus: "即納",
+                rankPrices: {},
+                rankPricesUpdatedAt: 0
+            });
+            await fs.writeFile(PRODUCTS_DB_PATH, JSON.stringify(list, null, 2), "utf-8");
+            const priceService = require("../../services/priceService");
+            jest.spyOn(priceService, "getRankPrices").mockResolvedValue({ [code]: { A: 2000000000 } });
+            jest.spyOn(priceService, "getRankPricesUpdatedAt").mockResolvedValue({});
+            const buf = await productService.getProductMasterExportBuffer();
+            const ExcelJS = require("../../utils/excelReader").ExcelJS;
+            const wb = new ExcelJS.Workbook();
+            await wb.xlsx.load(buf);
+            const sheet = wb.getWorksheet("商品マスタ");
+            let rankCol;
+            sheet.eachRow((row, rowNumber) => {
+                if (rowNumber === 1) return;
+                if (String(row.getCell(1).value) === code) rankCol = row.getCell(7).value;
+            });
+            expect(rankCol === "" || rankCol == null).toBe(true);
+        } finally {
+            jest.restoreAllMocks();
+            await cleanupByPrefix("P2_");
+        }
+    });
 });

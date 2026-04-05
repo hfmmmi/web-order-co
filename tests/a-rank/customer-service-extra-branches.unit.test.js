@@ -101,9 +101,19 @@ describe("customerService 追加分岐", () => {
         expect(r.totalCount).toBeGreaterThanOrEqual(2);
     });
 
+    test("searchCustomers は keyword に null を渡しても動作する", async () => {
+        const r = await customerService.searchCustomers(null, 1, 50);
+        expect(r.totalCount).toBeGreaterThanOrEqual(2);
+    });
+
     test("getAllCustomers は searchCustomers のショートカット", async () => {
         const r = await customerService.getAllCustomers();
         expect(r.customers.length).toBeGreaterThanOrEqual(1);
+    });
+
+    test("getAllCustomers は page を指定してページネーションする", async () => {
+        const r = await customerService.getAllCustomers("", 2);
+        expect(r.currentPage).toBe(2);
     });
 
     test("updateCustomer は email に空文字を渡すとメールを空にできる", async () => {
@@ -138,5 +148,76 @@ describe("customerService 追加分岐", () => {
         const r = await customerService.importFromExcel(Buffer.from([1]));
         expect(r.success).toBe(true);
         expect(r.message).toMatch(/0件/);
+    });
+
+    test("addCustomer は priceRank / email 省略で空文字になる", async () => {
+        const id = "NEW_EMPTY_RANK_" + Date.now();
+        const r = await customerService.addCustomer({
+            customerId: id,
+            customerName: "ランクなし",
+            password: "Secret123!"
+        });
+        expect(r.success).toBe(true);
+        const list = await readJson("customers.json");
+        const c = list.find((x) => x.customerId === id);
+        expect(c.priceRank).toBe("");
+        expect(c.email).toBe("");
+    });
+
+    test("searchCustomers は customerId が無い行も名前でヒットする", async () => {
+        const list = await readJson("customers.json");
+        const next = [...list, { customerName: "ID無し顧客のみ", email: "orphan@test.example" }];
+        await fs.writeFile(dbPath("customers.json"), JSON.stringify(next, null, 2), "utf8");
+        const r = await customerService.searchCustomers("ID無し顧客のみ");
+        expect(r.customers.some((c) => c.customerName === "ID無し顧客のみ")).toBe(true);
+    });
+
+    test("importFromExcel は既存更新でメール列が空なら email を変えない", async () => {
+        readToRowArrays.mockResolvedValueOnce([
+            ["ID", "パスワード", "名前", "ランク", "メール"],
+            ["TEST001", "newpass", "名前維持", "A", ""]
+        ]);
+        const before = await readJson("customers.json");
+        const prevEmail = before.find((c) => c.customerId === "TEST001").email;
+        const r = await customerService.importFromExcel(Buffer.from([1]));
+        expect(r.success).toBe(true);
+        const after = await readJson("customers.json");
+        expect(after.find((c) => c.customerId === "TEST001").email).toBe(prevEmail);
+    });
+
+    test("importFromExcel は 3・4列目欠損で名称未設定・ランク空を採用し新規追加する", async () => {
+        const id = "TWO_COL_" + Date.now();
+        readToRowArrays.mockResolvedValueOnce([
+            ["ID", "パスワード"],
+            [id, "Secret123!"]
+        ]);
+        const r = await customerService.importFromExcel(Buffer.from([1]));
+        expect(r.success).toBe(true);
+        const after = await readJson("customers.json");
+        const c = after.find((x) => x.customerId === id);
+        expect(c).toBeDefined();
+        expect(c.customerName).toBe("名称未設定");
+        expect(c.priceRank).toBe("");
+    });
+
+    test("importFromExcel は id または pass が空の行をスキップ", async () => {
+        readToRowArrays.mockResolvedValueOnce([
+            ["ID", "パスワード", "名前"],
+            ["", "x", "a"],
+            ["onlyid", "", "b"],
+            ["OKSKIP", "Pw123!xx", "通る"]
+        ]);
+        const r = await customerService.importFromExcel(Buffer.from([1]));
+        expect(r.success).toBe(true);
+        expect(r.message).toMatch(/新規1件/);
+        const after = await readJson("customers.json");
+        expect(after.some((c) => c.customerId === "OKSKIP")).toBe(true);
+        expect(after.some((c) => c.customerId === "onlyid")).toBe(false);
+    });
+
+    test("getCustomerById は priceRank がある顧客でその文字列を返す", async () => {
+        const row = await customerService.getCustomerById("TEST001");
+        expect(row).not.toBeNull();
+        expect(row.priceRank).toBe("A");
     });
 });

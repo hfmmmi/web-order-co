@@ -48,6 +48,7 @@ app.use(createResponseTimeMiddleware());
 
 app.use("/api", require("./routes/auth-api"));
 app.use("/api", require("./routes/admin-api"));
+app.use("/api/integration", require("./routes/integration-api"));
 
 app.use("/", require("./routes/products-api"));
 app.use("/", require("./routes/orders-api"));

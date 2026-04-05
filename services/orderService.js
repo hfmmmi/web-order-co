@@ -485,6 +485,50 @@ class OrderService {
         }
     }
 
+    /**
+     * 販管連携用: 注文スナップショット（パスワード等は含まない）
+     * @param {{ since?: string, limit?: string|number }} opts
+     */
+    async getOrdersSnapshotForIntegration(opts = {}) {
+        const { since, limit } = opts;
+        const orders = await this._loadJson(ORDERS_DB);
+        const lim = Math.min(Math.max(1, parseInt(String(limit), 10) || 500), 2000);
+        let sinceMs = 0;
+        if (since) {
+            const d = new Date(String(since));
+            if (!isNaN(d.getTime())) sinceMs = d.getTime();
+        }
+        const list = Array.isArray(orders) ? orders : [];
+        const filtered = list.filter((o) => {
+            if (!sinceMs) return true;
+            const t = new Date(o.orderDate).getTime();
+            return !isNaN(t) && t >= sinceMs;
+        });
+        filtered.sort((a, b) => {
+            const ta = new Date(a.orderDate).getTime();
+            const tb = new Date(b.orderDate).getTime();
+            if (isNaN(ta) && isNaN(tb)) return 0;
+            if (isNaN(ta)) return 1;
+            if (isNaN(tb)) return -1;
+            return ta - tb;
+        });
+        const slice = filtered.slice(0, lim);
+        const safe = slice.map((o) => ({
+            orderId: o.orderId,
+            orderDate: o.orderDate,
+            customerId: o.customerId,
+            customerName: o.customerName,
+            status: o.status,
+            items: Array.isArray(o.items) ? o.items : [],
+            deliveryInfo: o.deliveryInfo || null,
+            shipments: Array.isArray(o.shipments) ? o.shipments : [],
+            source: o.source,
+            totalAmount: o.totalAmount,
+            exported_at: o.exported_at ?? null
+        }));
+        return { orders: safe, count: safe.length };
+    }
+
     async importExternalOrders(importedOrders) {
         if (!Array.isArray(importedOrders)) {
             throw new Error("importedOrders must be an array");
@@ -525,4 +569,12 @@ class OrderService {
     }
 }
 
-module.exports = new OrderService();
+const orderServiceSingleton = new OrderService();
+module.exports = orderServiceSingleton;
+if (process.env.NODE_ENV === "test") {
+    orderServiceSingleton.__testOnly = {
+        firstCsvRowValue,
+        fromPublicId,
+        loadJson: (filePath) => orderServiceSingleton._loadJson(filePath)
+    };
+}

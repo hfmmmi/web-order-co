@@ -27,6 +27,16 @@ describe("RestAdapter", () => {
         await expect(adapter.pull({})).rejects.toThrow("RESTエンドポイントが設定されていません");
     });
 
+    test("pull は引数省略で runOptions デフォルト（config の endpoint を使う）", async () => {
+        fetchMock.mockResolvedValue({
+            ok: true,
+            json: jest.fn().mockResolvedValue([])
+        });
+        const adapter = new RestAdapter({ options: { endpoint: "http://default-only" } }, { syncStocks: jest.fn() });
+        await adapter.pull();
+        expect(fetchMock).toHaveBeenCalledWith("http://default-only", expect.any(Object));
+    });
+
     test("pull は runOptions.endpoint を優先する", async () => {
         fetchMock.mockResolvedValue({
             ok: true,
@@ -97,6 +107,11 @@ describe("RestAdapter", () => {
         expect(await adapter.normalize({})).toEqual([]);
     });
 
+    test("normalize は引数省略でデフォルト空配列を処理する", async () => {
+        const adapter = new RestAdapter({}, { syncStocks: jest.fn() });
+        expect(await adapter.normalize()).toEqual([]);
+    });
+
     test("normalize は productCode / code・qty・publish・manualLock 等を正規化する", async () => {
         const adapter = new RestAdapter({}, { syncStocks: jest.fn() });
         const rows = await adapter.normalize([
@@ -121,5 +136,17 @@ describe("RestAdapter", () => {
             timestamp: "2020-01-01T00:00:00.000Z"
         });
         expect(rows.some((r) => r.productCode === "C3")).toBe(true);
+    });
+
+    test("normalize は totalQty 非有限かつ qty が数値 0 のとき totalQty は 0", async () => {
+        const adapter = new RestAdapter({}, { syncStocks: jest.fn() });
+        const rows = await adapter.normalize([{ productCode: "Z0", totalQty: Number.NaN, qty: 0 }]);
+        expect(rows[0].totalQty).toBe(0);
+    });
+
+    test("normalize は totalQty 非有限かつ qty が非数文字列のとき Number 結果が falsy で totalQty 0", async () => {
+        const adapter = new RestAdapter({}, { syncStocks: jest.fn() });
+        const rows = await adapter.normalize([{ productCode: "ZSTR", totalQty: Number.NaN, qty: "not-a-number" }]);
+        expect(rows[0].totalQty).toBe(0);
     });
 });

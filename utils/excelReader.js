@@ -31,7 +31,7 @@ async function readToRowArrays(buffer, options = {}) {
  * @returns {Promise<Array<Object>>}
  */
 async function readToObjects(buffer, options = {}) {
-    const rows = await readToRowArrays(buffer, {
+    const rows = await module.exports.readToRowArrays(buffer, {
         sheetIndex: options.sheetIndex ?? 0,
         sheetName: options.sheetName
     });

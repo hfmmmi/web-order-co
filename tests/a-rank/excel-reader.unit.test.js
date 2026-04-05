@@ -2,13 +2,14 @@
  * utils/excelReader.js のユニットテスト（正常・空・壊れ境界）
  * npm run test:api / test:all で実行
  */
+const excelReaderModule = require("../../utils/excelReader");
 const {
     readToRowArrays,
     readToObjects,
     excelSerialToDateString,
     cellToDateString,
     ExcelJS
-} = require("../../utils/excelReader");
+} = excelReaderModule;
 
 describe("Aランク: excelReader ユニット", () => {
     jest.setTimeout(30000);
@@ -71,6 +72,15 @@ describe("Aランク: excelReader ユニット", () => {
         expect(excelSerialToDateString("x")).toBeNull();
     });
 
+    test("excelSerialToDateString は日付が無効なら null", () => {
+        jest.spyOn(Date.prototype, "getTime").mockReturnValueOnce(NaN);
+        try {
+            expect(excelSerialToDateString(25569)).toBeNull();
+        } finally {
+            Date.prototype.getTime.mockRestore();
+        }
+    });
+
     test("cellToDateString は Date を YYYY-MM-DD に", () => {
         expect(cellToDateString(new Date("2025-02-17T00:00:00Z"))).toBe("2025-02-17");
     });
@@ -108,6 +118,14 @@ describe("Aランク: excelReader ユニット", () => {
         expect(rows[0]).toEqual(["fallback"]);
     });
 
+    test("readToRowArrays は sheetIndex が範囲外なら空配列", async () => {
+        const wb = new ExcelJS.Workbook();
+        wb.addWorksheet("S1");
+        const buffer = await wb.xlsx.writeBuffer();
+        const rows = await readToRowArrays(buffer, { sheetIndex: 99 });
+        expect(rows).toEqual([]);
+    });
+
     test("readToObjects は sheetName 指定でオブジェクト化する", async () => {
         const wb = new ExcelJS.Workbook();
         const ws = wb.addWorksheet("ObjSheet");
@@ -140,5 +158,29 @@ describe("Aランク: excelReader ユニット", () => {
         const objs = await readToObjects(buffer, { defval: "__" });
         expect(objs[0].c1).toBe("onlyA");
         expect(objs[0].c2).toBe("__");
+    });
+
+    test("readToObjects は defval に 0 を指定できる", async () => {
+        const wb = new ExcelJS.Workbook();
+        const ws = wb.addWorksheet("Sheet1");
+        ws.getCell("A1").value = "k";
+        ws.getCell("A2").value = "v";
+        const buffer = await wb.xlsx.writeBuffer();
+        const objs = await readToObjects(buffer, { defval: 0 });
+        expect(objs[0].k).toBe("v");
+    });
+
+    test("readToObjects はヘッダ null 列を defval 由来のキーにする（readToRowArrays スタブ）", async () => {
+        jest.spyOn(excelReaderModule, "readToRowArrays").mockResolvedValueOnce([
+            [null, "b"],
+            ["cellA", "onlyB"]
+        ]);
+        try {
+            const objs = await readToObjects(Buffer.alloc(0), { defval: "EMPTY" });
+            expect(objs[0].EMPTY).toBe("cellA");
+            expect(objs[0].b).toBe("onlyB");
+        } finally {
+            jest.restoreAllMocks();
+        }
     });
 });

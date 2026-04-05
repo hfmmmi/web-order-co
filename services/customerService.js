@@ -194,6 +194,78 @@ class CustomerService {
         };
     }
 
+    /**
+     * 販管連携: 表示・価格系のみ部分更新（パスワードは変更しない）
+     * @param {{ customerId: string, customerName?: string, email?: string, priceRank?: string, idempotencyKey?: string, syncVersion?: number }} payload
+     */
+    async applyIntegrationCustomerPatch(payload) {
+        const {
+            customerId,
+            customerName,
+            email,
+            priceRank,
+            idempotencyKey,
+            syncVersion
+        } = payload || {};
+
+        return runWithJsonFileWriteLock(CUSTOMERS_DB_PATH, async () => {
+            const list = await this._loadAll();
+            const index = list.findIndex((c) => c.customerId === customerId);
+
+            if (index === -1) {
+                return { success: false, message: "顧客が見つかりません" };
+            }
+
+            const row = list[index];
+            const key = idempotencyKey ? String(idempotencyKey).trim() : "";
+            if (key && row.erpSync && row.erpSync.lastIdempotencyKey === key) {
+                return { success: true, idempotent: true, message: "既に適用済みです" };
+            }
+
+            if (customerName !== undefined) {
+                list[index].customerName = String(customerName).trim();
+            }
+            if (email !== undefined) {
+                list[index].email = String(email || "").trim();
+            }
+            if (priceRank !== undefined) {
+                list[index].priceRank = priceRank ? String(priceRank).trim().toUpperCase() : "";
+            }
+
+            list[index].erpSync = {
+                ...(row.erpSync || {}),
+                source: "integration",
+                lastAt: new Date().toISOString(),
+                ...(syncVersion !== undefined && Number.isFinite(Number(syncVersion))
+                    ? { syncVersion: Number(syncVersion) }
+                    : {}),
+                ...(key ? { lastIdempotencyKey: key } : {})
+            };
+
+            await fs.writeFile(CUSTOMERS_DB_PATH, JSON.stringify(list, null, 2));
+            return { success: true, message: "顧客情報を更新しました" };
+        });
+    }
+
+    /**
+     * 販管連携用: 顧客スナップショット（パスワード等は含まない）
+     * @param {{ limit?: string|number }} opts
+     */
+    async getCustomersSnapshotForIntegration(opts = {}) {
+        const raw = await this._loadAll();
+        const list = Array.isArray(raw) ? raw : [];
+        const lim = Math.min(Math.max(1, parseInt(String(opts.limit), 10) || 2000), 5000);
+        const slice = list.slice(0, lim);
+        const customers = slice.map((c) => ({
+            customerId: c.customerId,
+            customerName: c.customerName,
+            email: c.email || "",
+            priceRank: c.priceRank || "",
+            allowProxyLogin: c.allowProxyLogin === true
+        }));
+        return { customers, count: customers.length };
+    }
+
     // 9. 顧客本人による「管理者の代理ログインを許可」の更新（アカウント設定用）
     async updateCustomerAllowProxy(customerId, allowProxyLogin) {
         return runWithJsonFileWriteLock(CUSTOMERS_DB_PATH, async () => {

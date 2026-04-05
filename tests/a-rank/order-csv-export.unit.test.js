@@ -110,4 +110,67 @@ describe("orderCsvExport", () => {
         const csv = generateOrdersCsv(orders, [], [], [], {}, false, spec);
         expect(csv).toContain('"0"');
     });
+
+    test("resolveOrderCsvSpec はヘッダ列数一致時に空キーを empty に変換", () => {
+        const r = resolveOrderCsvSpec({
+            headerLine: "a,b,c",
+            columnKeys: ["orderId", "", "  "]
+        });
+        expect(r.columnKeys).toEqual(["orderId", "empty", "empty"]);
+    });
+
+    test("resolveOrderCsvSpec は短いヘッダだが列キーが組込み長のとき map 後デフォルトへ", () => {
+        const builtIn = getDefaultOrderCsvSpec();
+        const r = resolveOrderCsvSpec({
+            headerLine: "a,b",
+            columnKeys: builtIn.columnKeys
+        });
+        expect(r).toEqual(builtIn);
+    });
+
+    test("generateOrdersCsv は未エクスポートのみで exported_at なし行を残す", () => {
+        const spec = {
+            headerLine: "oid,code",
+            columnKeys: ["orderId", "productCode"]
+        };
+        const csv = generateOrdersCsv(
+            [
+                {
+                    orderId: "U1",
+                    exported_at: null,
+                    items: [{ code: "P" }]
+                }
+            ],
+            [],
+            [],
+            [],
+            {},
+            true,
+            spec
+        );
+        expect(csv).toContain("U1");
+    });
+
+    test("generateOrdersCsv は internalMemo 未設定で deliveryNote のみ解決", () => {
+        const spec = {
+            headerLine: "memo,note",
+            columnKeys: ["internalMemo", "deliveryNote"]
+        };
+        const csv = generateOrdersCsv(
+            [
+                {
+                    orderId: "M1",
+                    deliveryInfo: { note: "届先メモ" },
+                    items: [{ code: "c" }]
+                }
+            ],
+            [],
+            [],
+            [],
+            {},
+            false,
+            spec
+        );
+        expect(csv).toContain("届先メモ");
+    });
 });

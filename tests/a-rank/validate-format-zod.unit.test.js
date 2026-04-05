@@ -3,6 +3,12 @@
 const { formatZodErrors } = require("../../middlewares/validate");
 
 describe("formatZodErrors", () => {
+    test("pathPrefix 省略時は既定 body を使う", () => {
+        const rows = formatZodErrors([{ path: ["field"], message: "err", code: "invalid_type" }]);
+        expect(rows[0].path).toBe("field");
+        expect(rows[0].message).toBe("err");
+    });
+
     test("通常 issue は path と message を返す", () => {
         const rows = formatZodErrors(
             [{ path: ["a", "b"], message: "bad", code: "invalid_type" }],
@@ -54,5 +60,15 @@ describe("formatZodErrors", () => {
         expect(rows).toHaveLength(1);
         expect(rows[0].path).toBe("body");
         expect(rows[0].message).toBe("mk");
+    });
+
+    test("unrecognized_keys だが keys が配列でなければ通常行として処理", () => {
+        const rows = formatZodErrors(
+            [{ code: "unrecognized_keys", keys: "bad", path: [], message: "fallback" }],
+            "params"
+        );
+        expect(rows).toHaveLength(1);
+        expect(rows[0].path).toBe("params");
+        expect(rows[0].message).toBe("fallback");
     });
 });

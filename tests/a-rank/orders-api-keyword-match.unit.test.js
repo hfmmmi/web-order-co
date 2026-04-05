@@ -69,4 +69,64 @@ describe("orderMatchesDownloadCsvKeyword", () => {
     test("(コード) 内側が空白のみのときは完全一致扱いで不一致になりうる", () => {
         expect(match(order, "(  )")).toBe(false);
     });
+
+    test("items が配列でないとき明細ループに入らず false になりうる", () => {
+        expect(
+            match(
+                { orderId: 1, customerId: "Z", customerName: "", items: { code: "X" } },
+                "トナー"
+            )
+        ).toBe(false);
+    });
+
+    test("customerId が無い注文でも orderId 等のフリー検索が動く", () => {
+        expect(match({ orderId: 8801, customerName: "", items: [] }, "880")).toBe(true);
+    });
+
+    test("(コード) 検索で顧客ID不一致でも明細コード一致で true", () => {
+        expect(
+            match(
+                { orderId: 1, customerId: "OTHER", customerName: "", items: [{ code: "MATCHX", name: "n" }] },
+                "(MATCHX)"
+            )
+        ).toBe(true);
+    });
+
+    test("明細の code が空でも name のみで部分一致", () => {
+        expect(
+            match(
+                { orderId: 1, customerId: "C", customerName: "", items: [{ name: "特殊ラベル品" }] },
+                "ラベル"
+            )
+        ).toBe(true);
+    });
+
+    test("(コード) で items が空配列なら false", () => {
+        expect(match({ orderId: 1, customerId: "X", customerName: "", items: [] }, "(ZZZ)")).toBe(false);
+    });
+
+    test("items 未定義でも注文ID・顧客のフリー検索は動く", () => {
+        const o = { orderId: 501, customerId: "CID501", customerName: "無明細商事" };
+        expect(match(o, "501")).toBe(true);
+        expect(match(o, "cid501")).toBe(true);
+        expect(match(o, "無明細")).toBe(true);
+    });
+
+    test("(コード) 内が空白のみなら括弧モードに入らず通常検索へ", () => {
+        const o = { orderId: 9, customerId: "X", customerName: "", items: [] };
+        expect(match(o, "(   )")).toBe(false);
+    });
+
+    test("明細の code が数値でも文字列比較で一致", () => {
+        expect(
+            match(
+                { orderId: 1, customerId: "Q", customerName: "", items: [{ code: 100, name: "n" }] },
+                "(100)"
+            )
+        ).toBe(true);
+    });
+
+    test("顧客名が undefined でも orderId 検索は動く", () => {
+        expect(match({ orderId: 7002, customerId: "Z", items: [] }, "7002")).toBe(true);
+    });
 });

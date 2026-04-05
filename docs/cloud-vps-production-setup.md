@@ -20,6 +20,7 @@
 - [ ] **Node.js**（リポジトリが想定する版。CI は Node 20 参照: `.github/workflows/ci.yml`）。
 - [ ] リポジトリを配置し、`npm ci`（本番）または `npm install`。
 - [ ] 本番用 **`.env`** を配置（チェックリストの変数）。**リポジトリにコミットしない。**
+- [ ] **初回以降のコード更新**は [vps-production-runbook.md](vps-production-runbook.md) の **「11. 本番デプロイ」**（`git pull` → `npm ci --omit=dev` → `systemctl restart`）に従う。
 
 ---
 

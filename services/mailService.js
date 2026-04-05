@@ -312,5 +312,6 @@ module.exports = {
     sendInviteEmail,
     sendPasswordChangedNotification,
     sendLoginFailureAlert,
-    clearTransporterCache
+    clearTransporterCache,
+    getTransporter
 };

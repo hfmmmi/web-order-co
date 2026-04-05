@@ -101,4 +101,85 @@ describe("branch coverage 100 P1: mailService", () => {
         });
         expect(ok).toBe(true);
     });
+
+    test("sendOrderConfirmation は荷主指定ありで本文に荷主情報を含む", async () => {
+        const mailService = require("../../services/mailService");
+        const ok = await mailService.sendOrderConfirmation(
+            {
+                orderId: "O99",
+                deliveryInfo: {
+                    shipper: { name: "荷主名", address: "東京都", tel: "03-0000" },
+                    clientOrderNumber: "PO1",
+                    date: "2026-04-01"
+                }
+            },
+            "顧客名"
+        );
+        expect(ok).toBe(true);
+    });
+
+    test("sendInviteEmail はメール空で失敗オブジェクト", async () => {
+        const mailService = require("../../services/mailService");
+        const r = await mailService.sendInviteEmail(
+            { customerId: "C", customerName: "N", email: "  " },
+            "http://u",
+            "pw",
+            false
+        );
+        expect(r.success).toBe(false);
+    });
+
+    test("sendInviteEmail は初回招待テンプレートで送信", async () => {
+        const mailService = require("../../services/mailService");
+        const r = await mailService.sendInviteEmail(
+            { customerId: "C2", customerName: "N2", email: "n2@test.com" },
+            "http://invite",
+            "temppw",
+            false
+        );
+        expect(r.success).toBe(true);
+    });
+
+    test("sendPasswordChangedNotification は email 無しで失敗", async () => {
+        const mailService = require("../../services/mailService");
+        const r = await mailService.sendPasswordChangedNotification({
+            customerId: "C",
+            customerName: "N",
+            email: ""
+        });
+        expect(r.success).toBe(false);
+    });
+
+    test("sendLoginFailureAlert は顧客メール空で false", async () => {
+        const mailService = require("../../services/mailService");
+        const ok = await mailService.sendLoginFailureAlert({
+            type: "customer",
+            customer: { customerId: "X", customerName: "X", email: "" },
+            count: 5
+        });
+        expect(ok).toBe(false);
+    });
+
+    test("sendLoginFailureAlert は管理者向けで送信", async () => {
+        const mailService = require("../../services/mailService");
+        const ok = await mailService.sendLoginFailureAlert({
+            type: "admin",
+            adminId: "adm1",
+            adminName: "管理者",
+            count: 5
+        });
+        expect(ok).toBe(true);
+    });
+
+    test("sendSupportNotification は不具合カテゴリでラベル切替", async () => {
+        const mailService = require("../../services/mailService");
+        const ok = await mailService.sendSupportNotification({
+            ticketId: "T3",
+            category: "bug",
+            customerName: "U",
+            customerId: "TEST001",
+            detail: "d"
+        });
+        expect(ok).toBe(true);
+    });
 });

@@ -372,5 +372,225 @@ describe("Aランク: 買取API", () => {
             expect(Array.isArray(res.body)).toBe(true);
             expect(res.body.length).toBe(0);
         });
+
+        test("JSONが配列でなければ空配列", async () => {
+            await writeJson("kaitori_requests.json", { x: 1 });
+            const agent = request.agent(app);
+            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            const res = await agent.get("/my-kaitori-history");
+            expect(res.statusCode).toBe(200);
+            expect(res.body).toEqual([]);
+        });
+    });
+
+    describe("分岐追加: 非配列JSON・importの既定値", () => {
+        test("POST /kaitori-request は既存がオブジェクトでも配列に正規化して追記", async () => {
+            await fs.writeFile(abs("kaitori_requests.json"), "{}", "utf-8");
+            const agent = request.agent(app);
+            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            const res = await agent.post("/kaitori-request").send({ items: [{ name: "x", quantity: 1 }] });
+            expect(res.statusCode).toBe(200);
+            const list = await readJson("kaitori_requests.json");
+            expect(Array.isArray(list)).toBe(true);
+            expect(list.length).toBe(1);
+        });
+
+        test("POST /kaitori-request は壊JSONでも新規配列として続行", async () => {
+            await fs.writeFile(abs("kaitori_requests.json"), "{bad", "utf-8");
+            const agent = request.agent(app);
+            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            const res = await agent.post("/kaitori-request").send({ items: [{ name: "y", quantity: 1 }] });
+            expect(res.statusCode).toBe(200);
+            const list = await readJson("kaitori_requests.json");
+            expect(list.length).toBe(1);
+        });
+
+        test("POST /admin/kaitori-update はDBがオブジェクトでも配列化して404", async () => {
+            await fs.writeFile(abs("kaitori_requests.json"), "{}", "utf-8");
+            const admin = request.agent(app);
+            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            const res = await admin.post("/admin/kaitori-update").send({ requestId: "nope", status: "対応済" });
+            expect(res.statusCode).toBe(404);
+        });
+
+        test("POST /admin/kaitori-update で items が配列でなければ明細は更新しない", async () => {
+            await writeJson("kaitori_requests.json", [
+                {
+                    requestId: 300,
+                    customerId: "TEST001",
+                    status: "未対応",
+                    items: [{ name: "keep" }],
+                    requestDate: new Date().toISOString()
+                }
+            ]);
+            // POST 前に読み直して書き込み完了を確認（Windows 等で稀に直後の HTTP が空 DB を読むのを避ける）
+            const seeded = await readJson("kaitori_requests.json");
+            expect(seeded.find((x) => x && x.requestId == 300)).toBeTruthy();
+
+            const admin = request.agent(app);
+            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            const res = await admin.post("/admin/kaitori-update").send({
+                requestId: 300,
+                items: "not-array",
+                status: "対応済"
+            });
+            expect(res.statusCode).toBe(200);
+            const requests = await readJson("kaitori_requests.json");
+            const r = requests.find((x) => x.requestId === 300);
+            expect(r.items).toEqual([{ name: "keep" }]);
+            expect(r.status).toBe("対応済");
+        });
+
+        test("POST /admin/kaitori-master/add はマスタがオブジェクトでも配列化", async () => {
+            await fs.writeFile(abs("kaitori_master.json"), "{}", "utf-8");
+            const admin = request.agent(app);
+            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            const res = await admin.post("/admin/kaitori-master/add").send({
+                id: "preset-k",
+                maker: "M",
+                name: "N",
+                type: "T",
+                price: 50,
+                destination: "名古屋"
+            });
+            expect(res.statusCode).toBe(200);
+            const master = await readJson("kaitori_master.json");
+            expect(master.length).toBe(1);
+            expect(master[0].id).toBe("preset-k");
+            expect(master[0].destination).toBe("名古屋");
+        });
+
+        test("POST /admin/kaitori-master/add は壊JSONでも空配列から追加", async () => {
+            await fs.writeFile(abs("kaitori_master.json"), "{bad", "utf-8");
+            const admin = request.agent(app);
+            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            const res = await admin.post("/admin/kaitori-master/add").send({ maker: "M2", name: "N2", price: 1 });
+            expect(res.statusCode).toBe(200);
+            const master = await readJson("kaitori_master.json");
+            expect(master.length).toBe(1);
+        });
+
+        test("POST /admin/kaitori-master/import で id・destination 等が揃っている項目はそのまま使う", async () => {
+            const admin = request.agent(app);
+            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            const res = await admin.post("/admin/kaitori-master/import").send({
+                masterData: [
+                    {
+                        id: "FULL-1",
+                        maker: "Canon",
+                        name: "品",
+                        type: "純正",
+                        price: "123",
+                        destination: "東京"
+                    }
+                ]
+            });
+            expect(res.statusCode).toBe(200);
+            const master = await readJson("kaitori_master.json");
+            expect(master[0].id).toBe("FULL-1");
+            expect(master[0].destination).toBe("東京");
+            expect(master[0].price).toBe(123);
+        });
+
+        test("POST /admin/kaitori-master/edit はマスタがオブジェクトなら404", async () => {
+            await fs.writeFile(abs("kaitori_master.json"), "{}", "utf-8");
+            const admin = request.agent(app);
+            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            const res = await admin.post("/admin/kaitori-master/edit").send({ id: "ANY", name: "x" });
+            expect(res.statusCode).toBe(404);
+        });
+
+        test("POST /admin/kaitori-master/delete はマスタがオブジェクトなら削除対象なし", async () => {
+            await fs.writeFile(abs("kaitori_master.json"), "{}", "utf-8");
+            const admin = request.agent(app);
+            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            const res = await admin.post("/admin/kaitori-master/delete").send({ id: "X" });
+            expect(res.statusCode).toBe(404);
+        });
+    });
+
+    describe("分岐追加: エラー系", () => {
+        test("POST /kaitori-request は書込失敗で500", async () => {
+            const fsp = require("fs").promises;
+            const origWrite = jest.requireActual("fs").promises.writeFile;
+            jest.spyOn(fsp, "writeFile").mockImplementation(async (p, ...args) => {
+                if (String(p).replace(/\\/g, "/").includes("kaitori_requests.json")) {
+                    throw new Error("write fail");
+                }
+                return origWrite(p, ...args);
+            });
+            const agent = request.agent(app);
+            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            const res = await agent.post("/kaitori-request").send({ items: [{ name: "a", quantity: 1 }] });
+            expect(res.statusCode).toBe(500);
+            jest.restoreAllMocks();
+        });
+
+        test("POST /admin/kaitori-update は内部例外で500", async () => {
+            await writeJson("kaitori_requests.json", [
+                { requestId: "U500", customerId: "TEST001", status: "未対応", requestDate: new Date().toISOString() }
+            ]);
+            const fsp = require("fs").promises;
+            const origRead = jest.requireActual("fs").promises.readFile;
+            jest.spyOn(fsp, "readFile").mockImplementation(async (p, enc) => {
+                if (String(p).replace(/\\/g, "/").includes("kaitori_requests.json")) {
+                    throw new Error("eio");
+                }
+                return origRead(p, enc);
+            });
+            const admin = request.agent(app);
+            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            const res = await admin.post("/admin/kaitori-update").send({ requestId: "U500", status: "対応済" });
+            expect(res.statusCode).toBe(500);
+            jest.restoreAllMocks();
+        });
+
+        test("POST /admin/kaitori-master/add は書込失敗で500", async () => {
+            const fsp = require("fs").promises;
+            const origWrite = jest.requireActual("fs").promises.writeFile;
+            jest.spyOn(fsp, "writeFile").mockImplementation(async (p, ...args) => {
+                if (String(p).replace(/\\/g, "/").includes("kaitori_master.json")) {
+                    throw new Error("write fail");
+                }
+                return origWrite(p, ...args);
+            });
+            const admin = request.agent(app);
+            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            const res = await admin.post("/admin/kaitori-master/add").send({ maker: "M", name: "N" });
+            expect(res.statusCode).toBe(500);
+            jest.restoreAllMocks();
+        });
+
+        test("POST /admin/kaitori-master/edit は読込例外で500", async () => {
+            const fsp = require("fs").promises;
+            const origRead = jest.requireActual("fs").promises.readFile;
+            jest.spyOn(fsp, "readFile").mockImplementation(async (p, enc) => {
+                if (String(p).replace(/\\/g, "/").includes("kaitori_master.json")) {
+                    throw new Error("eio");
+                }
+                return origRead(p, enc);
+            });
+            const admin = request.agent(app);
+            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            const res = await admin.post("/admin/kaitori-master/edit").send({ id: "E1", name: "x" });
+            expect(res.statusCode).toBe(500);
+            jest.restoreAllMocks();
+        });
+
+        test("POST /admin/kaitori-master/delete は読込例外で500", async () => {
+            const fsp = require("fs").promises;
+            const origRead = jest.requireActual("fs").promises.readFile;
+            jest.spyOn(fsp, "readFile").mockImplementation(async (p, enc) => {
+                if (String(p).replace(/\\/g, "/").includes("kaitori_master.json")) {
+                    throw new Error("eio");
+                }
+                return origRead(p, enc);
+            });
+            const admin = request.agent(app);
+            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            const res = await admin.post("/admin/kaitori-master/delete").send({ id: "D1" });
+            expect(res.statusCode).toBe(500);
+            jest.restoreAllMocks();
+        });
     });
 });

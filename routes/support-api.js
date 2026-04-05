@@ -310,4 +310,14 @@ router.post("/admin/update-ticket", async (req, res) => {
     }
 });
 
+Object.defineProperty(router, "normalizeUploadFiles", {
+    enumerable: false,
+    configurable: true,
+    value: normalizeUploadFiles
+});
+Object.defineProperty(router, "saveTicketAttachments", {
+    enumerable: false,
+    configurable: true,
+    value: saveTicketAttachments
+});
 module.exports = router;

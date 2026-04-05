@@ -134,6 +134,40 @@ describe("csvService parseEstimatesData / parseExternalOrdersCsv 分岐拡張", 
         expect(out).toEqual([]);
     });
 
+    test("parseExternalOrdersCsv はヘッダ・行末尾の空セルで split 後の falsy v を通す", () => {
+        const h = "orderId,customerId,customerName,productCode,productName,price,quantity,";
+        const row = "OEMP,C1,N1,P1,PN,5,1,";
+        const csv = `${h}\n${row}\n`;
+        const out = csvService.parseExternalOrdersCsv(Buffer.from(csv, "utf-8"));
+        expect(out.length).toBe(1);
+        expect(out[0].orderId).toBe("OEMP");
+    });
+
+    test("parseShippingCsv は列数不足の行で row[index]||\"\" 枝を通す", () => {
+        const csv = "a,b,c\n1,2\n";
+        const out = csvService.parseShippingCsv(Buffer.from(csv, "utf-8"));
+        expect(out.length).toBe(1);
+        expect(out[0]).toEqual({ a: "1", b: "2", c: "" });
+    });
+
+    test("parseEstimatesData は estimateImportAliasesOverride が null でも動く", async () => {
+        const header = "見積番号,得意先コード,商品コード,商品名,単価,有効期限,メーカー,件名";
+        const row = "E-NUL,TEST001,P1,N,100,2030/12/31,M,S";
+        const csv = `${header}\n${row}`;
+        const buf = iconv.encode(csv, "Shift_JIS");
+        const out = await csvService.parseEstimatesData(buf, "ov-null.csv", null);
+        expect(out.length).toBe(1);
+    });
+
+    test("parseEstimatesData は merge 時に別名配列へ null が混じっても落ちない", async () => {
+        const header = "見積番号,得意先コード,商品コード,商品名,単価,有効期限,メーカー,件名";
+        const row = "E-MG,TEST001,P1,N,100,2030/12/31,M,S";
+        const csv = `${header}\n${row}`;
+        const buf = iconv.encode(csv, "Shift_JIS");
+        const out = await csvService.parseEstimatesData(buf, "ov-mg.csv", { estimateId: [null, "見積ID"] });
+        expect(out.length).toBe(1);
+    });
+
     test("parseEstimatesData は単価が数値でない行をスキップする", async () => {
         const header = "見積番号,得意先コード,商品コード,商品名,単価";
         const csv = `${header}\nE-NAN,TEST001,P1,N,abc`;
@@ -149,5 +183,58 @@ describe("csvService parseEstimatesData / parseExternalOrdersCsv 分岐拡張", 
         const out = await csvService.parseEstimatesData(buf, "d.csv");
         expect(out.length).toBe(1);
         expect(out[0].validUntil).toMatch(/2030-06-15/);
+    });
+
+    test("parseEstimatesData は Excel でヘッダのみのとき空配列", async () => {
+        readToRowArrays.mockResolvedValue([["見積番号", "得意先コード", "商品コード", "単価"]]);
+        const pk = Buffer.from([0x50, 0x4b, 9, 9]);
+        const out = await csvService.parseEstimatesData(pk, "empty.xlsx");
+        expect(out).toEqual([]);
+    });
+
+    test("parseEstimatesData は D0CF マジックでも Excel 経路", async () => {
+        readToRowArrays.mockResolvedValue([
+            ["見積番号", "得意先コード", "商品コード", "商品名", "単価"],
+            ["E-DCF", "TEST001", "P-DCF", "N", "50"]
+        ]);
+        const buf = Buffer.from([0xd0, 0xcf, 0x11, 0xe0]);
+        const out = await csvService.parseEstimatesData(buf, "legacy.xls");
+        expect(out.length).toBe(1);
+        expect(out[0].unitPrice).toBe(50);
+    });
+
+    test("parseEstimatesData は列不足の行をスキップ", async () => {
+        const header = "見積番号,得意先コード,商品コード,商品名,単価";
+        const csv = `${header}\nSHORT,ONLY`;
+        const buf = iconv.encode(csv, "Shift_JIS");
+        const out = await csvService.parseEstimatesData(buf, "shortrow.csv");
+        expect(out.length).toBe(0);
+    });
+
+    test("parseEstimatesData は顧客コード フリー をスキップ", async () => {
+        const header = "見積番号,得意先コード,商品コード,商品名,単価";
+        const csv = `${header}\nE-FREE,フリー,P1,N,1\nE-OK,TEST001,P2,N,2`;
+        const buf = iconv.encode(csv, "Shift_JIS");
+        const out = await csvService.parseEstimatesData(buf, "free.csv");
+        expect(out.length).toBe(1);
+        expect(out[0].productCode).toBe("P2");
+    });
+
+    test("parseEstimatesData は見積列が無いとき estimateId 空", async () => {
+        const header = "得意先コード,商品コード,商品名,単価";
+        const csv = `${header}\nTEST001,P-NE,N,5`;
+        const buf = iconv.encode(csv, "Shift_JIS");
+        const out = await csvService.parseEstimatesData(buf, "noest.csv");
+        expect(out.length).toBe(1);
+        expect(out[0].estimateId).toBe("");
+    });
+
+    test("parseEstimatesData は単価・コード欠損行をスキップ", async () => {
+        const header = "見積番号,得意先コード,商品コード,商品名,単価";
+        const csv = `${header}\nE1,TEST001,,N,\nE2,TEST001,P2,N,3`;
+        const buf = iconv.encode(csv, "Shift_JIS");
+        const out = await csvService.parseEstimatesData(buf, "gap.csv");
+        expect(out.length).toBe(1);
+        expect(out[0].productCode).toBe("P2");
     });
 });

@@ -4,8 +4,8 @@ const express = require("express");
 const router = express.Router();
 const fs = require("fs").promises;
 const { dbPath } = require("../../dbPaths");
-const { mutateProxyRequests, PROXY_REQUEST_EXPIRY_MS } = require("../../utils/proxyRequestsStore");
-const { regenerateSession, saveSession } = require("../../utils/sessionAsync");
+const { PROXY_REQUEST_EXPIRY_MS } = require("../../utils/proxyRequestsStore");
+const { regenerateSession } = require("../../utils/sessionAsync");
 const { appendCustomerAuthLog } = require("../../services/authAuditLogService");
 const bcrypt = require("bcryptjs");
 
@@ -17,8 +17,7 @@ const {
     INVITE_TOKENS_PATH,
     RESET_TOKENS_PATH,
     ADMIN_RESET_TOKENS_PATH,
-    ADMINS_DB_PATH,
-    mutateJsonFile
+    ADMINS_DB_PATH
 } = require("../../services/authTokenStore");
 const { validateBody } = require("../../middlewares/validate");
 const { loginSchema } = require("../../validators/requestSchemas");
@@ -32,7 +31,6 @@ const {
     clearLoginFailures,
     getLoginFailureCount
 } = require("./loginRateLimit");
-const { verifyRecaptcha } = require("./recaptcha");
 const { sanitizeAdminName } = require("./sanitizeAdminName");
 
 const CUSTOMERS_DB_PATH = dbPath("customers.json");
@@ -40,7 +38,7 @@ const INVITE_EXPIRY_HOURS = 24;
 
 router.post("/login", validateBody(loginSchema), async (req, res) => {
     const { id, pass, captchaToken } = req.body;
-    const accountKey = "customer:" + (typeof id === "string" ? id.trim() : "");
+    const accountKey = "customer:" + String(id ?? "").trim();
 
     try {
         if (await isLoginLocked(accountKey)) {
@@ -54,7 +52,7 @@ router.post("/login", validateBody(loginSchema), async (req, res) => {
             if (!captchaToken || typeof captchaToken !== "string" || !captchaToken.trim()) {
                 return res.json({ success: false, message: LOGIN_CAPTCHA_REQUIRED_MESSAGE, captchaRequired: true });
             }
-            const valid = await verifyRecaptcha(captchaToken.trim(), recaptchaSecret);
+            const valid = await require("./recaptcha").verifyRecaptcha(captchaToken.trim(), recaptchaSecret);
             if (!valid) {
                 return res.json({ success: false, message: LOGIN_CAPTCHA_FAILED_MESSAGE, captchaRequired: true });
             }
@@ -101,7 +99,7 @@ router.post("/login", validateBody(loginSchema), async (req, res) => {
             console.log(`顧客ログイン成功: ${req.session.customerId} (AdminStatus: ${req.session.isAdmin})`);
 
             try {
-                await saveSession(req);
+                await require("../../utils/sessionAsync").saveSession(req);
                 res.json({ success: true, redirectUrl: "products.html" });
             } catch (err) {
                 console.error("Session Save Error:", err);
@@ -143,7 +141,7 @@ router.get("/account/proxy-request", async (req, res) => {
     }
     try {
         let body = { pending: false };
-        await mutateProxyRequests(async (requests) => {
+        await require("../../utils/proxyRequestsStore").mutateProxyRequests(async (requests) => {
             const r = requests[req.session.customerId];
             if (!r) return;
             if (Date.now() - r.requestedAt > PROXY_REQUEST_EXPIRY_MS) {
@@ -165,7 +163,7 @@ router.post("/account/proxy-request/approve", async (req, res) => {
     }
     try {
         let out = { success: true, message: "既に処理済みです" };
-        await mutateProxyRequests(async (requests) => {
+        await require("../../utils/proxyRequestsStore").mutateProxyRequests(async (requests) => {
             const r = requests[req.session.customerId];
             if (!r) return;
             if (Date.now() - r.requestedAt > PROXY_REQUEST_EXPIRY_MS) {
@@ -189,7 +187,7 @@ router.post("/account/proxy-request/reject", async (req, res) => {
         return res.status(401).json({ message: "ログインが必要です" });
     }
     try {
-        await mutateProxyRequests(async (requests) => {
+        await require("../../utils/proxyRequestsStore").mutateProxyRequests(async (requests) => {
             delete requests[req.session.customerId];
         });
         res.json({ success: true, message: "却下しました。" });
@@ -273,7 +271,7 @@ router.post("/setup", async (req, res) => {
     }
 
     try {
-        const resetKind = await mutateJsonFile(RESET_TOKENS_PATH, {}, async (resetTokens) => {
+        const resetKind = await require("../../services/authTokenStore").mutateJsonFile(RESET_TOKENS_PATH, {}, async (resetTokens) => {
             if (!resetTokens[id] || resetTokens[id].token !== tokenOrPass) return "none";
             if (Date.now() > resetTokens[id].expiresAt) {
                 delete resetTokens[id];
@@ -294,7 +292,7 @@ router.post("/setup", async (req, res) => {
             if (!result.success) {
                 return res.json(result);
             }
-            await mutateJsonFile(RESET_TOKENS_PATH, {}, (t) => { delete t[id]; });
+            await require("../../services/authTokenStore").mutateJsonFile(RESET_TOKENS_PATH, {}, (t) => { delete t[id]; });
             console.log(`パスワード再設定完了（顧客申込）: ${id}`);
             const customer = await customerService.getCustomerById(id);
             if (customer && customer.email) {
@@ -303,7 +301,7 @@ router.post("/setup", async (req, res) => {
             return res.json({ success: true, message: "パスワードを変更しました。ログインしてください。" });
         }
 
-        const adminResetKind = await mutateJsonFile(ADMIN_RESET_TOKENS_PATH, {}, async (adminResetTokens) => {
+        const adminResetKind = await require("../../services/authTokenStore").mutateJsonFile(ADMIN_RESET_TOKENS_PATH, {}, async (adminResetTokens) => {
             if (!adminResetTokens[id] || adminResetTokens[id].token !== tokenOrPass) return "none";
             if (Date.now() > adminResetTokens[id].expiresAt) {
                 delete adminResetTokens[id];
@@ -321,22 +319,22 @@ router.post("/setup", async (req, res) => {
 
         if (adminResetKind === "valid_admin_reset") {
             const hashedPassword = await bcrypt.hash(newPass, 10);
-            const adminUpdate = await mutateJsonFile(ADMINS_DB_PATH, [], async (adminList) => {
+            const adminUpdate = await require("../../services/authTokenStore").mutateJsonFile(ADMINS_DB_PATH, [], async (adminList) => {
                 const admin = adminList.find(a => a.adminId === id);
                 if (!admin) return { ok: false };
                 admin.password = hashedPassword;
                 return { ok: true };
             });
             if (!adminUpdate.ok) {
-                await mutateJsonFile(ADMIN_RESET_TOKENS_PATH, {}, (t) => { delete t[id]; });
+                await require("../../services/authTokenStore").mutateJsonFile(ADMIN_RESET_TOKENS_PATH, {}, (t) => { delete t[id]; });
                 return res.json({ success: false, message: "管理者が見つかりません" });
             }
-            await mutateJsonFile(ADMIN_RESET_TOKENS_PATH, {}, (t) => { delete t[id]; });
+            await require("../../services/authTokenStore").mutateJsonFile(ADMIN_RESET_TOKENS_PATH, {}, (t) => { delete t[id]; });
             console.log(`パスワード再設定完了（管理者）: ${id}`);
             return res.json({ success: true, message: "パスワードを変更しました。管理者ログイン画面からログインしてください。" });
         }
 
-        const inviteState = await mutateJsonFile(INVITE_TOKENS_PATH, {}, async (tokens) => {
+        const inviteState = await require("../../services/authTokenStore").mutateJsonFile(INVITE_TOKENS_PATH, {}, async (tokens) => {
             if (!tokens[id]) return { hasInvite: false };
             const expiresAt = tokens[id];
             if (Date.now() > expiresAt) {
@@ -370,7 +368,7 @@ router.post("/setup", async (req, res) => {
 
         if (result.success) {
             if (inviteState.hasInvite && !inviteState.expired) {
-                await mutateJsonFile(INVITE_TOKENS_PATH, {}, (tokens) => { delete tokens[id]; });
+                await require("../../services/authTokenStore").mutateJsonFile(INVITE_TOKENS_PATH, {}, (tokens) => { delete tokens[id]; });
             }
             console.log(`パスワード初期設定完了: ${id}`);
             res.json({ success: true, message: "設定が完了しました。ログインしてください。" });

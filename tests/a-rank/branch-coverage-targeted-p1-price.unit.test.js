@@ -425,4 +425,243 @@ describe("branch-coverage-targeted-p1: priceService", () => {
         const { buffer } = await priceService.getPricelistExcelForRank("A");
         expect(buffer.length).toBeGreaterThan(100);
     });
+
+    test("updateRankPricesFromExcel: 表示名一致だが id が rankIds に無い列はランク数字列のみ有効", async () => {
+        settingsService.getRankIds.mockResolvedValueOnce(["A"]);
+        settingsService.getRankList.mockResolvedValueOnce([{ id: "Z", name: "ゴールド" }]);
+        readToRowArrays.mockResolvedValue([
+            ["商品コード", "ゴールド", "ランク1"],
+            ["P_RANKONLY", 1, 300]
+        ]);
+        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
+        expect(r.success).toBe(true);
+        const m = JSON.parse(await fs.readFile(RANK_PATH, "utf-8"));
+        expect(m.P_RANKONLY).toEqual({ A: 300 });
+    });
+
+    test("updateRankPricesFromExcel: ランクセル非数は価格オブジェクト空でも行は登録", async () => {
+        readToRowArrays.mockResolvedValue([
+            ["商品コード", "ランク1"],
+            ["P_EMPTY_RANK", "x"]
+        ]);
+        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
+        expect(r.success).toBe(true);
+        const m = JSON.parse(await fs.readFile(RANK_PATH, "utf-8"));
+        expect(m.P_EMPTY_RANK).toEqual({});
+    });
+
+    test("updateRankPricesFromExcel: 商品名 #NAME? で excelName 空・マスタ更新", async () => {
+        const list = JSON.parse(origProducts).filter((p) => p.productCode !== "P_NAME_ERR");
+        list.push({
+            productCode: "P_NAME_ERR",
+            name: "oldnm",
+            manufacturer: "M",
+            category: "純正",
+            basePrice: 1
+        });
+        await fs.writeFile(PRODUCTS_PATH, JSON.stringify(list, null, 2), "utf-8");
+        readToRowArrays.mockResolvedValue([
+            ["商品コード", "商品名", "ランク1"],
+            ["P_NAME_ERR", "#NAME?", 4]
+        ]);
+        await priceService.updateRankPricesFromExcel(Buffer.from([1]));
+        const list2 = JSON.parse(await fs.readFile(PRODUCTS_PATH, "utf-8"));
+        expect(list2.find((p) => p.productCode === "P_NAME_ERR").name).toBe("");
+    });
+
+    test("updateRankPricesFromExcel: マスタに無いコードは商品名更新スキップ", async () => {
+        readToRowArrays.mockResolvedValue([
+            ["商品コード", "商品名", "ランク1"],
+            ["NOT_IN_MASTER_XYZ", "ShouldNotApply", 2]
+        ]);
+        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
+        expect(r.success).toBe(true);
+        expect(r.message).not.toContain("商品名を");
+    });
+
+    test("getPricelistExcelForRank: getSettings が null でも shippingRules 空で生成", async () => {
+        settingsService.getSettings.mockResolvedValueOnce(null);
+        const rmap = { NULSET1: { A: 5 } };
+        await fs.writeFile(RANK_PATH, JSON.stringify(rmap, null, 2), "utf-8");
+        const plist = JSON.parse(origProducts).filter((p) => p.productCode !== "NULSET1");
+        plist.push({
+            productCode: "NULSET1",
+            name: "n",
+            manufacturer: "M",
+            category: "汎用",
+            basePrice: 100
+        });
+        await fs.writeFile(PRODUCTS_PATH, JSON.stringify(plist, null, 2), "utf-8");
+        const { buffer } = await priceService.getPricelistExcelForRank("A");
+        expect(buffer.length).toBeGreaterThan(200);
+    });
+
+    test("getPricelistExcelForRank: stripToken で表示名が空なら productCode にフォールバック", async () => {
+        settingsService.getPriceListFormatConfig.mockResolvedValueOnce({
+            csvHeaderLine: "h\n",
+            categoryOrder: { 汎用: 3 },
+            productNameStripFromDisplay: "ZAP",
+            manufacturerSplitCategory: "純正",
+            sheetNamesByCategory: { 汎用: "汎用" },
+            sheetManufacturerSortCategory: "汎用",
+            excelHeaderRow: ["a", "b", "c", "d", "e", "f", "g", "h"]
+        });
+        const rmap = { FBZAP: { A: 9 } };
+        await fs.writeFile(RANK_PATH, JSON.stringify(rmap, null, 2), "utf-8");
+        const plist = JSON.parse(origProducts).filter((p) => p.productCode !== "FBZAP");
+        plist.push({
+            productCode: "FBZAP",
+            name: "ZAP",
+            manufacturer: "M",
+            category: "汎用",
+            basePrice: 10
+        });
+        await fs.writeFile(PRODUCTS_PATH, JSON.stringify(plist, null, 2), "utf-8");
+        const { buffer } = await priceService.getPricelistExcelForRank("A");
+        expect(buffer.length).toBeGreaterThan(200);
+    });
+
+    test("getPricelistExcelForRank: 定価セルが非数文字で列4は wrapText 側", async () => {
+        const rmap = { TXTBP: { A: 5 } };
+        await fs.writeFile(RANK_PATH, JSON.stringify(rmap, null, 2), "utf-8");
+        const plist = JSON.parse(origProducts).filter((p) => p.productCode !== "TXTBP");
+        plist.push({
+            productCode: "TXTBP",
+            name: "n",
+            manufacturer: "M",
+            category: "汎用",
+            basePrice: "お問合せ"
+        });
+        await fs.writeFile(PRODUCTS_PATH, JSON.stringify(plist, null, 2), "utf-8");
+        const { buffer } = await priceService.getPricelistExcelForRank("A");
+        expect(buffer.length).toBeGreaterThan(200);
+    });
+
+    test("updateRankPricesFromExcel: ヘッダをランク表示名（ゴールド）で byDisplayName 解決", async () => {
+        readToRowArrays.mockResolvedValue([
+            ["商品コード", "ゴールド"],
+            ["P_DISP_RANK", 42]
+        ]);
+        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
+        expect(r.success).toBe(true);
+        const m = JSON.parse(await fs.readFile(RANK_PATH, "utf-8"));
+        expect(m.P_DISP_RANK).toEqual({ A: 42 });
+    });
+
+    test("updateRankPricesFromExcel: ランクB 英字ヘッダで rankLetter 分岐", async () => {
+        readToRowArrays.mockResolvedValue([
+            ["商品コード", "ランクB"],
+            ["P_LETTER_B", 8]
+        ]);
+        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
+        expect(r.success).toBe(true);
+        const m = JSON.parse(await fs.readFile(RANK_PATH, "utf-8"));
+        expect(m.P_LETTER_B).toEqual({ B: 8 });
+    });
+
+    test("updateRankPricesFromExcel: ランク価格セルが空なら parsePriceCell null でキー省略", async () => {
+        readToRowArrays.mockResolvedValue([
+            ["商品コード", "ランク1", "ランク2"],
+            ["P_NULL_RANK", 5, ""]
+        ]);
+        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
+        expect(r.success).toBe(true);
+        const m = JSON.parse(await fs.readFile(RANK_PATH, "utf-8"));
+        expect(m.P_NULL_RANK).toEqual({ A: 5 });
+    });
+
+    test("getPricelistExcelForRank: メーカー名が31文字超でシート名サニタイズ slice 分岐", async () => {
+        const longMaker = "メーカー長い_" + "x".repeat(35);
+        const rmap = { LONGMK: { A: 100 } };
+        await fs.writeFile(RANK_PATH, JSON.stringify(rmap, null, 2), "utf-8");
+        const plist = JSON.parse(origProducts).filter((p) => p.productCode !== "LONGMK");
+        plist.push({
+            productCode: "LONGMK",
+            name: "n",
+            manufacturer: longMaker,
+            category: "純正",
+            basePrice: 1000
+        });
+        await fs.writeFile(PRODUCTS_PATH, JSON.stringify(plist, null, 2), "utf-8");
+        settingsService.getPriceListFormatConfig.mockResolvedValueOnce({
+            csvHeaderLine: "h\n",
+            categoryOrder: { 純正: 1 },
+            productNameStripFromDisplay: "",
+            manufacturerSplitCategory: "純正",
+            sheetNamesByCategory: {},
+            sheetManufacturerSortCategory: "純正",
+            excelHeaderRow: ["c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8"]
+        });
+        const { buffer } = await priceService.getPricelistExcelForRank("A");
+        expect(buffer.length).toBeGreaterThan(200);
+    });
+
+    test("getPricelistCsvForRank: 価格が小数で Math.round 分岐", async () => {
+        const rmap = { DECP: { A: 99.4 } };
+        await fs.writeFile(RANK_PATH, JSON.stringify(rmap, null, 2), "utf-8");
+        const plist = JSON.parse(origProducts).filter((p) => p.productCode !== "DECP");
+        plist.push({
+            productCode: "DECP",
+            name: "d",
+            manufacturer: "M",
+            category: "汎用",
+            basePrice: 200
+        });
+        await fs.writeFile(PRODUCTS_PATH, JSON.stringify(plist, null, 2), "utf-8");
+        const { csv } = await priceService.getPricelistCsvForRank("A");
+        expect(csv).toContain("DECP");
+        expect(csv).toContain(",99,");
+    });
+
+    test("getAllSpecialPrices: 顧客・商品マスタに無い特価は削除ラベル", async () => {
+        const op = JSON.parse(await fs.readFile(PRICES_PATH, "utf-8"));
+        op.push({ customerId: "NO_CUST_XX", productCode: "NO_PROD_YY", specialPrice: 1 });
+        await fs.writeFile(PRICES_PATH, JSON.stringify(op, null, 2), "utf-8");
+        const rows = await priceService.getAllSpecialPrices();
+        const r = rows.find((x) => x.customerId === "NO_CUST_XX");
+        expect(r.customerName).toContain("削除");
+        expect(r.productName).toContain("削除");
+    });
+
+    test("getCustomerPriceList: 商品マスタに無いコードは不明な商品", async () => {
+        const op = JSON.parse(await fs.readFile(PRICES_PATH, "utf-8"));
+        op.push({ customerId: "TEST001", productCode: "GHOST_PRICE_" + Date.now(), specialPrice: 3 });
+        await fs.writeFile(PRICES_PATH, JSON.stringify(op, null, 2), "utf-8");
+        const rows = await priceService.getCustomerPriceList("TEST001");
+        expect(rows.some((x) => x.productName.includes("不明"))).toBe(true);
+    });
+
+    test("getPriceForAdmin: 特価エントリありで isSpecial true", async () => {
+        const r = await priceService.getPriceForAdmin("TEST001", "P001");
+        expect(r.success).toBe(true);
+        expect(r.isSpecial).toBe(true);
+    });
+
+    test("getPriceForAdmin: 特価なし商品はベース価格", async () => {
+        const r = await priceService.getPriceForAdmin("TEST001", "P002");
+        expect(r.success).toBe(true);
+        expect(r.isSpecial).toBe(false);
+        expect(r.currentPrice).toBeGreaterThan(0);
+    });
+
+    test("deleteSpecialPrice: 存在しない組み合わせは失敗", async () => {
+        const r = await priceService.deleteSpecialPrice("NOPE_C", "NOPE_P");
+        expect(r.success).toBe(false);
+    });
+
+    test("updateSpecialPrice: 新規の特価行を追加", async () => {
+        const code = "NEW_SP_" + Date.now();
+        const r = await priceService.updateSpecialPrice("TEST001", code, 777);
+        expect(r.success).toBe(true);
+        const list = JSON.parse(await fs.readFile(PRICES_PATH, "utf-8"));
+        expect(list.some((p) => p.productCode === code)).toBe(true);
+    });
+
+    test("updateSpecialPrice: 既存行を上書き", async () => {
+        const r = await priceService.updateSpecialPrice("TEST001", "P001", 888);
+        expect(r.success).toBe(true);
+        const list = JSON.parse(await fs.readFile(PRICES_PATH, "utf-8"));
+        const e = list.find((p) => p.customerId === "TEST001" && p.productCode === "P001");
+        expect(e.specialPrice).toBe(888);
+    });
 });

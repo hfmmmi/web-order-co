@@ -7,8 +7,8 @@ const crypto = require("crypto");
 const { dbPath } = require("../../dbPaths");
 const customerService = require("../../services/customerService");
 const mailService = require("../../services/mailService");
-const { mutateProxyRequests, PROXY_REQUEST_EXPIRY_MS } = require("../../utils/proxyRequestsStore");
-const { regenerateSession, saveSession } = require("../../utils/sessionAsync");
+const { PROXY_REQUEST_EXPIRY_MS } = require("../../utils/proxyRequestsStore");
+const { regenerateSession } = require("../../utils/sessionAsync");
 const { validateBody } = require("../../middlewares/validate");
 const {
     addCustomerSchema,
@@ -99,7 +99,7 @@ router.post("/admin/proxy-request", requireAdmin, async (req, res) => {
         if (!customer) {
             return res.json({ success: false, message: "顧客が見つかりません" });
         }
-        await mutateProxyRequests(async (requests) => {
+        await require("../../utils/proxyRequestsStore").mutateProxyRequests(async (requests) => {
             requests[customerId] = {
                 requestedAt: Date.now(),
                 adminName: req.session.adminName || "Admin",
@@ -124,7 +124,7 @@ router.get("/admin/proxy-request-status", requireAdmin, async (req, res) => {
     }
     try {
         let status = "none";
-        await mutateProxyRequests(async (requests) => {
+        await require("../../utils/proxyRequestsStore").mutateProxyRequests(async (requests) => {
             const r = requests[customerId];
             if (!r) return;
             if (Date.now() - r.requestedAt > PROXY_REQUEST_EXPIRY_MS) {
@@ -150,7 +150,7 @@ router.post("/admin/proxy-login", requireAdmin, async (req, res) => {
     }
     try {
         const customer = await customerService.getCustomerById(customerId);
-        const gate = await mutateProxyRequests(async (requests) => {
+        const gate = await require("../../utils/proxyRequestsStore").mutateProxyRequests(async (requests) => {
             const r = requests[customerId];
             if (!r || r.approved !== true) {
                 return "not_approved";
@@ -208,7 +208,7 @@ router.post("/admin/proxy-login", requireAdmin, async (req, res) => {
         req.session.priceRank = customer.priceRank || "";
         req.session.lastActivity = Date.now();
         try {
-            await saveSession(req);
+            await require("../../utils/sessionAsync").saveSession(req);
             console.log(`代理ログイン: ${req.session.adminName} → 顧客 ${customer.customerId}`);
             res.json({ success: true, redirectUrl: "/products.html" });
         } catch (err) {

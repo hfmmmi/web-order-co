@@ -229,6 +229,33 @@ describe("csvService 分岐カバレッジ", () => {
             expect(out.length).toBe(1);
             expect(String(out[0].orderDate).length).toBeGreaterThan(5);
         });
+
+        test("UTF-8 BOM 付きバッファは utf-8 デコード経路（先頭2バイト判定）", () => {
+            const csv =
+                "\uFEFForderId,customerId,customerName,productCode,productName,price,quantity,orderDate\n" +
+                "OBOM,CBOM,,PBOM,NBOM,5,1,\n";
+            const out = csvService.parseExternalOrdersCsv(Buffer.from(csv, "utf-8"));
+            expect(out.length).toBe(1);
+            expect(out[0].customerName).toBe("CBOM");
+            expect(out[0].items[0].code).toBe("PBOM");
+        });
+
+        test("orderId 空行はグループ化から除外", () => {
+            const csv =
+                "orderId,customerId,customerName,productCode,productName,price,quantity,orderDate\n" +
+                ",C,E,P,N,1,1,\n" +
+                "OK1,C,E,P2,N2,2,1,\n";
+            const out = csvService.parseExternalOrdersCsv(Buffer.from(csv, "utf-8"));
+            expect(out.length).toBe(1);
+            expect(out[0].orderId).toBe("OK1");
+        });
+
+        test("明細無し（数量0のみ）は結果から除外", () => {
+            const csv =
+                "orderId,customerId,customerName,productCode,productName,price,quantity,orderDate\n" +
+                "EMPTY,C,E,P,N,10,0,\n";
+            expect(csvService.parseExternalOrdersCsv(Buffer.from(csv, "utf-8"))).toEqual([]);
+        });
     });
 
     describe("parseShippingCsv", () => {

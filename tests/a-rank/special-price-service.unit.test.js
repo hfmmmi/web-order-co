@@ -87,6 +87,23 @@ describe("specialPriceService 分岐", () => {
         expect(deletedCount).toBe(1);
     });
 
+    test("deleteEstimatesByManufacturer は productName 欠損は空文字として扱い削除されない", async () => {
+        await fs.writeFile(
+            EST,
+            JSON.stringify(
+                [
+                    { estimateId: "NP1", customerId: "C", productCode: "P0" },
+                    { estimateId: "NP2", customerId: "C", productCode: "P9", productName: "SONY レンズ" }
+                ],
+                null,
+                2
+            ),
+            "utf-8"
+        );
+        const { deletedCount } = await specialPriceService.deleteEstimatesByManufacturer("sony");
+        expect(deletedCount).toBe(1);
+    });
+
     test("deleteEstimatesByProductCodes はコード一致で削除", async () => {
         await fs.writeFile(
             EST,

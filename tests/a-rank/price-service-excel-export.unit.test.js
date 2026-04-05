@@ -256,4 +256,86 @@ describe("priceService getPricelistExcelForRank 分岐", () => {
         const { buffer } = await priceService.getPricelistExcelForRank("A");
         expect(buffer.length).toBeGreaterThan(1200);
     });
+
+    test("純正メーカー名が31文字超のとき sanitize で切り詰めて Excel 生成", async () => {
+        jest.spyOn(settingsService, "getPriceListFormatConfig").mockResolvedValue({
+            csvHeaderLine: "h\n",
+            categoryOrder: { 純正: 1 },
+            productNameStripFromDisplay: "",
+            manufacturerSplitCategory: "純正",
+            sheetNamesByCategory: { 純正: "純正" },
+            sheetManufacturerSortCategory: "純正",
+            excelHeaderRow: ["商品コード", "メーカー名", "商品名", "定価", "仕様", "価格", "掛率", "備考"]
+        });
+        jest.spyOn(settingsService, "getSettings").mockResolvedValue({ shippingRules: {} });
+
+        const longM = "M".repeat(40);
+        await fs.writeFile(rankPath, JSON.stringify({ LG31: { A: 10 } }, null, 2), "utf-8");
+        await fs.writeFile(
+            productsPath,
+            JSON.stringify(
+                [{ productCode: "LG31", name: "n", manufacturer: longM, category: "純正", basePrice: 1 }],
+                null,
+                2
+            ),
+            "utf-8"
+        );
+
+        const { buffer } = await priceService.getPricelistExcelForRank("A");
+        expect(buffer.length).toBeGreaterThan(400);
+    });
+
+    test("excelHeaderRow が9列以上のとき列パディング・書式分岐を通す", async () => {
+        jest.spyOn(settingsService, "getPriceListFormatConfig").mockResolvedValue({
+            csvHeaderLine: "h\n",
+            categoryOrder: { 純正: 1 },
+            productNameStripFromDisplay: "",
+            manufacturerSplitCategory: "純正",
+            sheetNamesByCategory: { 純正: "純正" },
+            sheetManufacturerSortCategory: "純正",
+            excelHeaderRow: ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"]
+        });
+        jest.spyOn(settingsService, "getSettings").mockResolvedValue({ shippingRules: {} });
+
+        await fs.writeFile(rankPath, JSON.stringify({ WIDE1: { A: 99 } }, null, 2), "utf-8");
+        await fs.writeFile(
+            productsPath,
+            JSON.stringify(
+                [{ productCode: "WIDE1", name: "n", manufacturer: "MK", category: "純正", basePrice: 100 }],
+                null,
+                2
+            ),
+            "utf-8"
+        );
+
+        const { buffer } = await priceService.getPricelistExcelForRank("A");
+        expect(buffer.length).toBeGreaterThan(400);
+    });
+
+    test("getPricelistCsvForRank は csvHeaderLine が改行なしでもヘッダに改行を付与", async () => {
+        jest.spyOn(settingsService, "getPriceListFormatConfig").mockResolvedValue({
+            csvHeaderLine: "単独行ヘッダ",
+            categoryOrder: { 猫: 1 },
+            productNameStripFromDisplay: "",
+            manufacturerSplitCategory: "純正",
+            sheetNamesByCategory: {},
+            sheetManufacturerSortCategory: "猫",
+            excelHeaderRow: []
+        });
+        jest.spyOn(settingsService, "getSettings").mockResolvedValue({ shippingRules: {} });
+
+        await fs.writeFile(rankPath, JSON.stringify({ CRLF1: { A: 10 } }, null, 2), "utf-8");
+        await fs.writeFile(
+            productsPath,
+            JSON.stringify(
+                [{ productCode: "CRLF1", name: "n", manufacturer: "m", category: "猫", basePrice: 0 }],
+                null,
+                2
+            ),
+            "utf-8"
+        );
+
+        const { csv } = await priceService.getPricelistCsvForRank("A");
+        expect(csv.startsWith("\uFEFF単独行ヘッダ\n")).toBe(true);
+    });
 });

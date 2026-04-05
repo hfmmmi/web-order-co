@@ -333,4 +333,56 @@ describe("branch-coverage-90-dense-a: importFlamData", () => {
         const r = await importFlamData(Buffer.from([1]));
         expect(r[0].orderId).toBe(`O${i}`);
     });
+
+    test("orderDate が Excel シリアルなら cellToDateString の真枝", async () => {
+        const row = logisticsRow("OID-S", 25569, "C", "N", "P", "PN", 10, 1);
+        readToRowArrays.mockResolvedValue([["h"], row]);
+        const r = await importFlamData(Buffer.from([1]));
+        expect(r[0].orderDate).toBe("1970-01-01");
+    });
+
+    test("orderDate が Date でも解釈", async () => {
+        const row = logisticsRow("OID-D", new Date(Date.UTC(2025, 5, 10)), "C", "N", "P", "PN", 5, 1);
+        readToRowArrays.mockResolvedValue([["h"], row]);
+        const r = await importFlamData(Buffer.from([1]));
+        expect(r[0].orderDate).toBe("2025-06-10");
+    });
+
+    test("cols が null または空の行はスキップ", async () => {
+        readToRowArrays.mockResolvedValue([
+            ["h"],
+            null,
+            [],
+            logisticsRow("OK1", "2025-01-01", "C", "N", "P", "PN", 1, 1)
+        ]);
+        const r = await importFlamData(Buffer.from([1]));
+        expect(r).toHaveLength(1);
+        expect(r[0].orderId).toBe("OK1");
+    });
+
+    test("商品コード空は UNKNOWN フォールバックコードになる", async () => {
+        const row = logisticsRow("OID-U", "2025-01-01", "C", "N", "", "PNのみ", 1, 1);
+        readToRowArrays.mockResolvedValue([["h"], row]);
+        const r = await importFlamData(Buffer.from([1]));
+        expect(r[0].items[0].code).toMatch(/^UNKNOWN-/);
+    });
+
+    test("indicesOverride が null でも既定列で取り込む", async () => {
+        readToRowArrays.mockResolvedValue([["h"], logisticsRow("INULL", "2025-01-01", "C", "N", "P", "PN", 1, 1)]);
+        const r = await importFlamData(Buffer.from([1]), null);
+        expect(r[0].orderId).toBe("INULL");
+    });
+
+    test("得意先コード空は customerId が GUEST", async () => {
+        readToRowArrays.mockResolvedValue([["h"], logisticsRow("OGST", "2025-01-01", "", "N", "P", "PN", 1, 1)]);
+        const r = await importFlamData(Buffer.from([1]));
+        expect(r[0].customerId).toBe("GUEST");
+    });
+
+    test("orderDate 列が空なら cellToDateString 分岐をスキップ", async () => {
+        const row = logisticsRow("OND0", "", "C", "N", "P", "PN", 1, 1);
+        readToRowArrays.mockResolvedValue([["h"], row]);
+        const r = await importFlamData(Buffer.from([1]));
+        expect(r[0].orderDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    });
 });

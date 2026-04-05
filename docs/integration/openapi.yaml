@@ -1,0 +1,202 @@
+openapi: 3.0.3
+info:
+  title: WEB受注（web-order）販管連携 API
+  version: "1.0.0"
+  description: |
+    サービス間連携用。`ERP_SYNC_API_KEY` がサーバーに設定されているときのみ有効。
+    認証: `Authorization: Bearer <ERP_SYNC_API_KEY>` または `X-Integration-Key: <ERP_SYNC_API_KEY>`
+
+servers:
+  - url: /api/integration
+    description: 同一オリジン（例: https://your-host）
+
+paths:
+  /v1/orders:
+    get:
+      summary: 注文スナップショット取得
+      security:
+        - bearerAuth: []
+        - integrationHeader: []
+      parameters:
+        - name: since
+          in: query
+          description: ISO8601 — この日時以降の orderDate のみ（省略時は全件から上限まで）
+          schema:
+            type: string
+            example: "2026-01-01T00:00:00.000Z"
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 2000
+            default: 500
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, orders, count]
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  count:
+                    type: integer
+                  orders:
+                    type: array
+                    items:
+                      type: object
+                      description: orders.json のサブセット（パスワード等なし）
+        "401":
+          description: 認証失敗
+        "503":
+          description: ERP_SYNC_API_KEY 未設定で連携無効
+
+  /v1/customers/patch:
+    post:
+      summary: 顧客の部分更新（販管 → WEB）
+      security:
+        - bearerAuth: []
+        - integrationHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [customerId]
+              properties:
+                customerId:
+                  type: string
+                  pattern: '^[A-Za-z0-9._-]+$'
+                  maxLength: 50
+                customerName:
+                  type: string
+                  maxLength: 100
+                email:
+                  type: string
+                  maxLength: 254
+                priceRank:
+                  type: string
+                  maxLength: 20
+                idempotencyKey:
+                  type: string
+                  maxLength: 200
+                  description: 同一顧客・同一キーの再送はノーオペレーション
+                syncVersion:
+                  type: integer
+                  minimum: 0
+              description: |
+                customerName / email / priceRank のいずれか必須（Zod superRefine）。
+                パスワードはこの API では変更不可。
+      responses:
+        "200":
+          description: 更新または冪等ヒット
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  idempotent:
+                    type: boolean
+                  message:
+                    type: string
+        "400":
+          description: 顧客不在またはバリデーションエラー
+        "401":
+          description: 認証失敗
+        "503":
+          description: 連携無効
+
+  /v1/customers:
+    get:
+      summary: 顧客マスタスナップショット取得（販管コピー用・パスワードなし）
+      security:
+        - bearerAuth: []
+        - integrationHeader: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 5000
+            default: 2000
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, customers, count]
+                properties:
+                  success:
+                    type: boolean
+                  count:
+                    type: integer
+                  customers:
+                    type: array
+                    items:
+                      type: object
+        "401":
+          description: 認証失敗
+        "503":
+          description: 連携無効
+
+  /v1/products:
+    get:
+      summary: 商品マスタスナップショット取得（販管コピー用・ランク別単価の詳細は含まない）
+      security:
+        - bearerAuth: []
+        - integrationHeader: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 5000
+            default: 2000
+        - name: activeOnly
+          in: query
+          description: "1 / true で掲載中（active）のみ"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, products, count]
+                properties:
+                  success:
+                    type: boolean
+                  count:
+                    type: integer
+                  products:
+                    type: array
+                    items:
+                      type: object
+        "401":
+          description: 認証失敗
+        "503":
+          description: 連携無効
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API Key
+    integrationHeader:
+      type: apiKey
+      in: header
+      name: X-Integration-Key
