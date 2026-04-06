@@ -26,10 +26,12 @@ paths:
             example: "2026-01-01T00:00:00.000Z"
         - name: limit
           in: query
+          description: 1ページあたりの最大件数。上限は実質無制限（Number.MAX_SAFE_INTEGER）。未指定時は 500。
           schema:
             type: integer
+            format: int64
             minimum: 1
-            maximum: 2000
+            maximum: 9007199254740991
             default: 500
       responses:
         "200":
@@ -122,11 +124,12 @@ paths:
       parameters:
         - name: limit
           in: query
+          description: 省略時は顧客を全件返す。指定時はその件数まで（上限は実質無制限）。
           schema:
             type: integer
+            format: int64
             minimum: 1
-            maximum: 5000
-            default: 2000
+            maximum: 9007199254740991
       responses:
         "200":
           description: OK
@@ -158,11 +161,12 @@ paths:
       parameters:
         - name: limit
           in: query
+          description: 省略時は該当する商品を全件返す。指定時はその件数まで（上限は実質無制限）。
           schema:
             type: integer
+            format: int64
             minimum: 1
-            maximum: 5000
-            default: 2000
+            maximum: 9007199254740991
         - name: activeOnly
           in: query
           description: "1 / true で掲載中（active）のみ"

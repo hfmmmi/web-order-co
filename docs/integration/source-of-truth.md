@@ -34,6 +34,8 @@ WEB 受注（web-order）と販売管理（sales-mgmt）の双方向連携で、
 |------|------|
 | `ERP_SYNC_API_KEY` | 販管などバックエンド連携用の共有秘密。未設定時は連携ルートは 503 で無効 |
 
+ローカルでマスタが空のとき、販管からの `GET /v1/products` / `v1/customers` の検証用に **web-order** で `npm run seed:erp-dev` を実行できます（空ファイルのときだけサンプルを投入。本番 `NODE_ENV=production` では中止）。
+
 ## 連携エンドポイント（WEB 受注）
 
 ベースパス: `/api/integration`

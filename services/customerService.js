@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs");
 const { readToRowArrays } = require("../utils/excelReader");
 const { dbPath } = require("../dbPaths");
 const { runWithJsonFileWriteLock } = require("../utils/jsonWriteQueue");
+const { INTEGRATION_SNAPSHOT_MAX_LIMIT } = require("../utils/integrationSnapshotLimit");
 
 // DBパス設定
 const CUSTOMERS_DB_PATH = dbPath("customers.json");
@@ -254,7 +255,10 @@ class CustomerService {
     async getCustomersSnapshotForIntegration(opts = {}) {
         const raw = await this._loadAll();
         const list = Array.isArray(raw) ? raw : [];
-        const lim = Math.min(Math.max(1, parseInt(String(opts.limit), 10) || 2000), 5000);
+        const rawLim = parseInt(String(opts.limit), 10);
+        const lim = Number.isFinite(rawLim) && rawLim >= 1
+            ? Math.min(rawLim, INTEGRATION_SNAPSHOT_MAX_LIMIT)
+            : list.length;
         const slice = list.slice(0, lim);
         const customers = slice.map((c) => ({
             customerId: c.customerId,

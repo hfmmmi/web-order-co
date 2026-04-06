@@ -9,6 +9,7 @@ const { calculateFinalPrice } = require("../utils/priceCalc"); // 価格計算
 const stockService = require("./stockService");
 const settingsService = require("./settingsService");
 const { runWithJsonFileWriteLock } = require("../utils/jsonWriteQueue");
+const { INTEGRATION_SNAPSHOT_MAX_LIMIT } = require("../utils/integrationSnapshotLimit");
 
 /** 物流CSVの1行から、候補列名のうち最初に値があるものを返す */
 function firstCsvRowValue(row, keys) {
@@ -492,7 +493,10 @@ class OrderService {
     async getOrdersSnapshotForIntegration(opts = {}) {
         const { since, limit } = opts;
         const orders = await this._loadJson(ORDERS_DB);
-        const lim = Math.min(Math.max(1, parseInt(String(limit), 10) || 500), 2000);
+        const lim = Math.min(
+            Math.max(1, parseInt(String(limit), 10) || 500),
+            INTEGRATION_SNAPSHOT_MAX_LIMIT
+        );
         let sinceMs = 0;
         if (since) {
             const d = new Date(String(since));

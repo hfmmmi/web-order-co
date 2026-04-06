@@ -8,6 +8,7 @@ const { dbPath } = require("../dbPaths");
 const { runWithJsonFileWriteLock } = require("../utils/jsonWriteQueue");
 const settingsService = require("./settingsService");
 const priceService = require("./priceService");
+const { INTEGRATION_SNAPSHOT_MAX_LIMIT } = require("../utils/integrationSnapshotLimit");
 
 // DBパス設定
 const PRODUCTS_DB_PATH = dbPath("products.json");
@@ -334,10 +335,13 @@ class ProductService {
         } catch {
             return { products: [], count: 0 };
         }
-        const lim = Math.min(Math.max(1, parseInt(String(opts.limit), 10) || 2000), 5000);
         const list = Array.isArray(productMaster) ? productMaster : [];
         const activeOnly = opts.activeOnly === true || opts.activeOnly === "1" || opts.activeOnly === "true";
         const filtered = activeOnly ? list.filter((p) => p && p.active !== false) : list;
+        const rawLim = parseInt(String(opts.limit), 10);
+        const lim = Number.isFinite(rawLim) && rawLim >= 1
+            ? Math.min(rawLim, INTEGRATION_SNAPSHOT_MAX_LIMIT)
+            : filtered.length;
         const slice = filtered.slice(0, lim);
         const products = slice.map((p) => ({
             productCode: p.productCode,

@@ -59,6 +59,12 @@ function startServer() {
     return app.listen(port, () => {
         console.log(`サーバー起動しました。 http://localhost:${port}`);
         console.log("FLAM連携機能: 準備完了");
+        const erpKey = String(process.env.ERP_SYNC_API_KEY || "").trim();
+        if (erpKey) {
+            console.log("販管連携 API (/api/integration/*): 有効（ERP_SYNC_API_KEY 設定済み）");
+        } else {
+            console.warn("販管連携 API (/api/integration/*): 無効 — ERP_SYNC_API_KEY 未設定のため 503 になります");
+        }
         stockPoller.start().catch(err => console.error("[StockPoller] 起動失敗:", err));
     });
 }

@@ -16,8 +16,11 @@
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "test:all": "node scripts/run-test-all.js",
+    "setup": "node scripts/setup-env.js",
+    "prestart": "node scripts/warn-integration-erp-key.js",
     "start": "node server.js",
-    "dev": "nodemon --legacy-watch server.js",
+    "dev": "node scripts/warn-integration-erp-key.js && nodemon --legacy-watch server.js",
+    "seed:erp-dev": "node scripts/seed-empty-master-for-erp-dev.js",
     "test:flake": "node scripts/run-flake-check.js",
     "test:load": "node scripts/load-test.js"
   },
