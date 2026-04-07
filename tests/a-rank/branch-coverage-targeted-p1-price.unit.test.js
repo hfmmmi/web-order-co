@@ -32,18 +32,24 @@ const settingsService = require("../../services/settingsService");
 const priceService = require("../../services/priceService");
 const fs = require("fs").promises;
 const { dbPath } = require("../../dbPaths");
+const { seedBaseData } = require("../helpers/testSandbox");
 
 const RANK_PATH = dbPath("rank_prices.json");
 const RANK_AT_PATH = dbPath("rank_prices_updated_at.json");
 const PRODUCTS_PATH = dbPath("products.json");
 const PRICES_PATH = dbPath("prices.json");
-const CUSTOMERS_PATH = dbPath("customers.json");
 
 describe("branch-coverage-targeted-p1: priceService", () => {
     let origRank;
     let origAt;
     let origProducts;
     let origPrices;
+
+    beforeAll(async () => {
+        // CI ではサンドボックスが空のままこのファイルだけ先に走ることがあり、
+        // getPriceForAdmin 等が seed の TEST001/P001/P002 に依存するテストが落ちる
+        await seedBaseData();
+    });
 
     beforeEach(async () => {
         jest.clearAllMocks();
