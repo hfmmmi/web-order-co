@@ -5,15 +5,13 @@ document.addEventListener("DOMContentLoaded", function () {
     const custTableBody = document.querySelector("#cust-table-body");
     const searchInput = document.querySelector("#cust-search-keyword");
     const searchBtn = document.querySelector("#cust-search-btn");
-    const prevBtn = document.querySelector("#cust-prev-btn");
-    const nextBtn = document.querySelector("#cust-next-btn");
-    const pageInfo = document.querySelector("#cust-page-info");
+    const custPaginationMount = document.querySelector("#cust-pagination-mount");
     const addCustBtn = document.querySelector("#btn-add-customer"); 
 
     const priceCsvInput = document.querySelector("#price-csv-input");
     const priceCsvBtn = document.querySelector("#price-csv-btn");
-    const customerCsvInput = document.querySelector("#customer-csv-input");
-    const customerCsvBtn = document.querySelector("#customer-csv-btn");
+    const customerCsvFileInput = document.querySelector("#customer-csv-file-input");
+    const customerCsvExcelBtn = document.querySelector("#btn-customer-csv-excel");
 
     // Modal Elements (New)
     const custModal = document.getElementById("customer-modal");
@@ -123,6 +121,79 @@ document.addEventListener("DOMContentLoaded", function () {
     let currentPage = 1;
     let totalPages = 1;
 
+    function buildCustomerPageNumberItems(total, current) {
+        if (total <= 1) return [];
+        const nums = new Set([1, total, current]);
+        for (let d = -2; d <= 2; d++) nums.add(current + d);
+        const sorted = [...nums].filter((n) => n >= 1 && n <= total).sort((a, b) => a - b);
+        const out = [];
+        for (let i = 0; i < sorted.length; i++) {
+            if (i > 0 && sorted[i] - sorted[i - 1] > 1) out.push(null);
+            out.push(sorted[i]);
+        }
+        return out;
+    }
+
+    function renderCustomerPagination() {
+        if (!custPaginationMount) return;
+        custPaginationMount.innerHTML = "";
+        const nav = document.createElement("nav");
+        nav.className = "orders-pagination";
+        nav.setAttribute("aria-label", "ページ送り");
+
+        const prevBtn = document.createElement("button");
+        prevBtn.type = "button";
+        prevBtn.className = "orders-pagination-btn orders-pagination-prev";
+        prevBtn.textContent = "前へ";
+        prevBtn.disabled = currentPage <= 1;
+        prevBtn.addEventListener("click", function () {
+            if (currentPage <= 1) return;
+            loadCustomers(currentPage - 1);
+        });
+
+        const pagesWrap = document.createElement("div");
+        pagesWrap.className = "orders-pagination-pages";
+
+        buildCustomerPageNumberItems(totalPages, currentPage).forEach(function (entry) {
+            if (entry === null) {
+                const ell = document.createElement("span");
+                ell.className = "orders-pagination-ellipsis";
+                ell.textContent = "…";
+                ell.setAttribute("aria-hidden", "true");
+                pagesWrap.appendChild(ell);
+                return;
+            }
+            const p = entry;
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "orders-pagination-btn orders-pagination-page";
+            btn.textContent = String(p);
+            if (p === currentPage) {
+                btn.classList.add("is-current");
+                btn.setAttribute("aria-current", "page");
+            }
+            btn.addEventListener("click", function () {
+                loadCustomers(p);
+            });
+            pagesWrap.appendChild(btn);
+        });
+
+        const nextBtn = document.createElement("button");
+        nextBtn.type = "button";
+        nextBtn.className = "orders-pagination-btn orders-pagination-next";
+        nextBtn.textContent = "次へ";
+        nextBtn.disabled = currentPage >= totalPages;
+        nextBtn.addEventListener("click", function () {
+            if (currentPage >= totalPages) return;
+            loadCustomers(currentPage + 1);
+        });
+
+        nav.appendChild(prevBtn);
+        nav.appendChild(pagesWrap);
+        nav.appendChild(nextBtn);
+        custPaginationMount.appendChild(nav);
+    }
+
     document.addEventListener("admin-ready", function () {
         console.log("🚀 Customer Manager: Auth Signal Received.");
         loadCustomers();
@@ -152,12 +223,9 @@ document.addEventListener("DOMContentLoaded", function () {
             const data = await res.json();
 
             custTableBody.innerHTML = "";
-            currentPage = data.currentPage;
-            totalPages = data.totalPages;
-            pageInfo.textContent = `Page ${currentPage} / ${totalPages}`;
-
-            prevBtn.disabled = (currentPage <= 1);
-            nextBtn.disabled = (currentPage >= totalPages);
+            currentPage = Number(data.currentPage) || 1;
+            totalPages = Math.max(1, Number(data.totalPages) || 1);
+            renderCustomerPagination();
 
             if (data.customers.length === 0) {
                 custTableBody.innerHTML = "<tr><td colspan='5'>該当なし</td></tr>";
@@ -324,8 +392,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (searchBtn) searchBtn.addEventListener("click", () => loadCustomers(1));
-    if (prevBtn) prevBtn.addEventListener("click", () => loadCustomers(currentPage - 1));
-    if (nextBtn) nextBtn.addEventListener("click", () => loadCustomers(currentPage + 1));
     if (searchInput) {
         searchInput.addEventListener("keydown", (e) => {
             if (e.key === "Enter") loadCustomers(1);
@@ -439,8 +505,14 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     }
 
-    if (customerCsvBtn) {
-        customerCsvBtn.addEventListener("click", () => uploadCsv(customerCsvInput, "/api/upload-customer-data"));
+    if (customerCsvExcelBtn && customerCsvFileInput) {
+        customerCsvExcelBtn.addEventListener("click", function () {
+            customerCsvFileInput.click();
+        });
+        customerCsvFileInput.addEventListener("change", function () {
+            if (!this.files || !this.files[0]) return;
+            uploadCsv(this, "/api/upload-customer-data");
+        });
     }
     if (priceCsvBtn) {
         priceCsvBtn.addEventListener("click", () => uploadCsv(priceCsvInput, "/api/upload-price-data"));

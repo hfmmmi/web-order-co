@@ -10,8 +10,153 @@
         .admin-layout-wrapper { display: flex; height: 100vh; }
         .admin-main-content { flex-grow: 1; background: #f4f6f9; --admin-main-bg: #f4f6f9; padding: 20px; display: flex; flex-direction: column; overflow: hidden; height: 100vh; box-sizing: border-box; }
         
-        /* 共通パーツ */
-        .page-header { margin-bottom: 20px; border-bottom: 2px solid #dee2e6; padding-bottom: 10px; }
+        /* 共通パーツ（受注管理・買取査定と同系の見出し） */
+        .page-header {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+        }
+        .page-header-leading {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .page-header h2 {
+            margin: 0;
+            font-size: 1.65rem;
+            font-weight: 700;
+            color: #111827;
+            letter-spacing: 0.02em;
+        }
+        .page-header-toolbar-btn {
+            box-sizing: border-box;
+            width: max-content;
+            flex: 0 0 auto;
+            white-space: nowrap;
+            padding: 8px 10px;
+            cursor: pointer;
+            background: #fff;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: inherit;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            font-family: inherit;
+            margin: 0;
+        }
+        .customer-csv-input-hidden {
+            position: fixed;
+            left: -9999px;
+            top: 0;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+        }
+        .page-header-toolbar-btn--search {
+            background: #16a34a;
+            color: #fff;
+            border-color: #15803d;
+            box-shadow: 0 1px 2px rgba(22, 163, 74, 0.2);
+        }
+        .page-header-toolbar-btn--search:hover {
+            filter: brightness(1.06);
+        }
+        .cust-header-search-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1 1 220px;
+            min-width: min(100%, 220px);
+            max-width: 28rem;
+        }
+        .cust-header-search-field {
+            flex: 1;
+            min-width: 0;
+            padding: 8px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.9375rem;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        .cust-header-search-field:focus {
+            outline: 2px solid #93c5fd;
+            outline-offset: 1px;
+            border-color: #3b82f6;
+        }
+
+        /* 受注管理と同型のページネーション */
+        .orders-pagination {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 14px;
+            padding: 10px 12px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            max-width: 100%;
+        }
+        .orders-pagination-pages {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            flex: 0 0 auto;
+        }
+        .orders-pagination-btn {
+            box-sizing: border-box;
+            flex: 0 0 auto;
+            width: max-content;
+            min-width: 0;
+            min-inline-size: 0;
+            padding: 6px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: #fff;
+            color: #374151;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-variant-numeric: tabular-nums;
+            appearance: none;
+            -webkit-appearance: none;
+            font-family: inherit;
+            margin: 0;
+        }
+        .orders-pagination-btn:hover:not(:disabled) {
+            background: #f3f4f6;
+            border-color: #9ca3af;
+        }
+        .orders-pagination-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+        .orders-pagination-btn.is-current {
+            background: #3b82f6;
+            border-color: #2563eb;
+            color: #fff;
+        }
+        .orders-pagination-ellipsis {
+            padding: 0 4px;
+            color: #9ca3af;
+            font-weight: 600;
+            user-select: none;
+        }
+
         .admin-section { background: white; padding: 20px; border-radius: 5px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); margin-bottom: 20px; }
 
         /* モーダル用CSS (簡易版・style.cssに移設推奨) */
@@ -44,26 +189,22 @@
         <aside class="admin-sidebar"></aside>
 
         <main class="admin-main-content">
+            <input type="file" id="customer-csv-file-input" class="customer-csv-input-hidden" accept=".csv,.xlsx,.xls" tabindex="-1" aria-label="顧客マスタ CSV または Excel ファイル">
+
             <div class="page-header">
-                <h2><span class="admin-page-icon" data-admin-icon="customers" aria-hidden="true"></span>顧客管理 (Customer Relations)</h2>
+                <div class="page-header-leading">
+                    <h2><span class="admin-page-icon" data-admin-icon="customers" aria-hidden="true"></span>顧客管理</h2>
+                    <button type="button" id="btn-customer-csv-excel" class="page-header-toolbar-btn">CSV/Excel</button>
+                    <button type="button" id="btn-add-customer" class="page-header-toolbar-btn">＋ 新規顧客追加</button>
+                    <div class="cust-header-search-group">
+                        <input type="text" id="cust-search-keyword" class="cust-header-search-field" placeholder="顧客ID・社名で検索…" autocomplete="off" aria-label="顧客ID・社名で検索">
+                        <button type="button" id="cust-search-btn" class="page-header-toolbar-btn page-header-toolbar-btn--search">検索</button>
+                    </div>
+                </div>
             </div>
 
             <div class="admin-main-scroll">
             <div class="admin-section" style="border-left: 5px solid #28a745;">
-                <div style="display:flex; gap:10px; margin-bottom:15px; background:#f1f3f5; padding:10px; border-radius:4px; align-items:center;">
-                    <input type="text" id="cust-search-keyword" placeholder="顧客ID・社名で検索..." style="padding:8px; width:250px;">
-                    <button id="cust-search-btn" style="background:#28a745; color:white; border:none; padding:8px 15px; cursor:pointer;">検索</button>
-                    <button id="btn-add-customer" style="background:#007bff; color:white; border:none; padding:8px 15px; cursor:pointer; margin-left:auto;">＋ 新規顧客追加</button>
-                </div>
-                
-                <div class="embedded-csv-area" style="margin-bottom:15px; background-color:#e8f5e9; border-color:#c3e6cb; padding: 10px; border: 1px solid #c3e6cb; border-radius: 4px;">
-                    <h3>📥 顧客一括登録 (CSV)</h3>
-                    <div style="display:flex; gap:10px;">
-                        <input type="file" id="customer-csv-input" accept=".csv">
-                        <button id="customer-csv-btn" style="background:#28a745; color:white; border:none; padding:5px 15px;">一括登録</button>
-                    </div>
-                </div>
-
                 <div id="cust-list-area" style="min-height:100px; max-height:500px; overflow-y:auto; border:1px solid #ddd; margin-bottom:10px;">
                     <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
                         <thead style="background:#e9ecef; position:sticky; top:0;">
@@ -79,11 +220,7 @@
                     </table>
                 </div>
 
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <button id="cust-prev-btn" disabled style="padding:5px 15px;">« 前へ</button>
-                    <span id="cust-page-info" style="font-weight:bold;">Page 1 / 1</span>
-                    <button id="cust-next-btn" disabled style="padding:5px 15px;">次へ »</button>
-                </div>
+                <div id="cust-pagination-mount" aria-live="polite"></div>
             </div>
             </div>
         </main>
@@ -184,6 +321,6 @@
 
     <script src="../js/admin-icons.js"></script>
     <script src="../js/admin-common.js"></script>
-    <script src="../js/admin-customers.js?v=7.3"></script>
+    <script src="../js/admin-customers.js?v=7.6"></script>
 </body>
 </html>

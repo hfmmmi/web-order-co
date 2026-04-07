@@ -37,6 +37,12 @@ function parseCsvToRowArrays(buffer) {
     return rows.map(row => Array.isArray(row) ? row.map(c => (c == null ? "" : c)) : []);
 }
 
+/** 商品マスタの税抜価格・仕入単価など、非負整数円に正規化 */
+function normalizeNonNegativeIntPrice(val, fallback = 0) {
+    if (typeof val === "number" && Number.isFinite(val)) return Math.max(0, Math.round(val));
+    return fallback;
+}
+
 /** セル値から整数円を取得。小数・浮動小数点誤差を丸め、上限 999,999,999 円。無効は null */
 function parsePriceCell(val) {
     if (val === "" || val === undefined || val === null) return null;
@@ -86,7 +92,8 @@ class ProductService {
                 name: (newProduct.name != null && newProduct.name !== "") ? String(newProduct.name).trim() : code,
                 manufacturer: (newProduct.manufacturer != null) ? String(newProduct.manufacturer).trim() : "",
                 category: (newProduct.category != null) ? String(newProduct.category).trim() : "",
-                basePrice: typeof newProduct.basePrice === "number" && Number.isFinite(newProduct.basePrice) ? Math.max(0, Math.round(newProduct.basePrice)) : 0,
+                basePrice: normalizeNonNegativeIntPrice(newProduct.basePrice, 0),
+                purchaseUnitPrice: normalizeNonNegativeIntPrice(newProduct.purchaseUnitPrice, 0),
                 stockStatus: (newProduct.stockStatus != null && String(newProduct.stockStatus).trim() !== "") ? String(newProduct.stockStatus).trim() : "即納",
                 active: newProduct.active !== false,
                 rankPrices: (newProduct.rankPrices && typeof newProduct.rankPrices === "object") ? newProduct.rankPrices : {}
@@ -100,17 +107,54 @@ class ProductService {
         });
     }
 
-    // 3. 商品更新
+    // 3. 商品更新（部分更新可。未指定フィールドは既存値を維持し rankPrices を消さない）
     async updateProduct(updateData) {
         return runWithJsonFileWriteLock(PRODUCTS_DB_PATH, async () => {
             const productMaster = await this.getAllProducts();
-            const index = productMaster.findIndex(p => p.productCode === updateData.productCode);
+            const code = (updateData && updateData.productCode != null) ? String(updateData.productCode).trim() : "";
+            const index = productMaster.findIndex(p => p.productCode === code);
 
             if (index === -1) {
                 return { success: false, message: "商品が見つかりません" };
             }
 
-            productMaster[index] = updateData;
+            const cur = productMaster[index];
+            const next = { ...cur };
+
+            if (Object.prototype.hasOwnProperty.call(updateData, "name")) {
+                const n = updateData.name != null ? String(updateData.name).trim() : "";
+                next.name = n || cur.productCode;
+            }
+            if (Object.prototype.hasOwnProperty.call(updateData, "manufacturer")) {
+                next.manufacturer = updateData.manufacturer != null ? String(updateData.manufacturer).trim() : "";
+            }
+            if (Object.prototype.hasOwnProperty.call(updateData, "category")) {
+                next.category = updateData.category != null ? String(updateData.category).trim() : "";
+            }
+            if (Object.prototype.hasOwnProperty.call(updateData, "basePrice")) {
+                next.basePrice = normalizeNonNegativeIntPrice(updateData.basePrice, 0);
+            }
+            if (Object.prototype.hasOwnProperty.call(updateData, "purchaseUnitPrice")) {
+                next.purchaseUnitPrice = normalizeNonNegativeIntPrice(updateData.purchaseUnitPrice, 0);
+            }
+            if (Object.prototype.hasOwnProperty.call(updateData, "stockStatus")) {
+                const s = updateData.stockStatus != null ? String(updateData.stockStatus).trim() : "";
+                next.stockStatus = s || cur.stockStatus || "即納";
+            }
+            if (Object.prototype.hasOwnProperty.call(updateData, "active")) {
+                next.active = updateData.active !== false;
+            }
+            if (Object.prototype.hasOwnProperty.call(updateData, "rankPrices")) {
+                next.rankPrices = updateData.rankPrices && typeof updateData.rankPrices === "object" ? updateData.rankPrices : {};
+                if (Object.keys(next.rankPrices).length > 0) {
+                    next.rankPricesUpdatedAt = Date.now();
+                } else {
+                    delete next.rankPricesUpdatedAt;
+                }
+            }
+
+            next.productCode = cur.productCode;
+            productMaster[index] = next;
             await fs.writeFile(PRODUCTS_DB_PATH, JSON.stringify(productMaster, null, 2));
             return { success: true };
         });
@@ -349,6 +393,7 @@ class ProductService {
             manufacturer: p.manufacturer || "",
             category: p.category || "",
             basePrice: typeof p.basePrice === "number" && Number.isFinite(p.basePrice) ? Math.max(0, Math.round(p.basePrice)) : 0,
+            purchaseUnitPrice: normalizeNonNegativeIntPrice(p.purchaseUnitPrice, 0),
             active: p.active !== false,
             stockStatus: p.stockStatus || ""
         }));

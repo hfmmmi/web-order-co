@@ -45,6 +45,16 @@ router.post("/update-customer", requireAdmin, validateBody(updateCustomerSchema)
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 });
 
+router.post("/upload-customer-data", requireAdmin, async (req, res) => {
+    try {
+        const result = await customerService.importCustomerUpload(req.body.fileData);
+        res.json(result);
+    } catch (e) {
+        console.error("Customer upload error:", e);
+        res.json({ success: false, message: e.message || "取込に失敗しました" });
+    }
+});
+
 router.post("/admin/send-invite-email", requireAdmin, async (req, res) => {
     const { customerId, isPasswordReset } = req.body;
     if (!customerId) {

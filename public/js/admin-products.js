@@ -15,6 +15,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let allProducts = [];
 
+    function escHtml(s) {
+        return String(s ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+    }
+
     if (window.AdminProductsEstimates && typeof window.AdminProductsEstimates.init === "function") {
         window.AdminProductsEstimates.init();
     }
@@ -122,33 +130,39 @@ document.addEventListener("DOMContentLoaded", function () {
         itemsToShow.forEach((product) => {
             const div = document.createElement("div");
             div.className = "product-item-admin";
-            div.style.borderBottom = "1px solid #eee";
-            div.style.padding = "10px";
+            div.style.borderBottom = "1px solid #e5e7eb";
+            div.style.padding = "10px 12px";
             div.style.backgroundColor = product.active === false ? "#f8d7da" : "#fff";
             div.style.display = "flex";
             div.style.justifyContent = "space-between";
             div.style.alignItems = "center";
+            div.style.gap = "calc(10px + 1ch)";
+            div.style.fontSize = "0.9rem";
 
-            const makerTag = product.manufacturer ? `<span class="badge badge-info">${product.manufacturer}</span>` : "";
-            const catTag = product.category ? `<span class="badge badge-secondary">${product.category}</span>` : "";
+            const makerTag = product.manufacturer ? `<span class="badge badge-info">${escHtml(product.manufacturer)}</span>` : "";
+            const catTag = product.category ? `<span class="badge badge-secondary">${escHtml(product.category)}</span>` : "";
             const stockTag = product.stockStatus
-                ? `<span style="font-size:0.8rem; color:#28a745;">[${product.stockStatus}]</span>`
+                ? `<span style="font-size:0.8rem; color:#28a745;">[${escHtml(product.stockStatus)}]</span>`
                 : "";
             const statusTag = product.active === false ? "<span style='color:red; font-weight:bold;'>[非表示]</span>" : "";
 
             div.innerHTML = `
-                <div style="flex-grow:1;">
-                    <div style="font-size:0.85rem; color:#666;">
-                        ${product.productCode} ${makerTag} ${catTag}
-                    </div>
-                    <div style="font-weight:bold; margin:2px 0;">
-                        ${statusTag} ${product.name}
-                    </div>
-                    <div style="font-size:0.9rem;">
-                        定価: ¥${(product.basePrice || 0).toLocaleString()} ${stockTag}
+                <div style="flex-grow:1; min-width:0;">
+                    <div style="display:flex; flex-wrap:wrap; align-items:baseline; gap:8px 16px; line-height:1.35;">
+                        <div style="font-size:0.85rem; color:#666; flex:0 1 auto;">
+                            ${escHtml(product.productCode)} ${makerTag} ${catTag} ${stockTag}
+                        </div>
+                        <div style="display:flex; flex-wrap:wrap; align-items:baseline; gap:8px 14px; flex:1; min-width:min(200px, 100%); color:#111827;">
+                            <div style="font-weight:600; flex:1; min-width:min(140px, 100%);">
+                                ${statusTag} ${escHtml(product.name)}
+                            </div>
+                            <div style="white-space:nowrap; font-variant-numeric:tabular-nums; flex-shrink:0;">
+                                定価: ¥${(product.basePrice || 0).toLocaleString()}
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <button type="button" class="btn-edit-row" style="background:#2563eb; color:white; border:none; padding:5px 12px; border-radius:6px; margin-left:10px; font-weight:600; cursor:pointer;">編集</button>
+                <button type="button" class="btn-edit-row" style="background:#2563eb; color:white; border:none; padding:6px 10px; border-radius:6px; flex-shrink:0; font-weight:600; font-size:0.875rem; cursor:pointer;">編集</button>
             `;
 
             const editBtn = div.querySelector(".btn-edit-row");

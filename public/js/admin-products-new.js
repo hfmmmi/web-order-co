@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const manufacturerInput = document.querySelector("#np-product-manufacturer");
     const categoryInput = document.querySelector("#np-product-category");
     const priceInput = document.querySelector("#np-product-price");
+    const purchasePriceInput = document.querySelector("#np-product-purchase-price");
     const stockSelect = document.querySelector("#np-product-stock");
     const activeSelect = document.querySelector("#np-product-active");
     const saveToolBtn = document.querySelector("#np-tool-save");
@@ -66,6 +67,9 @@ document.addEventListener("DOMContentLoaded", function () {
         manufacturerInput.value = product.manufacturer || "";
         categoryInput.value = product.category || "";
         priceInput.value = product.basePrice != null ? product.basePrice : 0;
+        if (purchasePriceInput) {
+            purchasePriceInput.value = product.purchaseUnitPrice != null ? product.purchaseUnitPrice : 0;
+        }
         if (stockSelect) stockSelect.value = product.stockStatus || stockSelect.options[0].value;
         if (activeSelect) {
             const isActive = Object.prototype.hasOwnProperty.call(product, "active") ? product.active : true;
@@ -104,6 +108,7 @@ document.addEventListener("DOMContentLoaded", function () {
             manufacturer: manufacturerInput.value.trim(),
             category: categoryInput.value.trim(),
             basePrice: parseInt(priceInput.value, 10) || 0,
+            purchaseUnitPrice: purchasePriceInput ? parseInt(purchasePriceInput.value, 10) || 0 : 0,
             stockStatus: stockSelect.value,
             active: activeSelect.value === "true"
         };

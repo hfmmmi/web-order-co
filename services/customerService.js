@@ -2,6 +2,8 @@
 // 顧客管理に関する実務ロジック（検索・登録・更新・Excel取込）を担当
 const fs = require("fs").promises;
 const bcrypt = require("bcryptjs");
+const iconv = require("iconv-lite");
+const { parse } = require("csv-parse/sync");
 const { readToRowArrays } = require("../utils/excelReader");
 const { dbPath } = require("../dbPaths");
 const { runWithJsonFileWriteLock } = require("../utils/jsonWriteQueue");
@@ -9,6 +11,29 @@ const { INTEGRATION_SNAPSHOT_MAX_LIMIT } = require("../utils/integrationSnapshot
 
 // DBパス設定
 const CUSTOMERS_DB_PATH = dbPath("customers.json");
+
+/** xlsx は ZIP 形式のため先頭が PK。それ以外は CSV として扱う（商品マスタ取込と同じ判定） */
+function isExcelBuffer(buf) {
+    if (!buf || (buf.length !== undefined && buf.length < 2)) return false;
+    const b = Buffer.isBuffer(buf) ? buf : Buffer.from(buf);
+    return b[0] === 0x50 && b[1] === 0x4b;
+}
+
+function parseCsvToRowArrays(buffer) {
+    const raw = Buffer.isBuffer(buffer) ? buffer : Buffer.from(buffer);
+    if (raw.length === 0) return [];
+    let content = raw[0] === 0xef && raw[1] === 0xbb && raw[2] === 0xbf
+        ? iconv.decode(raw, "utf-8")
+        : iconv.decode(raw, "Shift_JIS");
+    if (content.includes("\ufffd")) content = iconv.decode(raw, "utf-8");
+    const rows = parse(content, {
+        bom: true,
+        trim: true,
+        skip_empty_lines: true,
+        relax_column_count: true
+    });
+    return rows.map(row => (Array.isArray(row) ? row.map(c => (c == null ? "" : c)) : []));
+}
 
 class CustomerService {
 
@@ -109,58 +134,82 @@ class CustomerService {
         });
     }
 
-    // 6. Excel一括取込（exceljs 使用・社外アップロード対応）
+    /** 行配列（1行目ヘッダー想定）から顧客マスタを更新 */
+    async _applyCustomerImportRows(jsonData) {
+        return runWithJsonFileWriteLock(CUSTOMERS_DB_PATH, async () => {
+            let customerList = await this._loadAll();
+            let updateCount = 0;
+            let addCount = 0;
+
+            for (let i = 1; i < jsonData.length; i++) {
+                const row = jsonData[i];
+                if (!row || row.length < 2) continue;
+
+                const inputId = String(row[0]).trim();
+                const inputPass = String(row[1]).trim();
+                const inputName = row[2] ? String(row[2]).trim() : "名称未設定";
+                const inputRank = row[3] ? String(row[3]).trim().toUpperCase() : "";
+                const inputEmail = row[4] ? String(row[4]).trim() : "";
+
+                if (!inputId || !inputPass) continue;
+
+                const hashedPassword = await bcrypt.hash(inputPass, 10);
+                const idx = customerList.findIndex(c => c.customerId === inputId);
+
+                if (idx !== -1) {
+                    customerList[idx].password = hashedPassword;
+                    customerList[idx].customerName = inputName;
+                    customerList[idx].priceRank = inputRank;
+                    if (inputEmail) customerList[idx].email = inputEmail;
+                    updateCount++;
+                } else {
+                    customerList.push({
+                        customerId: inputId,
+                        password: hashedPassword,
+                        customerName: inputName,
+                        priceRank: inputRank,
+                        email: inputEmail
+                    });
+                    addCount++;
+                }
+            }
+
+            await fs.writeFile(CUSTOMERS_DB_PATH, JSON.stringify(customerList, null, 2));
+            return { success: true, message: `取込成功: 更新${updateCount}件 / 新規${addCount}件` };
+        });
+    }
+
+    // 6. Excel一括取込（テスト・既存呼び出し用：常に readToRowArrays）
     async importFromExcel(fileBuffer) {
         try {
             const jsonData = await readToRowArrays(fileBuffer);
-
-            return runWithJsonFileWriteLock(CUSTOMERS_DB_PATH, async () => {
-                let customerList = await this._loadAll();
-                let updateCount = 0;
-                let addCount = 0;
-
-                for (let i = 1; i < jsonData.length; i++) {
-                    const row = jsonData[i];
-                    if (!row || row.length < 2) continue;
-
-                    const inputId = String(row[0]).trim();
-                    const inputPass = String(row[1]).trim();
-                    const inputName = row[2] ? String(row[2]).trim() : "名称未設定";
-                    const inputRank = row[3] ? String(row[3]).trim().toUpperCase() : "";
-                    const inputEmail = row[4] ? String(row[4]).trim() : "";
-
-                    if (!inputId || !inputPass) continue;
-
-                    const hashedPassword = await bcrypt.hash(inputPass, 10);
-                    const idx = customerList.findIndex(c => c.customerId === inputId);
-
-                    if (idx !== -1) {
-                        customerList[idx].password = hashedPassword;
-                        customerList[idx].customerName = inputName;
-                        customerList[idx].priceRank = inputRank;
-                        if (inputEmail) customerList[idx].email = inputEmail;
-                        updateCount++;
-                    } else {
-                        customerList.push({
-                            customerId: inputId,
-                            password: hashedPassword,
-                            customerName: inputName,
-                            priceRank: inputRank,
-                            email: inputEmail
-                        });
-                        addCount++;
-                    }
-                }
-
-                await fs.writeFile(CUSTOMERS_DB_PATH, JSON.stringify(customerList, null, 2));
-                return { success: true, message: `取込成功: 更新${updateCount}件 / 新規${addCount}件` };
-            });
-
+            return await this._applyCustomerImportRows(jsonData);
         } catch (error) {
             console.error("[CustomerService] Import Error:", error);
-            // エラーを投げてAPI側でキャッチさせる
             throw new Error("Excelファイルの読み込みに失敗しました: " + error.message);
         }
+    }
+
+    /** 管理画面アップロード用 Base64（CSV / Excel） */
+    async importCustomerUpload(fileData) {
+        const buffer = typeof fileData === "string"
+            ? Buffer.from(fileData, "base64")
+            : (Buffer.isBuffer(fileData) ? fileData : Buffer.from(fileData));
+        let jsonData;
+        try {
+            if (isExcelBuffer(buffer)) {
+                jsonData = await readToRowArrays(buffer);
+            } else {
+                jsonData = parseCsvToRowArrays(buffer);
+            }
+        } catch (error) {
+            console.error("[CustomerService] Import Error:", error);
+            throw new Error("ファイルの読み込みに失敗しました: " + error.message);
+        }
+        if (!jsonData.length) {
+            throw new Error("ファイルにデータがありません。Excel(.xlsx/.xls) または CSV 形式を確認してください。");
+        }
+        return await this._applyCustomerImportRows(jsonData);
     }
 
     // ★New: 7. パスワード更新専用（ユーザー初期設定用）
