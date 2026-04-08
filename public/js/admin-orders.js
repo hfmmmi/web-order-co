@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const dateStartInput = document.querySelector("#filter-date-start");
     const dateEndInput = document.querySelector("#filter-date-end");
     
-    // 検索窓（得意先・商品共通）
+    // 検索窓（得意先・商品・注文ID）
     const searchTextInput = document.querySelector("#order-search-text");
 
     const clearSearchBtn = document.querySelector("#clear-order-search-btn");
@@ -315,11 +315,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (leadingCodeRaw) {
                 if (safeId === leadingCodeRaw) return true;
+                if (String(order.orderId ?? "") === leadingCodeRaw) return true;
                 if (order.items) {
                     return order.items.some(item => item.code === leadingCodeRaw);
                 }
                 return false;
             }
+
+            const orderIdNorm = normalizeString(String(order.orderId ?? ""));
+            if (orderIdNorm.includes(searchKeyword)) return true;
 
             const custBlob = normalizeString(`${safeId} ${safeName}`);
             if (custBlob.includes(searchKeyword)) return true;

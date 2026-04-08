@@ -20,12 +20,15 @@
     };
 
     /**
-     * 候補リストのoption生成（得意先・商品を1つの datalist に統合）
+     * 候補リストのoption生成（得意先・商品・注文IDを1つの datalist に統合）
      */
     OrderView.generateSearchCandidates = function(orders, suggestionsList) {
         const merged = new Set();
 
         orders.forEach(order => {
+            const oid = order.orderId != null && String(order.orderId).trim() !== "" ? String(order.orderId) : null;
+            if (oid) merged.add(oid);
+
             const cId = order.customerId || "ID不明";
             const cName = order.customerName || "名称不明";
             merged.add(`(${cId}) ${cName}`);

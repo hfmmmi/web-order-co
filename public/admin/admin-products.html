@@ -294,72 +294,6 @@
                 </div>
             </div>
 
-            <div class="admin-section" style="border-top: 5px solid #17a2b8;">
-                <h2>📑 見積・特価データ管理</h2>
-                <p>販売管理システムから出力された「見積CSV」を取り込み、Webシステムに反映させます。</p>
-
-                <div style="background: #e3f2fd; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
-                    <h3 style="margin-top:0; color:#0d47a1;">📥 見積データの取込</h3>
-                    <div style="display:flex; gap:10px; align-items: center;">
-                        <input type="file" id="estimate-file-input" accept=".csv, .xlsx, .xls">
-                        <button id="estimate-upload-btn" class="btn-primary" style="background:#0d47a1;">見積データを取り込む</button>
-                    </div>
-                    <ul style="font-size:0.9rem; color:#555; margin-top:10px; margin-bottom:0;">
-                        <li>対応形式: 販売管理システムから出力されたCSV または Excel</li>
-                        <li>更新ルール: 既存の見積データは全てクリアされ、新しいファイルの内容で上書きされます。</li>
-                    </ul>
-                </div>
-
-                <div style="background: #ffebee; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
-                    <h3 style="margin-top:0; color:#c62828;">🗑️ メーカー別見積削除</h3>
-                    <p style="font-size:0.9rem;">定価改定などにより、特定のメーカーの既存見積データを<strong>完全に削除</strong>します。<br><span style="color:#c62828;">⚠️ この操作は取り消せません。削除前にバックアップを取ることを推奨します。</span></p>
-                    
-                    <div style="display:flex; gap:10px; margin-bottom:10px;">
-                        <input type="text" id="delete-manufacturer-input" class="form-control" style="width:300px;" placeholder="メーカー名を入力 (例: RICOH, OKI, CANON)">
-                        <button id="delete-manufacturer-btn" class="btn-primary" style="background:#c62828;">🗑️ 見積を削除</button>
-                    </div>
-                    <small style="color:#666;">※<strong>商品名</strong>に入力したメーカー名が含まれる見積がすべて削除されます（部分一致・大文字小文字区別なし）</small>
-                </div>
-
-                <div style="background: #fff3e0; padding: 15px; border-radius: 5px; border: 2px solid #ff9800;">
-                    <h3 style="margin-top:0; color:#e65100;">🗑️ 商品コード別見積削除</h3>
-                    <p style="font-size:0.9rem;">特定の商品コードを指定して見積データを<strong>完全に削除</strong>します。<br><span style="color:#e65100;">⚠️ この操作は取り消せません。</span></p>
-                    
-                    <!-- 個別入力エリア -->
-                    <div style="margin-bottom: 15px;">
-                        <label style="font-weight:bold; display:block; margin-bottom:5px;">📝 削除する商品コードを追加</label>
-                        <div style="display:flex; gap:10px;">
-                            <input type="text" id="delete-product-input" class="form-control" style="width:300px;" placeholder="商品コードを入力 (例: PRD-001)">
-                            <button id="add-delete-product-btn" class="btn-primary" style="background:#ff9800;">リストに追加</button>
-                        </div>
-                    </div>
-
-                    <!-- CSV一括読み込みエリア -->
-                    <div style="margin-bottom: 15px; padding:10px; background:#fffde7; border-radius:4px;">
-                        <label style="font-weight:bold; display:block; margin-bottom:5px;">📥 CSV一括読み込み</label>
-                        <div style="display:flex; gap:10px; align-items:center;">
-                            <input type="file" id="delete-product-csv-input" accept=".csv, .txt">
-                            <button id="import-delete-product-btn" class="btn-primary" style="background:#f57c00;">CSV取込</button>
-                        </div>
-                        <small style="color:#666;">※1列目に商品コードを記載したCSV/TXTファイル（ヘッダー行は除外されます）</small>
-                    </div>
-
-                    <!-- 削除予定リスト表示 -->
-                    <div style="margin-bottom: 10px;">
-                        <label style="font-weight:bold; display:block; margin-bottom:5px;">📋 削除予定の商品コード (<span id="delete-product-count">0</span>件)</label>
-                        <div id="delete-product-list" class="blocked-list-container" style="max-height:200px; overflow-y:auto;">
-                            <span style='color:#999;'>削除する商品コードを追加してください</span>
-                        </div>
-                    </div>
-
-                    <!-- 一括クリアと削除実行 -->
-                    <div style="display:flex; justify-content:space-between; margin-top: 10px;">
-                        <button id="clear-delete-product-btn" class="btn-danger" style="padding:8px 16px; background:#6c757d;">リストをクリア</button>
-                        <button id="exec-delete-product-btn" class="btn-primary" style="background:#c62828;">🗑️ 見積を削除実行</button>
-                    </div>
-                </div>
-            </div>
-
             <div class="admin-section" id="stock-management-section" style="border-top: 5px solid #20c997;">
                 <h2>📦 在庫連携・表示設定</h2>
                 <p style="color:#555;">在庫表示ON/OFF、CSV連携、手動調整をまとめて管理します。</p>
@@ -496,8 +430,6 @@
 
     <script src="../js/admin-icons.js"></script>
     <script src="../js/admin-common.js"></script>
-    <script src="../js/admin-products-estimates.js"></script>
-    <script src="../js/admin-products-delete-batch.js"></script>
     <script src="../js/admin-products.js"></script>
     <script src="../js/admin-products-stock.js"></script>
 </body>

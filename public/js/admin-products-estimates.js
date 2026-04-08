@@ -1,6 +1,6 @@
 /**
- * 商品管理画面：見積インポート・メーカー名による見積一括削除（admin-products.html）
- * admin-common.js の後、admin-products.js の前に読み込む
+ * 見積・特価管理：インポート・メーカー名による見積一括削除（admin-estimates.html）
+ * admin-common.js の後、admin-estimates.js の前に読み込む
  */
 (function () {
     function init() {

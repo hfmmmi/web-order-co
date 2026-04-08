@@ -1,5 +1,5 @@
 // public/js/admin-products.js
-// 管理画面：商品マスタおよび見積・特価データの管理スクリプト
+// 管理画面：商品マスタの管理スクリプト（見積・特価管理は admin-estimates.html）
 
 document.addEventListener("DOMContentLoaded", function () {
     console.log("📦 Product Manager Loaded (Extended Edition)");
@@ -23,21 +23,10 @@ document.addEventListener("DOMContentLoaded", function () {
             .replace(/"/g, "&quot;");
     }
 
-    if (window.AdminProductsEstimates && typeof window.AdminProductsEstimates.init === "function") {
-        window.AdminProductsEstimates.init();
-    }
-    if (window.AdminProductsDeleteBatch && typeof window.AdminProductsDeleteBatch.init === "function") {
-        window.AdminProductsDeleteBatch.init();
-    }
-
     document.addEventListener("admin-ready", function () {
         console.log("🚀 Product Manager: Auth Signal Received. Starting fetch...");
 
         fetchProductList();
-
-        if (window.AdminProductsDeleteBatch && typeof window.AdminProductsDeleteBatch.renderDeleteProductList === "function") {
-            window.AdminProductsDeleteBatch.renderDeleteProductList();
-        }
     });
 
     async function fetchProductList() {

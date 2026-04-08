@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>見積・特価管理 - WEB受注システム</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #f4f6f9;
+        }
+
+        .admin-layout-wrapper {
+            display: flex;
+            height: 100vh;
+        }
+
+        .admin-main-content {
+            flex-grow: 1;
+            padding: 20px;
+            --admin-main-bg: #eef1f5;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .page-header {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 12px;
+        }
+
+        .page-header h2 {
+            margin: 0;
+            font-size: 1.65rem;
+            font-weight: 700;
+            color: #111827;
+            letter-spacing: 0.02em;
+        }
+
+        .admin-main-scroll {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+        }
+
+        .admin-section {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .blocked-list-container {
+            border: 1px solid #ced4da;
+            padding: 10px;
+            border-radius: 4px;
+            min-height: 50px;
+            background: #fdfdfd;
+        }
+
+        .blocked-item {
+            display: inline-block;
+            background: #ffebee;
+            color: #c62828;
+            padding: 5px 10px;
+            margin: 2px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            border: 1px solid #ffcdd2;
+        }
+
+        .blocked-item span {
+            margin-left: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-layout-wrapper">
+        <aside class="admin-sidebar"></aside>
+
+        <main class="admin-main-content">
+            <div class="page-header">
+                <h2><span class="admin-page-icon" data-admin-icon="estimates" aria-hidden="true"></span>見積・特価管理</h2>
+            </div>
+
+            <div class="admin-main-scroll">
+                <div class="admin-section" style="border-top: 5px solid #17a2b8;">
+                    <h2 style="margin-top:0;">📑 見積・特価管理</h2>
+                    <p>販売管理システムから出力された「見積CSV」を取り込み、Webシステムに反映させます。</p>
+
+                    <div style="background: #e3f2fd; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                        <h3 style="margin-top:0; color:#0d47a1;">📥 見積データの取込</h3>
+                        <div style="display:flex; gap:10px; align-items: center;">
+                            <input type="file" id="estimate-file-input" accept=".csv, .xlsx, .xls">
+                            <button id="estimate-upload-btn" class="btn-primary" style="background:#0d47a1;">見積データを取り込む</button>
+                        </div>
+                        <ul style="font-size:0.9rem; color:#555; margin-top:10px; margin-bottom:0;">
+                            <li>対応形式: 販売管理システムから出力されたCSV または Excel</li>
+                            <li>更新ルール: 既存の見積データは全てクリアされ、新しいファイルの内容で上書きされます。</li>
+                        </ul>
+                    </div>
+
+                    <div style="background: #ffebee; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                        <h3 style="margin-top:0; color:#c62828;">🗑️ メーカー別見積削除</h3>
+                        <p style="font-size:0.9rem;">定価改定などにより、特定のメーカーの既存見積データを<strong>完全に削除</strong>します。<br><span style="color:#c62828;">⚠️ この操作は取り消せません。削除前にバックアップを取ることを推奨します。</span></p>
+
+                        <div style="display:flex; gap:10px; margin-bottom:10px;">
+                            <input type="text" id="delete-manufacturer-input" class="form-control" style="width:300px;" placeholder="メーカー名を入力 (例: RICOH, OKI, CANON)">
+                            <button id="delete-manufacturer-btn" class="btn-primary" style="background:#c62828;">🗑️ 見積を削除</button>
+                        </div>
+                        <small style="color:#666;">※<strong>商品名</strong>に入力したメーカー名が含まれる見積がすべて削除されます（部分一致・大文字小文字区別なし）</small>
+                    </div>
+
+                    <div style="background: #fff3e0; padding: 15px; border-radius: 5px; border: 2px solid #ff9800;">
+                        <h3 style="margin-top:0; color:#e65100;">🗑️ 商品コード別見積削除</h3>
+                        <p style="font-size:0.9rem;">特定の商品コードを指定して見積データを<strong>完全に削除</strong>します。<br><span style="color:#e65100;">⚠️ この操作は取り消せません。</span></p>
+
+                        <div style="margin-bottom: 15px;">
+                            <label style="font-weight:bold; display:block; margin-bottom:5px;">📝 削除する商品コードを追加</label>
+                            <div style="display:flex; gap:10px;">
+                                <input type="text" id="delete-product-input" class="form-control" style="width:300px;" placeholder="商品コードを入力 (例: PRD-001)">
+                                <button id="add-delete-product-btn" class="btn-primary" style="background:#ff9800;">リストに追加</button>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 15px; padding:10px; background:#fffde7; border-radius:4px;">
+                            <label style="font-weight:bold; display:block; margin-bottom:5px;">📥 CSV一括読み込み</label>
+                            <div style="display:flex; gap:10px; align-items:center;">
+                                <input type="file" id="delete-product-csv-input" accept=".csv, .txt">
+                                <button id="import-delete-product-btn" class="btn-primary" style="background:#f57c00;">CSV取込</button>
+                            </div>
+                            <small style="color:#666;">※1列目に商品コードを記載したCSV/TXTファイル（ヘッダー行は除外されます）</small>
+                        </div>
+
+                        <div style="margin-bottom: 10px;">
+                            <label style="font-weight:bold; display:block; margin-bottom:5px;">📋 削除予定の商品コード (<span id="delete-product-count">0</span>件)</label>
+                            <div id="delete-product-list" class="blocked-list-container" style="max-height:200px; overflow-y:auto;">
+                                <span style='color:#999;'>削除する商品コードを追加してください</span>
+                            </div>
+                        </div>
+
+                        <div style="display:flex; justify-content:space-between; margin-top: 10px;">
+                            <button id="clear-delete-product-btn" class="btn-danger" style="padding:8px 16px; background:#6c757d;">リストをクリア</button>
+                            <button id="exec-delete-product-btn" class="btn-primary" style="background:#c62828;">🗑️ 見積を削除実行</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/admin-icons.js"></script>
+    <script src="../js/admin-common.js"></script>
+    <script src="../js/admin-products-estimates.js"></script>
+    <script src="../js/admin-products-delete-batch.js"></script>
+    <script src="../js/admin-estimates.js"></script>
+</body>
+</html>

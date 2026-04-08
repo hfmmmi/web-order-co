@@ -143,6 +143,7 @@ function renderSidebar(features) {
         { name: '買取査定', iconKey: 'kaitori', link: 'admin-kaitori.html', id: 'kaitori', featureKey: 'adminKaitori' },
         { name: 'サポート・不具合', iconKey: 'support', link: 'admin-support.html', id: 'support', featureKey: 'adminSupport' },
         { name: '商品マスタ管理', iconKey: 'products', link: 'admin-products.html', id: 'products', featureKey: 'adminProducts' },
+        { name: '見積・特価管理', iconKey: 'estimates', link: 'admin-estimates.html', id: 'estimates', featureKey: 'adminProducts' },
         { name: '顧客管理', iconKey: 'customers', link: 'admin-customers.html', id: 'customers', featureKey: 'adminCustomers' },
         { name: '価格・掛率設定', iconKey: 'prices', link: 'admin-prices.html', id: 'prices', featureKey: 'adminPrices' },
         { name: 'システム設定', iconKey: 'settings', link: 'admin-settings.html', id: 'settings', featureKey: null }

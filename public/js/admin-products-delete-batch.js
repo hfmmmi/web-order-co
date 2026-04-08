@@ -1,6 +1,6 @@
 /**
- * 商品管理画面：商品コードリストによる見積一括削除（admin-products.html）
- * admin-products-estimates.js の後、admin-products.js の前に読み込む
+ * 見積・特価管理：商品コードリストによる見積一括削除（admin-estimates.html）
+ * admin-products-estimates.js の後、admin-estimates.js の前に読み込む
  */
 (function () {
     let deleteProductCodes = [];
