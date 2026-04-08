@@ -166,7 +166,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const zip = zipInput.value.replace("-", "");
                 if (zip.length < 7) { toastWarning("郵便番号は7桁で入力してください"); return; }
                 try {
-                    const res = await fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${zip}`);
+                    const res = await fetch(`/zip-lookup?zipcode=${encodeURIComponent(zip)}`, { credentials: "same-origin" });
                     const data = await res.json();
                     if (data.status === 200 && data.results) {
                         const r = data.results[0];

@@ -375,6 +375,35 @@ router.post("/api/update-shipment-info", async (req, res) => {
     }
 });
 
+/**
+ * 郵便番号→住所（ZipCloud プロキシ）
+ * Helmet の CSP（connect-src 'self'）によりブラウザから zipcloud へ直接 fetch できないため同一オリジンで返す。
+ */
+router.get("/zip-lookup", async (req, res) => {
+    const zip = String(req.query.zipcode || "")
+        .replace(/\D/g, "")
+        .slice(0, 7);
+    if (zip.length !== 7) {
+        return res.status(400).json({
+            message: "zipcode は7桁の数字で指定してください",
+            status: 400,
+            results: null
+        });
+    }
+    try {
+        const url = "https://zipcloud.ibsnet.co.jp/api/search?zipcode=" + encodeURIComponent(zip);
+        const r = await fetch(url);
+        if (!r.ok) {
+            return res.status(502).json({ message: "ZipCloud 応答エラー", status: 502, results: null });
+        }
+        const data = await r.json();
+        return res.json(data);
+    } catch (e) {
+        console.error("zip-lookup proxy:", e);
+        return res.status(502).json({ message: "郵便番号検索に失敗しました", status: 502, results: null });
+    }
+});
+
 module.exports = router;
 /** @type {typeof orderMatchesDownloadCsvKeyword} ユニットテスト用（本番ルーティングには影響しない） */
 module.exports.orderMatchesDownloadCsvKeyword = orderMatchesDownloadCsvKeyword;

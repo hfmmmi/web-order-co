@@ -163,7 +163,10 @@ function renderSidebar(features) {
         const isProductsFamily =
             item.id === "products" &&
             (currentPath === "admin-products.html" || currentPath === "admin-products-new.html");
-        const isActive = currentPath === item.link || isProductsFamily ? "active" : "";
+        const isOrdersFamily =
+            item.id === "orders" &&
+            (currentPath === "admin-orders.html" || currentPath === "admin-orders-new.html");
+        const isActive = currentPath === item.link || isProductsFamily || isOrdersFamily ? "active" : "";
         const iconMarkup = adminIconHtml(item.iconKey);
         menuHtml += `
             <li class="menu-item ${isActive}" onclick="window.location.href='${item.link}'">

@@ -77,6 +77,15 @@ const placeOrderSchema = z
     })
     .strict();
 
+/** 管理画面からの手動受注作成（顧客を明示） */
+const adminCreateOrderSchema = z
+    .object({
+        customerId: customerIdSchema,
+        cart: z.array(cartItemSchema).min(1),
+        deliveryInfo: deliveryInfoSchema
+    })
+    .strict();
+
 const addCustomerSchema = z
     .object({
         customerId: customerIdSchema,
@@ -229,6 +238,7 @@ const adminSettingsUpdateSchema = z
 module.exports = {
     loginSchema,
     placeOrderSchema,
+    adminCreateOrderSchema,
     addCustomerSchema,
     updateCustomerSchema,
     adminAccountUpdateSchema,

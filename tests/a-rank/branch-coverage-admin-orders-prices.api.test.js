@@ -69,6 +69,60 @@ describe("Aランク: admin orders / prices 分岐カバレッジ", () => {
         expect(res.body.success).toBe(false);
     });
 
+    test("POST /api/admin/orders-create は未ログインで 401", async () => {
+        const res = await request(app).post("/api/admin/orders-create").send({
+            customerId: "TEST001",
+            cart: [{ code: "P001", quantity: 1, price: 0 }],
+            deliveryInfo: { name: "届先", zip: "", address: "", tel: "" }
+        });
+        expect(res.statusCode).toBe(401);
+    });
+
+    test("POST /api/admin/orders-create は管理者で受注を作成できる", async () => {
+        const agent = request.agent(app);
+        await agent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        const res = await agent.post("/api/admin/orders-create").send({
+            customerId: "TEST001",
+            cart: [{ code: "P001", quantity: 1, price: 0 }],
+            deliveryInfo: {
+                name: "管理画面からの届先",
+                zip: "530-0001",
+                address: "大阪府",
+                tel: "06-0000-0000",
+                clientOrderNumber: "ADM-NEW-1"
+            }
+        });
+        expect(res.statusCode).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.orderId).toBeDefined();
+    });
+
+    test("POST /api/admin/orders-create は存在しない顧客で 400", async () => {
+        const agent = request.agent(app);
+        await agent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        const res = await agent.post("/api/admin/orders-create").send({
+            customerId: "NO_SUCH_CUST_999",
+            cart: [{ code: "P001", quantity: 1, price: 0 }],
+            deliveryInfo: { name: "x" }
+        });
+        expect(res.statusCode).toBe(400);
+        expect(res.body.success).toBe(false);
+        expect(res.body.message).toContain("見つかりません");
+    });
+
+    test("POST /api/admin/orders-create は placeOrder 失敗時 500", async () => {
+        jest.spyOn(orderService, "placeOrder").mockRejectedValueOnce(new Error("write fail"));
+        const agent = request.agent(app);
+        await agent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        const res = await agent.post("/api/admin/orders-create").send({
+            customerId: "TEST001",
+            cart: [{ code: "P001", quantity: 1, price: 0 }],
+            deliveryInfo: { name: "届先" }
+        });
+        expect(res.statusCode).toBe(500);
+        expect(res.body.success).toBe(false);
+    });
+
     test("POST /api/admin/orders-list-export は format 不正で 400", async () => {
         const agent = request.agent(app);
         await agent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>新規受注 - WEB受注システム</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .admin-layout-wrapper {
+            display: flex;
+            height: 100vh;
+        }
+
+        .admin-main-content {
+            flex-grow: 1;
+            background: #eef1f5;
+            --admin-main-bg: #eef1f5;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .page-header {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+        }
+
+        .page-header-leading {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .page-header-leading h2 {
+            margin: 0;
+            font-size: 1.65rem;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .page-header-inline-actions {
+            display: inline-flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .page-header-toolbar-btn {
+            box-sizing: border-box;
+            width: max-content;
+            white-space: nowrap;
+            padding: 8px 10px;
+            cursor: pointer;
+            background: #fff;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: inherit;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-family: inherit;
+        }
+
+        .admin-section {
+            background: #fff;
+            padding: 22px 24px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+        }
+
+        .order-create-field {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+
+        .order-create-field--lines {
+            align-items: flex-start;
+        }
+
+        .order-create-field--lines > label {
+            padding-top: 10px;
+        }
+
+        .order-create-field > label {
+            flex: 0 0 12rem;
+            margin: 0;
+            font-size: 0.93rem;
+            font-weight: 700;
+            color: #374151;
+            line-height: 1.35;
+        }
+
+        .order-create-field-control {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .order-create-field-control input,
+        .order-create-field-control select {
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            padding: 8px 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .order-create-deliv-date {
+            max-width: 12rem;
+            height: 40px;
+        }
+
+        .order-create-zip-input {
+            max-width: 9rem;
+        }
+
+        .order-create-customer-wrap input[type="search"] {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 8px 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .order-create-lines-wrap {
+            margin-top: 0;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: auto;
+        }
+
+        .order-create-lines-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .order-create-lines-table th {
+            text-align: left;
+            padding: 8px 10px;
+            background: #f3f4f6;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .order-create-lines-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #f3f4f6;
+            vertical-align: middle;
+        }
+
+        .order-new-form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 18px;
+            padding-top: 14px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        #order-new-load-status {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-bottom: 12px;
+        }
+
+        .order-create-customer-wrap {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .order-create-customer-suggestions {
+            display: none;
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 100%;
+            margin: 4px 0 0 0;
+            padding: 4px 0;
+            list-style: none;
+            max-height: 220px;
+            overflow-y: auto;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 40;
+        }
+
+        .order-create-customer-suggestions.is-open {
+            display: block;
+        }
+
+        .order-create-customer-suggestions li {
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #111827;
+        }
+
+        .order-create-customer-suggestions li:hover,
+        .order-create-customer-suggestions li:focus {
+            background: #eff6ff;
+        }
+
+        .order-create-customer-suggestions .order-create-customer-suggest-empty {
+            color: #6b7280;
+            cursor: default;
+            font-size: 0.85rem;
+        }
+
+        .order-create-customer-suggestions .order-create-customer-suggest-empty:hover {
+            background: transparent;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-layout-wrapper">
+        <aside class="admin-sidebar"></aside>
+
+        <main class="admin-main-content">
+            <div class="page-header">
+                <div class="page-header-leading">
+                    <h2><span class="admin-page-icon" data-admin-icon="orders" aria-hidden="true"></span>新規受注</h2>
+                    <div class="page-header-inline-actions">
+                        <a href="admin-orders.html" class="page-header-toolbar-btn">戻る</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-main-scroll">
+                <div class="admin-section">
+                    <div id="order-new-load-status">データを読み込み中…</div>
+                    <form id="order-create-form" style="display: none;">
+                        <div class="order-create-field">
+                            <label for="order-create-customer-search">顧客名</label>
+                            <div class="order-create-field-control">
+                                <div class="order-create-customer-wrap">
+                                    <input type="search" id="order-create-customer-search" autocomplete="off"
+                                        placeholder="顧客IDまたは社名を入力して候補から選択…"
+                                        aria-autocomplete="list" aria-controls="order-create-customer-suggestions"
+                                        aria-expanded="false" disabled>
+                                    <ul id="order-create-customer-suggestions" class="order-create-customer-suggestions"
+                                        role="listbox" aria-label="顧客候補"></ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="order-create-field">
+                            <label for="order-create-deliv-name">納品先 宛名</label>
+                            <div class="order-create-field-control">
+                                <input type="text" id="order-create-deliv-name" maxlength="100" placeholder="例: 株式会社○○ 御中" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="order-create-field">
+                            <label for="order-create-deliv-zip">郵便番号</label>
+                            <div class="order-create-field-control">
+                                <input type="text" id="order-create-deliv-zip" class="order-create-zip-input" maxlength="7"
+                                    inputmode="numeric" pattern="[0-9]*" placeholder="例: 1000001（7桁・ハイフンなし）" autocomplete="postal-code">
+                            </div>
+                        </div>
+                        <div class="order-create-field">
+                            <label for="order-create-deliv-address">住所</label>
+                            <div class="order-create-field-control">
+                                <input type="text" id="order-create-deliv-address" maxlength="300" placeholder="例: 東京都…" autocomplete="street-address">
+                            </div>
+                        </div>
+                        <div class="order-create-field">
+                            <label for="order-create-deliv-tel">電話番号</label>
+                            <div class="order-create-field-control">
+                                <input type="text" id="order-create-deliv-tel" maxlength="30" placeholder="例: 03-0000-0000" autocomplete="tel">
+                            </div>
+                        </div>
+                        <div class="order-create-field">
+                            <label for="order-create-deliv-date">納品希望日</label>
+                            <div class="order-create-field-control">
+                                <input type="date" id="order-create-deliv-date" class="order-create-deliv-date" onclick="this.showPicker && this.showPicker()">
+                            </div>
+                        </div>
+                        <div class="order-create-field">
+                            <label for="order-create-client-order-no">お客様注文番号</label>
+                            <div class="order-create-field-control">
+                                <input type="text" id="order-create-client-order-no" maxlength="100" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="order-create-field">
+                            <label for="order-create-note">備考</label>
+                            <div class="order-create-field-control">
+                                <input type="text" id="order-create-note" maxlength="1000" placeholder="社内メモなど" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="order-create-field order-create-field--lines">
+                            <label>明細（必須・1行以上）</label>
+                            <div class="order-create-field-control">
+                                <div class="order-create-lines-wrap">
+                                    <table class="order-create-lines-table">
+                                        <thead>
+                                            <tr>
+                                                <th style="min-width: 200px;">商品</th>
+                                                <th style="width: 5.5rem;">数量</th>
+                                                <th style="width: 4.5rem;"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="order-create-lines-body"></tbody>
+                                    </table>
+                                </div>
+                                <button type="button" id="order-create-add-line" class="page-header-toolbar-btn" style="margin-top: 8px;">
+                                    ＋ 行を追加
+                                </button>
+                            </div>
+                        </div>
+                        <div class="order-new-form-actions">
+                            <a href="admin-orders.html" class="page-header-toolbar-btn">キャンセル</a>
+                            <button type="submit" id="order-create-submit" class="page-header-toolbar-btn" style="background: #2563eb; color: #fff; border-color: #1d4ed8;">
+                                受注を登録
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/admin-icons.js"></script>
+    <script src="../js/admin-common.js"></script>
+    <script src="../js/admin-orders-new.js?v=1.4"></script>
+</body>
+
+</html>

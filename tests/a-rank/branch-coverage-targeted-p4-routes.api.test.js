@@ -325,6 +325,21 @@ describe("branch-coverage-targeted-p4: orders & support routes", () => {
         expect(res.statusCode).toBe(401);
     });
 
+    test("GET /zip-lookup 桁不足は 400", async () => {
+        const res = await request(app).get("/zip-lookup").query({ zipcode: "100" });
+        expect(res.statusCode).toBe(400);
+    });
+
+    test("GET /zip-lookup 有効な郵便番号は ZipCloud 経由で住所を返す", async () => {
+        const res = await request(app).get("/zip-lookup").query({ zipcode: "1000001" });
+        expect(res.statusCode).toBe(200);
+        expect(res.body.status).toBe(200);
+        expect(Array.isArray(res.body.results)).toBe(true);
+        expect(res.body.results.length).toBeGreaterThanOrEqual(1);
+        const line = (res.body.results[0].address1 || "") + (res.body.results[0].address2 || "");
+        expect(line).toMatch(/東京|千代田/);
+    }, 20000);
+
     test("POST /place-order 未ログイン", async () => {
         const res = await request(app).post("/place-order").send({ cart: [], deliveryInfo: {} });
         expect(res.body.success).toBe(false);

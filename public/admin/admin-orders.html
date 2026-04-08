@@ -341,7 +341,7 @@
             user-select: none;
         }
 
-        /* 受注検索: 全ステータス〜検索結果DL まで1行・高さ40pxで揃える */
+        /* 受注検索: ▽ 全ステータス〜検索結果DL まで1行・高さ40pxで揃える */
         .orders-search-toolbar {
             display: flex;
             flex-wrap: nowrap;
@@ -368,7 +368,7 @@
         }
 
         #order-status-filter {
-            width: 120px;
+            width: 155px;
             padding: 0 10px;
             appearance: none;
             -webkit-appearance: none;
@@ -438,6 +438,13 @@
             background-color: #6b7280;
             color: #fff;
         }
+
+        a.page-header-toolbar-btn {
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
 </head>
 
@@ -451,6 +458,9 @@
                 <div class="page-header-leading">
                     <h2><span class="admin-page-icon" data-admin-icon="orders" aria-hidden="true"></span>受注管理</h2>
                     <div class="page-header-inline-actions">
+                        <a href="admin-orders-new.html" id="btn-order-new-add" class="page-header-toolbar-btn">
+                            新規追加
+                        </a>
                         <input type="file" id="file-input" style="display: none;" accept=".csv,.xlsx,.xls">
                         <button type="button" id="btn-csv-excel-import" class="page-header-toolbar-btn">
                             CSV/Excel
@@ -479,8 +489,9 @@
 
                     <div class="orders-search-toolbar">
                         <select id="order-status-filter" class="orders-search-toolbar__field">
-                            <option value="">全ステータス</option>
+                            <option value="">▽ 全ステータス</option>
                             <option value="未発送">未発送</option>
+                            <option value="一部発送">一部発送</option>
                             <option value="発送済">発送済</option>
                         </select>
                         <input type="date" id="filter-date-start" class="orders-search-toolbar__field orders-search-toolbar__date"
@@ -519,7 +530,7 @@
     <script src="../js/admin-icons.js"></script>
     <script src="../js/admin-common.js"></script>
     <script src="../js/admin-orders-view.js?v=8.6.0"></script>
-    <script src="../js/admin-orders.js?v=8.10"></script>
+    <script src="../js/admin-orders.js?v=8.12"></script>
 </body>
 
 </html>
