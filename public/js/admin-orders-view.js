@@ -96,17 +96,28 @@
                         <th style="padding:8px; text-align:right;">金額</th>
                     </tr>
                 </thead>
-                <tbody>`;
-        order.items.forEach(item => {
-            const sub = (item.price || 0) * item.quantity;
+                <tbody style="background:#f3f4f6;">`;
+        let detailTotalQty = 0;
+        let detailTotalAmount = 0;
+        (order.items || []).forEach(item => {
+            const qty = Number(item.quantity) || 0;
+            const sub = (item.price || 0) * qty;
+            detailTotalQty += qty;
+            detailTotalAmount += sub;
             tableHTML += `
                 <tr style="border-bottom:1px solid #e5e7eb;">
                     <td style="padding:8px;">${item.name}</td>
-                    <td style="padding:8px; text-align:right;">${item.quantity}</td>
+                    <td style="padding:8px; text-align:right;">${qty}</td>
                     <td style="padding:8px; text-align:right;">¥${sub.toLocaleString()}</td>
                 </tr>`;
         });
-        tableHTML += `</tbody></table>`;
+        tableHTML += `
+                <tr style="border-top:2px solid #d1d5db; font-weight:600;">
+                    <td style="padding:8px;">合計</td>
+                    <td style="padding:8px; text-align:right;">${detailTotalQty}</td>
+                    <td style="padding:8px; text-align:right;">¥${detailTotalAmount.toLocaleString()}</td>
+                </tr>
+                </tbody></table>`;
 
         const summaryCellsHtml = `
             <td class="col-date">${orderDateStr}</td>
@@ -121,7 +132,7 @@
             <td class="col-numeric"><strong>¥${totalAmount.toLocaleString()}</strong></td>
             <td class="col-export">${exportBadge}</td>
             <td class="col-action">
-                <button type="button" class="btn-toggle-detail" style="padding: 6px 12px; background-color: #b7dbff; color: #111827; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem;">
+                <button type="button" class="btn-toggle-detail" style="padding: 6px 12px; background-color: #7abcff; color: #111827; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem;">
                     詳細 ▼
                 </button>
             </td>`;
@@ -131,11 +142,15 @@
 
         const detailContent = `
             <div style="margin:10px 0; padding:15px; background:#f9fafb; border-radius: 8px; border:1px solid #e5e7eb;">
-                <div><strong>納品先：</strong> ${info.name || ""} 様 / ${info.address || ""}</div>
-                <div><strong>納品日:</strong> ${dateDisplay}</div>
-                <div><strong>備考:</strong> ${info.note || "なし"}</div>
+                <div style="display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px 20px; align-items:start;">
+                    <div style="min-width:0;"><strong>納品先：</strong> ${info.name || ""} 様 / ${info.address || ""}</div>
+                    <div style="white-space:nowrap;"><strong>納品日：</strong> ${dateDisplay}</div>
+                </div>
             </div>
             ${tableHTML}
+            <div style="margin:10px 0 0 0; padding:15px; background:#f9fafb; border-radius: 8px; border:1px solid #e5e7eb;">
+                <div><strong>備考：</strong> ${info.note || "なし"}</div>
+            </div>
         `;
 
         return { summaryCellsHtml: summaryCellsHtml, detailContent: detailContent };
