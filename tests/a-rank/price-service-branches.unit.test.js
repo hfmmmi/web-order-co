@@ -130,6 +130,18 @@ describe("priceService 分岐（updateRankPricesFromExcel / saveRankPrices）", 
         expect(map.P001.A).toBe(42);
     });
 
+    test("updateRankPricesFromExcel は単独ランクID列（A）をヘッダーとして認識", async () => {
+        readToRowArrays.mockResolvedValue([
+            ["商品コード", "A", "B"],
+            ["P001", 10, 20]
+        ]);
+        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
+        expect(r.success).toBe(true);
+        const map = JSON.parse(await fs.readFile(RANK_PATH, "utf-8"));
+        expect(map.P001.A).toBe(10);
+        expect(map.P001.B).toBe(20);
+    });
+
     test("updateRankPricesFromExcel は表示名が rankIds に無い id ならその列はスキップ", async () => {
         settingsService.getRankList.mockResolvedValueOnce([
             { id: "X", name: "孤立ランク名" },

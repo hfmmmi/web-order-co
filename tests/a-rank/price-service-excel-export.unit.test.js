@@ -68,7 +68,8 @@ describe("priceService getPricelistExcelForRank 分岐", () => {
                         name: "純商品コード品",
                         manufacturer: "メーカー甲",
                         category: "純正",
-                        basePrice: 2000
+                        basePrice: 2000,
+                        remarks: "価格表備考テキスト"
                     },
                     {
                         productCode: "PJZ2",
@@ -103,6 +104,15 @@ describe("priceService getPricelistExcelForRank 分岐", () => {
         const { buffer, filename } = await priceService.getPricelistExcelForRank("A");
         expect(filename).toMatch(/ランクA\.xlsx$/);
         expect(buffer.length).toBeGreaterThan(800);
+        const ExcelJS = require("exceljs");
+        const wb = new ExcelJS.Workbook();
+        await wb.xlsx.load(buffer);
+        const 甲 = wb.worksheets.find((w) => String(w.name).includes("甲"));
+        expect(甲).toBeTruthy();
+        const headerRowNum = 甲.getSheetValues().findIndex((row, i) => i > 0 && row && row[1] === "商品コード");
+        expect(headerRowNum).toBeGreaterThan(0);
+        const dataRow = 甲.getRow(headerRowNum + 1);
+        expect(String(dataRow.getCell(8).value || "")).toContain("価格表備考テキスト");
     });
 
     test("productNameStripFromDisplay で表示名を削り listPrice 空・掛率ハイフン", async () => {

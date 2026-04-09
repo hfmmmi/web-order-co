@@ -1128,16 +1128,16 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             expect(Array.isArray(res.body)).toBe(true);
         });
 
-        // productService.getAllProducts 失敗時は500と「読み込みに失敗」メッセージを返す
+        // productService.getAllProductsForAdmin 失敗時は500と「読み込みに失敗」メッセージを返す
         test("GET /admin/products は products.json 破損時500を返す", async () => {
             const productService = require("../../services/productService");
-            jest.spyOn(productService, "getAllProducts").mockRejectedValueOnce(new Error("商品データの読み込みに失敗しました"));
+            jest.spyOn(productService, "getAllProductsForAdmin").mockRejectedValueOnce(new Error("商品データの読み込みに失敗しました"));
             const admin = request.agent(app);
             await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/products");
             expect(res.statusCode).toBe(500);
             expect(res.body.message).toContain("読み込みに失敗");
-            productService.getAllProducts.mockRestore();
+            productService.getAllProductsForAdmin.mockRestore();
         });
 
         test("POST /add-product は既存商品コードで success:false とメッセージを返す", async () => {

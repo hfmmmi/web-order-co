@@ -44,6 +44,7 @@ class PriceService {
                 return { success: false, message: "ヘッダーに「商品コード」列が見つかりません" };
             }
             const nameColIndex = headerRow.findIndex(h => h === "商品名" || (String(h || "").trim() && h.includes("商品名")));
+            const remarksColIndex = headerRow.findIndex(h => String(h || "").trim() === "備考");
 
             // ヘッダーからランク列を取得（システム設定の表示名・ランク1/ランクA 形式に対応）
             const [rankIds, rankList] = await Promise.all([settingsService.getRankIds(), settingsService.getRankList()]);
@@ -51,10 +52,14 @@ class PriceService {
             headerRow.forEach((h, index) => {
                 const label = String(h || "").trim();
                 if (!label) return;
+                if (index === codeColIndex || index === nameColIndex) return;
+                if (remarksColIndex >= 0 && index === remarksColIndex) return;
                 let rankKey = null;
                 const byDisplayName = (rankList || []).find(r => r.name && String(r.name).trim() === label);
                 if (byDisplayName && byDisplayName.id && rankIds.includes(byDisplayName.id)) {
                     rankKey = byDisplayName.id;
+                } else if (rankIds.includes(label)) {
+                    rankKey = label;
                 } else {
                     const rankNum = label.match(/^ランク(\d+)$/);
                     const rankLetter = label.match(/^ランク([A-Z])$/i);
@@ -69,7 +74,7 @@ class PriceService {
                 if (rankKey) rankCols.push({ index, rankKey });
             });
             if (rankCols.length === 0) {
-                return { success: false, message: "ヘッダーにランク列（ランク1/ランクA またはシステム設定のランク名）が見つかりません" };
+                return { success: false, message: "ヘッダーにランク列（例: A・ランク1・ランクA・システム設定のランク名）が見つかりません" };
             }
 
             // 既存データの読み込み (Object形式)
@@ -87,6 +92,7 @@ class PriceService {
 
             let updateCount = 0;
             let nameUpdateCount = 0;
+            let remarksUpdateCount = 0;
 
             // データ処理（2行目以降）
             jsonData.slice(1).forEach(row => {
@@ -115,6 +121,14 @@ class PriceService {
                         nameUpdateCount++;
                     }
                 }
+                if (remarksColIndex >= 0 && Array.isArray(productMaster)) {
+                    const product = productMaster.find(p => p.productCode === code);
+                    if (product) {
+                        const raw = row[remarksColIndex];
+                        product.remarks = raw != null ? String(raw).trim() : "";
+                        remarksUpdateCount++;
+                    }
+                }
             });
 
             await fs.writeFile(RANK_PRICES_DB_PATH, JSON.stringify(rankPriceMap, null, 2));
@@ -129,11 +143,14 @@ class PriceService {
                 if (code) updatedAt[code] = now;
             });
             await fs.writeFile(RANK_PRICES_UPDATED_AT_PATH, JSON.stringify(updatedAt, null, 2));
-            if (nameUpdateCount > 0) {
+            if (nameUpdateCount > 0 || remarksUpdateCount > 0) {
                 await fs.writeFile(PRODUCTS_DB_PATH, JSON.stringify(productMaster, null, 2));
             }
-            const msg = nameUpdateCount > 0
-                ? `ランク価格: ${updateCount}件を更新しました（商品名を${nameUpdateCount}件反映しました）`
+            const extras = [];
+            if (nameUpdateCount > 0) extras.push(`商品名を${nameUpdateCount}件`);
+            if (remarksUpdateCount > 0) extras.push(`備考を${remarksUpdateCount}件`);
+            const msg = extras.length
+                ? `ランク価格: ${updateCount}件を更新しました（${extras.join("・")}反映しました）`
                 : `ランク価格: ${updateCount}件を更新しました`;
             return { success: true, message: msg };
 
@@ -302,6 +319,9 @@ class PriceService {
         const masterByCode = (productMaster || []).reduce((acc, p) => { acc[p.productCode] = p; return acc; }, {});
 
         const headers = fmt.csvHeaderLine.endsWith("\n") ? fmt.csvHeaderLine : `${fmt.csvHeaderLine}\n`;
+        const headerFirstLine = String(headers.split(/\r?\n/).find((l) => l.trim()) || "");
+        const headerCols = headerFirstLine.split(",").map((s) => s.replace(/^"|"$/g, "").trim());
+        const includeRemarksCol = headerCols.length > 0 && headerCols[headerCols.length - 1] === "備考";
         const CATEGORY_ORDER = fmt.categoryOrder;
         const stripToken = fmt.productNameStripFromDisplay || "";
         const splitCat = fmt.manufacturerSplitCategory;
@@ -332,6 +352,7 @@ class PriceService {
             const basePrice = product.basePrice != null && product.basePrice !== "" ? Number(product.basePrice) : 0;
             const listPriceDisplay = (basePrice === 0 || !Number.isFinite(basePrice)) ? "" : String(Math.round(basePrice));
             const categoryOrder = CATEGORY_ORDER[category] ?? 99;
+            const remarks = product.remarks != null ? String(product.remarks) : "";
             rows.push({
                 productCode,
                 displayName,
@@ -340,7 +361,8 @@ class PriceService {
                 category,
                 price,
                 categoryOrder,
-                manufacturerSort: normalizeManufacturerKey(manufacturer) || manufacturer
+                manufacturerSort: normalizeManufacturerKey(manufacturer) || manufacturer,
+                remarks
             });
         });
 
@@ -356,7 +378,9 @@ class PriceService {
             const ratePct = listPriceNum > 0 && Number.isFinite(listPriceNum)
                 ? (Math.round((r.price / listPriceNum) * 1000) / 10).toFixed(1) + "%"
                 : "-";
-            return `${r.productCode},"${esc(r.manufacturer)}","${r.displayName}",${r.listPriceDisplay},"${esc(r.category)}",${r.price},${ratePct}`;
+            let line = `${r.productCode},"${esc(r.manufacturer)}","${r.displayName}",${r.listPriceDisplay},"${esc(r.category)}",${r.price},${ratePct}`;
+            if (includeRemarksCol) line += `,"${esc(r.remarks)}"`;
+            return line;
         });
         const csvData = "\uFEFF" + headers + csvRows.join("\n");
         const filename = `価格表_ランク${rank}.csv`;
@@ -417,6 +441,7 @@ class PriceService {
             const categoryOrder = CATEGORY_ORDER[category] ?? 99;
             const manufacturerDisplay = manufacturer || "その他";
             const manufacturerKey = normalizeManufacturerKey(manufacturerDisplay) || manufacturerDisplay;
+            const remarks = product.remarks != null ? String(product.remarks) : "";
             rows.push({
                 productCode,
                 displayName,
@@ -427,7 +452,8 @@ class PriceService {
                 price,
                 ratePct,
                 categoryOrder,
-                manufacturerSort: manufacturerKey || manufacturerDisplay
+                manufacturerSort: manufacturerKey || manufacturerDisplay,
+                remarks
             });
         });
 
@@ -503,8 +529,12 @@ class PriceService {
                 : sheetRows;
             const colCount = Math.max(1, headerRow.length);
             const padPriceRow = (r) => {
-                const base = [r.productCode, r.manufacturer, r.displayName, r.listPriceDisplay, r.category, r.price, r.ratePct, ""];
-                while (base.length < colCount) base.push("");
+                const base = [r.productCode, r.manufacturer, r.displayName, r.listPriceDisplay, r.category, r.price, r.ratePct];
+                const remarksVal = r.remarks != null ? String(r.remarks) : "";
+                while (base.length < colCount) {
+                    if (base.length === 7) base.push(remarksVal);
+                    else base.push("");
+                }
                 return base.slice(0, colCount);
             };
             rowsToAdd.forEach((r) => {

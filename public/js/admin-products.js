@@ -14,6 +14,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     let allProducts = [];
+    /** @type {{ id: string, name: string }[]} */
+    let rankListMeta = [];
 
     function escHtml(s) {
         return String(s ?? "")
@@ -35,7 +37,10 @@ document.addEventListener("DOMContentLoaded", function () {
         productListContainer.innerHTML = "<p style='padding:10px;'>データを読み込んでいます...</p>";
 
         try {
-            const response = await adminApiFetch("/api/admin/products");
+            const [response, rankRes] = await Promise.all([
+                adminApiFetch("/api/admin/products"),
+                adminApiFetch("/api/admin/rank-list")
+            ]);
 
             if (response.status === 401) {
                 productListContainer.innerHTML = "<p>認証が必要です。</p>";
@@ -45,6 +50,11 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!response.ok) throw new Error("データ取得失敗");
 
             allProducts = await response.json();
+            if (rankRes.ok) {
+                rankListMeta = await rankRes.json();
+            } else {
+                rankListMeta = [];
+            }
 
             setupSearchBox();
 
@@ -79,8 +89,8 @@ document.addEventListener("DOMContentLoaded", function () {
         searchInput.id = "admin-prod-dynamic-search";
         searchInput.type = "text";
         searchInput.className = "admin-product-list-search-field";
-        searchInput.placeholder = "コード、商品名、メーカー、カテゴリで検索…";
-        searchInput.setAttribute("aria-label", "コード、商品名、メーカー、カテゴリで検索");
+        searchInput.placeholder = "コード、商品名、メーカー、仕様、備考、ランク価格で検索…";
+        searchInput.setAttribute("aria-label", "コード、商品名、メーカー、仕様、備考、ランク価格で検索");
 
         searchMount.appendChild(searchIcon);
         searchMount.appendChild(searchInput);
@@ -88,7 +98,17 @@ document.addEventListener("DOMContentLoaded", function () {
         searchInput.addEventListener("input", function (e) {
             const term = e.target.value.normalize("NFKC").toLowerCase();
             const filtered = allProducts.filter((p) => {
-                const searchTarget = [p.productCode, p.name, p.manufacturer, p.category]
+                const rankBits = Object.entries(p.mergedRankPrices || {}).map(
+                    ([id, v]) => `${id}${v}`.toLowerCase()
+                );
+                const searchTarget = [
+                    p.productCode,
+                    p.name,
+                    p.manufacturer,
+                    p.category,
+                    p.remarks,
+                    ...rankBits
+                ]
                     .map((val) => (val || "").toString().normalize("NFKC").toLowerCase())
                     .join(" ");
 
@@ -103,6 +123,26 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!code) return;
         const url = `admin-products-new.html?edit=${code}`;
         window.open(url, "_blank", "noopener,noreferrer");
+    }
+
+    function formatMergedRankLine(product) {
+        const prices = product.mergedRankPrices || {};
+        const keys = Object.keys(prices);
+        if (keys.length === 0) return "";
+        if (rankListMeta.length) {
+            const parts = rankListMeta
+                .map((r) => {
+                    const v = prices[r.id];
+                    if (v == null) return null;
+                    return `${escHtml(r.name)}: ¥${Number(v).toLocaleString()}`;
+                })
+                .filter(Boolean);
+            return parts.length ? parts.join(" · ") : "";
+        }
+        return keys
+            .sort()
+            .map((id) => `${escHtml(id)}: ¥${Number(prices[id]).toLocaleString()}`)
+            .join(" · ");
     }
 
     function renderProductList(products) {
@@ -134,6 +174,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 ? `<span style="font-size:0.8rem; color:#28a745;">[${escHtml(product.stockStatus)}]</span>`
                 : "";
             const statusTag = product.active === false ? "<span style='color:red; font-weight:bold;'>[非表示]</span>" : "";
+            const rankLine = formatMergedRankLine(product);
+            const remarksRaw = product.remarks != null ? String(product.remarks).trim() : "";
+            const remarksBlock =
+                remarksRaw !== ""
+                    ? `<div style="font-size:0.8rem; color:#4b5563; margin-top:4px; line-height:1.4;" title="${escHtml(
+                          remarksRaw
+                      )}"><span style="color:#6b7280;">備考:</span> ${escHtml(remarksRaw)}</div>`
+                    : "";
+            const rankBlock =
+                rankLine !== ""
+                    ? `<div style="font-size:0.8rem; color:#1e40af; margin-top:4px; line-height:1.45; font-variant-numeric:tabular-nums;"><span style="color:#3b82f6;">ランク別:</span> ${rankLine}</div>`
+                    : "";
 
             div.innerHTML = `
                 <div style="flex-grow:1; min-width:0;">
@@ -150,6 +202,8 @@ document.addEventListener("DOMContentLoaded", function () {
                             </div>
                         </div>
                     </div>
+                    ${rankBlock}
+                    ${remarksBlock}
                 </div>
                 <button type="button" class="btn-edit-row" style="background:#2563eb; color:white; border:none; padding:6px 10px; border-radius:6px; flex-shrink:0; font-weight:600; font-size:0.875rem; cursor:pointer;">編集</button>
             `;

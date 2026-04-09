@@ -14,7 +14,7 @@ router.post("/add-product", requireAdmin, async (req, res) => {
 
 router.get("/admin/products", requireAdmin, async (req, res) => {
     try {
-        const data = await productService.getAllProducts();
+        const data = await productService.getAllProductsForAdmin();
         res.json(data);
     } catch (e) { res.status(500).json({ message: e.message }); }
 });

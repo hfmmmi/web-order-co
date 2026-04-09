@@ -40,6 +40,29 @@ describe("productService importFromExcel 追加分岐", () => {
         }
     });
 
+    test("備考列を取り込み remarks に保存する", async () => {
+        jest.spyOn(settingsService, "getRankIds").mockResolvedValue(["A"]);
+        jest.spyOn(settingsService, "getRankList").mockResolvedValue([{ id: "A", name: "ランク1" }]);
+        const code = "PIB_RM_" + Date.now();
+        const csv =
+            "商品コード,商品名,定価,仕様,在庫,メーカー,ランク1,備考\n" +
+            `${code},N,100,再生,可,M,5,倉庫A扱い\n`;
+        try {
+            const r = await productService.importFromExcel(Buffer.from(csv, "utf-8"));
+            expect(r.success).toBe(true);
+            const list = JSON.parse(await fs.readFile(PRODUCTS_DB_PATH, "utf-8"));
+            const p = list.find((x) => x.productCode === code);
+            expect(p.remarks).toBe("倉庫A扱い");
+        } finally {
+            const list = JSON.parse(await fs.readFile(PRODUCTS_DB_PATH, "utf-8"));
+            await fs.writeFile(
+                PRODUCTS_DB_PATH,
+                JSON.stringify(list.filter((p) => !String(p.productCode).startsWith("PIB_")), null, 2),
+                "utf-8"
+            );
+        }
+    });
+
     test("表示名ランク列（rankList）で rankKey を解決", async () => {
         jest.spyOn(settingsService, "getRankIds").mockResolvedValue(["A", "B"]);
         jest.spyOn(settingsService, "getRankList").mockResolvedValue([

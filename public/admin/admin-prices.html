@@ -86,7 +86,7 @@
 
                 <div class="admin-section" style="margin-top:20px; background-color:#e8f5e9; border:1px solid #a5d6a7;">
                     <h2 class="section-title" style="color: #2e7d32;">📥 ランク別価格をExcelで取り込む</h2>
-                    <p style="font-size:0.9rem; color:#555;">Excelのシート名を「<strong>Upload</strong>」にし、1行目にヘッダー（「商品コード」「商品名」列と、ランク列として「ランク1」「ランク2」…または「ランクA」「ランクB」…または<strong>システム設定で設定したランクの表示名</strong>）を配置したファイルをアップロードしてください。列の順序は任意です。既存のランク価格が上書きされます。</p>
+                    <p style="font-size:0.9rem; color:#555;">Excelのシート名を「<strong>Upload</strong>」にし、1行目にヘッダー（「商品コード」「商品名」列と、ランク列として<strong>ランクIDそのもの</strong>（例: A,B,C,D,P）・「ランク1」「ランク2」…・「ランクA」「ランクB」…・<strong>システム設定のランク表示名</strong>）を配置したファイルをアップロードしてください。任意で「備考」列を付けると、該当商品の備考を商品マスタに反映します。列の順序は任意です。既存のランク価格が上書きされます。</p>
                     <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:12px;">
                         <input type="file" id="rank-excel-input" accept=".xlsx,.xls">
                         <button type="button" id="rank-excel-import-btn" style="background:#2e7d32; color:white; border:none; padding:8px 16px; border-radius:5px; font-weight:bold; cursor:pointer;">取り込む</button>

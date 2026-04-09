@@ -61,6 +61,34 @@ function sanitizeProductName(val) {
     return s;
 }
 
+/** 商品マスタの rankPrices と rank_prices.json の採用ルール（マスタ全件Excelと同一） */
+function buildMergedRankPricesSource(product, rankPriceMap, rankPricesUpdatedAt) {
+    const timeProduct = (product.rankPricesUpdatedAt != null && Number.isFinite(product.rankPricesUpdatedAt))
+        ? product.rankPricesUpdatedAt
+        : 0;
+    const timeRank = rankPricesUpdatedAt[product.productCode] != null
+        ? Number(rankPricesUpdatedAt[product.productCode])
+        : 0;
+    const hasProductRank = Object.keys(product.rankPrices || {}).length > 0;
+    const useProduct = timeProduct > 0 && timeProduct >= timeRank && hasProductRank;
+    const rankFromTable = rankPriceMap[product.productCode] || {};
+    const rankFromProduct = product.rankPrices || {};
+    return useProduct ? { ...rankFromTable, ...rankFromProduct } : rankFromTable;
+}
+
+function normalizedMergedRankPrices(merged) {
+    const out = {};
+    for (const k of Object.keys(merged || {})) {
+        const v = merged[k];
+        if (v == null || v === "") continue;
+        const n = Number(v);
+        if (!Number.isFinite(n) || n < 0) continue;
+        const rounded = Math.round(n);
+        if (rounded <= 999999999) out[k] = rounded;
+    }
+    return out;
+}
+
 class ProductService {
     
     // 1. 全商品取得
@@ -72,6 +100,25 @@ class ProductService {
             console.error("[ProductService] Load Error:", error);
             throw new Error("商品データの読み込みに失敗しました");
         }
+    }
+
+    /**
+     * 管理画面一覧用: rank_prices.json とのマージ済みランク別価格（mergedRankPrices）と remarks を付与
+     */
+    async getAllProductsForAdmin() {
+        const [productMaster, rankPriceMap, rankPricesUpdatedAt] = await Promise.all([
+            this.getAllProducts(),
+            priceService.getRankPrices(),
+            priceService.getRankPricesUpdatedAt()
+        ]);
+        return productMaster.map((p) => {
+            const merged = buildMergedRankPricesSource(p, rankPriceMap, rankPricesUpdatedAt);
+            return {
+                ...p,
+                mergedRankPrices: normalizedMergedRankPrices(merged),
+                remarks: p.remarks != null ? String(p.remarks) : ""
+            };
+        });
     }
 
     // 2. 商品追加（リクエストから正規化して category 等を確実に保存）
@@ -92,6 +139,7 @@ class ProductService {
                 name: (newProduct.name != null && newProduct.name !== "") ? String(newProduct.name).trim() : code,
                 manufacturer: (newProduct.manufacturer != null) ? String(newProduct.manufacturer).trim() : "",
                 category: (newProduct.category != null) ? String(newProduct.category).trim() : "",
+                remarks: (newProduct.remarks != null) ? String(newProduct.remarks).trim() : "",
                 basePrice: normalizeNonNegativeIntPrice(newProduct.basePrice, 0),
                 purchaseUnitPrice: normalizeNonNegativeIntPrice(newProduct.purchaseUnitPrice, 0),
                 stockStatus: (newProduct.stockStatus != null && String(newProduct.stockStatus).trim() !== "") ? String(newProduct.stockStatus).trim() : "即納",
@@ -130,6 +178,9 @@ class ProductService {
             }
             if (Object.prototype.hasOwnProperty.call(updateData, "category")) {
                 next.category = updateData.category != null ? String(updateData.category).trim() : "";
+            }
+            if (Object.prototype.hasOwnProperty.call(updateData, "remarks")) {
+                next.remarks = updateData.remarks != null ? String(updateData.remarks).trim() : "";
             }
             if (Object.prototype.hasOwnProperty.call(updateData, "basePrice")) {
                 next.basePrice = normalizeNonNegativeIntPrice(updateData.basePrice, 0);
@@ -207,10 +258,12 @@ class ProductService {
             });
             const stockCol = col("在庫");
             const makerCol = col("メーカー");
+            const remarksCol = headerRow.findIndex(h => String(h || "").trim() === "備考");
 
             const [rankIds, rankList] = await Promise.all([settingsService.getRankIds(), settingsService.getRankList()]);
             const rankCols = [];
             for (let i = 6; i < headerRow.length; i++) {
+                if (remarksCol >= 0 && i === remarksCol) continue;
                 const label = String(headerRow[i] ?? "").trim();
                 if (!label) continue;
                 let rankKey = null;
@@ -266,7 +319,8 @@ class ProductService {
                 const nameInCsv = nameCol >= 0 ? row[nameCol] : "";
                 const maker = makerCol >= 0 ? row[makerCol] : "";
                 const category = categoryCol >= 0 ? String(row[categoryCol] ?? "").trim() : "";
-                return { code, basePrice, stockStatus, rankPrices, nameInCsv, maker, category };
+                const remarksVal = remarksCol >= 0 ? String(row[remarksCol] ?? "").trim() : undefined;
+                return { code, basePrice, stockStatus, rankPrices, nameInCsv, maker, category, remarksVal };
             });
 
             const validRows = (await Promise.all(tasks)).filter(r => r !== null);
@@ -287,6 +341,9 @@ class ProductService {
                         existing.rankPricesUpdatedAt = now;
                     }
                     if (importedName !== null) existing.name = importedName;
+                    if (input.remarksVal !== undefined) {
+                        existing.remarks = input.remarksVal;
+                    }
                     updateCount++;
                 } else {
                     productMaster.push({
@@ -295,6 +352,7 @@ class ProductService {
                         basePrice: input.basePrice,
                         manufacturer: input.maker != null ? String(input.maker).trim() : "",
                         category: input.category != null ? String(input.category).trim() : "",
+                        remarks: input.remarksVal !== undefined ? input.remarksVal : "",
                         stockStatus: input.stockStatus,
                         rankPrices: input.rankPrices || {},
                         rankPricesUpdatedAt: hasRankData ? now : undefined
@@ -316,7 +374,7 @@ class ProductService {
     /** 一括取込用テンプレート（ヘッダー: 商品コード, 商品名, メーカー, 定価, 仕様, 在庫 + ランク列） */
     async getProductTemplateBuffer() {
         const rankList = await settingsService.getRankList();
-        const headers = ["商品コード", "商品名", "メーカー", "定価", "仕様", "在庫", ...rankList.map(r => r.name)];
+        const headers = ["商品コード", "商品名", "メーカー", "定価", "仕様", "在庫", ...rankList.map(r => r.name), "備考"];
         const workbook = new ExcelJS.Workbook();
         const sheet = workbook.addWorksheet("商品マスタ");
         sheet.addRow(headers);
@@ -333,19 +391,11 @@ class ProductService {
         ]);
         const workbook = new ExcelJS.Workbook();
         const sheet = workbook.addWorksheet("商品マスタ");
-        sheet.addRow(["商品コード", "商品名", "メーカー", "定価", "仕様", "在庫", ...rankList.map(r => r.name)]);
+        sheet.addRow(["商品コード", "商品名", "メーカー", "定価", "仕様", "在庫", ...rankList.map(r => r.name), "備考"]);
         for (const p of products) {
             const basePrice = p.basePrice === 0 ? "OPEN" : (p.basePrice || "");
             const stockStatus = (p.stockStatus === "即納" ? "可" : (p.stockStatus || ""));
-            const timeProduct = (p.rankPricesUpdatedAt != null && Number.isFinite(p.rankPricesUpdatedAt)) ? p.rankPricesUpdatedAt : 0;
-            const timeRank = rankPricesUpdatedAt[p.productCode] != null ? Number(rankPricesUpdatedAt[p.productCode]) : 0;
-            const hasProductRank = Object.keys(p.rankPrices || {}).length > 0;
-            const useProduct = timeProduct > 0 && timeProduct >= timeRank && hasProductRank;
-            const rankFromTable = rankPriceMap[p.productCode] || {};
-            const rankFromProduct = p.rankPrices || {};
-            const mergedRank = useProduct
-                ? { ...rankFromTable, ...rankFromProduct }
-                : rankFromTable;
+            const mergedRank = buildMergedRankPricesSource(p, rankPriceMap, rankPricesUpdatedAt);
             const rankValues = rankList.map(r => {
                 const v = mergedRank[r.id];
                 if (v == null || v === "") return "";
@@ -361,7 +411,8 @@ class ProductService {
                 basePrice,
                 p.category || "",
                 stockStatus,
-                ...rankValues
+                ...rankValues,
+                p.remarks != null ? String(p.remarks) : ""
             ];
             sheet.addRow(row);
         }

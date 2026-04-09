@@ -3,6 +3,34 @@
 const ExcelJS = require("exceljs");
 
 /**
+ * ExcelJS のセル値を行データ用に正規化する（リッチテキスト・数式の result など）
+ * ヘッダーが「ランク」+「A」と別フォントのとき等、オブジェクトのままだと String で [object Object] になるのを防ぐ。
+ * @param {*} v
+ * @returns {string|number|boolean|Date|*}
+ */
+function normalizeExcelCellValue(v) {
+    if (v == null) return "";
+    const t = typeof v;
+    if (t === "string" || t === "number" || t === "boolean") return v;
+    if (v instanceof Date) return v;
+    if (t !== "object") return v;
+    if (Array.isArray(v.richText)) {
+        return v.richText.map(part => (part && part.text != null ? String(part.text) : "")).join("");
+    }
+    if (v.formula != null && Object.prototype.hasOwnProperty.call(v, "result")) {
+        return normalizeExcelCellValue(v.result);
+    }
+    if (v.sharedFormula != null && Object.prototype.hasOwnProperty.call(v, "result")) {
+        return normalizeExcelCellValue(v.result);
+    }
+    if (v.hyperlink != null && v.text != null) return String(v.text);
+    if (Object.prototype.hasOwnProperty.call(v, "error") && v.error != null) {
+        return String(v.error);
+    }
+    return v;
+}
+
+/**
  * Excel バッファを読み、先頭シートを行の配列の配列で返す（header: 1 相当）
  * @param {Buffer} buffer
  * @param {Object} options - { sheetIndex: 0, sheetName: null } sheetName 指定時はその名前のシート
@@ -18,7 +46,7 @@ async function readToRowArrays(buffer, options = {}) {
     const rows = [];
     sheet.eachRow((row, rowNumber) => {
         const values = row.values; // 1-indexed, values[0] is empty
-        const arr = values ? values.slice(1).map(v => (v == null ? "" : v)) : [];
+        const arr = values ? values.slice(1).map(v => normalizeExcelCellValue(v)) : [];
         rows.push(arr);
     });
     return rows;
@@ -84,6 +112,7 @@ function cellToDateString(cellValue) {
 module.exports = {
     readToRowArrays,
     readToObjects,
+    normalizeExcelCellValue,
     excelSerialToDateString,
     cellToDateString,
     ExcelJS

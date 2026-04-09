@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const nameInput = document.querySelector("#np-product-name");
     const manufacturerInput = document.querySelector("#np-product-manufacturer");
     const categoryInput = document.querySelector("#np-product-category");
+    const remarksInput = document.querySelector("#np-product-remarks");
     const priceInput = document.querySelector("#np-product-price");
     const purchasePriceInput = document.querySelector("#np-product-purchase-price");
     const stockSelect = document.querySelector("#np-product-stock");
@@ -66,6 +67,7 @@ document.addEventListener("DOMContentLoaded", function () {
         nameInput.value = product.name || "";
         manufacturerInput.value = product.manufacturer || "";
         categoryInput.value = product.category || "";
+        if (remarksInput) remarksInput.value = product.remarks != null ? String(product.remarks) : "";
         priceInput.value = product.basePrice != null ? product.basePrice : 0;
         if (purchasePriceInput) {
             purchasePriceInput.value = product.purchaseUnitPrice != null ? product.purchaseUnitPrice : 0;
@@ -107,6 +109,7 @@ document.addEventListener("DOMContentLoaded", function () {
             name: nameInput.value.trim(),
             manufacturer: manufacturerInput.value.trim(),
             category: categoryInput.value.trim(),
+            remarks: remarksInput ? remarksInput.value.trim() : "",
             basePrice: parseInt(priceInput.value, 10) || 0,
             purchaseUnitPrice: purchasePriceInput ? parseInt(purchasePriceInput.value, 10) || 0 : 0,
             stockStatus: stockSelect.value,

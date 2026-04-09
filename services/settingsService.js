@@ -155,7 +155,7 @@ WEB受注システムへのログイン試行が5回失敗しました。
             sheetManufacturerSortCategory: "再生"
         },
         priceListCsv: {
-            headerLine: "商品ｺｰﾄﾞ,メーカー名,商品名,定価,仕様,価格,掛率",
+            headerLine: "商品ｺｰﾄﾞ,メーカー名,商品名,定価,仕様,価格,掛率,備考",
             productNameStripFromDisplay: "商品コード"
         },
         priceListExcel: {

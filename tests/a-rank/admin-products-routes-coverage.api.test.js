@@ -54,8 +54,8 @@ describe("branch coverage 90: admin productsRoutes", () => {
         expect(String(res.body.message || "")).toContain("csv bad");
     });
 
-    test("GET /api/admin/products は getAllProducts 失敗時500", async () => {
-        jest.spyOn(productService, "getAllProducts").mockRejectedValueOnce(new Error("read"));
+    test("GET /api/admin/products は getAllProductsForAdmin 失敗時500", async () => {
+        jest.spyOn(productService, "getAllProductsForAdmin").mockRejectedValueOnce(new Error("read"));
         const agent = request.agent(app);
         await agent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
         const res = await agent.get("/api/admin/products");
