@@ -87,66 +87,6 @@
 
         const deliveryCellHtml = `<span style="font-weight:bold; font-size:1.05rem;">${deliveryName} 様</span>`;
 
-        let historyHTML = "";
-        if (order.shipments && order.shipments.length > 0) {
-            historyHTML += `<div style="margin-top:10px; padding:10px; background:#f1f5f9; border-radius:8px; border-left:4px solid #38bdf8;">`;
-            historyHTML += `<h5 style="margin:0 0 5px 0; color:#495057;">🚚 過去の出荷履歴 (修正可)</h5>`;
-            order.shipments.forEach((ship, idx) => {
-                const dateStr = OrderView.formatOrderDateYmdSlash(ship.shippedDate);
-                const safeCompany = ship.deliveryCompany || "";
-                const safeNumber = ship.trackingNumber || "";
-                let shipDelivDate = ship.deliveryDate || "";
-                const shipDateUnknown = ship.deliveryDateUnknown === true;
-                let shipDateDisplay = shipDelivDate;
-                if(shipDateUnknown) shipDateDisplay = `<span style="color:#ef4444; font-weight:bold;">確約不可</span>`;
-                let dateValueForInput = "";
-                if(shipDelivDate && /^\d{4}[\/\-]\d{2}[\/\-]\d{2}$/.test(shipDelivDate)) {
-                    dateValueForInput = shipDelivDate.replace(/\//g, "-");
-                }
-
-                historyHTML += `
-                <div class="shipment-row" data-shipment-id="${ship.shipmentId}" style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid #e5e7eb;">
-                    <div class="view-mode" style="display:block;">
-                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                            <div>
-                                <strong>[便${idx+1}] ${dateStr}</strong>
-                                <span style="margin-left:5px;">${safeCompany} (No.${safeNumber})</span>
-                                <div style="font-size:0.85rem; color:#3b82f6; margin-top:2px;">
-                                    納品指定: ${shipDateDisplay || "指定なし"}
-                                </div>
-                            </div>
-                            <button class="btn-edit-shipment" data-shipment-id="${ship.shipmentId}" 
-                                style="font-size:0.8rem; padding:2px 8px; background:#eab308; color:#111827; border:none; border-radius:6px; cursor:pointer;">
-                                修正
-                            </button>
-                        </div>
-                        <div style="font-size:0.9rem; color:#6b7280;">
-                            ${ship.items.map(i => `・${i.name} x${i.quantity}`).join(" ")}
-                        </div>
-                    </div>
-                    <div class="edit-mode" style="display:none; background:#fff; padding:10px; border:1px solid #eab308; border-radius:8px;">
-                        <div style="font-size:0.8rem; font-weight:bold; color:#854d0e; margin-bottom:5px;">⚠️ 履歴データの修正</div>
-                        <div style="margin-bottom:8px;">
-                            <label style="font-size:0.8rem; display:block;">納品予定日修正:</label>
-                            <div style="display:flex; align-items:center; gap:5px;">
-                                <input type="date" class="edit-date" value="${dateValueForInput}" style="padding:4px;">
-                                <label style="font-size:0.8rem;"><input type="checkbox" class="edit-date-unknown" ${shipDateUnknown ? "checked" : ""}> 確約不可</label>
-                            </div>
-                        </div>
-                        <div style="display:flex; gap:5px; margin-bottom:5px;">
-                            <input type="text" class="edit-company" value="${safeCompany}" placeholder="配送業者" style="width:40%; padding:4px;">
-                            <input type="text" class="edit-number" value="${safeNumber}" placeholder="送り状番号" style="width:60%; padding:4px;">
-                        </div>
-                        <div style="text-align:right;">
-                            <button class="btn-cancel-edit" data-shipment-id="${ship.shipmentId}" style="font-size:0.8rem; padding:3px 8px; background:#6b7280; color:white; border:none; border-radius:6px; cursor:pointer; margin-right:5px;">キャンセル</button>
-                            <button class="btn-save-shipment" data-shipment-id="${ship.shipmentId}" style="font-size:0.8rem; padding:3px 8px; background:#22c55e; color:white; border:none; border-radius:6px; cursor:pointer;">保存</button>
-                        </div>
-                    </div>
-                </div>`;
-            });
-            historyHTML += `</div>`;
-        }
-
         let tableHTML = `
             <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size: 0.95rem;">
                 <thead style="background:#f3f4f6;">
@@ -189,23 +129,12 @@
         let dateDisplay = info.date || "指定なし";
         if(info.dateUnknown) dateDisplay = `<span style="color:#ef4444; font-weight:bold;">⚠ 確約不可</span>`;
 
-        let resetBtnHtml = "";
-        if(order.exported_at) {
-            resetBtnHtml = `<div style="text-align:right; margin-bottom:10px;">
-                <button class="btn-reset-export" style="font-size:0.75rem; padding:4px 8px; background:#6b7280; color:#fff; border:none; border-radius:6px; cursor:pointer;">
-                    ↩ 連携状態をリセット(未連携に戻す)
-                </button>
-            </div>`;
-        }
-
         const detailContent = `
             <div style="margin:10px 0; padding:15px; background:#f9fafb; border-radius: 8px; border:1px solid #e5e7eb;">
-                ${resetBtnHtml}
-                <div><strong>納品先:</strong> ${info.name || ""} 様 / ${info.address || ""}</div>
+                <div><strong>納品先：</strong> ${info.name || ""} 様 / ${info.address || ""}</div>
                 <div><strong>納品日:</strong> ${dateDisplay}</div>
                 <div><strong>備考:</strong> ${info.note || "なし"}</div>
             </div>
-            ${historyHTML}
             ${tableHTML}
         `;
 
@@ -327,11 +256,11 @@
                     出荷確定 (WEB反映のみ)
                 </button>
             </div>
-            <div class="order-delete-area" style="margin-top:16px; padding-top:14px; border-top:1px dashed #e5e7eb;">
+            <div class="order-delete-area" style="margin-top:16px; padding-top:14px; border-top:1px dashed #e5e7eb; display:flex; align-items:center; flex-wrap:wrap; gap:10px; justify-content:flex-end;">
+                ${order.exported_at ? `<button type="button" class="btn-reset-export" style="background:#6b7280; color:#fff; border:none; padding:8px 14px; border-radius:8px; font-weight:bold; cursor:pointer; font-size:0.85rem;">未連携に</button>` : ""}
                 <button type="button" class="btn-delete-order" style="background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; padding:8px 14px; border-radius:8px; font-weight:bold; cursor:pointer; font-size:0.85rem;">
-                    注文を削除
+                    削除
                 </button>
-                <span style="margin-left:10px; font-size:0.8rem; color:#6b7280;">データから完全に消えます（取り消し不可）</span>
             </div>
         `;
 

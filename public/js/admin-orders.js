@@ -547,6 +547,28 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    /**
+     * いずれかの詳細が開いているとき、詳細が閉じている注文の要約行だけ薄くする。
+     */
+    function syncOrderSummaryRowDimming(tbody) {
+        if (!tbody) return;
+        let anyOpen = false;
+        tbody.querySelectorAll(".order-detail-row").forEach(function (detTr) {
+            if (detTr.style.display !== "none") {
+                anyOpen = true;
+            }
+        });
+        tbody.querySelectorAll(".order-summary-row").forEach(function (sumTr) {
+            const detTr = sumTr.nextElementSibling;
+            const pairOpen =
+                detTr &&
+                detTr.classList.contains("order-detail-row") &&
+                detTr.style.display !== "none";
+            sumTr.classList.toggle("order-summary-row--dimmed", anyOpen && !pairOpen);
+            sumTr.classList.toggle("order-summary-row--detail-open", pairOpen);
+        });
+    }
+
     const btnCloseAllOrderDetails = document.getElementById("btn-close-all-order-details");
     if (btnCloseAllOrderDetails && orderListContainer) {
         btnCloseAllOrderDetails.addEventListener("click", function () {
@@ -557,6 +579,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 btn.textContent = "詳細 ▼";
                 btn.style.backgroundColor = "#b7dbff";
             });
+            orderListContainer.querySelectorAll(".orders-list-table tbody").forEach(syncOrderSummaryRowDimming);
         });
     }
 
@@ -660,6 +683,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     detTr.style.display = isHidden ? "table-row" : "none";
                     toggleBtn.textContent = isHidden ? "閉じる ▲" : "詳細 ▼";
                     toggleBtn.style.backgroundColor = "#b7dbff";
+                    syncOrderSummaryRowDimming(tbody);
                 });
             }
 

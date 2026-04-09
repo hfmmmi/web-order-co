@@ -211,6 +211,8 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 0.9rem;
+            --order-detail-bg: #cbd5e1;
+            --order-detail-border: #b0bec9;
         }
 
         .orders-list-table thead th {
@@ -232,6 +234,35 @@
 
         .orders-list-table .order-summary-row:hover {
             background: #f9fafb;
+        }
+
+        .orders-list-table tbody .order-summary-row {
+            transition: opacity 0.2s ease;
+        }
+
+        .orders-list-table .order-summary-row.order-summary-row--dimmed {
+            opacity: 0.24;
+        }
+
+        .orders-list-table .order-summary-row.order-summary-row--dimmed:hover {
+            background: #f3f4f6;
+        }
+
+        .orders-list-table .order-summary-row.order-summary-row--detail-open {
+            background-color: var(--order-detail-bg);
+        }
+
+        .orders-list-table .order-summary-row.order-summary-row--detail-open td {
+            background-color: var(--order-detail-bg);
+            border-bottom: 1px solid var(--order-detail-border);
+        }
+
+        .orders-list-table .order-summary-row.order-summary-row--detail-open:hover {
+            background-color: var(--order-detail-bg);
+        }
+
+        .orders-list-table .order-summary-row.order-summary-row--detail-open:hover td {
+            background-color: var(--order-detail-bg);
         }
 
         .orders-list-table .col-numeric,
@@ -263,8 +294,8 @@
 
         .orders-list-table .order-detail-row td.order-detail-cell {
             padding: 0;
-            background: #f9fafb;
-            border-bottom: 1px solid #e5e7eb;
+            background: var(--order-detail-bg);
+            border-bottom: 1px solid var(--order-detail-border);
         }
 
         .orders-list-table .order-detail-cell > .order-detail-inner {
