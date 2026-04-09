@@ -76,7 +76,11 @@ class CustomerService {
             customerName: c.customerName,
             priceRank: c.priceRank || "",
             email: c.email || "",
-            allowProxyLogin: c.allowProxyLogin === true
+            allowProxyLogin: c.allowProxyLogin === true,
+            deliveryName: c.deliveryName || "",
+            deliveryZip: c.deliveryZip || "",
+            deliveryAddress: c.deliveryAddress || "",
+            deliveryTel: c.deliveryTel || ""
         }));
 
         return {
@@ -88,7 +92,7 @@ class CustomerService {
     }
 
     // 4. 顧客追加
-    async addCustomer({ customerId, customerName, password, priceRank, email }) {
+    async addCustomer({ customerId, customerName, password, priceRank, email, deliveryName, deliveryZip, deliveryAddress, deliveryTel }) {
         return runWithJsonFileWriteLock(CUSTOMERS_DB_PATH, async () => {
             const list = await this._loadAll();
 
@@ -103,7 +107,11 @@ class CustomerService {
                 customerName: String(customerName).trim(),
                 password: hashedPassword,
                 priceRank: priceRank ? String(priceRank).trim().toUpperCase() : "",
-                email: email ? String(email).trim() : ""
+                email: email ? String(email).trim() : "",
+                deliveryName: deliveryName != null ? String(deliveryName).trim() : "",
+                deliveryZip: deliveryZip != null ? String(deliveryZip).trim() : "",
+                deliveryAddress: deliveryAddress != null ? String(deliveryAddress).trim() : "",
+                deliveryTel: deliveryTel != null ? String(deliveryTel).trim() : ""
             }];
 
             await fs.writeFile(CUSTOMERS_DB_PATH, JSON.stringify(newList, null, 2));
@@ -112,7 +120,7 @@ class CustomerService {
     }
 
     // 5. 顧客更新
-    async updateCustomer({ customerId, customerName, password, priceRank, email }) {
+    async updateCustomer({ customerId, customerName, password, priceRank, email, deliveryName, deliveryZip, deliveryAddress, deliveryTel }) {
         return runWithJsonFileWriteLock(CUSTOMERS_DB_PATH, async () => {
             const list = await this._loadAll();
             const index = list.findIndex(c => c.customerId === customerId);
@@ -124,6 +132,11 @@ class CustomerService {
             list[index].customerName = String(customerName).trim();
             list[index].priceRank = priceRank ? String(priceRank).trim().toUpperCase() : "";
             list[index].email = email !== undefined ? String(email || "").trim() : (list[index].email || "");
+
+            if (deliveryName !== undefined) list[index].deliveryName = String(deliveryName || "").trim();
+            if (deliveryZip !== undefined) list[index].deliveryZip = String(deliveryZip || "").trim();
+            if (deliveryAddress !== undefined) list[index].deliveryAddress = String(deliveryAddress || "").trim();
+            if (deliveryTel !== undefined) list[index].deliveryTel = String(deliveryTel || "").trim();
 
             if (password && String(password).trim() !== "") {
                 list[index].password = await bcrypt.hash(String(password).trim(), 10);

@@ -24,6 +24,17 @@ document.addEventListener("DOMContentLoaded", function () {
     const cmEmail = document.getElementById("cm-email");
     const cmRank = document.getElementById("cm-rank");
     const cmPassNote = document.getElementById("cm-pass-note");
+    const cmDeliveryName = document.getElementById("cm-delivery-name");
+    const cmDeliveryZip = document.getElementById("cm-delivery-zip");
+    const cmDeliveryAddress = document.getElementById("cm-delivery-address");
+    const cmDeliveryTel = document.getElementById("cm-delivery-tel");
+
+    function attrEscape(s) {
+        return String(s || "")
+            .replace(/&/g, "&amp;")
+            .replace(/"/g, "&quot;")
+            .replace(/</g, "&lt;");
+    }
 
     // ★招待モーダル用要素（URL表示・メール送信）
     const inviteModal = document.getElementById("invite-modal");
@@ -249,6 +260,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         招待
                         </button>
                         <button class="btn-edit-cust" data-id="${c.customerId}" data-name="${c.customerName}" data-rank="${c.priceRank || ""}" data-email="${(c.email || "").replace(/"/g, "&quot;")}"
+                        data-delivery-name="${attrEscape(c.deliveryName)}" data-delivery-zip="${attrEscape(c.deliveryZip)}" data-delivery-address="${attrEscape(c.deliveryAddress)}" data-delivery-tel="${attrEscape(c.deliveryTel)}"
                         style="padding:3px 8px; background:#ffc107; color:#212529; border:none; border-radius:3px; cursor:pointer; margin-right:5px;">
                         編集
                         </button>
@@ -352,7 +364,11 @@ document.addEventListener("DOMContentLoaded", function () {
                         id: this.dataset.id,
                         name: this.dataset.name,
                         rank: this.dataset.rank,
-                        email: this.dataset.email || ""
+                        email: this.dataset.email || "",
+                        deliveryName: this.dataset.deliveryName || "",
+                        deliveryZip: this.dataset.deliveryZip || "",
+                        deliveryAddress: this.dataset.deliveryAddress || "",
+                        deliveryTel: this.dataset.deliveryTel || ""
                     });
                 });
 
@@ -420,6 +436,10 @@ document.addEventListener("DOMContentLoaded", function () {
             cmPass.value = "";
             if (cmEmail) cmEmail.value = "";
             cmRank.value = "";
+            if (cmDeliveryName) cmDeliveryName.value = "";
+            if (cmDeliveryZip) cmDeliveryZip.value = "";
+            if (cmDeliveryAddress) cmDeliveryAddress.value = "";
+            if (cmDeliveryTel) cmDeliveryTel.value = "";
         } else {
             cmTitle.textContent = "顧客情報編集";
             cmId.readOnly = true;
@@ -431,6 +451,10 @@ document.addEventListener("DOMContentLoaded", function () {
             cmRank.value = data.rank;
             if (cmEmail) cmEmail.value = data.email || "";
             cmPass.value = "";
+            if (cmDeliveryName) cmDeliveryName.value = data.deliveryName || "";
+            if (cmDeliveryZip) cmDeliveryZip.value = data.deliveryZip || "";
+            if (cmDeliveryAddress) cmDeliveryAddress.value = data.deliveryAddress || "";
+            if (cmDeliveryTel) cmDeliveryTel.value = data.deliveryTel || "";
         }
         custModal.style.display = "flex";
     }
@@ -446,7 +470,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 customerName: cmName.value,
                 password: cmPass.value,
                 priceRank: cmRank.value,
-                email: cmEmail ? cmEmail.value.trim() : ""
+                email: cmEmail ? cmEmail.value.trim() : "",
+                deliveryName: cmDeliveryName ? cmDeliveryName.value.trim() : "",
+                deliveryZip: cmDeliveryZip ? cmDeliveryZip.value.trim() : "",
+                deliveryAddress: cmDeliveryAddress ? cmDeliveryAddress.value.trim() : "",
+                deliveryTel: cmDeliveryTel ? cmDeliveryTel.value.trim() : ""
             };
 
             // バリデーション

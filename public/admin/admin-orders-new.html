@@ -137,20 +137,15 @@
             max-width: 9rem;
         }
 
-        .order-create-customer-wrap input[type="search"] {
-            width: 100%;
-            box-sizing: border-box;
-            padding: 8px 10px;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 0.9rem;
-        }
-
         .order-create-lines-wrap {
             margin-top: 0;
             border: 1px solid #e5e7eb;
             border-radius: 8px;
-            overflow: auto;
+            overflow: visible;
+        }
+
+        .order-create-lines-table td:first-child {
+            overflow: visible;
         }
 
         .order-create-lines-table {
@@ -187,13 +182,28 @@
             margin-bottom: 12px;
         }
 
-        .order-create-customer-wrap {
+        .order-create-customer-wrap,
+        .order-create-deliv-name-wrap,
+        .order-create-product-wrap {
             position: relative;
             width: 100%;
             max-width: 100%;
         }
 
-        .order-create-customer-suggestions {
+        .order-create-customer-wrap input[type="search"],
+        .order-create-deliv-name-wrap input[type="text"],
+        .order-create-product-wrap input[type="search"] {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 8px 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .order-create-customer-suggestions,
+        .order-create-deliv-suggestions,
+        .order-create-product-suggestions {
             display: none;
             position: absolute;
             left: 0;
@@ -211,11 +221,19 @@
             z-index: 40;
         }
 
-        .order-create-customer-suggestions.is-open {
+        .order-create-product-suggestions {
+            z-index: 50;
+        }
+
+        .order-create-customer-suggestions.is-open,
+        .order-create-deliv-suggestions.is-open,
+        .order-create-product-suggestions.is-open {
             display: block;
         }
 
-        .order-create-customer-suggestions li {
+        .order-create-customer-suggestions li,
+        .order-create-deliv-suggestions li,
+        .order-create-product-suggestions li {
             padding: 8px 12px;
             cursor: pointer;
             font-size: 0.9rem;
@@ -223,17 +241,25 @@
         }
 
         .order-create-customer-suggestions li:hover,
-        .order-create-customer-suggestions li:focus {
+        .order-create-customer-suggestions li:focus,
+        .order-create-deliv-suggestions li:hover,
+        .order-create-deliv-suggestions li:focus,
+        .order-create-product-suggestions li:hover,
+        .order-create-product-suggestions li:focus {
             background: #eff6ff;
         }
 
-        .order-create-customer-suggestions .order-create-customer-suggest-empty {
+        .order-create-customer-suggestions .order-create-customer-suggest-empty,
+        .order-create-deliv-suggestions .order-create-deliv-suggest-empty,
+        .order-create-product-suggestions .order-create-product-suggest-empty {
             color: #6b7280;
             cursor: default;
             font-size: 0.85rem;
         }
 
-        .order-create-customer-suggestions .order-create-customer-suggest-empty:hover {
+        .order-create-customer-suggestions .order-create-customer-suggest-empty:hover,
+        .order-create-deliv-suggestions .order-create-deliv-suggest-empty:hover,
+        .order-create-product-suggestions .order-create-product-suggest-empty:hover {
             background: transparent;
         }
     </style>
@@ -258,11 +284,17 @@
                     <div id="order-new-load-status">データを読み込み中…</div>
                     <form id="order-create-form" style="display: none;">
                         <div class="order-create-field">
+                            <label for="order-create-order-date">受注日</label>
+                            <div class="order-create-field-control">
+                                <input type="date" id="order-create-order-date" class="order-create-order-date"
+                                    required onclick="this.showPicker && this.showPicker()">
+                            </div>
+                        </div>
+                        <div class="order-create-field">
                             <label for="order-create-customer-search">顧客名</label>
                             <div class="order-create-field-control">
                                 <div class="order-create-customer-wrap">
                                     <input type="search" id="order-create-customer-search" autocomplete="off"
-                                        placeholder="顧客IDまたは社名を入力して候補から選択…"
                                         aria-autocomplete="list" aria-controls="order-create-customer-suggestions"
                                         aria-expanded="false" disabled>
                                     <ul id="order-create-customer-suggestions" class="order-create-customer-suggestions"
@@ -271,28 +303,34 @@
                             </div>
                         </div>
                         <div class="order-create-field">
-                            <label for="order-create-deliv-name">納品先 宛名</label>
+                            <label for="order-create-deliv-name">納品先名</label>
                             <div class="order-create-field-control">
-                                <input type="text" id="order-create-deliv-name" maxlength="100" placeholder="例: 株式会社○○ 御中" autocomplete="off">
+                                <div class="order-create-deliv-name-wrap">
+                                    <input type="text" id="order-create-deliv-name" maxlength="100" autocomplete="off"
+                                        aria-autocomplete="list" aria-controls="order-create-deliv-suggestions"
+                                        aria-expanded="false">
+                                    <ul id="order-create-deliv-suggestions" class="order-create-deliv-suggestions"
+                                        role="listbox" aria-label="顧客マスタの納品先"></ul>
+                                </div>
                             </div>
                         </div>
                         <div class="order-create-field">
                             <label for="order-create-deliv-zip">郵便番号</label>
                             <div class="order-create-field-control">
                                 <input type="text" id="order-create-deliv-zip" class="order-create-zip-input" maxlength="7"
-                                    inputmode="numeric" pattern="[0-9]*" placeholder="例: 1000001（7桁・ハイフンなし）" autocomplete="postal-code">
+                                    inputmode="numeric" pattern="[0-9]*" autocomplete="postal-code">
                             </div>
                         </div>
                         <div class="order-create-field">
                             <label for="order-create-deliv-address">住所</label>
                             <div class="order-create-field-control">
-                                <input type="text" id="order-create-deliv-address" maxlength="300" placeholder="例: 東京都…" autocomplete="street-address">
+                                <input type="text" id="order-create-deliv-address" maxlength="300" autocomplete="street-address">
                             </div>
                         </div>
                         <div class="order-create-field">
                             <label for="order-create-deliv-tel">電話番号</label>
                             <div class="order-create-field-control">
-                                <input type="text" id="order-create-deliv-tel" maxlength="30" placeholder="例: 03-0000-0000" autocomplete="tel">
+                                <input type="text" id="order-create-deliv-tel" maxlength="30" autocomplete="tel">
                             </div>
                         </div>
                         <div class="order-create-field">
@@ -302,25 +340,19 @@
                             </div>
                         </div>
                         <div class="order-create-field">
-                            <label for="order-create-client-order-no">お客様注文番号</label>
-                            <div class="order-create-field-control">
-                                <input type="text" id="order-create-client-order-no" maxlength="100" autocomplete="off">
-                            </div>
-                        </div>
-                        <div class="order-create-field">
                             <label for="order-create-note">備考</label>
                             <div class="order-create-field-control">
-                                <input type="text" id="order-create-note" maxlength="1000" placeholder="社内メモなど" autocomplete="off">
+                                <input type="text" id="order-create-note" maxlength="1000" autocomplete="off">
                             </div>
                         </div>
                         <div class="order-create-field order-create-field--lines">
-                            <label>明細（必須・1行以上）</label>
+                            <label>商品名</label>
                             <div class="order-create-field-control">
                                 <div class="order-create-lines-wrap">
                                     <table class="order-create-lines-table">
                                         <thead>
                                             <tr>
-                                                <th style="min-width: 200px;">商品</th>
+                                                <th style="min-width: 200px;">商品名</th>
                                                 <th style="width: 5.5rem;">数量</th>
                                                 <th style="width: 4.5rem;"></th>
                                             </tr>
@@ -347,7 +379,7 @@
 
     <script src="../js/admin-icons.js"></script>
     <script src="../js/admin-common.js"></script>
-    <script src="../js/admin-orders-new.js?v=1.4"></script>
+    <script src="../js/admin-orders-new.js?v=2.1"></script>
 </body>
 
 </html>

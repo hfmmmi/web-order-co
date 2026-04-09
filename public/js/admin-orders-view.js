@@ -215,7 +215,7 @@
     /**
      * 出荷操作エリアのDOM生成 (イベントもここで紐付け)
      * @param {Object} order - 注文データ
-     * @param {Object} actions - コールバック関数群 { updateDeliveryEstimate, registerBatch }
+     * @param {Object} actions - コールバック関数群 { updateDeliveryEstimate, registerBatch, deleteOrder }
      */
     OrderView.createOperationArea = function(order, actions) {
         const operationArea = document.createElement("div");
@@ -327,6 +327,12 @@
                     出荷確定 (WEB反映のみ)
                 </button>
             </div>
+            <div class="order-delete-area" style="margin-top:16px; padding-top:14px; border-top:1px dashed #e5e7eb;">
+                <button type="button" class="btn-delete-order" style="background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; padding:8px 14px; border-radius:8px; font-weight:bold; cursor:pointer; font-size:0.85rem;">
+                    注文を削除
+                </button>
+                <span style="margin-left:10px; font-size:0.8rem; color:#6b7280;">データから完全に消えます（取り消し不可）</span>
+            </div>
         `;
 
         const dateInput = operationArea.querySelector(".input-delivery-date");
@@ -431,6 +437,13 @@
                 actions.registerBatch(order.orderId, finalPayload);
             }
         });
+
+        const btnDeleteOrder = operationArea.querySelector(".btn-delete-order");
+        if (btnDeleteOrder && actions.deleteOrder) {
+            btnDeleteOrder.addEventListener("click", function () {
+                actions.deleteOrder(order.orderId, order);
+            });
+        }
 
         return operationArea;
     };

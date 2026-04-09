@@ -82,7 +82,21 @@ const adminCreateOrderSchema = z
     .object({
         customerId: customerIdSchema,
         cart: z.array(cartItemSchema).min(1),
-        deliveryInfo: deliveryInfoSchema
+        deliveryInfo: deliveryInfoSchema,
+        orderDate: z.preprocess(
+            (v) => (v === undefined || v === null ? undefined : typeof v === "string" ? v.trim() : v),
+            z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional()
+        )
+    })
+    .strict();
+
+/** 管理画面: 注文削除 */
+const adminDeleteOrderSchema = z
+    .object({
+        orderId: z.preprocess(
+            (v) => (v === undefined || v === null ? v : String(v).trim()),
+            z.string().min(1).max(40)
+        )
     })
     .strict();
 
@@ -98,7 +112,11 @@ const addCustomerSchema = z
         email: z.preprocess(
             (v) => (typeof v === "string" ? v.trim() : v),
             z.union([z.literal(""), z.string().email().max(254)]).optional()
-        )
+        ),
+        deliveryName: optionalTrimmedString(100),
+        deliveryZip: optionalTrimmedString(20),
+        deliveryAddress: optionalTrimmedString(300),
+        deliveryTel: optionalTrimmedString(30)
     })
     .strict();
 
@@ -117,7 +135,11 @@ const updateCustomerSchema = z
         email: z.preprocess(
             (v) => (typeof v === "string" ? v.trim() : v),
             z.union([z.literal(""), z.string().email().max(254)]).optional()
-        )
+        ),
+        deliveryName: optionalTrimmedString(100),
+        deliveryZip: optionalTrimmedString(20),
+        deliveryAddress: optionalTrimmedString(300),
+        deliveryTel: optionalTrimmedString(30)
     })
     .strict();
 
@@ -239,6 +261,7 @@ module.exports = {
     loginSchema,
     placeOrderSchema,
     adminCreateOrderSchema,
+    adminDeleteOrderSchema,
     addCustomerSchema,
     updateCustomerSchema,
     adminAccountUpdateSchema,

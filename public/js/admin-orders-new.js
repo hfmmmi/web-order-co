@@ -10,6 +10,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const customerWrap = document.querySelector(".order-create-customer-wrap");
     const zipInput = document.getElementById("order-create-deliv-zip");
     const addressInput = document.getElementById("order-create-deliv-address");
+    const delivNameInput = document.getElementById("order-create-deliv-name");
+    const delivSuggestionsUl = document.getElementById("order-create-deliv-suggestions");
+    const delivNameWrap = document.querySelector(".order-create-deliv-name-wrap");
 
     let cachedProductsForOrderCreate = null;
     let zipLookupSeq = 0;
@@ -18,6 +21,15 @@ document.addEventListener("DOMContentLoaded", function () {
     let selectedDisplayText = "";
 
     const SUGGEST_LIMIT = 20;
+    const PRODUCT_SUGGEST_LIMIT = 20;
+
+    function localTodayYmd() {
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return y + "-" + m + "-" + day;
+    }
 
     function setLoadStatus(text, isError) {
         if (!loadStatusEl) return;
@@ -53,9 +65,23 @@ document.addEventListener("DOMContentLoaded", function () {
         if (customerSearchInput) customerSearchInput.setAttribute("aria-expanded", "true");
     }
 
+    function closeDelivSuggestions() {
+        if (!delivSuggestionsUl) return;
+        delivSuggestionsUl.classList.remove("is-open");
+        delivSuggestionsUl.innerHTML = "";
+        if (delivNameInput) delivNameInput.setAttribute("aria-expanded", "false");
+    }
+
+    function openDelivSuggestions() {
+        if (!delivSuggestionsUl) return;
+        delivSuggestionsUl.classList.add("is-open");
+        if (delivNameInput) delivNameInput.setAttribute("aria-expanded", "true");
+    }
+
     function clearCustomerSelection() {
         selectedCustomerId = null;
         selectedDisplayText = "";
+        closeDelivSuggestions();
     }
 
     function selectCustomer(c) {
@@ -64,6 +90,7 @@ document.addEventListener("DOMContentLoaded", function () {
         selectedDisplayText = "(" + selectedCustomerId + ") " + (c.customerName || "");
         if (customerSearchInput) customerSearchInput.value = selectedDisplayText;
         closeCustomerSuggestions();
+        closeDelivSuggestions();
     }
 
     function renderCustomerSuggestions() {
@@ -134,6 +161,76 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    function hasDeliveryProfile(c) {
+        if (!c) return false;
+        const s = function (v) {
+            return String(v || "").trim();
+        };
+        return !!(s(c.deliveryName) || s(c.deliveryZip) || s(c.deliveryAddress) || s(c.deliveryTel));
+    }
+
+    function applyDeliveryFromMaster(c) {
+        if (!c) return;
+        const nameEl = document.getElementById("order-create-deliv-name");
+        const zipEl = document.getElementById("order-create-deliv-zip");
+        const addrEl = document.getElementById("order-create-deliv-address");
+        const telEl = document.getElementById("order-create-deliv-tel");
+        const dn = String(c.deliveryName || "").trim();
+        const nm = dn || String(c.customerName || "").trim();
+        if (nameEl) nameEl.value = nm;
+        if (zipEl) zipEl.value = digitsOnlyZipString(c.deliveryZip || "");
+        if (addrEl) addrEl.value = String(c.deliveryAddress || "").trim();
+        if (telEl) telEl.value = String(c.deliveryTel || "").trim();
+        closeDelivSuggestions();
+        if (zipEl && addrEl && digitsOnlyZipString(zipEl.value).length === 7 && !String(addrEl.value || "").trim()) {
+            lookupAddressFromZip();
+        }
+    }
+
+    function renderDelivNameSuggestions() {
+        if (!delivSuggestionsUl || !delivNameInput) return;
+        delivSuggestionsUl.innerHTML = "";
+        if (!selectedCustomerId) {
+            const li = document.createElement("li");
+            li.className = "order-create-deliv-suggest-empty";
+            li.textContent = "先に上段で顧客を選択してください";
+            delivSuggestionsUl.appendChild(li);
+            openDelivSuggestions();
+            return;
+        }
+        const c = allCustomersForOrder.find(function (x) {
+            return String(x.customerId).trim() === String(selectedCustomerId).trim();
+        });
+        if (!c) {
+            const li = document.createElement("li");
+            li.className = "order-create-deliv-suggest-empty";
+            li.textContent = "顧客情報を取得できません";
+            delivSuggestionsUl.appendChild(li);
+            openDelivSuggestions();
+            return;
+        }
+        if (!hasDeliveryProfile(c)) {
+            const li = document.createElement("li");
+            li.className = "order-create-deliv-suggest-empty";
+            li.textContent = "顧客管理に納品先が未登録です（顧客編集で登録できます）";
+            delivSuggestionsUl.appendChild(li);
+            openDelivSuggestions();
+            return;
+        }
+        const li = document.createElement("li");
+        li.setAttribute("role", "option");
+        const label = String(c.deliveryName || "").trim() || String(c.customerName || "").trim();
+        li.textContent = "顧客マスタを反映: " + label;
+        li.addEventListener("mousedown", function (e) {
+            e.preventDefault();
+            applyDeliveryFromMaster(c);
+        });
+        delivSuggestionsUl.appendChild(li);
+        openDelivSuggestions();
+    }
+
+    const debouncedRenderDelivSuggestions = debounce(renderDelivNameSuggestions, 200);
+
     const debouncedZipLookup = debounce(lookupAddressFromZip, 350);
 
     if (zipInput) {
@@ -175,22 +272,131 @@ document.addEventListener("DOMContentLoaded", function () {
         return cachedProductsForOrderCreate;
     }
 
-    function buildProductSelectForOrderCreate(products) {
-        const sel = document.createElement("select");
-        sel.className = "order-create-product";
-        sel.required = true;
-        const o0 = document.createElement("option");
-        o0.value = "";
-        o0.textContent = "商品を選択";
-        sel.appendChild(o0);
-        const sorted = products.slice().sort((a, b) => String(a.productCode).localeCompare(String(b.productCode), "ja"));
-        sorted.forEach((p) => {
-            const o = document.createElement("option");
-            o.value = p.productCode;
-            o.textContent = "(" + p.productCode + ") " + (p.name || "");
-            sel.appendChild(o);
+    function closeAllProductSuggestionsExcept(currentWrap) {
+        document.querySelectorAll(".order-create-product-wrap").forEach(function (w) {
+            if (w === currentWrap) return;
+            const u = w.querySelector(".order-create-product-suggestions");
+            const inp = w.querySelector(".order-create-product-search");
+            if (u) {
+                u.classList.remove("is-open");
+                u.innerHTML = "";
+            }
+            if (inp) inp.setAttribute("aria-expanded", "false");
         });
-        return sel;
+    }
+
+    function createProductPicker(products) {
+        const wrap = document.createElement("div");
+        wrap.className = "order-create-product-wrap";
+
+        const hidden = document.createElement("input");
+        hidden.type = "hidden";
+        hidden.className = "order-create-product-code";
+        hidden.value = "";
+
+        const input = document.createElement("input");
+        input.type = "search";
+        input.className = "order-create-product-search";
+        input.setAttribute("autocomplete", "off");
+        input.setAttribute("required", "required");
+        input.setAttribute("aria-autocomplete", "list");
+        input.setAttribute("aria-expanded", "false");
+
+        const ul = document.createElement("ul");
+        ul.className = "order-create-product-suggestions";
+        ul.setAttribute("role", "listbox");
+        ul.setAttribute("aria-label", "商品候補");
+
+        let selectedDisplay = "";
+
+        function closeProductSuggestionsLocal() {
+            ul.classList.remove("is-open");
+            ul.innerHTML = "";
+            input.setAttribute("aria-expanded", "false");
+        }
+
+        function openProductSuggestionsLocal() {
+            ul.classList.add("is-open");
+            input.setAttribute("aria-expanded", "true");
+        }
+
+        function clearProductSelection() {
+            selectedDisplay = "";
+            hidden.value = "";
+        }
+
+        function selectProduct(p) {
+            if (!p || !p.productCode) return;
+            const code = String(p.productCode).trim();
+            selectedDisplay = "(" + code + ") " + (p.name || "");
+            hidden.value = code;
+            input.value = selectedDisplay;
+            closeProductSuggestionsLocal();
+        }
+
+        function renderProductSuggestions() {
+            ul.innerHTML = "";
+            const raw = input.value.trim();
+            if (raw.length === 0) {
+                clearProductSelection();
+                const li = document.createElement("li");
+                li.className = "order-create-product-suggest-empty";
+                li.textContent = "商品コードまたは商品名を入力してください";
+                ul.appendChild(li);
+                openProductSuggestionsLocal();
+                return;
+            }
+            if (selectedDisplay && input.value !== selectedDisplay) {
+                clearProductSelection();
+            }
+            const q = norm(raw);
+            const hits = products.filter(function (p) {
+                const id = norm(p.productCode);
+                const nm = norm(p.name);
+                return id.includes(q) || nm.includes(q);
+            });
+            hits.sort(function (a, b) {
+                return String(a.productCode).localeCompare(String(b.productCode), "ja");
+            });
+            const slice = hits.slice(0, PRODUCT_SUGGEST_LIMIT);
+            if (slice.length === 0) {
+                const li = document.createElement("li");
+                li.className = "order-create-product-suggest-empty";
+                li.textContent = "一致する商品がありません";
+                ul.appendChild(li);
+            } else {
+                slice.forEach(function (p) {
+                    const li = document.createElement("li");
+                    li.setAttribute("role", "option");
+                    li.textContent = "(" + p.productCode + ") " + (p.name || "");
+                    li.addEventListener("mousedown", function (e) {
+                        e.preventDefault();
+                        selectProduct(p);
+                    });
+                    ul.appendChild(li);
+                });
+            }
+            openProductSuggestionsLocal();
+        }
+
+        const debouncedProductSuggest = debounce(renderProductSuggestions, 200);
+
+        input.addEventListener("input", function () {
+            if (selectedDisplay && input.value !== selectedDisplay) {
+                clearProductSelection();
+            }
+            closeAllProductSuggestionsExcept(wrap);
+            debouncedProductSuggest();
+        });
+        input.addEventListener("focus", function () {
+            closeAllProductSuggestionsExcept(wrap);
+            renderProductSuggestions();
+        });
+
+        wrap.appendChild(hidden);
+        wrap.appendChild(input);
+        wrap.appendChild(ul);
+        return wrap;
     }
 
     function addOrderCreateLineRow(products) {
@@ -199,7 +405,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const tdP = document.createElement("td");
         const tdQ = document.createElement("td");
         const tdR = document.createElement("td");
-        tdP.appendChild(buildProductSelectForOrderCreate(products));
+        tdP.appendChild(createProductPicker(products));
         const inp = document.createElement("input");
         inp.type = "number";
         inp.min = "1";
@@ -219,7 +425,7 @@ document.addEventListener("DOMContentLoaded", function () {
         btnRm.style.padding = "4px 8px";
         btnRm.addEventListener("click", function () {
             if (orderCreateLinesBody.querySelectorAll("tr").length <= 1) {
-                toastWarning("明細は1行以上必要です");
+                toastWarning("商品行は1行以上必要です");
                 return;
             }
             tr.remove();
@@ -238,13 +444,14 @@ document.addEventListener("DOMContentLoaded", function () {
             "order-create-deliv-address",
             "order-create-deliv-tel",
             "order-create-deliv-date",
-            "order-create-client-order-no",
             "order-create-note"
         ];
         ids.forEach((id) => {
             const el = document.getElementById(id);
             if (el) el.value = "";
         });
+        const orderDateEl = document.getElementById("order-create-order-date");
+        if (orderDateEl) orderDateEl.value = localTodayYmd();
         if (orderCreateLinesBody) orderCreateLinesBody.innerHTML = "";
         if (customerSearchInput) customerSearchInput.value = "";
         clearCustomerSelection();
@@ -282,7 +489,7 @@ document.addEventListener("DOMContentLoaded", function () {
             setLoadStatus(e.message || "データの読込に失敗しました", true);
             if (customerSearchInput) {
                 customerSearchInput.disabled = true;
-                customerSearchInput.placeholder = "顧客一覧を取得できませんでした";
+                customerSearchInput.placeholder = "";
             }
         }
     }
@@ -307,7 +514,28 @@ document.addEventListener("DOMContentLoaded", function () {
         if (customerWrap && !customerWrap.contains(e.target)) {
             closeCustomerSuggestions();
         }
+        if (delivNameWrap && !delivNameWrap.contains(e.target)) {
+            closeDelivSuggestions();
+        }
+        if (!e.target.closest(".order-create-product-wrap")) {
+            document.querySelectorAll(".order-create-product-suggestions").forEach(function (u) {
+                u.classList.remove("is-open");
+                u.innerHTML = "";
+            });
+            document.querySelectorAll(".order-create-product-search").forEach(function (inp) {
+                inp.setAttribute("aria-expanded", "false");
+            });
+        }
     });
+
+    if (delivNameInput) {
+        delivNameInput.addEventListener("input", function () {
+            debouncedRenderDelivSuggestions();
+        });
+        delivNameInput.addEventListener("focus", function () {
+            renderDelivNameSuggestions();
+        });
+    }
 
     if (btnOrderCreateAddLine) {
         btnOrderCreateAddLine.addEventListener("click", function () {
@@ -331,12 +559,12 @@ document.addEventListener("DOMContentLoaded", function () {
             const rows = orderCreateLinesBody ? orderCreateLinesBody.querySelectorAll("tr") : [];
             const cart = [];
             for (let i = 0; i < rows.length; i++) {
-                const sel = rows[i].querySelector(".order-create-product");
+                const codeHidden = rows[i].querySelector(".order-create-product-code");
                 const qIn = rows[i].querySelector(".order-create-qty");
-                const code = sel ? sel.value.trim() : "";
+                const code = codeHidden ? codeHidden.value.trim() : "";
                 const qty = qIn ? parseInt(qIn.value, 10) : 0;
                 if (!code) {
-                    toastWarning("すべての行で商品を選択してください");
+                    toastWarning("すべての行で商品名を検索し、候補から選択してください");
                     return;
                 }
                 if (!Number.isFinite(qty) || qty < 1) {
@@ -346,7 +574,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 cart.push({ code: code, quantity: qty, price: 0 });
             }
             if (cart.length === 0) {
-                toastWarning("明細を1行以上追加してください");
+                toastWarning("商品行を1行以上追加してください");
                 return;
             }
 
@@ -354,14 +582,20 @@ document.addEventListener("DOMContentLoaded", function () {
             let dateStr = "";
             if (dDate && dDate.value) dateStr = dDate.value.replace(/-/g, "/");
 
+            const orderDateEl = document.getElementById("order-create-order-date");
+            const orderDateYmd = orderDateEl && orderDateEl.value ? orderDateEl.value.trim() : "";
+            if (!orderDateYmd) {
+                toastWarning("受注日を入力してください");
+                return;
+            }
+
             const deliveryInfo = {
                 name: (document.getElementById("order-create-deliv-name") || {}).value || "",
                 zip: (document.getElementById("order-create-deliv-zip") || {}).value || "",
                 address: (document.getElementById("order-create-deliv-address") || {}).value || "",
                 tel: (document.getElementById("order-create-deliv-tel") || {}).value || "",
                 date: dateStr,
-                note: (document.getElementById("order-create-note") || {}).value || "",
-                clientOrderNumber: (document.getElementById("order-create-client-order-no") || {}).value || ""
+                note: (document.getElementById("order-create-note") || {}).value || ""
             };
 
             if (btnOrderCreateSubmit) btnOrderCreateSubmit.disabled = true;
@@ -370,7 +604,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     credentials: "include",
-                    body: JSON.stringify({ customerId, cart, deliveryInfo })
+                    body: JSON.stringify({ customerId, cart, deliveryInfo, orderDate: orderDateYmd })
                 });
                 const data = await res.json().catch(() => ({}));
                 if (res.ok && data.success) {

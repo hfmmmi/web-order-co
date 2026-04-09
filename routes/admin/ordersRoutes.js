@@ -10,7 +10,7 @@ const { requireAdmin } = require("./requireAdmin");
 const orderListExport = require("../../utils/orderListExport");
 const customerService = require("../../services/customerService");
 const { validateBody } = require("../../middlewares/validate");
-const { adminCreateOrderSchema } = require("../../validators/requestSchemas");
+const { adminCreateOrderSchema, adminDeleteOrderSchema } = require("../../validators/requestSchemas");
 
 router.post("/update-order-status", (req, res, next) => {
     if (!req.session.isAdmin && !req.session.customerId) return res.status(401).json({ message: "権限なし" });
@@ -32,16 +32,35 @@ router.get("/admin/orders", requireAdmin, async (req, res) => {
 /** 管理画面から新規受注を登録（顧客ランクに基づき placeOrder で価格確定） */
 router.post("/admin/orders-create", requireAdmin, validateBody(adminCreateOrderSchema), async (req, res) => {
     try {
-        const { customerId, cart, deliveryInfo } = req.body;
+        const { customerId, cart, deliveryInfo, orderDate } = req.body;
         const customer = await customerService.getCustomerById(customerId);
         if (!customer) {
             return res.status(400).json({ success: false, message: "指定の顧客IDが見つかりません" });
         }
-        const newOrder = await orderService.placeOrder(customerId, cart, deliveryInfo, customer.priceRank || "");
+        const newOrder = await orderService.placeOrder(
+            customerId,
+            cart,
+            deliveryInfo,
+            customer.priceRank || "",
+            orderDate
+        );
         return res.json({ success: true, orderId: newOrder.orderId });
     } catch (e) {
         console.error("admin orders-create:", e);
         return res.status(500).json({ success: false, message: "注文の作成に失敗しました" });
+    }
+});
+
+router.post("/admin/orders-delete", requireAdmin, validateBody(adminDeleteOrderSchema), async (req, res) => {
+    try {
+        await orderService.deleteOrder(req.body.orderId);
+        return res.json({ success: true });
+    } catch (e) {
+        if (e.message === "Order not found") {
+            return res.status(404).json({ success: false, message: "注文が見つかりません" });
+        }
+        console.error("admin orders-delete:", e);
+        return res.status(500).json({ success: false, message: "注文の削除に失敗しました" });
     }
 });
 

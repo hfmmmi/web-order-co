@@ -225,6 +225,35 @@ document.addEventListener("DOMContentLoaded", function () {
         } catch (error) { console.error(error); toastError("通信エラー"); }
     }
 
+    async function deleteOrder(orderId, order) {
+        const oid = orderId != null ? String(orderId) : "";
+        const cname = order && order.customerName ? String(order.customerName) : "";
+        const msg =
+            "【削除の確認】\n注文ID " +
+            oid +
+            (cname ? "（" + cname + "）" : "") +
+            " をデータから完全に削除します。\nこの操作は取り消せません。よろしいですか？";
+        if (!confirm(msg)) return;
+        try {
+            const response = await fetch("/api/admin/orders-delete", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ orderId: orderId })
+            });
+            const data = await response.json().catch(() => ({}));
+            if (response.ok && data.success) {
+                toastSuccess("注文を削除しました");
+                fetchOrders();
+            } else {
+                toastError(data.message || "削除に失敗しました");
+            }
+        } catch (error) {
+            console.error(error);
+            toastError("通信エラーが発生しました");
+        }
+    }
+
     // 一括出荷登録
     async function registerShipmentBatch(orderId, shipmentsPayload) {
         try {
@@ -593,7 +622,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const actions = {
             updateDeliveryEstimate: updateDeliveryEstimate,
-            registerBatch: registerShipmentBatch
+            registerBatch: registerShipmentBatch,
+            deleteOrder: deleteOrder
         };
 
         limitedOrders.forEach(order => {

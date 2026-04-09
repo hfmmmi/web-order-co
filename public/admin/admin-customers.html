@@ -249,7 +249,7 @@
                     <input type="email" id="cm-email" placeholder="招待メール送信先（任意）" style="width:100%; padding:8px; margin-bottom:10px; box-sizing: border-box;">
 
                     <label style="display:block; font-weight:bold; margin-bottom:5px;">価格ランク</label>
-                    <input type="text" id="cm-rank" placeholder="A, B, C... または空欄" list="rank-list" style="width:100%; padding:8px; margin-bottom:20px; box-sizing: border-box;">
+                    <input type="text" id="cm-rank" placeholder="A, B, C... または空欄" list="rank-list" style="width:100%; padding:8px; margin-bottom:10px; box-sizing: border-box;">
                     <datalist id="rank-list">
                         <option value="A"></option>
                         <option value="B"></option>
@@ -260,6 +260,16 @@
                         <option value="G"></option>
                         <option value="P"></option>
                     </datalist>
+
+                    <p style="font-size:0.85rem; color:#555; margin:0 0 8px 0; line-height:1.4;">納品先（新規受注で「顧客マスタを反映」に使用）</p>
+                    <label style="display:block; font-weight:bold; margin-bottom:5px;">納品先名</label>
+                    <input type="text" id="cm-delivery-name" maxlength="100" style="width:100%; padding:8px; margin-bottom:10px; box-sizing: border-box;">
+                    <label style="display:block; font-weight:bold; margin-bottom:5px;">納品先 郵便番号</label>
+                    <input type="text" id="cm-delivery-zip" maxlength="20" inputmode="numeric" style="width:100%; padding:8px; margin-bottom:10px; box-sizing: border-box;">
+                    <label style="display:block; font-weight:bold; margin-bottom:5px;">納品先 住所</label>
+                    <input type="text" id="cm-delivery-address" maxlength="300" style="width:100%; padding:8px; margin-bottom:10px; box-sizing: border-box;">
+                    <label style="display:block; font-weight:bold; margin-bottom:5px;">納品先 電話</label>
+                    <input type="text" id="cm-delivery-tel" maxlength="30" style="width:100%; padding:8px; margin-bottom:20px; box-sizing: border-box;">
 
                     <button type="submit" style="width:100%; padding:10px; background:#007bff; color:white; border:none; font-weight:bold; border-radius:4px; cursor:pointer;">保存</button>
                 </form>
@@ -321,6 +331,6 @@
 
     <script src="../js/admin-icons.js"></script>
     <script src="../js/admin-common.js"></script>
-    <script src="../js/admin-customers.js?v=7.6"></script>
+    <script src="../js/admin-customers.js?v=7.7"></script>
 </body>
 </html>

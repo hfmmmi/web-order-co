@@ -79,8 +79,14 @@ class OrderService {
     // 1. 基本CRUD機能 (Existing Features)
     // =========================================
 
-    // 新規注文作成
-    async placeOrder(customerId, cart, deliveryInfo, myRank) {
+    _orderDateIsoFromYmd(ymd) {
+        if (typeof ymd !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(ymd)) return null;
+        const d = new Date(ymd + "T00:00:00+09:00");
+        return isNaN(d.getTime()) ? null : d.toISOString();
+    }
+
+    // 新規注文作成（orderDateYmd: 管理画面など YYYY-MM-DD を渡すとその日の JST 0時を orderDate に保存）
+    async placeOrder(customerId, cart, deliveryInfo, myRank, orderDateYmd) {
         return await runWithJsonFileWriteLock(ORDERS_DB, async () => {
             const [productMaster, priceList, rankPriceMap, orders] = await Promise.all([
                 this._loadJson(PRODUCTS_DB),
@@ -124,9 +130,11 @@ class OrderService {
             });
 
             // 仕入先直送が多く在庫管理が困難なため、在庫引当は行わず常に受付可能とする
+            const resolvedDate =
+                this._orderDateIsoFromYmd(orderDateYmd) || new Date().toISOString();
             const newOrder = {
                 orderId: this._generateNextOrderId(orders),
-                orderDate: new Date().toISOString(),
+                orderDate: resolvedDate,
                 customerId,
                 items: fixedItems,
                 deliveryInfo,
@@ -293,6 +301,34 @@ class OrderService {
             if (updates.deliveryDateUnknown !== undefined) order.deliveryInfo.dateUnknown = updates.deliveryDateUnknown;
             if (updates.deliveryEstimate !== undefined) order.deliveryInfo.estimateMessage = updates.deliveryEstimate;
 
+            await fs.writeFile(ORDERS_DB, JSON.stringify(orders, null, 2));
+            return true;
+        });
+    }
+
+    /** 管理者用: 注文を orders.json から完全削除（在庫引当があれば解放を試みる） */
+    async deleteOrder(orderId) {
+        return await runWithJsonFileWriteLock(ORDERS_DB, async () => {
+            const orders = await this._loadJson(ORDERS_DB);
+            const targetIndex = orders.findIndex((o) => String(o.orderId) === String(orderId));
+            if (targetIndex === -1) throw new Error("Order not found");
+
+            const order = orders[targetIndex];
+            if (
+                order.stockSnapshot &&
+                !order.stockSnapshot.released &&
+                Array.isArray(order.stockSnapshot.reservedItems)
+            ) {
+                try {
+                    await stockService.release(order.stockSnapshot.reservedItems, {
+                        userId: "admin-delete-order"
+                    });
+                } catch (releaseError) {
+                    console.error("Stock release on deleteOrder:", releaseError);
+                }
+            }
+
+            orders.splice(targetIndex, 1);
             await fs.writeFile(ORDERS_DB, JSON.stringify(orders, null, 2));
             return true;
         });
