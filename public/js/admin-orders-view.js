@@ -5,6 +5,13 @@
 
     const OrderView = {};
 
+    function escapeAttr(str) {
+        return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/"/g, "&quot;")
+            .replace(/</g, "&lt;");
+    }
+
     /**
      * 注文日などを YYYY/MM/DD で表示（時刻なし）。一覧フィルタの JST 日付扱いに合わせる。
      */
@@ -123,7 +130,11 @@
                 </tr>
                 </tbody></table>`;
 
+        const orderIdAttr = escapeAttr(order.orderId != null ? order.orderId : "");
         const summaryCellsHtml = `
+            <td class="col-select">
+                <input type="checkbox" class="order-row-select" data-order-id="${orderIdAttr}" title="選択" aria-label="この注文を選択">
+            </td>
             <td class="col-date">${orderDateStr}</td>
             <td class="col-id"><strong>${order.orderId}</strong></td>
             <td class="col-status">

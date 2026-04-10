@@ -163,7 +163,7 @@
             color: #111827 !important;
         }
 
-        /* CSV/Excel: 査定依頼リストの再読込(.kaitori-btn--amber)と同じ文字色・枠はアクティブサブタブの #eab308 に合わせる */
+        /* ↑ UL: 査定依頼リストの再読込(.kaitori-btn--amber)と同じ文字色・枠はアクティブサブタブの #eab308 に合わせる */
         .kaitori-btn-csv-excel {
             flex: 0 0 auto;
             width: auto;
@@ -345,7 +345,7 @@
             border: 1px solid #d1d5db;
             background: #fff;
             cursor: pointer;
-            border-radius: 8px;
+            border-radius: 0;
             font-weight: 600;
             font-size: 0.9rem;
             color: #374151;
@@ -660,7 +660,7 @@
                             <button type="button" id="btn-kaitori-master-search" class="kaitori-master-search-btn">検索</button>
                         </div>
                         <input type="file" id="kaitori-file-input" class="kaitori-file-input kaitori-file-input--hidden" accept=".csv,.xlsx,.xls" aria-hidden="true" tabindex="-1">
-                        <button type="button" id="btn-kaitori-csv-excel" class="kaitori-btn kaitori-btn-csv-excel">CSV/Excel ↑</button>
+                        <button type="button" id="btn-kaitori-csv-excel" class="kaitori-btn kaitori-btn-csv-excel">↑ UL</button>
                         <p class="kaitori-import-note">※必須列：メーカー,商品名, 区分, 買取単価, 買取先 (納品先)</p>
                     </div>
 

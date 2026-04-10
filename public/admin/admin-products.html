@@ -80,7 +80,7 @@
             background: #fff;
             color: #374151;
             border: 1px solid #d1d5db;
-            border-radius: 8px;
+            border-radius: 0;
             font-weight: 600;
             font-size: inherit;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -274,14 +274,14 @@
                     <h2><span class="admin-page-icon" data-admin-icon="products" aria-hidden="true"></span>商品マスタ管理</h2>
                     <div class="page-header-inline-actions">
                         <a href="admin-products-new.html" id="btn-product-new-add" class="page-header-toolbar-btn" target="_blank" rel="noopener noreferrer">新規追加</a>
-                        <button type="button" id="btn-product-csv-excel" class="page-header-toolbar-btn">CSV/Excel ↑</button>
+                        <button type="button" id="btn-product-csv-excel" class="page-header-toolbar-btn">↑ UL</button>
                         <button type="button" class="page-header-toolbar-btn js-product-template-dl">テンプレートDL</button>
                         <button type="button" class="page-header-toolbar-btn js-product-export-dl">全件DL</button>
                     </div>
                 </div>
             </div>
 
-            <input type="file" id="csv-file-input" class="product-master-csv-input-hidden" accept=".csv,.xlsx,.xls" tabindex="-1" aria-label="商品マスタCSV/Excel取込">
+            <input type="file" id="csv-file-input" class="product-master-csv-input-hidden" accept=".csv,.xlsx,.xls" tabindex="-1" aria-label="商品マスタ ↑ UL 取込">
 
             <div class="admin-main-scroll">
             <div class="admin-section admin-section--product-list">
@@ -335,7 +335,7 @@
                     </div>
 
                     <div class="stock-card" style="flex:1; min-width:280px; background:#f8f9fa; padding:15px; border-radius:6px; border:1px solid #dee2e6;">
-                        <h3 style="margin-top:0;">📥 在庫CSV/Excel取込</h3>
+                        <h3 style="margin-top:0;">📥 在庫 ↑ UL 取込</h3>
                         <input type="file" id="stock-csv-input" accept=".csv,.xlsx,.xls" style="width:100%; margin-bottom:10px;">
                         <div style="display:flex; gap:10px; flex-wrap:wrap;">
                             <button id="stock-import-btn" class="btn-primary" style="background:#17a2b8;">取込を実行</button>

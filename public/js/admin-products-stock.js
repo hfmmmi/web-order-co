@@ -204,7 +204,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (stockImportBtn) {
         stockImportBtn.addEventListener("click", async () => {
             if (!stockCsvInput || !stockCsvInput.files || stockCsvInput.files.length === 0) {
-                toastWarning("在庫CSV/Excelファイルを選択してください");
+                toastWarning("在庫の ↑ UL 用ファイルを選択してください");
                 return;
             }
             const file = stockCsvInput.files[0];

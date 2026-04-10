@@ -571,9 +571,17 @@ input[type="text"], input[type="password"] {
 .admin-page-icon {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     vertical-align: middle;
     margin-right: 10px;
     color: #374151;
+    box-sizing: border-box;
+    width: 2.5rem;
+    height: 2.5rem;
+    flex-shrink: 0;
+    border: none;
+    background: transparent;
+    border-radius: 0;
 }
 
 .admin-page-icon svg {
@@ -593,6 +601,12 @@ input[type="text"], input[type="password"] {
     justify-content: center;
     margin-right: 14px;
     color: #4b5563;
+    box-sizing: border-box;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: none;
+    background: transparent;
+    border-radius: 0;
 }
 
 .dash-card-icon svg {
