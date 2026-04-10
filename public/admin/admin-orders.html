@@ -104,6 +104,140 @@
             display: block;
         }
 
+        #orders-more-menu {
+            min-width: 220px;
+        }
+
+        /* ↓ DL：条件指定モーダル */
+        .orders-download-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1200;
+        }
+
+        .orders-download-modal.is-open {
+            display: block;
+        }
+
+        .orders-download-modal__backdrop {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            background: rgba(17, 24, 39, 0.45);
+            cursor: pointer;
+        }
+
+        .orders-download-modal__dialog {
+            position: absolute;
+            z-index: 1;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: calc(100% - 32px);
+            max-width: 420px;
+            box-sizing: border-box;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+            padding: 20px 22px 18px;
+        }
+
+        .orders-download-modal__title {
+            margin: 0 0 16px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .orders-download-modal__field {
+            margin-bottom: 14px;
+        }
+
+        .orders-download-modal__field label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .orders-download-modal__field select,
+        .orders-download-modal__field input[type="date"] {
+            box-sizing: border-box;
+            width: 100%;
+            height: 40px;
+            padding: 0 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: #fff;
+        }
+
+        .orders-download-modal__dates {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .orders-download-modal__dates input[type="date"] {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .orders-download-modal__dates span {
+            color: #6b7280;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .orders-download-modal__formats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin: 4px 0 18px;
+        }
+
+        .orders-download-modal__formats label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #374151;
+            cursor: pointer;
+        }
+
+        .orders-download-modal__actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+
+        .orders-download-modal__actions button {
+            box-sizing: border-box;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .orders-download-modal__btn-cancel {
+            background: #fff;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .orders-download-modal__btn-submit {
+            background: #2563eb;
+            color: #fff;
+            border: 1px solid #1d4ed8;
+        }
+
         .orders-download-menu button {
             display: block;
             width: 100%;
@@ -476,6 +610,11 @@
             align-items: center;
             justify-content: center;
         }
+
+        /* 見出し「受注管理」横のツールバー：角ばった（四角い）ボタン */
+        .page-header-inline-actions .page-header-toolbar-btn {
+            border-radius: 0;
+        }
     </style>
 </head>
 
@@ -494,20 +633,21 @@
                         </a>
                         <input type="file" id="file-input" style="display: none;" accept=".csv,.xlsx,.xls">
                         <button type="button" id="btn-csv-excel-import" class="page-header-toolbar-btn">
-                            CSV/Excel
+                            CSV/Excel ↑
                         </button>
                         <div class="orders-download-wrap">
-                            <button type="button" id="btn-orders-download" class="page-header-toolbar-btn">
-                                Download
+                            <button type="button" id="btn-orders-download" class="page-header-toolbar-btn" aria-haspopup="dialog" aria-controls="orders-download-modal">
+                                ↓ DL
                             </button>
-                            <div id="orders-download-menu" class="orders-download-menu" role="menu" aria-hidden="true">
-                                <button type="button" role="menuitem" data-export-format="csv">CSV で保存</button>
-                                <button type="button" role="menuitem" data-export-format="xlsx">Excel で保存</button>
+                        </div>
+                        <div class="orders-download-wrap">
+                            <button type="button" id="btn-orders-more" class="page-header-toolbar-btn">
+                                その他
+                            </button>
+                            <div id="orders-more-menu" class="orders-download-menu" role="menu" aria-hidden="true">
+                                <button type="button" role="menuitem" id="btn-close-all-order-details">詳細ボタンを一括で閉じる</button>
                             </div>
                         </div>
-                        <button type="button" id="btn-close-all-order-details" class="page-header-toolbar-btn">
-                            一括で閉じる
-                        </button>
                     </div>
                 </div>
                 <div id="upload-status" class="upload-status-msg"></div>
@@ -556,6 +696,41 @@
             </div>
             </div>
         </main>
+    </div>
+
+    <div id="orders-download-modal" class="orders-download-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="orders-download-modal-title">
+        <div class="orders-download-modal__backdrop" id="orders-download-modal-backdrop" aria-hidden="true"></div>
+        <div class="orders-download-modal__dialog">
+            <h3 id="orders-download-modal-title" class="orders-download-modal__title">リストをダウンロード</h3>
+            <div class="orders-download-modal__field">
+                <label for="orders-download-modal-status">ステータス</label>
+                <select id="orders-download-modal-status">
+                    <option value="">▽ 全ステータス</option>
+                    <option value="未発送">未発送</option>
+                    <option value="一部発送">一部発送</option>
+                    <option value="発送済">発送済</option>
+                </select>
+            </div>
+            <div class="orders-download-modal__field">
+                <div id="orders-download-modal-dates-label" style="font-size:0.8rem;font-weight:600;color:#374151;margin-bottom:6px;">注文日</div>
+                <div class="orders-download-modal__dates" role="group" aria-labelledby="orders-download-modal-dates-label">
+                    <input type="date" id="orders-download-modal-date-start" onclick="this.showPicker()" aria-label="注文日 開始">
+                    <span>～</span>
+                    <input type="date" id="orders-download-modal-date-end" onclick="this.showPicker()" aria-label="注文日 終了">
+                </div>
+            </div>
+            <div class="orders-download-modal__field">
+                <span style="display:block;font-size:0.8rem;font-weight:600;color:#374151;margin-bottom:8px;">保存形式</span>
+                <div class="orders-download-modal__formats">
+                    <label><input type="radio" name="orders-download-format" value="csv" checked> CSV</label>
+                    <label><input type="radio" name="orders-download-format" value="xlsx"> Excel (.xlsx)</label>
+                </div>
+            </div>
+            <div class="orders-download-modal__actions">
+                <button type="button" class="orders-download-modal__btn-cancel" id="orders-download-modal-cancel">キャンセル</button>
+                <button type="button" class="orders-download-modal__btn-submit" id="orders-download-modal-submit">ダウンロード</button>
+            </div>
+        </div>
     </div>
 
     <script src="../js/admin-icons.js"></script>

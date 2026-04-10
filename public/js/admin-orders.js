@@ -27,7 +27,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const uploadStatus = document.getElementById("upload-status");
     const btnCsvExcelImport = document.getElementById("btn-csv-excel-import");
     const btnOrdersDownload = document.getElementById("btn-orders-download");
-    const ordersDownloadMenu = document.getElementById("orders-download-menu");
+    const ordersDownloadModal = document.getElementById("orders-download-modal");
+    const ordersDownloadModalBackdrop = document.getElementById("orders-download-modal-backdrop");
+    const ordersDownloadModalCancel = document.getElementById("orders-download-modal-cancel");
+    const ordersDownloadModalSubmit = document.getElementById("orders-download-modal-submit");
+    const ordersDownloadModalStatus = document.getElementById("orders-download-modal-status");
+    const ordersDownloadModalDateStart = document.getElementById("orders-download-modal-date-start");
+    const ordersDownloadModalDateEnd = document.getElementById("orders-download-modal-date-end");
+    const btnOrdersMore = document.getElementById("btn-orders-more");
+    const ordersMoreMenu = document.getElementById("orders-more-menu");
 
     // 全データを保持するメモリ
     let allOrderList = [];
@@ -322,10 +330,28 @@ document.addEventListener("DOMContentLoaded", function () {
     // ---------------------------------------------------------
     // 検索・描画実行
     // ---------------------------------------------------------
-    function computeFilteredOrders() {
-        const status = statusSelect ? statusSelect.value : "";
-        const start = dateStartInput ? dateStartInput.value : "";
-        const end = dateEndInput ? dateEndInput.value : "";
+    /**
+     * @param {object} [filterOverrides] DLモーダル用。status / dateStart / dateEnd を指定するとツールバー値の代わりに使う（キーワードは常に検索欄）
+     */
+    function computeFilteredOrders(filterOverrides) {
+        const status =
+            filterOverrides && Object.prototype.hasOwnProperty.call(filterOverrides, "status")
+                ? filterOverrides.status
+                : statusSelect
+                  ? statusSelect.value
+                  : "";
+        const start =
+            filterOverrides && Object.prototype.hasOwnProperty.call(filterOverrides, "dateStart")
+                ? filterOverrides.dateStart
+                : dateStartInput
+                  ? dateStartInput.value
+                  : "";
+        const end =
+            filterOverrides && Object.prototype.hasOwnProperty.call(filterOverrides, "dateEnd")
+                ? filterOverrides.dateEnd
+                : dateEndInput
+                  ? dateEndInput.value
+                  : "";
 
         const rawSearchVal = searchTextInput ? searchTextInput.value : "";
         const searchKeyword = normalizeString(rawSearchVal);
@@ -472,19 +498,50 @@ document.addEventListener("DOMContentLoaded", function () {
         return nav;
     }
 
-    function setOrdersDownloadMenuOpen(open) {
-        if (!ordersDownloadMenu) return;
-        if (open) {
-            ordersDownloadMenu.classList.add("is-open");
-            ordersDownloadMenu.setAttribute("aria-hidden", "false");
-        } else {
-            ordersDownloadMenu.classList.remove("is-open");
-            ordersDownloadMenu.setAttribute("aria-hidden", "true");
+    function ordersDownloadModalEscHandler(e) {
+        if (e.key === "Escape") {
+            setOrdersDownloadModalOpen(false);
         }
     }
 
-    async function downloadOrdersListExport(format) {
-        const orders = computeFilteredOrders();
+    function setOrdersDownloadModalOpen(open) {
+        if (!ordersDownloadModal) return;
+        if (open) {
+            ordersDownloadModal.classList.add("is-open");
+            ordersDownloadModal.setAttribute("aria-hidden", "false");
+            document.addEventListener("keydown", ordersDownloadModalEscHandler);
+        } else {
+            ordersDownloadModal.classList.remove("is-open");
+            ordersDownloadModal.setAttribute("aria-hidden", "true");
+            document.removeEventListener("keydown", ordersDownloadModalEscHandler);
+        }
+    }
+
+    function syncOrdersDownloadModalFromToolbar() {
+        if (ordersDownloadModalStatus && statusSelect) {
+            ordersDownloadModalStatus.value = statusSelect.value;
+        }
+        if (ordersDownloadModalDateStart && dateStartInput) {
+            ordersDownloadModalDateStart.value = dateStartInput.value;
+        }
+        if (ordersDownloadModalDateEnd && dateEndInput) {
+            ordersDownloadModalDateEnd.value = dateEndInput.value;
+        }
+    }
+
+    function setOrdersMoreMenuOpen(open) {
+        if (!ordersMoreMenu) return;
+        if (open) {
+            ordersMoreMenu.classList.add("is-open");
+            ordersMoreMenu.setAttribute("aria-hidden", "false");
+        } else {
+            ordersMoreMenu.classList.remove("is-open");
+            ordersMoreMenu.setAttribute("aria-hidden", "true");
+        }
+    }
+
+    async function downloadOrdersListExport(format, filterOverrides) {
+        const orders = computeFilteredOrders(filterOverrides);
         if (orders.length === 0) {
             toastError("出力する注文がありません");
             return;
@@ -526,26 +583,62 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    if (btnOrdersDownload && ordersDownloadMenu) {
+    if (btnOrdersDownload && ordersDownloadModal) {
         btnOrdersDownload.addEventListener("click", function (e) {
             e.stopPropagation();
-            const isOpen = ordersDownloadMenu.classList.contains("is-open");
-            setOrdersDownloadMenuOpen(!isOpen);
-        });
-        ordersDownloadMenu.querySelectorAll("[data-export-format]").forEach(function (btn) {
-            btn.addEventListener("click", function (e) {
-                e.stopPropagation();
-                const fmt = btn.getAttribute("data-export-format");
-                setOrdersDownloadMenuOpen(false);
-                if (fmt === "csv" || fmt === "xlsx") {
-                    downloadOrdersListExport(fmt);
-                }
-            });
-        });
-        document.addEventListener("click", function () {
-            setOrdersDownloadMenuOpen(false);
+            syncOrdersDownloadModalFromToolbar();
+            setOrdersMoreMenuOpen(false);
+            setOrdersDownloadModalOpen(true);
         });
     }
+
+    if (ordersDownloadModalBackdrop) {
+        ordersDownloadModalBackdrop.addEventListener("click", function () {
+            setOrdersDownloadModalOpen(false);
+        });
+    }
+    if (ordersDownloadModalCancel) {
+        ordersDownloadModalCancel.addEventListener("click", function () {
+            setOrdersDownloadModalOpen(false);
+        });
+    }
+    if (ordersDownloadModalSubmit && ordersDownloadModal) {
+        ordersDownloadModalSubmit.addEventListener("click", function (e) {
+            e.stopPropagation();
+            const fmtInput = ordersDownloadModal.querySelector('input[name="orders-download-format"]:checked');
+            const fmt = fmtInput ? fmtInput.value : "csv";
+            const filterOverrides = {
+                status: ordersDownloadModalStatus ? ordersDownloadModalStatus.value : "",
+                dateStart: ordersDownloadModalDateStart ? ordersDownloadModalDateStart.value : "",
+                dateEnd: ordersDownloadModalDateEnd ? ordersDownloadModalDateEnd.value : ""
+            };
+            setOrdersDownloadModalOpen(false);
+            if (fmt === "csv" || fmt === "xlsx") {
+                downloadOrdersListExport(fmt, filterOverrides);
+            }
+        });
+    }
+
+    if (ordersDownloadModal) {
+        ordersDownloadModal.querySelector(".orders-download-modal__dialog")?.addEventListener("click", function (e) {
+            e.stopPropagation();
+        });
+    }
+
+    if (btnOrdersMore && ordersMoreMenu) {
+        btnOrdersMore.addEventListener("click", function (e) {
+            e.stopPropagation();
+            const opening = !ordersMoreMenu.classList.contains("is-open");
+            setOrdersMoreMenuOpen(opening);
+            if (opening) {
+                setOrdersDownloadModalOpen(false);
+            }
+        });
+    }
+
+    document.addEventListener("click", function () {
+        setOrdersMoreMenuOpen(false);
+    });
 
     /**
      * いずれかの詳細が開いているとき、詳細が閉じている注文の要約行だけ薄くする。
@@ -571,13 +664,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const btnCloseAllOrderDetails = document.getElementById("btn-close-all-order-details");
     if (btnCloseAllOrderDetails && orderListContainer) {
-        btnCloseAllOrderDetails.addEventListener("click", function () {
+        btnCloseAllOrderDetails.addEventListener("click", function (e) {
+            e.stopPropagation();
+            setOrdersMoreMenuOpen(false);
             orderListContainer.querySelectorAll(".order-detail-row").forEach(function (row) {
                 row.style.display = "none";
             });
             orderListContainer.querySelectorAll(".btn-toggle-detail").forEach(function (btn) {
                 btn.textContent = "詳細 ▼";
-                btn.style.backgroundColor = "#7abcff";
+                btn.style.backgroundColor = "#8cc4dc";
             });
             orderListContainer.querySelectorAll(".orders-list-table tbody").forEach(syncOrderSummaryRowDimming);
         });
@@ -682,7 +777,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     const isHidden = detTr.style.display === "none";
                     detTr.style.display = isHidden ? "table-row" : "none";
                     toggleBtn.textContent = isHidden ? "閉じる ▲" : "詳細 ▼";
-                    toggleBtn.style.backgroundColor = "#7abcff";
+                    toggleBtn.style.backgroundColor = "#8cc4dc";
                     syncOrderSummaryRowDimming(tbody);
                 });
             }

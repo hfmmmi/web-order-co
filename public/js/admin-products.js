@@ -262,7 +262,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     csvFileInput.value = "";
                     if (csvExcelHeaderBtn) {
                         csvExcelHeaderBtn.disabled = false;
-                        csvExcelHeaderBtn.textContent = "CSV/Excel";
+                        csvExcelHeaderBtn.textContent = "CSV/Excel ↑";
                     }
                 }
             };

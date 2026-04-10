@@ -60,17 +60,21 @@
         const totalAmount = order.totalAmount || 0;
         const info = order.deliveryInfo || {};
         
-        let statusColor = "#fee2e2";
-        let statusFg = "#b91c1c";
-        let statusBorder = "#fecaca";
+        let statusColor;
+        let statusFg;
+        let statusBorder;
         if (order.status === "発送済") {
-            statusColor = "#dcfce7";
-            statusFg = "#166534";
-            statusBorder = "#bbf7d0";
+            statusColor = "#ffffff";
+            statusFg = "inherit";
+            statusBorder = "#e5e7eb";
         } else if (order.status === "一部発送") {
-            statusColor = "#fef9c3";
-            statusFg = "#854d0e";
-            statusBorder = "#fde68a";
+            statusColor = "#ff7575";
+            statusFg = "#ffffff";
+            statusBorder = "#e86666";
+        } else {
+            statusColor = "#ff7575";
+            statusFg = "#ffffff";
+            statusBorder = "#e86666";
         }
 
         // 連携ステータス表示（一覧は記号のみ／title で補足）
@@ -132,7 +136,7 @@
             <td class="col-numeric"><strong>¥${totalAmount.toLocaleString()}</strong></td>
             <td class="col-export">${exportBadge}</td>
             <td class="col-action">
-                <button type="button" class="btn-toggle-detail" style="padding: 6px 12px; background-color: #7abcff; color: #111827; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem;">
+                <button type="button" class="btn-toggle-detail" style="padding: 6px 12px; background-color: #8cc4dc; color: #111827; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem;">
                     詳細 ▼
                 </button>
             </td>`;
