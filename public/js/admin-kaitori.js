@@ -50,8 +50,6 @@ document.addEventListener("DOMContentLoaded", function () {
     if (tabMaster) tabMaster.addEventListener("click", loadMasterList);
 
     // リフレッシュボタン
-    document.getElementById("btn-refresh-kaitori")?.addEventListener("click", loadKaitoriList);
-
     // フィルタリングタブ
     setupFilterTabs();
 

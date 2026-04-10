@@ -74,10 +74,10 @@ class KaitoriView {
                 badgeStyle = "background-color: #dc3545 !important; color: white !important; font-weight: bold;";
             } else if(status === "査定中") {
                 badgeClass = "badge-warning";
-                badgeStyle = "color: #212529; background-color: #ffc107;"; 
+                badgeStyle = "color: #fff !important; background-color: #ff7575 !important;";
             } else if(status === "保留") {
                 badgeClass = "badge-info";
-                badgeStyle = "color: white; background-color: #17a2b8;";
+                badgeStyle = "color: #111827 !important; background-color: #fff !important; border: 1px solid #e5e7eb !important;";
             } else if(status === "成立") {
                 badgeClass = "badge-success";
                 badgeStyle = "color: white; background-color: #28a745;";
@@ -167,7 +167,7 @@ class KaitoriView {
         // 大阪グループ描画
         if (osakaGroup.length > 0) {
             const oRow = document.createElement("tr");
-            oRow.innerHTML = `<td colspan="5" style="background:#fffbeb; font-weight:600; color:#854d0e; padding:10px 12px; font-size:0.9rem;">🏢 大阪納品分 (${osakaGroup.length}件)</td>`;
+            oRow.innerHTML = `<td colspan="5" style="background:#d9f0f5; font-weight:600; color:#1e4d59; padding:10px 12px; font-size:0.9rem;">🏢 大阪納品分 (${osakaGroup.length}件)</td>`;
             this.mItemList.appendChild(oRow);
             osakaGroup.forEach(x => this.mItemList.appendChild(this._createEditableRow(x.item, x.index, onCalculate, onDeleteItem)));
         }
@@ -176,7 +176,7 @@ class KaitoriView {
         const trAdd = document.createElement("tr");
         trAdd.innerHTML = `
             <td colspan="5" style="text-align:center; padding-top:10px;">
-                <button type="button" class="btn-add-item-osaka" style="cursor:pointer; margin-right:10px; background:#fffbeb; border:1px solid #ca8a04; color:#854d0e; padding:6px 10px; border-radius:8px;">＋ 大阪へ追加</button>
+                <button type="button" class="btn-add-item-osaka" style="cursor:pointer; margin-right:10px; background:#d9f0f5; border:1px solid #a1d8e6; color:#1e4d59; padding:6px 10px; border-radius:8px;">＋ 大阪へ追加</button>
                 <button type="button" class="btn-add-item-hyogo" style="cursor:pointer; background:#eef2ff; border:1px solid #6366f1; color:#4338ca; padding:6px 10px; border-radius:8px;">＋ 兵庫へ追加</button>
             </td>`;
         this.mItemList.appendChild(trAdd);

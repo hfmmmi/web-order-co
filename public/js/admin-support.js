@@ -4,8 +4,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const supportListContainer = document.querySelector("#support-ticket-list");
     const refreshSupportBtn = document.querySelector("#refresh-support-btn");
     const kaitoriContainer = document.querySelector("#kaitori-list-container");
-    const btnRefreshKaitori = document.querySelector("#btn-refresh-kaitori");
-
     // ★重要: 全チケットデータを保持するメモリキャッシュ
     let allSupportTickets = [];
     let currentFilter = 'open'; // デフォルトは「未対応」のみ表示
@@ -321,5 +319,4 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         } catch (error) { kaitoriContainer.innerHTML = "<p style='color:red'>読み込みエラー</p>"; }
     }
-    if (btnRefreshKaitori) btnRefreshKaitori.addEventListener("click", fetchKaitoriList);
 });
