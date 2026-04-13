@@ -40,6 +40,36 @@ describe("productService importFromExcel 追加分岐", () => {
         }
     });
 
+    test("ランクP列は内部IDがEのとき rankPrices.E に格納する（表示名のみP）", async () => {
+        jest.spyOn(settingsService, "getRankIds").mockResolvedValue(["A", "B", "C", "D", "E"]);
+        jest.spyOn(settingsService, "getRankList").mockResolvedValue([
+            { id: "A", name: "A" },
+            { id: "B", name: "B" },
+            { id: "C", name: "C" },
+            { id: "D", name: "D" },
+            { id: "E", name: "P" }
+        ]);
+        const code = "PIB_LP_" + Date.now();
+        const csv =
+            "商品コード,商品名,メーカー,定価,仕様,在庫,ランクA,ランクB,ランクC,ランクD,ランクP\n" +
+            `${code},N,M,100,純正,可,1,2,3,4,999\n`;
+        try {
+            const r = await productService.importFromExcel(Buffer.from(csv, "utf-8"));
+            expect(r.success).toBe(true);
+            const list = JSON.parse(await fs.readFile(PRODUCTS_DB_PATH, "utf-8"));
+            const p = list.find((x) => x.productCode === code);
+            expect(p.rankPrices.E).toBe(999);
+            expect(p.rankPrices.P).toBeUndefined();
+        } finally {
+            const list = JSON.parse(await fs.readFile(PRODUCTS_DB_PATH, "utf-8"));
+            await fs.writeFile(
+                PRODUCTS_DB_PATH,
+                JSON.stringify(list.filter((p) => !String(p.productCode).startsWith("PIB_")), null, 2),
+                "utf-8"
+            );
+        }
+    });
+
     test("備考列を取り込み remarks に保存する", async () => {
         jest.spyOn(settingsService, "getRankIds").mockResolvedValue(["A"]);
         jest.spyOn(settingsService, "getRankList").mockResolvedValue([{ id: "A", name: "ランク1" }]);

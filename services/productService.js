@@ -3,7 +3,7 @@
 const fs = require("fs").promises;
 const iconv = require("iconv-lite");
 const { parse } = require("csv-parse/sync");
-const { readToRowArrays, ExcelJS } = require("../utils/excelReader");
+const { readProductMasterImportRows, ExcelJS } = require("../utils/excelReader");
 const { dbPath } = require("../dbPaths");
 const { runWithJsonFileWriteLock } = require("../utils/jsonWriteQueue");
 const settingsService = require("./settingsService");
@@ -234,52 +234,71 @@ class ProductService {
         return this.importFromExcel(buffer);
     }
 
-    // 5. Excel/CSV 一括取込（1行目ヘッダーで列を判定。商品コード, 商品名, 定価, 仕様, 在庫, メーカー + ランク列）
+    // 5. Excel/CSV 一括取込（1行目ヘッダーで列を判定。商品コード, 商品名, 定価, 仕様, 在庫, メーカー, 備考 + ランク列。ランク列は列位置自由）
     async importFromExcel(fileBuffer) {
         try {
-            const jsonData = isExcelBuffer(fileBuffer)
-                ? await readToRowArrays(fileBuffer)
-                : parseCsvToRowArrays(fileBuffer);
+            let jsonData;
+            if (isExcelBuffer(fileBuffer)) {
+                jsonData = await readProductMasterImportRows(fileBuffer);
+            } else {
+                jsonData = parseCsvToRowArrays(fileBuffer);
+            }
             if (!jsonData.length) {
                 throw new Error("ファイルにデータがありません。Excel(.xlsx/.xls) または CSV 形式を確認してください。");
             }
 
             const headerRow = jsonData[0].map(c => String(c ?? "").trim());
-            const col = (key) => headerRow.findIndex(h => String(h || "").trim() === key);
-            const codeCol = col("商品コード");
+            const codeCol = headerRow.findIndex(h => h === "商品コード" || (String(h || "").trim() && h.includes("商品コード")));
             if (codeCol === -1) {
                 throw new Error("ヘッダーに「商品コード」列が見つかりません。");
             }
-            const nameCol = col("商品名");
-            const priceCol = col("定価");
+            const nameCol = headerRow.findIndex(h => h === "商品名" || (String(h || "").trim() && h.includes("商品名")));
+            const priceCol = headerRow.findIndex(h => String(h || "").trim() === "定価");
             const categoryCol = headerRow.findIndex(h => {
                 const t = String(h || "").trim();
                 return t === "仕様" || t === "規格" || t === "カテゴリ";
             });
-            const stockCol = col("在庫");
-            const makerCol = col("メーカー");
+            const stockCol = headerRow.findIndex(h => String(h || "").trim() === "在庫");
+            const makerCol = headerRow.findIndex(h => String(h || "").trim() === "メーカー");
             const remarksCol = headerRow.findIndex(h => String(h || "").trim() === "備考");
 
             const [rankIds, rankList] = await Promise.all([settingsService.getRankIds(), settingsService.getRankList()]);
+            const reserved = new Set(
+                [codeCol, nameCol, priceCol, categoryCol, stockCol, makerCol, remarksCol].filter((i) => i >= 0)
+            );
             const rankCols = [];
-            for (let i = 6; i < headerRow.length; i++) {
-                if (remarksCol >= 0 && i === remarksCol) continue;
-                const label = String(headerRow[i] ?? "").trim();
-                if (!label) continue;
+            headerRow.forEach((h, index) => {
+                if (reserved.has(index)) return;
+                const label = String(h || "").trim();
+                if (!label) return;
                 let rankKey = null;
-                if (rankIds.includes(label)) rankKey = label;
-                else {
-                    const byDisplayName = (rankList || []).find(r => r.name && String(r.name).trim() === label);
-                    if (byDisplayName && byDisplayName.id) rankKey = byDisplayName.id;
-                    else {
-                        const rankLetter = label.match(/^ランク([A-Z])$/i);
-                        const rankNum = label.match(/^ランク(\d+)$/);
-                        if (rankLetter) rankKey = rankLetter[1].toUpperCase();
-                        else if (rankNum) rankKey = rankIds[parseInt(rankNum[1], 10) - 1] || null;
+                const byDisplayName = (rankList || []).find(r => r.name && String(r.name).trim() === label);
+                if (byDisplayName && byDisplayName.id && rankIds.includes(byDisplayName.id)) {
+                    rankKey = byDisplayName.id;
+                } else if (rankIds.includes(label)) {
+                    rankKey = label;
+                } else {
+                    const rankNum = label.match(/^ランク(\d+)$/);
+                    const rankLetter = label.match(/^ランク([A-Z])$/i);
+                    if (rankNum) {
+                        rankKey = rankIds[parseInt(rankNum[1], 10) - 1] || null;
+                    } else if (rankLetter) {
+                        const letter = rankLetter[1].toUpperCase();
+                        if (rankIds.includes(letter)) {
+                            rankKey = letter;
+                        } else {
+                            // 「ランクP」が列名でも、rankCount=5 では内部IDは E で表示名だけ「P」のことがある
+                            const bySuffixDisplay = (rankList || []).find(
+                                (r) => r && r.name && String(r.name).trim() === letter
+                            );
+                            if (bySuffixDisplay && bySuffixDisplay.id && rankIds.includes(bySuffixDisplay.id)) {
+                                rankKey = bySuffixDisplay.id;
+                            }
+                        }
                     }
                 }
-                if (rankKey && rankIds.includes(rankKey)) rankCols.push({ index: i, rankKey });
-            }
+                if (rankKey && rankIds.includes(rankKey)) rankCols.push({ index, rankKey });
+            });
             if (rankCols.length === 0) {
                 rankIds.forEach((rankKey, i) => {
                     const idx = 6 + i;
@@ -325,6 +344,7 @@ class ProductService {
 
             const validRows = (await Promise.all(tasks)).filter(r => r !== null);
             const now = Date.now();
+            const rankMirrorForPrices = [];
 
             validRows.forEach(input => {
                 const importedName = sanitizeProductName(input.nameInCsv);
@@ -339,6 +359,7 @@ class ProductService {
                     if (hasRankData) {
                         existing.rankPrices = input.rankPrices;
                         existing.rankPricesUpdatedAt = now;
+                        rankMirrorForPrices.push({ productCode: input.code, rankPrices: { ...input.rankPrices } });
                     }
                     if (importedName !== null) existing.name = importedName;
                     if (input.remarksVal !== undefined) {
@@ -357,11 +378,17 @@ class ProductService {
                         rankPrices: input.rankPrices || {},
                         rankPricesUpdatedAt: hasRankData ? now : undefined
                     });
+                    if (hasRankData) {
+                        rankMirrorForPrices.push({ productCode: input.code, rankPrices: { ...input.rankPrices } });
+                    }
                     addCount++;
                 }
             });
 
             await fs.writeFile(PRODUCTS_DB_PATH, JSON.stringify(productMaster, null, 2));
+            if (rankMirrorForPrices.length > 0) {
+                await priceService.mergeRankPricesFromMasterImport(rankMirrorForPrices, now);
+            }
             return { success: true, message: `処理完了: 更新${updateCount}件 / 新規${addCount}件` };
             });
 

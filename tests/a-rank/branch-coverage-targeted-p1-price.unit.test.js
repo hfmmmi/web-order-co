@@ -3,11 +3,6 @@
 /**
  * lcov 上の priceService 未充足分岐を個別シナリオで狙う（重複 each なし）
  */
-jest.mock("../../utils/excelReader", () => {
-    const actual = jest.requireActual("../../utils/excelReader");
-    return { ...actual, readToRowArrays: jest.fn() };
-});
-
 jest.mock("../../services/settingsService", () => {
     const actual = jest.requireActual("../../services/settingsService");
     return {
@@ -27,7 +22,6 @@ jest.mock("../../services/settingsService", () => {
     };
 });
 
-const { readToRowArrays } = require("../../utils/excelReader");
 const settingsService = require("../../services/settingsService");
 const priceService = require("../../services/priceService");
 const fs = require("fs").promises;
@@ -72,84 +66,12 @@ describe("branch-coverage-targeted-p1: priceService", () => {
         await fs.writeFile(PRICES_PATH, origPrices, "utf-8");
     });
 
-    test("updateRankPricesFromExcel: ヘッダに空セル列を挟み if(!label) を通す", async () => {
-        readToRowArrays.mockResolvedValue([
-            ["商品コード", "", "ランク1"],
-            ["P_EMPTY_HDR", 0, 1]
-        ]);
-        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
-        expect(r.success).toBe(true);
-    });
 
-    test("updateRankPricesFromExcel: products.json 破損時 catch で空配列扱い", async () => {
-        await fs.writeFile(PRODUCTS_PATH, "NOT_JSON", "utf-8");
-        readToRowArrays.mockResolvedValue([
-            ["商品コード", "ランク1"],
-            ["P_BAD_JSON", 1]
-        ]);
-        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
-        expect(r.success).toBe(true);
-    });
 
-    test("updateRankPricesFromExcel: rank_prices_updated_at 破損で catch 分岐", async () => {
-        await fs.writeFile(RANK_AT_PATH, "{", "utf-8");
-        readToRowArrays.mockResolvedValue([
-            ["商品コード", "ランク1"],
-            ["P_BAD_AT", 2]
-        ]);
-        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
-        expect(r.success).toBe(true);
-    });
 
-    test("updateRankPricesFromExcel: rank_prices.json 読込失敗 catch", async () => {
-        await fs.writeFile(RANK_PATH, "[[", "utf-8");
-        readToRowArrays.mockResolvedValue([
-            ["商品コード", "ランク1"],
-            ["P_BAD_RANK", 3]
-        ]);
-        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
-        expect(r.success).toBe(true);
-    });
 
-    test("updateRankPricesFromExcel: ランクZ は rankIds に無ければ列無視（ランク1は有効）", async () => {
-        readToRowArrays.mockResolvedValue([
-            ["商品コード", "ランク1", "ランクZ"],
-            ["P_NOZ", 9, 99]
-        ]);
-        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
-        expect(r.success).toBe(true);
-        const m = JSON.parse(await fs.readFile(RANK_PATH, "utf-8"));
-        expect(m.P_NOZ).toEqual({ A: 9 });
-    });
 
-    test("updateRankPricesFromExcel: 商品名 VALUE! で excelName 空", async () => {
-        const list = JSON.parse(origProducts);
-        list.push({
-            productCode: "P_VAL",
-            name: "old",
-            manufacturer: "M",
-            category: "純正",
-            basePrice: 1
-        });
-        await fs.writeFile(PRODUCTS_PATH, JSON.stringify(list, null, 2), "utf-8");
-        readToRowArrays.mockResolvedValue([
-            ["商品コード", "商品名", "ランク1"],
-            ["P_VAL", "#VALUE!", 5]
-        ]);
-        await priceService.updateRankPricesFromExcel(Buffer.from([1]));
-        const list2 = JSON.parse(await fs.readFile(PRODUCTS_PATH, "utf-8"));
-        expect(list2.find((p) => p.productCode === "P_VAL").name).toBe("");
-    });
 
-    test("updateRankPricesFromExcel: データ行の商品コード空は forEach で return", async () => {
-        readToRowArrays.mockResolvedValue([
-            ["商品コード", "ランク1"],
-            ["", 1],
-            ["P_SKIP", 2]
-        ]);
-        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
-        expect(r.success).toBe(true);
-    });
 
     test("saveRankPrices: prices が配列の行は object 分岐に入らずスキップ", async () => {
         await priceService.saveRankPrices({
@@ -320,45 +242,10 @@ describe("branch-coverage-targeted-p1: priceService", () => {
         expect(bad.success).toBe(false);
     });
 
-    test("updateRankPricesFromExcel: 空シート", async () => {
-        readToRowArrays.mockResolvedValue([]);
-        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
-        expect(r.success).toBe(false);
-    });
 
-    test("updateRankPricesFromExcel: 商品コード列なし", async () => {
-        readToRowArrays.mockResolvedValue([["ランク1"], ["x"]]);
-        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
-        expect(r.success).toBe(false);
-    });
 
-    test("updateRankPricesFromExcel: ランク列ゼロ", async () => {
-        readToRowArrays.mockResolvedValue([["商品コード", "備考"], ["P1", "a"]]);
-        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
-        expect(r.success).toBe(false);
-    });
 
-    test("updateRankPricesFromExcel: 表示名 ゴールド で rank A", async () => {
-        readToRowArrays.mockResolvedValue([
-            ["商品コード", "ゴールド"],
-            ["P_GOLD", 11]
-        ]);
-        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
-        expect(r.success).toBe(true);
-        const m = JSON.parse(await fs.readFile(RANK_PATH, "utf-8"));
-        expect(m.P_GOLD.A).toBe(11);
-    });
 
-    test("updateRankPricesFromExcel: ランク99 は rankIds 範囲外で列無視", async () => {
-        readToRowArrays.mockResolvedValue([
-            ["商品コード", "ランク1", "ランク99"],
-            ["P_OOB", 1, 9]
-        ]);
-        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
-        expect(r.success).toBe(true);
-        const m = JSON.parse(await fs.readFile(RANK_PATH, "utf-8"));
-        expect(m.P_OOB).toEqual({ A: 1 });
-    });
 
     test("getRankPrices: JSON 破損で {}", async () => {
         await fs.writeFile(RANK_PATH, "{", "utf-8");
@@ -432,58 +319,9 @@ describe("branch-coverage-targeted-p1: priceService", () => {
         expect(buffer.length).toBeGreaterThan(100);
     });
 
-    test("updateRankPricesFromExcel: 表示名一致だが id が rankIds に無い列はランク数字列のみ有効", async () => {
-        settingsService.getRankIds.mockResolvedValueOnce(["A"]);
-        settingsService.getRankList.mockResolvedValueOnce([{ id: "Z", name: "ゴールド" }]);
-        readToRowArrays.mockResolvedValue([
-            ["商品コード", "ゴールド", "ランク1"],
-            ["P_RANKONLY", 1, 300]
-        ]);
-        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
-        expect(r.success).toBe(true);
-        const m = JSON.parse(await fs.readFile(RANK_PATH, "utf-8"));
-        expect(m.P_RANKONLY).toEqual({ A: 300 });
-    });
 
-    test("updateRankPricesFromExcel: ランクセル非数は価格オブジェクト空でも行は登録", async () => {
-        readToRowArrays.mockResolvedValue([
-            ["商品コード", "ランク1"],
-            ["P_EMPTY_RANK", "x"]
-        ]);
-        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
-        expect(r.success).toBe(true);
-        const m = JSON.parse(await fs.readFile(RANK_PATH, "utf-8"));
-        expect(m.P_EMPTY_RANK).toEqual({});
-    });
 
-    test("updateRankPricesFromExcel: 商品名 #NAME? で excelName 空・マスタ更新", async () => {
-        const list = JSON.parse(origProducts).filter((p) => p.productCode !== "P_NAME_ERR");
-        list.push({
-            productCode: "P_NAME_ERR",
-            name: "oldnm",
-            manufacturer: "M",
-            category: "純正",
-            basePrice: 1
-        });
-        await fs.writeFile(PRODUCTS_PATH, JSON.stringify(list, null, 2), "utf-8");
-        readToRowArrays.mockResolvedValue([
-            ["商品コード", "商品名", "ランク1"],
-            ["P_NAME_ERR", "#NAME?", 4]
-        ]);
-        await priceService.updateRankPricesFromExcel(Buffer.from([1]));
-        const list2 = JSON.parse(await fs.readFile(PRODUCTS_PATH, "utf-8"));
-        expect(list2.find((p) => p.productCode === "P_NAME_ERR").name).toBe("");
-    });
 
-    test("updateRankPricesFromExcel: マスタに無いコードは商品名更新スキップ", async () => {
-        readToRowArrays.mockResolvedValue([
-            ["商品コード", "商品名", "ランク1"],
-            ["NOT_IN_MASTER_XYZ", "ShouldNotApply", 2]
-        ]);
-        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
-        expect(r.success).toBe(true);
-        expect(r.message).not.toContain("商品名を");
-    });
 
     test("getPricelistExcelForRank: getSettings が null でも shippingRules 空で生成", async () => {
         settingsService.getSettings.mockResolvedValueOnce(null);
@@ -543,38 +381,8 @@ describe("branch-coverage-targeted-p1: priceService", () => {
         expect(buffer.length).toBeGreaterThan(200);
     });
 
-    test("updateRankPricesFromExcel: ヘッダをランク表示名（ゴールド）で byDisplayName 解決", async () => {
-        readToRowArrays.mockResolvedValue([
-            ["商品コード", "ゴールド"],
-            ["P_DISP_RANK", 42]
-        ]);
-        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
-        expect(r.success).toBe(true);
-        const m = JSON.parse(await fs.readFile(RANK_PATH, "utf-8"));
-        expect(m.P_DISP_RANK).toEqual({ A: 42 });
-    });
 
-    test("updateRankPricesFromExcel: ランクB 英字ヘッダで rankLetter 分岐", async () => {
-        readToRowArrays.mockResolvedValue([
-            ["商品コード", "ランクB"],
-            ["P_LETTER_B", 8]
-        ]);
-        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
-        expect(r.success).toBe(true);
-        const m = JSON.parse(await fs.readFile(RANK_PATH, "utf-8"));
-        expect(m.P_LETTER_B).toEqual({ B: 8 });
-    });
 
-    test("updateRankPricesFromExcel: ランク価格セルが空なら parsePriceCell null でキー省略", async () => {
-        readToRowArrays.mockResolvedValue([
-            ["商品コード", "ランク1", "ランク2"],
-            ["P_NULL_RANK", 5, ""]
-        ]);
-        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
-        expect(r.success).toBe(true);
-        const m = JSON.parse(await fs.readFile(RANK_PATH, "utf-8"));
-        expect(m.P_NULL_RANK).toEqual({ A: 5 });
-    });
 
     test("getPricelistExcelForRank: メーカー名が31文字超でシート名サニタイズ slice 分岐", async () => {
         const longMaker = "メーカー長い_" + "x".repeat(35);

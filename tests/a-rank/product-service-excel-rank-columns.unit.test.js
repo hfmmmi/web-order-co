@@ -2,7 +2,7 @@
 
 jest.mock("../../utils/excelReader", () => {
     const actual = jest.requireActual("../../utils/excelReader");
-    return { ...actual, readToRowArrays: jest.fn() };
+    return { ...actual, readProductMasterImportRows: jest.fn() };
 });
 
 jest.mock("../../services/settingsService", () => ({
@@ -10,7 +10,7 @@ jest.mock("../../services/settingsService", () => ({
     getRankList: jest.fn()
 }));
 
-const { readToRowArrays } = require("../../utils/excelReader");
+const { readProductMasterImportRows } = require("../../utils/excelReader");
 const settingsService = require("../../services/settingsService");
 const productService = require("../../services/productService");
 const { dbPath } = require("../../dbPaths");
@@ -18,7 +18,7 @@ const fs = require("fs").promises;
 
 const PRODUCTS_DB_PATH = dbPath("products.json");
 
-/** productService は先頭 PK のバッファのみ Excel として readToRowArrays に渡す */
+/** productService は先頭 PK のバッファのみ Excel として readProductMasterImportRows に渡す */
 function fakeXlsxBuffer() {
     return Buffer.from([0x50, 0x4b, 0x03, 0x04]);
 }
@@ -35,7 +35,7 @@ describe("productService importFromExcel ランク列・定価分岐", () => {
     });
 
     test("定価 OPEN で basePrice 0", async () => {
-        readToRowArrays.mockResolvedValue([
+        readProductMasterImportRows.mockResolvedValue([
             ["商品コード", "商品名", "定価", "仕様", "在庫", "メーカー", "ゴールド"],
             ["PX_OPEN", "N", "OPEN", "純正", "可", "M", "100"]
         ]);
@@ -53,7 +53,7 @@ describe("productService importFromExcel ランク列・定価分岐", () => {
     });
 
     test("ランク列ラベル ランクB で列解決", async () => {
-        readToRowArrays.mockResolvedValue([
+        readProductMasterImportRows.mockResolvedValue([
             ["商品コード", "商品名", "定価", "仕様", "在庫", "メーカー", "ランクB"],
             ["PX_RB", "N", "100", "純正", "可", "M", "200"]
         ]);
@@ -71,7 +71,7 @@ describe("productService importFromExcel ランク列・定価分岐", () => {
     });
 
     test("ランク列を表示名（ゴールド）で解決", async () => {
-        readToRowArrays.mockResolvedValue([
+        readProductMasterImportRows.mockResolvedValue([
             ["商品コード", "商品名", "定価", "仕様", "在庫", "メーカー", "ゴールド"],
             ["PX_DN", "N", "50", "純正", "遅延", "M", "300"]
         ]);
@@ -88,7 +88,7 @@ describe("productService importFromExcel ランク列・定価分岐", () => {
     });
 
     test("在庫列が「可」なら即納に正規化", async () => {
-        readToRowArrays.mockResolvedValue([
+        readProductMasterImportRows.mockResolvedValue([
             ["商品コード", "商品名", "定価", "仕様", "在庫", "メーカー"],
             ["PX_ST", "N", "100", "純正", "可", "M"]
         ]);
@@ -104,7 +104,7 @@ describe("productService importFromExcel ランク列・定価分岐", () => {
     });
 
     test("既存商品は更新分岐（名前 sanitize）", async () => {
-        readToRowArrays.mockResolvedValue([
+        readProductMasterImportRows.mockResolvedValue([
             ["商品コード", "商品名", "定価", "仕様", "在庫", "メーカー", "ゴールド"],
             ["P001", "改名テスト", "1200", "純正", "可", "TestMaker", "999"]
         ]);

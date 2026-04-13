@@ -3,9 +3,10 @@
  */
 "use strict";
 
-jest.mock("../../utils/excelReader", () => ({
-    readToRowArrays: jest.fn()
-}));
+jest.mock("../../utils/excelReader", () => {
+    const actual = jest.requireActual("../../utils/excelReader");
+    return { ...actual, readProductMasterImportRows: jest.fn() };
+});
 
 jest.mock("../../services/settingsService", () => {
     const actual = jest.requireActual("../../services/settingsService");
@@ -16,7 +17,7 @@ jest.mock("../../services/settingsService", () => {
     };
 });
 
-const { readToRowArrays } = require("../../utils/excelReader");
+const { readProductMasterImportRows } = require("../../utils/excelReader");
 const settingsService = require("../../services/settingsService");
 const productService = require("../../services/productService");
 const fs = require("fs").promises;
@@ -40,7 +41,7 @@ describe("Aランク: productService importFromExcel OPEN/在庫可", () => {
     beforeEach(async () => {
         await seedBaseData();
         origProducts = await fs.readFile(PRODUCTS_PATH, "utf-8");
-        readToRowArrays.mockReset();
+        readProductMasterImportRows.mockReset();
         settingsService.getRankIds.mockResolvedValue(["A", "B"]);
         settingsService.getRankList.mockResolvedValue([
             { id: "A", name: "ゴールド" },
@@ -53,7 +54,7 @@ describe("Aランク: productService importFromExcel OPEN/在庫可", () => {
     });
 
     test("定価が OPEN のとき basePrice は 0", async () => {
-        readToRowArrays.mockResolvedValue([
+        readProductMasterImportRows.mockResolvedValue([
             ["商品コード", "商品名", "メーカー", "定価", "仕様", "在庫", "ランク1", "ランク2"],
             ["P-OPEN-X", "テスト", "M", "OPEN", "純正", "可", 100, 200]
         ]);
@@ -81,7 +82,7 @@ describe("Aランク: productService importFromExcel OPEN/在庫可", () => {
             });
             await fs.writeFile(PRODUCTS_PATH, JSON.stringify(products, null, 2), "utf-8");
         }
-        readToRowArrays.mockResolvedValue([
+        readProductMasterImportRows.mockResolvedValue([
             ["商品コード", "商品名", "メーカー", "定価", "仕様", "在庫", "ランク1"],
             ["P-SAN", "#NAME?", "M", "100", "純正", "欠品", 50]
         ]);

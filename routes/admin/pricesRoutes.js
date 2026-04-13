@@ -4,7 +4,6 @@ const express = require("express");
 const router = express.Router();
 const priceService = require("../../services/priceService");
 const settingsService = require("../../services/settingsService");
-const { getRankPriceImportBuffer } = require("../../utils/rankPriceImportBuffer");
 const { requireAdmin } = require("./requireAdmin");
 
 /** :rank を英大文字1文字以上に正規化（分岐計測・短絡評価の取りこぼしを避ける） */
@@ -74,23 +73,6 @@ router.get("/admin/download-pricelist-excel-by-rank/:rank", requireAdmin, async 
     } catch (e) {
         console.error("Rank pricelist Excel download error:", e);
         res.status(500).send("価格表の生成に失敗しました");
-    }
-});
-
-router.post("/admin/import-rank-prices-excel", requireAdmin, async (req, res) => {
-    const resolved = getRankPriceImportBuffer(req);
-    if (!resolved.ok) {
-        return res.status(400).json({ success: false, message: "Excelファイルを選択してください" });
-    }
-    try {
-        const result = await priceService.updateRankPricesFromExcel(resolved.fileBuffer);
-        if (result.success) {
-            return res.json({ success: true, message: result.message });
-        }
-        return res.status(400).json({ success: false, message: result.message });
-    } catch (e) {
-        console.error("Rank prices Excel import error:", e);
-        return res.status(500).json({ success: false, message: e.message || "取込に失敗しました" });
     }
 });
 

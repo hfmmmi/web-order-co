@@ -3,11 +3,6 @@
 /**
  * 分岐100本計画 P0: priceService 12本
  */
-jest.mock("../../utils/excelReader", () => {
-    const actual = jest.requireActual("../../utils/excelReader");
-    return { ...actual, readToRowArrays: jest.fn() };
-});
-
 jest.mock("../../services/settingsService", () => ({
     getRankIds: jest.fn(),
     getRankList: jest.fn(),
@@ -25,7 +20,6 @@ jest.mock("../../services/settingsService", () => ({
     })
 }));
 
-const { readToRowArrays } = require("../../utils/excelReader");
 const settingsService = require("../../services/settingsService");
 const priceService = require("../../services/priceService");
 const fs = require("fs").promises;
@@ -96,28 +90,7 @@ describe("branch coverage 100 P0: priceService", () => {
         expect(map.NUMSTR.A).toBe(42);
     });
 
-    test("updateRankPricesFromExcel はランク表示名一致で rankKey 解決", async () => {
-        readToRowArrays.mockResolvedValue([
-            ["商品コード", "ランク1"],
-            ["RNKDN", 5]
-        ]);
-        settingsService.getRankList.mockResolvedValueOnce([
-            { id: "A", name: "ランク1" },
-            { id: "B", name: "ランク2" }
-        ]);
-        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
-        expect(r.success).toBe(true);
-    });
 
-    test("updateRankPricesFromExcel は rankNum が rankIds 範囲外で null", async () => {
-        readToRowArrays.mockResolvedValue([
-            ["商品コード", "ランク99"],
-            ["RN99", 1]
-        ]);
-        settingsService.getRankIds.mockResolvedValueOnce(["A"]);
-        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
-        expect(r.success).toBe(false);
-    });
 
     test("getPricelistCsvForRank は stripToken ありで rawName 分岐", async () => {
         settingsService.getPriceListFormatConfig.mockResolvedValueOnce({

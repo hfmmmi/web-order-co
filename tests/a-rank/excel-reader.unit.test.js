@@ -5,6 +5,7 @@
 const excelReaderModule = require("../../utils/excelReader");
 const {
     readToRowArrays,
+    readProductMasterImportRows,
     readToObjects,
     excelSerialToDateString,
     cellToDateString,
@@ -107,6 +108,28 @@ describe("Aランク: excelReader ユニット", () => {
         const buffer = await wb.xlsx.writeBuffer();
         const rows = await readToRowArrays(buffer, { sheetName: "Data" });
         expect(rows[0]).toEqual(["x"]);
+    });
+
+    test("readToRowArrays は sheetName を大文字小文字無視で一致", async () => {
+        const wb = new ExcelJS.Workbook();
+        const ws = wb.addWorksheet("upload");
+        ws.getCell("A1").value = "x";
+        const buffer = await wb.xlsx.writeBuffer();
+        const rows = await readToRowArrays(buffer, { sheetName: "Upload" });
+        expect(rows[0]).toEqual(["x"]);
+    });
+
+    test("readProductMasterImportRows は小文字 upload で商品コード行を読む", async () => {
+        const wb = new ExcelJS.Workbook();
+        wb.addWorksheet("Sheet1").getCell("A1").value = "no";
+        const u = wb.addWorksheet("upload");
+        u.getCell("A1").value = "商品コード";
+        u.getCell("B1").value = "商品名";
+        u.getCell("A2").value = "P1";
+        const buffer = await wb.xlsx.writeBuffer();
+        const rows = await readProductMasterImportRows(Buffer.from(buffer));
+        expect(rows[0][0]).toBe("商品コード");
+        expect(rows[1][0]).toBe("P1");
     });
 
     test("readToRowArrays は存在しない sheetName なら先頭シートにフォールバック", async () => {

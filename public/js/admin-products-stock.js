@@ -15,7 +15,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const stockImportBtn = document.querySelector("#stock-import-btn");
     const stockTemplateBtn = document.querySelector("#stock-template-btn");
     const stockImportStatus = document.querySelector("#stock-import-status");
-    const stockHistoryBody = document.querySelector("#stock-history-body");
 
     const stockManualForm = document.querySelector("#stock-manual-form");
     const manualCodeInput = document.querySelector("#manual-stock-code");
@@ -32,7 +31,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.addEventListener("admin-ready", function () {
         loadStockSettings();
-        loadStockHistory();
     });
 
     function applyStockDisplayToForm(display = {}) {
@@ -157,50 +155,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    async function loadStockHistory() {
-        if (!stockHistoryBody) return;
-        try {
-            const response = await adminApiFetch("/api/admin/stocks/history");
-            if (!response.ok) throw new Error("履歴取得に失敗しました");
-            const data = await response.json();
-            if (!data.success) throw new Error(data.message || "履歴取得に失敗しました");
-            renderStockHistory(data.history || []);
-        } catch (error) {
-            console.error(error);
-            stockHistoryBody.innerHTML = `<tr><td colspan="4" style="color:red; text-align:center;">履歴の取得に失敗しました</td></tr>`;
-        }
-    }
-
-    function renderStockHistory(history = []) {
-        if (!stockHistoryBody) return;
-        if (history.length === 0) {
-            stockHistoryBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#888;">履歴がありません</td></tr>`;
-            return;
-        }
-
-        const rows = history
-            .slice(0, 30)
-            .map((record) => {
-                const time = new Date(record.finishedAt || record.loggedAt || record.timestamp || Date.now());
-                const stamp = isNaN(time.getTime()) ? "-" : time.toLocaleString("ja-JP");
-                const adapter = record.adapterId || record.source || "-";
-                const summary =
-                    record.errorCount > 0
-                        ? `<span style="color:#c62828;">失敗 (${record.errorCount})</span>`
-                        : `成功 ${record.successCount || 0}件`;
-                const memo = record.errorMessage || record.filename || "";
-                return `<tr>
-                <td>${stamp}</td>
-                <td>${adapter}</td>
-                <td>${summary}</td>
-                <td>${memo}</td>
-            </tr>`;
-            })
-            .join("");
-
-        stockHistoryBody.innerHTML = rows;
-    }
-
     if (stockImportBtn) {
         stockImportBtn.addEventListener("click", async () => {
             if (!stockCsvInput || !stockCsvInput.files || stockCsvInput.files.length === 0) {
@@ -222,7 +176,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (data.success) {
                     toastSuccess("在庫データを取り込みました");
                     if (stockImportStatus) stockImportStatus.textContent = "取込完了";
-                    loadStockHistory();
                     stockCsvInput.value = "";
                 } else {
                     throw new Error(data.message || "取込に失敗しました");
@@ -384,7 +337,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (data.success) {
                     toastSuccess("在庫を保存しました");
                     manualStockStatus.textContent = "保存しました";
-                    loadStockHistory();
                 } else {
                     throw new Error(data.message || "保存に失敗しました");
                 }

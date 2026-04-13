@@ -1003,7 +1003,27 @@ document.addEventListener("DOMContentLoaded", function () {
                 detTr.style.display !== "none";
             sumTr.classList.toggle("order-summary-row--dimmed", anyOpen && !pairOpen);
             sumTr.classList.toggle("order-summary-row--detail-open", pairOpen);
+            const toggleBtn = sumTr.querySelector(".btn-toggle-detail");
+            if (toggleBtn) {
+                toggleBtn.setAttribute("aria-expanded", pairOpen ? "true" : "false");
+            }
         });
+    }
+
+    /**
+     * 要約行に対応する詳細行の表示を切り替える（一覧用）
+     */
+    function toggleOrderDetailRow(sumTr, detTr, toggleBtn) {
+        if (!detTr) return;
+        const isHidden = detTr.style.display === "none";
+        detTr.style.display = isHidden ? "table-row" : "none";
+        if (toggleBtn) {
+            toggleBtn.textContent = isHidden ? "閉じる ▲" : "詳細 ▼";
+            toggleBtn.style.backgroundColor = "#8cc4dc";
+            toggleBtn.setAttribute("aria-expanded", isHidden ? "true" : "false");
+        }
+        const tbody = sumTr && sumTr.closest("tbody");
+        if (tbody) syncOrderSummaryRowDimming(tbody);
     }
 
     const btnCloseAllOrderDetails = document.getElementById("btn-close-all-order-details");
@@ -1017,6 +1037,7 @@ document.addEventListener("DOMContentLoaded", function () {
             orderListContainer.querySelectorAll(".btn-toggle-detail").forEach(function (btn) {
                 btn.textContent = "詳細 ▼";
                 btn.style.backgroundColor = "#8cc4dc";
+                btn.setAttribute("aria-expanded", "false");
             });
             orderListContainer.querySelectorAll(".orders-list-table tbody").forEach(syncOrderSummaryRowDimming);
         });
@@ -1190,14 +1211,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const toggleBtn = sumTr.querySelector(".btn-toggle-detail");
             if (toggleBtn) {
-                toggleBtn.addEventListener("click", function () {
-                    const isHidden = detTr.style.display === "none";
-                    detTr.style.display = isHidden ? "table-row" : "none";
-                    toggleBtn.textContent = isHidden ? "閉じる ▲" : "詳細 ▼";
-                    toggleBtn.style.backgroundColor = "#8cc4dc";
-                    syncOrderSummaryRowDimming(tbody);
+                toggleBtn.setAttribute("aria-expanded", "false");
+                toggleBtn.addEventListener("click", function (e) {
+                    e.stopPropagation();
+                    toggleOrderDetailRow(sumTr, detTr, toggleBtn);
                 });
             }
+
+            sumTr.addEventListener("click", function (e) {
+                if (e.target.closest(".col-select") || e.target.closest(".order-row-select")) {
+                    return;
+                }
+                if (e.target.closest(".btn-toggle-detail")) {
+                    return;
+                }
+                toggleOrderDetailRow(sumTr, detTr, toggleBtn);
+            });
 
             tbody.appendChild(sumTr);
             tbody.appendChild(detTr);

@@ -6,12 +6,13 @@ jest.mock("../../services/mailService", () => ({
     sendLoginFailureAlert: jest.fn().mockResolvedValue({ success: true })
 }));
 
-// excelReader をモック可能にする（Phase3 の Excel/readToRowArrays テストでサービスがモックを参照するため）
+// excelReader をモック可能にする（Phase3 の Excel 取込テストでサービスがモックを参照するため）
 jest.mock("../../utils/excelReader", () => {
     const actual = jest.requireActual("../../utils/excelReader");
     return {
         ...actual,
         readToRowArrays: jest.fn(actual.readToRowArrays),
+        readProductMasterImportRows: jest.fn(actual.readProductMasterImportRows),
         readToObjects: jest.fn(actual.readToObjects)
     };
 });
@@ -2318,40 +2319,6 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             expect(result.skippedCount).toBeGreaterThanOrEqual(0);
         });
 
-        // Phase 2: priceService カバレッジ向上
-        test("priceService.updateRankPricesFromExcel はファイル形式が不正で success: false を返す", async () => {
-            const priceService = require("../../services/priceService");
-            const exceljs = require("exceljs");
-            const workbook = new exceljs.Workbook();
-            const worksheet = workbook.addWorksheet("Upload");
-            worksheet.addRow(["不正なヘッダー"]);
-            const buffer = await workbook.xlsx.writeBuffer();
-            const result = await priceService.updateRankPricesFromExcel(buffer);
-            expect(result.success).toBe(false);
-            expect(result.message).toMatch(/商品コード|ランク|認識できません|データがありません/);
-        });
-
-        test("priceService.updateRankPricesFromExcel は rank_prices.json が破損時も空オブジェクトで開始する", async () => {
-            const fs = require("fs").promises;
-            const path = require("path");
-            const rankPricesPathFull = rankPricesPath();
-            const orig = await fs.readFile(rankPricesPathFull, "utf-8").catch(() => "{}");
-            try {
-                await fs.writeFile(rankPricesPathFull, "{", "utf-8");
-                const priceService = require("../../services/priceService");
-                const exceljs = require("exceljs");
-                const workbook = new exceljs.Workbook();
-                const worksheet = workbook.addWorksheet("Upload");
-                worksheet.addRow(["商品コード", "商品名", "メーカー", "標準原価", "設定モード", "納期区分", "ランク1", "ランク2", "ランク3"]);
-                worksheet.addRow(["P001", "", "", "", "", "", "1000", "1100", "1200"]);
-                const buffer = await workbook.xlsx.writeBuffer();
-                const result = await priceService.updateRankPricesFromExcel(buffer);
-                expect(result.success).toBe(true);
-            } finally {
-                await fs.writeFile(rankPricesPathFull, orig, "utf-8");
-            }
-        });
-
         test("priceService.updateSpecialPrice は新規特価を追加する", async () => {
             const priceService = require("../../services/priceService");
             const result = await priceService.updateSpecialPrice("TEST001", "P999", 2000);
@@ -2666,9 +2633,9 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
         });
 
         // Phase 3: productService 分岐強化（importFromExcel エラー経路・deleteProduct 存在チェック）
-        test("productService.importFromExcel は readToRowArrays 失敗時にエラーを throw する", async () => {
+        test("productService.importFromExcel は readProductMasterImportRows 失敗時にエラーを throw する", async () => {
             const excelReader = require("../../utils/excelReader");
-            excelReader.readToRowArrays.mockRejectedValueOnce(new Error("Excel parse error"));
+            excelReader.readProductMasterImportRows.mockRejectedValueOnce(new Error("Excel parse error"));
             const productService = require("../../services/productService");
             await expect(productService.importFromExcel(Buffer.from("invalid"))).rejects.toThrow();
         });

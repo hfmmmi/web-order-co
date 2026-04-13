@@ -9,8 +9,7 @@ module.exports = {
         "services/**/*.js",
         "middlewares/**/*.js",
         "utils/priceCalc.js",
-        "utils/excelReader.js",
-        "utils/rankPriceImportBuffer.js"
+        "utils/excelReader.js"
     ],
     coveragePathIgnorePatterns: [
         "/node_modules/",

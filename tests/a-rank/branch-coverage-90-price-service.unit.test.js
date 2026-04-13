@@ -3,11 +3,6 @@
 /**
  * 分岐カバレッジ 90% 向け: priceService の未踏分岐（CSV/Excel・saveRankPrices・getPriceForAdmin）
  */
-jest.mock("../../utils/excelReader", () => {
-    const actual = jest.requireActual("../../utils/excelReader");
-    return { ...actual, readToRowArrays: jest.fn() };
-});
-
 jest.mock("../../services/settingsService", () => ({
     getRankIds: jest.fn(),
     getRankList: jest.fn(),
@@ -28,7 +23,6 @@ jest.mock("../../services/settingsService", () => ({
     })
 }));
 
-const { readToRowArrays } = require("../../utils/excelReader");
 const settingsService = require("../../services/settingsService");
 const priceService = require("../../services/priceService");
 const fs = require("fs").promises;
@@ -102,25 +96,7 @@ describe("branch coverage 90: priceService 追加分岐", () => {
         expect(map.XEMPTY).toBeUndefined();
     });
 
-    test("updateRankPricesFromExcel はヘッダー商品名が h.includes 分岐のみで一致（=== ではない）", async () => {
-        readToRowArrays.mockResolvedValue([
-            ["商品コード", "長い商品名列名", "ランク1"],
-            ["PCOL", "N", 1]
-        ]);
-        settingsService.getRankList.mockResolvedValueOnce([{ id: "A", name: "ゴールド" }]);
-        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
-        expect(r.success).toBe(true);
-    });
 
-    test("updateRankPricesFromExcel は商品名列が無い場合 nameColIndex -1（name更新スキップ）", async () => {
-        readToRowArrays.mockResolvedValue([
-            ["商品コード", "ランク1"],
-            ["ONLYCODE", 99]
-        ]);
-        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
-        expect(r.success).toBe(true);
-        expect(r.message).not.toContain("商品名");
-    });
 
     test("getPricelistCsvForRank はランク価格が不正な型・範囲の行をスキップ", async () => {
         const rank = JSON.parse(origRank);
@@ -268,47 +244,10 @@ describe("branch coverage 90: priceService 追加分岐", () => {
         expect(map.MAPONLY.A).toBe(1);
     });
 
-    test("updateRankPricesFromExcel は空データで失敗メッセージ", async () => {
-        readToRowArrays.mockResolvedValueOnce([]);
-        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
-        expect(r.success).toBe(false);
-        expect(r.message).toContain("データがありません");
-    });
 
-    test("updateRankPricesFromExcel は商品コード列なしで失敗", async () => {
-        readToRowArrays.mockResolvedValueOnce([["列1", "列2"], ["a", "b"]]);
-        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
-        expect(r.success).toBe(false);
-        expect(r.message).toContain("商品コード");
-    });
 
-    test("updateRankPricesFromExcel はランク列なしで失敗", async () => {
-        readToRowArrays.mockResolvedValueOnce([["商品コード", "商品名"], ["X1", "N"]]);
-        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
-        expect(r.success).toBe(false);
-        expect(r.message).toContain("ランク列");
-    });
 
-    test("updateRankPricesFromExcel は readToRowArrays 失敗で例外を再throw", async () => {
-        readToRowArrays.mockRejectedValueOnce(new Error("excel read simulated"));
-        await expect(priceService.updateRankPricesFromExcel(Buffer.from([1]))).rejects.toThrow("excel read simulated");
-    });
 
-    test("updateRankPricesFromExcel は ランクB ラベルで rankIds に B があるとき解決", async () => {
-        readToRowArrays.mockResolvedValueOnce([
-            ["商品コード", "ランクB"],
-            ["RBX", 9]
-        ]);
-        settingsService.getRankIds.mockResolvedValueOnce(["A", "B", "C"]);
-        settingsService.getRankList.mockResolvedValueOnce([
-            { id: "A", name: "ゴールド" },
-            { id: "B", name: "シルバー" }
-        ]);
-        const r = await priceService.updateRankPricesFromExcel(Buffer.from([1]));
-        expect(r.success).toBe(true);
-        const map = JSON.parse(await fs.readFile(RANK_PATH, "utf-8"));
-        expect(map.RBX.B).toBe(9);
-    });
 
     test("getPricelistCsvForRank は csvHeaderLine に改行が無いと付与", async () => {
         settingsService.getPriceListFormatConfig.mockResolvedValueOnce({

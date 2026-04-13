@@ -73,43 +73,6 @@ describe("Aランク: admin pricesRoutes 分岐", () => {
         expect(res.headers["content-type"]).toContain("text/csv");
     });
 
-    test("POST /api/admin/import-rank-prices-excel は result.success false で400", async () => {
-        jest.spyOn(priceService, "updateRankPricesFromExcel").mockResolvedValueOnce({
-            success: false,
-            message: "検証エラー"
-        });
-        const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
-        const buf = Buffer.from("x");
-        const res = await admin
-            .post("/api/admin/import-rank-prices-excel")
-            .attach("rankExcelFile", buf, "r.xlsx");
-        expect(res.statusCode).toBe(400);
-        expect(res.body.success).toBe(false);
-    });
-
-    test("POST /api/admin/import-rank-prices-excel は例外で500", async () => {
-        jest.spyOn(priceService, "updateRankPricesFromExcel").mockRejectedValueOnce(new Error("parse"));
-        const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
-        const res = await admin
-            .post("/api/admin/import-rank-prices-excel")
-            .attach("rankExcelFile", Buffer.from("x"), "f.xlsx");
-        expect(res.statusCode).toBe(500);
-    });
-
-    test("POST /api/admin/import-rank-prices-excel は message 無し例外でも500メッセージを返す", async () => {
-        const err = new Error("");
-        jest.spyOn(priceService, "updateRankPricesFromExcel").mockRejectedValueOnce(err);
-        const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
-        const res = await admin
-            .post("/api/admin/import-rank-prices-excel")
-            .attach("rankExcelFile", Buffer.from("x"), "g.xlsx");
-        expect(res.statusCode).toBe(500);
-        expect(res.body.message).toBeTruthy();
-    });
-
     test("GET /api/admin/rank-list は getRankList 失敗で500（settings）", async () => {
         jest.spyOn(settingsService, "getRankList").mockRejectedValueOnce(new Error("rank"));
         const admin = request.agent(app);
@@ -165,14 +128,6 @@ describe("Aランク: admin pricesRoutes 分岐", () => {
         expect(res.statusCode).toBe(500);
     });
 
-    test("POST /api/admin/import-rank-prices-excel はファイル無しで400", async () => {
-        const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
-        const res = await admin.post("/api/admin/import-rank-prices-excel");
-        expect(res.statusCode).toBe(400);
-        expect(res.body.success).toBe(false);
-    });
-
     test("GET /api/admin/download-pricelist-by-rank は数字のみの rank を A に正規化する", async () => {
         const admin = request.agent(app);
         await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
@@ -212,18 +167,4 @@ describe("Aランク: admin pricesRoutes 分岐", () => {
         spy.mockRestore();
     });
 
-    test("POST /api/admin/import-rank-prices-excel は rankExcelFile 無しで file のみでも取込む", async () => {
-        jest.spyOn(priceService, "updateRankPricesFromExcel").mockResolvedValueOnce({
-            success: true,
-            message: "ok"
-        });
-        const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
-        const pk = Buffer.from([0x50, 0x4b, 3, 4]);
-        const res = await admin
-            .post("/api/admin/import-rank-prices-excel")
-            .attach("file", pk, "onlyfile.xlsx");
-        expect(res.statusCode).toBe(200);
-        expect(res.body.success).toBe(true);
-    });
 });

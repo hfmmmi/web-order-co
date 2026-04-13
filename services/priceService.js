@@ -3,8 +3,8 @@
 const path = require("path");
 const fs = require("fs").promises;
 const ExcelJS = require("exceljs");
-const { readToRowArrays } = require("../utils/excelReader");
 const { dbPath } = require("../dbPaths");
+const { runWithJsonFileWriteLock } = require("../utils/jsonWriteQueue");
 const settingsService = require("./settingsService");
 const { parsePriceCell, normalizeManufacturerKey } = require("./priceManufacturerNormalize");
 
@@ -28,139 +28,7 @@ class PriceService {
         }
     }
 
-    // 1. ランク価格 Excel一括更新（ヘッダー行から「商品コード」列・「ランク1」～「ランクN」列を自動判定）
-    async updateRankPricesFromExcel(fileBuffer) {
-        try {
-            const jsonData = await readToRowArrays(fileBuffer, { sheetName: "Upload" });
-            if (!jsonData.length) {
-                return { success: false, message: "シートにデータがありません" };
-            }
-
-            const headerRow = jsonData[0].map(c => String(c || "").trim());
-
-            // ヘッダーから「商品コード」「商品名」列のインデックスを取得
-            const codeColIndex = headerRow.findIndex(h => h === "商品コード" || h.includes("商品コード"));
-            if (codeColIndex === -1) {
-                return { success: false, message: "ヘッダーに「商品コード」列が見つかりません" };
-            }
-            const nameColIndex = headerRow.findIndex(h => h === "商品名" || (String(h || "").trim() && h.includes("商品名")));
-            const remarksColIndex = headerRow.findIndex(h => String(h || "").trim() === "備考");
-
-            // ヘッダーからランク列を取得（システム設定の表示名・ランク1/ランクA 形式に対応）
-            const [rankIds, rankList] = await Promise.all([settingsService.getRankIds(), settingsService.getRankList()]);
-            const rankCols = [];
-            headerRow.forEach((h, index) => {
-                const label = String(h || "").trim();
-                if (!label) return;
-                if (index === codeColIndex || index === nameColIndex) return;
-                if (remarksColIndex >= 0 && index === remarksColIndex) return;
-                let rankKey = null;
-                const byDisplayName = (rankList || []).find(r => r.name && String(r.name).trim() === label);
-                if (byDisplayName && byDisplayName.id && rankIds.includes(byDisplayName.id)) {
-                    rankKey = byDisplayName.id;
-                } else if (rankIds.includes(label)) {
-                    rankKey = label;
-                } else {
-                    const rankNum = label.match(/^ランク(\d+)$/);
-                    const rankLetter = label.match(/^ランク([A-Z])$/i);
-                    if (rankNum) {
-                        const oneBased = parseInt(rankNum[1], 10);
-                        rankKey = rankIds[oneBased - 1] || null;
-                    } else if (rankLetter) {
-                        const letter = rankLetter[1].toUpperCase();
-                        if (rankIds.includes(letter)) rankKey = letter;
-                    }
-                }
-                if (rankKey) rankCols.push({ index, rankKey });
-            });
-            if (rankCols.length === 0) {
-                return { success: false, message: "ヘッダーにランク列（例: A・ランク1・ランクA・システム設定のランク名）が見つかりません" };
-            }
-
-            // 既存データの読み込み (Object形式)
-            let rankPriceMap = {};
-            try {
-                const data = await fs.readFile(RANK_PRICES_DB_PATH, "utf-8");
-                rankPriceMap = JSON.parse(data);
-            } catch (e) { rankPriceMap = {}; }
-
-            let productMaster = [];
-            try {
-                const data = await fs.readFile(PRODUCTS_DB_PATH, "utf-8");
-                productMaster = JSON.parse(data);
-            } catch (e) { productMaster = []; }
-
-            let updateCount = 0;
-            let nameUpdateCount = 0;
-            let remarksUpdateCount = 0;
-
-            // データ処理（2行目以降）
-            jsonData.slice(1).forEach(row => {
-                const code = String(row[codeColIndex] != null ? row[codeColIndex] : "").trim();
-                if (!code) return;
-
-                const prices = {};
-                rankCols.forEach(({ index, rankKey }) => {
-                    const num = parsePriceCell(row[index]);
-                    if (num !== null) prices[rankKey] = num;
-                });
-
-                rankPriceMap[code] = prices;
-                updateCount++;
-
-                // Excelに「商品名」列がある場合、取り込みのたびに全件ともExcelの商品名で上書き（常に最新に同期）
-                if (nameColIndex >= 0 && Array.isArray(productMaster)) {
-                    const raw = row[nameColIndex];
-                    const trimmed = raw != null ? String(raw).trim() : "";
-                    const excelName = (trimmed !== "" && !/^#(NAME\?|VALUE!|REF!|DIV\/0!|NULL!|NA\(\)|NUM!|ERROR\?)$/i.test(trimmed))
-                        ? trimmed
-                        : "";
-                    const product = productMaster.find(p => p.productCode === code);
-                    if (product) {
-                        product.name = excelName;
-                        nameUpdateCount++;
-                    }
-                }
-                if (remarksColIndex >= 0 && Array.isArray(productMaster)) {
-                    const product = productMaster.find(p => p.productCode === code);
-                    if (product) {
-                        const raw = row[remarksColIndex];
-                        product.remarks = raw != null ? String(raw).trim() : "";
-                        remarksUpdateCount++;
-                    }
-                }
-            });
-
-            await fs.writeFile(RANK_PRICES_DB_PATH, JSON.stringify(rankPriceMap, null, 2));
-            const now = Date.now();
-            let updatedAt = {};
-            try {
-                const atData = await fs.readFile(RANK_PRICES_UPDATED_AT_PATH, "utf-8");
-                updatedAt = JSON.parse(atData);
-            } catch (e) { updatedAt = {}; }
-            jsonData.slice(1).forEach(row => {
-                const code = String(row[codeColIndex] != null ? row[codeColIndex] : "").trim();
-                if (code) updatedAt[code] = now;
-            });
-            await fs.writeFile(RANK_PRICES_UPDATED_AT_PATH, JSON.stringify(updatedAt, null, 2));
-            if (nameUpdateCount > 0 || remarksUpdateCount > 0) {
-                await fs.writeFile(PRODUCTS_DB_PATH, JSON.stringify(productMaster, null, 2));
-            }
-            const extras = [];
-            if (nameUpdateCount > 0) extras.push(`商品名を${nameUpdateCount}件`);
-            if (remarksUpdateCount > 0) extras.push(`備考を${remarksUpdateCount}件`);
-            const msg = extras.length
-                ? `ランク価格: ${updateCount}件を更新しました（${extras.join("・")}反映しました）`
-                : `ランク価格: ${updateCount}件を更新しました`;
-            return { success: true, message: msg };
-
-        } catch (error) {
-            console.error("[PriceService] Rank Update Error:", error);
-            throw error;
-        }
-    }
-
-    // 2. 個別特価の更新 (単一)
+    // 1. 個別特価の更新 (単一)
     async updateSpecialPrice(customerId, productCode, newPrice) {
         const priceList = await this._loadJson(PRICES_DB_PATH);
         const index = priceList.findIndex(p => p.customerId === customerId && p.productCode === productCode);
@@ -285,6 +153,40 @@ class PriceService {
         Object.keys(rankPriceMap).forEach(code => { updatedAt[code] = now; });
         await fs.writeFile(RANK_PRICES_UPDATED_AT_PATH, JSON.stringify(updatedAt, null, 2));
         return { success: true };
+    }
+
+    /**
+     * 商品マスタ一括取込後: products.json のランク価格と rank_prices.json を同期する
+     * （価格表DL・顧客側のマージは rank_prices を参照するため、ここを更新しないと反映されない）
+     * @param {Array<{ productCode: string, rankPrices: Record<string, number> }>} entries
+     * @param {number} timestamp
+     */
+    async mergeRankPricesFromMasterImport(entries, timestamp) {
+        if (!Array.isArray(entries) || entries.length === 0) return;
+        const ts = Number.isFinite(timestamp) ? timestamp : Date.now();
+        await runWithJsonFileWriteLock(RANK_PRICES_DB_PATH, async () => {
+            let rankPriceMap = {};
+            try {
+                rankPriceMap = JSON.parse(await fs.readFile(RANK_PRICES_DB_PATH, "utf-8"));
+            } catch (e) {
+                rankPriceMap = {};
+            }
+            let updatedAt = {};
+            try {
+                updatedAt = JSON.parse(await fs.readFile(RANK_PRICES_UPDATED_AT_PATH, "utf-8"));
+            } catch (e) {
+                updatedAt = {};
+            }
+            entries.forEach((ent) => {
+                const code = String(ent && ent.productCode != null ? ent.productCode : "").trim();
+                const rp = ent && ent.rankPrices && typeof ent.rankPrices === "object" ? ent.rankPrices : {};
+                if (!code || Object.keys(rp).length === 0) return;
+                rankPriceMap[code] = { ...rp };
+                updatedAt[code] = ts;
+            });
+            await fs.writeFile(RANK_PRICES_DB_PATH, JSON.stringify(rankPriceMap, null, 2));
+            await fs.writeFile(RANK_PRICES_UPDATED_AT_PATH, JSON.stringify(updatedAt, null, 2));
+        });
     }
 
     /** ランク価格表の商品別最終更新日時（マスタ全件DLの時系列マージ用） */

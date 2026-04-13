@@ -2,10 +2,6 @@
 
 const fs = require("fs").promises;
 
-jest.mock("../../utils/excelReader", () => ({
-    readToRowArrays: jest.fn()
-}));
-
 jest.mock("../../services/settingsService", () => ({
     getRankIds: jest.fn(),
     getRankList: jest.fn(),
@@ -13,7 +9,6 @@ jest.mock("../../services/settingsService", () => ({
     getSettings: jest.fn()
 }));
 
-const { readToRowArrays } = require("../../utils/excelReader");
 const settingsService = require("../../services/settingsService");
 const priceService = require("../../services/priceService");
 const { dbPath } = require("../../dbPaths");
@@ -37,97 +32,6 @@ describe("priceService 分岐カバレッジ（モック付き）", () => {
             manufacturerSplitCategory: "純正"
         });
         settingsService.getSettings.mockResolvedValue({ shippingRules: {} });
-    });
-
-    describe("updateRankPricesFromExcel", () => {
-        test("データなしで失敗メッセージ", async () => {
-            readToRowArrays.mockResolvedValueOnce([]);
-            const r = await priceService.updateRankPricesFromExcel(Buffer.from("x"));
-            expect(r.success).toBe(false);
-            expect(r.message).toContain("データがありません");
-        });
-
-        test("商品コード列なし", async () => {
-            readToRowArrays.mockResolvedValueOnce([["名前", "値"], ["x", "1"]]);
-            const r = await priceService.updateRankPricesFromExcel(Buffer.from("x"));
-            expect(r.success).toBe(false);
-            expect(r.message).toContain("商品コード");
-        });
-
-        test("ランク列なし", async () => {
-            readToRowArrays.mockResolvedValueOnce([["商品コード"], ["P1"]]);
-            const r = await priceService.updateRankPricesFromExcel(Buffer.from("x"));
-            expect(r.success).toBe(false);
-            expect(r.message).toContain("ランク列");
-        });
-
-        test("ランク1列で成功し rank_prices を更新", async () => {
-            readToRowArrays.mockResolvedValueOnce([
-                ["商品コード", "ランク1", "ランク2"],
-                ["PC1", "100", "200"],
-                ["", "1", "2"]
-            ]);
-            const rankPath = dbPath("rank_prices.json");
-            const prodPath = dbPath("products.json");
-            const origRank = await fs.readFile(rankPath, "utf-8").catch(() => "{}");
-            const origProd = await fs.readFile(prodPath, "utf-8").catch(() => "[]");
-            try {
-                await fs.writeFile(rankPath, "{}", "utf-8");
-                await fs.writeFile(prodPath, "[]", "utf-8");
-                const r = await priceService.updateRankPricesFromExcel(Buffer.from("x"));
-                expect(r.success).toBe(true);
-                const data = JSON.parse(await fs.readFile(rankPath, "utf-8"));
-                expect(data.PC1).toEqual({ A: 100, B: 200 });
-            } finally {
-                await fs.writeFile(rankPath, origRank, "utf-8");
-                await fs.writeFile(prodPath, origProd, "utf-8");
-            }
-        });
-
-        test("表示名ランク列と商品名列で商品マスタ名を更新", async () => {
-            readToRowArrays.mockResolvedValueOnce([
-                ["商品コード", "商品名", "ゴールド"],
-                ["PC2", "新名前", "50"]
-            ]);
-            const rankPath = dbPath("rank_prices.json");
-            const prodPath = dbPath("products.json");
-            const origRank = await fs.readFile(rankPath, "utf-8").catch(() => "{}");
-            const origProd = await fs.readFile(prodPath, "utf-8").catch(() => "[]");
-            try {
-                await fs.writeFile(rankPath, "{}", "utf-8");
-                await fs.writeFile(
-                    prodPath,
-                    JSON.stringify([{ productCode: "PC2", name: "旧", basePrice: 1 }], null, 2),
-                    "utf-8"
-                );
-                const r = await priceService.updateRankPricesFromExcel(Buffer.from("x"));
-                expect(r.success).toBe(true);
-                expect(r.message).toContain("商品名");
-                const products = JSON.parse(await fs.readFile(prodPath, "utf-8"));
-                expect(products[0].name).toBe("新名前");
-            } finally {
-                await fs.writeFile(rankPath, origRank, "utf-8");
-                await fs.writeFile(prodPath, origProd, "utf-8");
-            }
-        });
-
-        test("ランク文字列 ランクB でマッピング", async () => {
-            readToRowArrays.mockResolvedValueOnce([
-                ["商品コード", "ランクB"],
-                ["PC3", "99"]
-            ]);
-            const rankPath = dbPath("rank_prices.json");
-            const origRank = await fs.readFile(rankPath, "utf-8").catch(() => "{}");
-            try {
-                await fs.writeFile(rankPath, "{}", "utf-8");
-                const r = await priceService.updateRankPricesFromExcel(Buffer.from("x"));
-                expect(r.success).toBe(true);
-                const data = JSON.parse(await fs.readFile(rankPath, "utf-8"));
-                expect(data.PC3.B).toBe(99);
-            } finally {
-                await fs.writeFile(rankPath, origRank, "utf-8");
-            }
-        });
     });
 
     describe("saveRankPrices / 特価 / 取得系", () => {
