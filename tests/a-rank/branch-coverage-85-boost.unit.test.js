@@ -3,10 +3,15 @@
 /**
  * 分岐カバレッジ 85% 向け: productService の取込・エクスポートの未踏分岐を集中的に通す
  */
-jest.mock("../../services/priceService", () => ({
-    getRankPrices: jest.fn(),
-    getRankPricesUpdatedAt: jest.fn()
-}));
+jest.mock("../../services/priceService", () => {
+    const actual = jest.requireActual("../../services/priceService");
+    return {
+        getRankPrices: jest.fn(),
+        getRankPricesUpdatedAt: jest.fn(),
+        mergeRankPricesFromMasterImport: (entries, ts) =>
+            actual.mergeRankPricesFromMasterImport(entries, ts)
+    };
+});
 
 const ExcelJS = require("exceljs");
 const fs = require("fs").promises;
