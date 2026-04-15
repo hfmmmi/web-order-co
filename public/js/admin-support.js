@@ -274,6 +274,289 @@ document.addEventListener("DOMContentLoaded", function () {
     if (refreshSupportBtn) refreshSupportBtn.addEventListener("click", fetchSupportTickets);
 
     // ---------------------------------------------------------
+    // ツールバー: テンプレートDL / 全件DL / CSV取込（商品マスタ管理と同系）
+    // ---------------------------------------------------------
+    const supportCsvInput = document.querySelector("#support-tickets-csv-input");
+    const supportCsvUlBtn = document.querySelector("#btn-support-csv-excel");
+
+    function normCsvHeader(s) {
+        return String(s == null ? "" : s).trim().replace(/^\uFEFF/, "");
+    }
+
+    function csvEscapeCell(v) {
+        const s = String(v ?? "");
+        if (/[",\n\r]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+        return s;
+    }
+
+    function parseCsvToRows(text) {
+        const src = String(text || "").replace(/^\uFEFF/, "");
+        const rows = [];
+        let row = [];
+        let field = "";
+        let i = 0;
+        let inQuotes = false;
+        while (i < src.length) {
+            const c = src[i];
+            if (inQuotes) {
+                if (c === '"') {
+                    if (src[i + 1] === '"') {
+                        field += '"';
+                        i += 2;
+                        continue;
+                    }
+                    inQuotes = false;
+                    i++;
+                    continue;
+                }
+                field += c;
+                i++;
+                continue;
+            }
+            if (c === '"') {
+                inQuotes = true;
+                i++;
+                continue;
+            }
+            if (c === ",") {
+                row.push(field);
+                field = "";
+                i++;
+                continue;
+            }
+            if (c === "\n") {
+                row.push(field);
+                rows.push(row);
+                row = [];
+                field = "";
+                i++;
+                continue;
+            }
+            if (c === "\r") {
+                i++;
+                continue;
+            }
+            field += c;
+            i++;
+        }
+        row.push(field);
+        if (row.length > 1 || (row.length === 1 && row[0] !== "")) {
+            rows.push(row);
+        }
+        return rows;
+    }
+
+    function headerIndexMap(headerRow) {
+        const m = {};
+        headerRow.forEach(function (cell, idx) {
+            const k = normCsvHeader(cell).toLowerCase();
+            if (k) m[k] = idx;
+        });
+        return m;
+    }
+
+    function cellByHeader(row, map, keys) {
+        for (let k = 0; k < keys.length; k++) {
+            const idx = map[keys[k].toLowerCase()];
+            if (idx !== undefined) {
+                const v = row[idx];
+                return v == null ? "" : String(v);
+            }
+        }
+        return "";
+    }
+
+    function downloadUtf8Csv(filename, csvBody) {
+        const blob = new Blob(["\uFEFF" + csvBody], { type: "text/csv;charset=utf-8;" });
+        const a = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        a.href = url;
+        a.download = filename;
+        a.rel = "noopener";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+    }
+
+    function downloadSupportTemplate() {
+        const header = [
+            "ticketId",
+            "status",
+            "internalOrderNo",
+            "internalCustomerPoNumber",
+            "desiredAction",
+            "collectionDate",
+            "newHistoryLog"
+        ].join(",");
+        const example = ["T-EXAMPLE", "open", "", "", "", "", ""].map(csvEscapeCell).join(",");
+        downloadUtf8Csv("support_tickets_template.csv", header + "\n" + example + "\n");
+    }
+
+    function exportSupportTicketsCsv() {
+        if (!allSupportTickets || allSupportTickets.length === 0) {
+            if (window.toastWarning) window.toastWarning("エクスポートするデータがありません。リスト更新後にお試しください。");
+            return;
+        }
+        const keys = [
+            "ticketId",
+            "status",
+            "category",
+            "type",
+            "orderId",
+            "customerId",
+            "customerName",
+            "customerPoNumber",
+            "internalOrderNo",
+            "internalCustomerPoNumber",
+            "desiredAction",
+            "collectionDate",
+            "detail",
+            "timestamp"
+        ];
+        const lines = [keys.join(",")];
+        allSupportTickets.forEach(function (t) {
+            const row = keys.map(function (key) {
+                let v = t && t[key];
+                if (key === "type" && (v == null || v === "") && t) {
+                    v = t.supportType;
+                }
+                return csvEscapeCell(v);
+            });
+            lines.push(row.join(","));
+        });
+        downloadUtf8Csv("support_tickets_all.csv", lines.join("\n") + "\n");
+        if (window.toastSuccess) window.toastSuccess("CSVをダウンロードしました");
+    }
+
+    async function importSupportTicketsFromCsvText(csvText) {
+        const rows = parseCsvToRows(csvText);
+        if (rows.length < 2) {
+            if (window.toastError) window.toastError("CSVにデータ行がありません");
+            return;
+        }
+        const map = headerIndexMap(rows[0]);
+        if (map.ticketid === undefined) {
+            if (window.toastError) window.toastError("CSVの1行目に ticketId 列が必要です");
+            return;
+        }
+        let ok = 0;
+        let skip = 0;
+        let fail = 0;
+        for (let r = 1; r < rows.length; r++) {
+            const row = rows[r];
+            if (!row || row.every(function (c) { return String(c || "").trim() === ""; })) {
+                continue;
+            }
+            const ticketId = (cellByHeader(row, map, ["ticketId", "ticket_id"]) || "").trim();
+            if (!ticketId) {
+                skip++;
+                continue;
+            }
+            const existing = allSupportTickets.find(function (t) { return t && t.ticketId === ticketId; });
+            if (!existing) {
+                skip++;
+                continue;
+            }
+            const status = (cellByHeader(row, map, ["status"]) || existing.status || "open").trim();
+            const internalOrderNo = cellByHeader(row, map, ["internalOrderNo", "internal_order_no"]);
+            const internalCustomerPoNumber = cellByHeader(row, map, [
+                "internalCustomerPoNumber",
+                "internal_customer_po_number"
+            ]);
+            const desiredAction = cellByHeader(row, map, ["desiredAction", "desired_action"]);
+            const collectionDate = cellByHeader(row, map, ["collectionDate", "collection_date"]);
+            const newHistoryLog = cellByHeader(row, map, ["newHistoryLog", "new_history_log"]).trim();
+
+            const body = {
+                ticketId: ticketId,
+                status: status,
+                internalOrderNo: internalOrderNo,
+                internalCustomerPoNumber: internalCustomerPoNumber,
+                desiredAction: desiredAction,
+                collectionDate: collectionDate,
+                newHistoryLog: newHistoryLog || undefined
+            };
+
+            try {
+                const fetchFn = typeof adminApiFetch === "function" ? adminApiFetch : fetch;
+                const response = await fetchFn("/admin/update-ticket", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify(body)
+                });
+                const result = await response.json().catch(function () { return {}; });
+                if (result && result.success) {
+                    ok++;
+                } else {
+                    fail++;
+                }
+            } catch (e) {
+                console.error(e);
+                fail++;
+            }
+        }
+        if (window.toastSuccess) {
+            window.toastSuccess("取込完了: 成功 " + ok + " / スキップ " + skip + " / 失敗 " + fail);
+        }
+        fetchSupportTickets();
+    }
+
+    supportCsvUlBtn?.addEventListener("click", function () {
+        supportCsvInput?.click();
+    });
+
+    if (supportCsvInput) {
+        supportCsvInput.addEventListener("change", function () {
+            const file = supportCsvInput.files && supportCsvInput.files[0];
+            if (!file) return;
+            const name = (file.name || "").toLowerCase();
+            if (!name.endsWith(".csv")) {
+                if (window.toastError) window.toastError("CSV（.csv）のみ取り込めます");
+                supportCsvInput.value = "";
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = async function () {
+                try {
+                    if (supportCsvUlBtn) {
+                        supportCsvUlBtn.disabled = true;
+                        supportCsvUlBtn.textContent = "処理中...";
+                    }
+                    await importSupportTicketsFromCsvText(String(reader.result || ""));
+                } catch (e) {
+                    console.error(e);
+                    if (window.toastError) window.toastError("取込に失敗しました");
+                } finally {
+                    supportCsvInput.value = "";
+                    if (supportCsvUlBtn) {
+                        supportCsvUlBtn.disabled = false;
+                        supportCsvUlBtn.textContent = "↑ UL";
+                    }
+                }
+            };
+            reader.onerror = function () {
+                if (window.toastError) window.toastError("ファイルの読み込みに失敗しました");
+                supportCsvInput.value = "";
+            };
+            reader.readAsText(file, "UTF-8");
+        });
+    }
+
+    document.querySelectorAll(".js-support-template-dl").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            downloadSupportTemplate();
+        });
+    });
+
+    document.querySelectorAll(".js-support-export-dl").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            exportSupportTicketsCsv();
+        });
+    });
+
+    // ---------------------------------------------------------
     // 買取依頼リスト (変更なし)
     // ---------------------------------------------------------
     async function fetchKaitoriList() {

@@ -5,24 +5,147 @@
     <title>サポート管理 - WEB受注システム</title>
     <link rel="stylesheet" href="../style.css">
     <style>
-        /* 管理画面レイアウト */
-        body { margin: 0; overflow: hidden; }
+        /* 管理画面レイアウト（商品マスタ管理と同系） */
+        body { margin: 0; overflow: hidden; background-color: #f4f6f9; }
         .admin-layout-wrapper { display: flex; height: 100vh; }
-        .admin-main-content { flex-grow: 1; background: #f4f6f9; --admin-main-bg: #f4f6f9; padding: 20px; display: flex; flex-direction: column; overflow: hidden; height: 100vh; box-sizing: border-box; }
-        
-        /* 共通パーツ */
-        .page-header { margin-bottom: 20px; border-bottom: 2px solid #dee2e6; padding-bottom: 10px; }
-        .page-header h2 { color: #374151; }
+        .admin-main-content {
+            flex-grow: 1;
+            padding: 20px;
+            --admin-main-bg: #eef1f5;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .page-header {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+        }
+
+        .page-header-leading {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .page-header-leading h2 {
+            margin: 0;
+            font-size: 1.65rem;
+            font-weight: 700;
+            color: #374151;
+            letter-spacing: 0.02em;
+        }
+
+        .page-header-inline-actions {
+            display: inline-flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            align-items: center;
+            gap: 8px;
+            flex: 0 0 auto;
+        }
+
+        .page-header-toolbar-btn {
+            box-sizing: border-box;
+            width: max-content;
+            flex: 0 0 auto;
+            white-space: nowrap;
+            padding: 8px 10px;
+            cursor: pointer;
+            background: #fff;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            border-radius: 0;
+            font-weight: 600;
+            font-size: inherit;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        a.page-header-toolbar-btn {
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        a.page-header-toolbar-btn:visited {
+            color: #374151;
+        }
+
+        button.page-header-toolbar-btn {
+            margin: 0;
+            font-family: inherit;
+            font-size: inherit;
+            font-weight: 600;
+        }
+
+        .support-tickets-csv-input-hidden {
+            position: fixed;
+            left: -9999px;
+            top: 0;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+        }
+
         .admin-section { background: white; padding: 20px; border-radius: 5px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); margin-bottom: 20px; }
 
-        /* サポート画面用 (ダッシュボードから移植) */
-        .sub-tabs { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #dee2e6; padding-bottom: 10px; }
+        /* チケット管理：見出し＋ステータスタブ（同一行） */
+        .ticket-section-heading-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px 12px;
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .ticket-section-heading-row .section-title {
+            margin: 0;
+            color: #111827;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+        .support-status-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+        }
         .sub-tab-btn {
-            padding: 8px 15px; border: 1px solid #dee2e6; background: #f8f9fa;
-            cursor: pointer; border-radius: 4px; font-weight: bold; color: #495057;
+            padding: 8px 15px;
+            border: 1px solid #dee2e6;
+            background: #f8f9fa;
+            cursor: pointer;
+            border-radius: 4px;
+            font-weight: bold;
+            color: #495057;
         }
         .sub-tab-btn.support-tab.active {
-            background: #17a2b8; color: white; border-color: #17a2b8;
+            background: #17a2b8;
+            color: white;
+            border-color: #17a2b8;
+        }
+        #refresh-support-btn {
+            margin-left: auto;
+            padding: 8px 10px;
+            cursor: pointer;
+            background: #fff;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            border-radius: 0;
+            font-weight: 600;
+            font-family: inherit;
+            font-size: inherit;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
     </style>
 </head>
@@ -33,21 +156,30 @@
 
         <main class="admin-main-content">
             <div class="page-header">
-                <h2><span class="admin-page-icon" data-admin-icon="support" aria-hidden="true"></span>サポート申請・不具合報告</h2>
+                <div class="page-header-leading">
+                    <h2><span class="admin-page-icon" data-admin-icon="support" aria-hidden="true"></span>サポート申請・不具合報告</h2>
+                    <div class="page-header-inline-actions">
+                        <a href="../support.html" id="btn-support-new-add" class="page-header-toolbar-btn" target="_blank" rel="noopener noreferrer">新規追加</a>
+                        <button type="button" id="btn-support-csv-excel" class="page-header-toolbar-btn">↑ UL</button>
+                        <button type="button" class="page-header-toolbar-btn js-support-template-dl">テンプレートDL</button>
+                        <button type="button" class="page-header-toolbar-btn js-support-export-dl">全件DL</button>
+                    </div>
+                </div>
             </div>
 
-            <div class="admin-main-scroll">
-            <div class="admin-section" style="background-color: #fff3cd; border: 1px solid #ffeeba;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <h2 class="section-title" style="color: #856404; margin: 0;">チケット管理</h2>
-                    <button id="refresh-support-btn" style="padding:5px 10px; cursor:pointer;">リスト更新</button>
-                </div>
+            <input type="file" id="support-tickets-csv-input" class="support-tickets-csv-input-hidden" accept=".csv" tabindex="-1" aria-label="サポートチケット CSV 取込">
 
-                <div class="sub-tabs" style="border-bottom-color: #ffeeba; margin-bottom: 15px;">
-                    <button class="sub-tab-btn support-tab active" onclick="filterSupport('open', this)">🔴 未対応</button>
-                    <button class="sub-tab-btn support-tab" onclick="filterSupport('verifying', this)">🟡 検証中</button>
-                    <button class="sub-tab-btn support-tab" onclick="filterSupport('resolved', this)">✅ 対応完了</button>
-                    <button class="sub-tab-btn support-tab" onclick="filterSupport('all', this)">📂 全て</button>
+            <div class="admin-main-scroll">
+            <div class="admin-section">
+                <div class="ticket-section-heading-row">
+                    <h2 class="section-title">チケット管理</h2>
+                    <div class="support-status-tabs" role="tablist" aria-label="チケット表示切替">
+                        <button type="button" class="sub-tab-btn support-tab active" onclick="filterSupport('open', this)">未対応</button>
+                        <button type="button" class="sub-tab-btn support-tab" onclick="filterSupport('verifying', this)">検証中</button>
+                        <button type="button" class="sub-tab-btn support-tab" onclick="filterSupport('resolved', this)">対応完了</button>
+                        <button type="button" class="sub-tab-btn support-tab" onclick="filterSupport('all', this)">全て</button>
+                    </div>
+                    <button type="button" id="refresh-support-btn">リスト更新</button>
                 </div>
 
                 <div id="support-ticket-list">
@@ -60,6 +192,6 @@
 
     <script src="../js/admin-icons.js"></script>
     <script src="../js/admin-common.js"></script>
-    <script src="../js/admin-support.js?v=7.3"></script>
+    <script src="../js/admin-support.js?v=7.4"></script>
 </body>
 </html>
