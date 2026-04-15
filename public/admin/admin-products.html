@@ -265,6 +265,208 @@
             color: #9ca3af;
             font-size: 0.92em;
         }
+
+        /* 登録済み商品リスト（受注管理の注文履歴と同系のページ送り） */
+        .admin-product-list-container {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: #fff;
+            overflow: visible;
+        }
+
+        .admin-product-list-items .product-item-admin-wrap {
+            line-height: 1.35;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .admin-product-list-items .product-item-admin-wrap:nth-child(odd) {
+            background: #ffffff;
+        }
+
+        .admin-product-list-items .product-item-admin-wrap:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        .admin-product-list-items .product-item-admin-wrap.product-item-admin-wrap--inactive {
+            background: #f8d7da !important;
+        }
+
+        .admin-product-list-items .product-item-admin {
+            line-height: 1.35;
+        }
+
+        .admin-product-row-grid {
+            flex: 1;
+            min-width: 0;
+            display: grid;
+            grid-template-columns: 9rem 5.5rem minmax(0, 1fr) max-content minmax(0, 12rem);
+            align-items: center;
+            column-gap: 10px;
+            overflow-x: auto;
+            line-height: 1.35;
+            font-size: 0.875rem;
+        }
+
+        .admin-product-row-actions {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .btn-product-rank-toggle {
+            box-sizing: border-box;
+            padding: 6px 10px;
+            background: transparent;
+            color: #111827;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: inherit;
+            line-height: 1.25;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-product-rank-toggle:hover {
+            background: #f3f4f6;
+            border-color: #9ca3af;
+        }
+
+        .admin-product-rank-panel {
+            display: none;
+            padding: 10px 12px 12px 12px;
+            background: #e2e8f0;
+            border-top: 1px dashed #cbd5e1;
+            font-size: 0.8125rem;
+            color: #1e3a8a;
+            line-height: 1.5;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .product-item-admin-wrap.is-rank-open .admin-product-rank-panel {
+            display: block;
+        }
+
+        .admin-product-rank-panel-inner .admin-product-rank-label {
+            color: #3b82f6;
+            font-weight: 600;
+            margin-right: 6px;
+        }
+
+        .admin-product-row-grid .admin-product-col-code {
+            color: #6b7280;
+            white-space: nowrap;
+            font-variant-numeric: tabular-nums;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .admin-product-row-grid .admin-product-col-badge {
+            justify-self: start;
+        }
+
+        .admin-product-row-grid .admin-product-col-name {
+            font-weight: 600;
+            color: #111827;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
+        }
+
+        .admin-product-row-grid .admin-product-col-price {
+            white-space: nowrap;
+            font-variant-numeric: tabular-nums;
+            color: #111827;
+        }
+
+        .admin-product-row-grid .admin-product-col-remarks {
+            font-size: 0.875rem;
+            color: #4b5563;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
+        }
+
+        .admin-product-row-grid .admin-product-remarks-label {
+            color: #6b7280;
+        }
+
+        .orders-pagination {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 18px;
+            padding: 10px 12px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            max-width: 100%;
+        }
+
+        .orders-pagination-pages {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            flex: 0 0 auto;
+        }
+
+        .orders-pagination-btn {
+            box-sizing: border-box;
+            flex: 0 0 auto;
+            width: max-content;
+            min-width: 0;
+            min-inline-size: 0;
+            padding: 6px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: #fff;
+            color: #374151;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-variant-numeric: tabular-nums;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .orders-pagination-btn:hover:not(:disabled) {
+            background: #f3f4f6;
+            border-color: #9ca3af;
+        }
+
+        .orders-pagination-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        .orders-pagination-btn.is-current {
+            background: #3b82f6;
+            border-color: #2563eb;
+            color: #fff;
+        }
+
+        .orders-pagination-ellipsis {
+            padding: 0 4px;
+            color: #9ca3af;
+            font-weight: 600;
+            user-select: none;
+        }
     </style>
 </head>
 
@@ -293,7 +495,7 @@
                     <h3 class="admin-product-list-title">登録済み商品リスト</h3>
                     <div id="admin-product-search-mount" class="admin-product-list-search-mount"></div>
                 </div>
-                <div id="admin-product-list" style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd;">
+                <div id="admin-product-list" class="admin-product-list-container">
                     <div style="padding:20px; text-align:center;">読み込み中...</div>
                 </div>
             </div>

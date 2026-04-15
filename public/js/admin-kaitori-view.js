@@ -16,7 +16,7 @@ function formatKaitoriRequestDateTime(value) {
 
 class KaitoriView {
     constructor() {
-        /** 価格表カテゴリ設定の「メーカー別シート」に使う区分（バッジ色の基準） */
+        /** 価格表カテゴリ設定の「メーカー別シート」に使う区分（新規マスタの区分初期値） */
         this.primaryProductCategoryForBadge = "純正";
 
         // テーブル・モーダル等の要素参照
@@ -64,30 +64,39 @@ class KaitoriView {
             const tr = document.createElement("tr");
             tr.style.cursor = "pointer";
             tr.className = "kaitori-row";
-            
-            // バッジスタイルの決定
-            let badgeClass = "badge-secondary";
-            let badgeStyle = "";
 
-            if(status === "未対応") {
-                badgeClass = "badge-danger"; 
-                badgeStyle = "background-color: #dc3545 !important; color: white !important; font-weight: bold;";
-            } else if(status === "査定中") {
-                badgeClass = "badge-warning";
-                badgeStyle = "color: #fff !important; background-color: #ff7575 !important;";
-            } else if(status === "保留") {
-                badgeClass = "badge-info";
-                badgeStyle = "color: #111827 !important; background-color: #fff !important; border: 1px solid #e5e7eb !important;";
-            } else if(status === "成立") {
-                badgeClass = "badge-success";
-                badgeStyle = "color: white; background-color: #28a745;";
+            let statusCellHtml;
+            if (status === "キャンセル(返却)") {
+                statusCellHtml = `<td>キャンセル/ 返却</td>`;
+            } else if (status === "キャンセル(廃棄)") {
+                statusCellHtml = `<td>キャンセル/ 廃棄</td>`;
+            } else {
+                let badgeClass = "badge-secondary";
+                let badgeStyle = "";
+
+                if (status === "未対応") {
+                    badgeClass = "badge-danger";
+                    badgeStyle = "background-color: #dc3545 !important; color: white !important; font-weight: bold;";
+                } else if (status === "査定中") {
+                    badgeClass = "badge-warning";
+                    badgeStyle = "color: #fff !important; background-color: #ff7575 !important;";
+                } else if (status === "保留") {
+                    badgeClass = "badge-info";
+                    badgeStyle = "color: #111827 !important; background-color: #fff !important; border: 1px solid #e5e7eb !important;";
+                } else if (status === "成立") {
+                    // 「現在の依頼」見出しアクセント・.badge-warning と同じ #a1d8e6
+                    badgeClass = "badge-warning";
+                    badgeStyle = "";
+                }
+
+                statusCellHtml = `<td><span class="badge ${badgeClass}" style="${badgeStyle}">${status}</span></td>`;
             }
-            
+
             tr.innerHTML = `
                 <td>${req.requestId}</td>
                 <td>${dateStr}</td>
                 <td>${req.customerName || "不明"}</td>
-                <td><span class="badge ${badgeClass}" style="${badgeStyle}">${status}</span></td>
+                ${statusCellHtml}
                 <td style="text-align:right;">${itemCount} 点</td>
                 <td style="text-align:right; font-weight:bold;">¥${totalAmount.toLocaleString()}</td>
             `;
@@ -133,8 +142,8 @@ class KaitoriView {
             <option disabled>──────────</option>
             <option value="成立">成立</option>
             <option value="キャンセル">キャンセル</option>
-            <option value="キャンセル(返却)">キャンセル(返却)</option>
-            <option value="キャンセル(廃棄)">キャンセル(廃棄)</option>
+            <option value="キャンセル(返却)">キャンセル/ 返却</option>
+            <option value="キャンセル(廃棄)">キャンセル/ 廃棄</option>
         `;
     }
 
@@ -252,7 +261,7 @@ class KaitoriView {
                 <td>${item.id}</td>
                 <td>${item.maker}</td>
                 <td>${item.name}</td>
-                <td><span class="badge ${item.type===this.primaryProductCategoryForBadge?'badge-success':'badge-secondary'}">${item.type}</span></td>
+                <td>${item.type}</td>
                 <td style="text-align:right; font-weight:bold;">¥${item.price.toLocaleString()}</td>
                 <td>${item.destination || "大阪"}</td>
                 <td class="kaitori-td-center">

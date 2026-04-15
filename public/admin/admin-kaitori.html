@@ -145,17 +145,20 @@
             height: 40px;
             padding: 0 14px;
             cursor: pointer;
-            background: #b7dbff;
+            background: transparent;
             color: #111827;
-            border: none;
+            border: 1px solid #9ca3af;
             border-radius: 8px;
             font-weight: 600;
             font-size: 0.9rem;
             font-family: inherit;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
             display: inline-flex;
             align-items: center;
             justify-content: center;
+        }
+
+        .kaitori-master-search-btn:hover {
+            background: #f3f4f6;
         }
 
         #btn-add-kaitori-item.kaitori-btn--primary {
@@ -170,13 +173,12 @@
             padding: 6px 12px;
             background: #fff !important;
             color: #111827 !important;
-            border: 1px solid #a1d8e6 !important;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            border: 1px solid #9ca3af !important;
         }
 
         .kaitori-btn-csv-excel:hover {
-            background: #d9f0f5 !important;
-            border-color: #a1d8e6 !important;
+            background: #f3f4f6 !important;
+            border-color: #9ca3af !important;
         }
 
         .kaitori-master-result-info {
@@ -421,11 +423,12 @@
         }
 
         #status-tab-container button {
-            font-size: 0.9rem;
+            font-size: 0.875rem;
             font-weight: 600;
-            padding: 8px 12px;
-            border-radius: 8px;
+            padding: 6px 10px;
+            border-radius: 6px;
             font-family: inherit;
+            box-sizing: border-box;
         }
 
         #kaitori-master-body .btn-edit-master {
@@ -653,7 +656,7 @@
                         </div>
                         <input type="file" id="kaitori-file-input" class="kaitori-file-input kaitori-file-input--hidden" accept=".csv,.xlsx,.xls" aria-hidden="true" tabindex="-1">
                         <button type="button" id="btn-kaitori-csv-excel" class="kaitori-btn kaitori-btn-csv-excel">↑ UL</button>
-                        <p class="kaitori-import-note">※必須列：メーカー,商品名, 区分, 買取単価, 買取先 (納品先)</p>
+                        <p class="kaitori-import-note">※必須：メーカー / 商品名 / 区分 / 買取単価 / 買取先</p>
                     </div>
 
                     <div class="kaitori-toolbar-row kaitori-toolbar-row--tight">

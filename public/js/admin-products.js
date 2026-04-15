@@ -17,6 +17,10 @@ document.addEventListener("DOMContentLoaded", function () {
     /** @type {{ id: string, name: string }[]} */
     let rankListMeta = [];
 
+    const PRODUCTS_PAGE_SIZE = 25;
+    let lastFilteredProducts = [];
+    let productsCurrentPage = 1;
+
     function escHtml(s) {
         return String(s ?? "")
             .replace(/&/g, "&amp;")
@@ -125,6 +129,96 @@ document.addEventListener("DOMContentLoaded", function () {
         window.open(url, "_blank", "noopener,noreferrer");
     }
 
+    function buildProductPageNumberItems(totalPages, current) {
+        if (totalPages <= 1) return [];
+        const nums = new Set([1, totalPages, current]);
+        for (let d = -2; d <= 2; d++) nums.add(current + d);
+        const sorted = [...nums].filter((n) => n >= 1 && n <= totalPages).sort((a, b) => a - b);
+        const out = [];
+        for (let i = 0; i < sorted.length; i++) {
+            if (i > 0 && sorted[i] - sorted[i - 1] > 1) out.push(null);
+            out.push(sorted[i]);
+        }
+        return out;
+    }
+
+    function buildProductsPaginationNav(totalPages, currentPage) {
+        const nav = document.createElement("nav");
+        nav.className = "orders-pagination";
+        nav.setAttribute("aria-label", "商品リストのページ送り");
+
+        const prevBtn = document.createElement("button");
+        prevBtn.type = "button";
+        prevBtn.className = "orders-pagination-btn orders-pagination-prev";
+        prevBtn.textContent = "前へ";
+        prevBtn.disabled = currentPage <= 1;
+        prevBtn.addEventListener("click", function () {
+            if (productsCurrentPage <= 1) return;
+            productsCurrentPage--;
+            renderProductListPage();
+        });
+
+        const pagesWrap = document.createElement("div");
+        pagesWrap.className = "orders-pagination-pages";
+
+        buildProductPageNumberItems(totalPages, currentPage).forEach(function (entry) {
+            if (entry === null) {
+                const ell = document.createElement("span");
+                ell.className = "orders-pagination-ellipsis";
+                ell.textContent = "…";
+                ell.setAttribute("aria-hidden", "true");
+                pagesWrap.appendChild(ell);
+                return;
+            }
+            const p = entry;
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "orders-pagination-btn orders-pagination-page";
+            btn.textContent = String(p);
+            if (p === currentPage) {
+                btn.classList.add("is-current");
+                btn.setAttribute("aria-current", "page");
+            }
+            btn.addEventListener("click", function () {
+                productsCurrentPage = p;
+                renderProductListPage();
+            });
+            pagesWrap.appendChild(btn);
+        });
+
+        const nextBtn = document.createElement("button");
+        nextBtn.type = "button";
+        nextBtn.className = "orders-pagination-btn orders-pagination-next";
+        nextBtn.textContent = "次へ";
+        nextBtn.disabled = currentPage >= totalPages;
+        nextBtn.addEventListener("click", function () {
+            if (productsCurrentPage >= totalPages) return;
+            productsCurrentPage++;
+            renderProductListPage();
+        });
+
+        nav.appendChild(prevBtn);
+        nav.appendChild(pagesWrap);
+        nav.appendChild(nextBtn);
+        return nav;
+    }
+
+    /** 例: メーカー RICOH・カテゴリ「RICOH 純正」→ 表示「純正」 */
+    function stripLeadingManufacturerFromCategory(manufacturer, category) {
+        if (!category) return "";
+        const c = String(category).trim();
+        const m = manufacturer ? String(manufacturer).trim() : "";
+        if (!m) return c;
+        try {
+            const escaped = m.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            const re = new RegExp("^" + escaped + "\\s+", "u");
+            const stripped = c.replace(re, "").trim();
+            return stripped || c;
+        } catch {
+            return c;
+        }
+    }
+
     function formatMergedRankLine(product) {
         const prices = product.mergedRankPrices || {};
         const keys = Object.keys(prices);
@@ -145,7 +239,84 @@ document.addEventListener("DOMContentLoaded", function () {
             .join(" · ");
     }
 
-    function renderProductList(products) {
+    function appendProductRow(parent, product) {
+        const rankLine = formatMergedRankLine(product);
+        const hasRank = rankLine.trim() !== "";
+
+        const wrap = document.createElement("div");
+        wrap.className =
+            "product-item-admin-wrap" + (product.active === false ? " product-item-admin-wrap--inactive" : "");
+
+        const row = document.createElement("div");
+        row.className = "product-item-admin";
+        row.style.padding = "8px 10px";
+        row.style.boxSizing = "border-box";
+        row.style.display = "flex";
+        row.style.justifyContent = "space-between";
+        row.style.alignItems = "center";
+        row.style.gap = "8px 10px";
+        row.style.fontSize = "0.875rem";
+
+        const categoryLabel = stripLeadingManufacturerFromCategory(product.manufacturer, product.category);
+        const catTag = categoryLabel ? `<span class="badge badge-secondary">${escHtml(categoryLabel)}</span>` : "";
+        const statusTag = product.active === false ? "<span style='color:red; font-weight:bold;'>[非表示]</span>" : "";
+        const remarksRaw = product.remarks != null ? String(product.remarks).trim() : "";
+        const remarksCell =
+            remarksRaw !== ""
+                ? `<span class="admin-product-col-remarks" title="${escHtml(remarksRaw)}"><span class="admin-product-remarks-label">備考:</span> ${escHtml(
+                      remarksRaw
+                  )}</span>`
+                : `<span class="admin-product-col-remarks"></span>`;
+
+        const rankBtnHtml = hasRank
+            ? `<button type="button" class="btn-product-rank-toggle" aria-expanded="false">ランク ▼</button>`
+            : "";
+
+        row.innerHTML = `
+                <div class="admin-product-row-grid">
+                    <span class="admin-product-col-code">${escHtml(product.productCode)}</span>
+                    <span class="admin-product-col-badge">${catTag}</span>
+                    <span class="admin-product-col-name">${statusTag} ${escHtml(product.name)}</span>
+                    <span class="admin-product-col-price">定価: ¥${(product.basePrice || 0).toLocaleString()}</span>
+                    ${remarksCell}
+                </div>
+                <div class="admin-product-row-actions">
+                    ${rankBtnHtml}
+                    <button type="button" class="btn-edit-row" style="box-sizing: border-box; padding: 6px 10px; background: #a1d8e6; color: #111827; border: 1px solid #a1d8e6; border-radius: 6px; flex-shrink: 0; font-weight: 600; font-size: 0.75rem; font-family: inherit; line-height: 1.25; cursor: pointer; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); display: inline-flex; align-items: center; justify-content: center;">編集</button>
+                </div>
+            `;
+
+        const rankBtn = row.querySelector(".btn-product-rank-toggle");
+        if (rankBtn && hasRank) {
+            const panel = document.createElement("div");
+            panel.className = "admin-product-rank-panel";
+            panel.innerHTML = `<div class="admin-product-rank-panel-inner"><span class="admin-product-rank-label">ランク別:</span> ${rankLine}</div>`;
+            rankBtn.addEventListener("click", function (event) {
+                event.stopPropagation();
+                const open = !wrap.classList.contains("is-rank-open");
+                wrap.classList.toggle("is-rank-open", open);
+                rankBtn.textContent = open ? "ランク ▲" : "ランク ▼";
+                rankBtn.setAttribute("aria-expanded", open ? "true" : "false");
+            });
+            wrap.appendChild(row);
+            wrap.appendChild(panel);
+        } else {
+            wrap.appendChild(row);
+        }
+
+        const editBtn = row.querySelector(".btn-edit-row");
+        editBtn.addEventListener("click", function (event) {
+            event.stopPropagation();
+            openProductEditor(product);
+        });
+
+        parent.appendChild(wrap);
+    }
+
+    function renderProductListPage() {
+        if (!productListContainer) return;
+
+        const products = lastFilteredProducts;
         productListContainer.innerHTML = "";
 
         if (products.length === 0) {
@@ -153,78 +324,40 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        const displayLimit = 100;
-        const itemsToShow = products.slice(0, displayLimit);
+        const totalPages = Math.max(1, Math.ceil(products.length / PRODUCTS_PAGE_SIZE));
+        if (productsCurrentPage > totalPages) productsCurrentPage = totalPages;
+        const page = productsCurrentPage;
+        const startIdx = (page - 1) * PRODUCTS_PAGE_SIZE;
+        const limited = products.slice(startIdx, startIdx + PRODUCTS_PAGE_SIZE);
+        const fromN = startIdx + 1;
+        const toN = startIdx + limited.length;
 
-        itemsToShow.forEach((product) => {
-            const div = document.createElement("div");
-            div.className = "product-item-admin";
-            div.style.borderBottom = "1px solid #e5e7eb";
-            div.style.padding = "10px 12px";
-            div.style.backgroundColor = product.active === false ? "#f8d7da" : "#fff";
-            div.style.display = "flex";
-            div.style.justifyContent = "space-between";
-            div.style.alignItems = "center";
-            div.style.gap = "calc(10px + 1ch)";
-            div.style.fontSize = "0.9rem";
-
-            const makerTag = product.manufacturer ? `<span class="badge badge-info">${escHtml(product.manufacturer)}</span>` : "";
-            const catTag = product.category ? `<span class="badge badge-secondary">${escHtml(product.category)}</span>` : "";
-            const stockTag = product.stockStatus
-                ? `<span style="font-size:0.8rem; color:#28a745;">[${escHtml(product.stockStatus)}]</span>`
-                : "";
-            const statusTag = product.active === false ? "<span style='color:red; font-weight:bold;'>[非表示]</span>" : "";
-            const rankLine = formatMergedRankLine(product);
-            const remarksRaw = product.remarks != null ? String(product.remarks).trim() : "";
-            const remarksBlock =
-                remarksRaw !== ""
-                    ? `<div style="font-size:0.8rem; color:#4b5563; margin-top:4px; line-height:1.4;" title="${escHtml(
-                          remarksRaw
-                      )}"><span style="color:#6b7280;">備考:</span> ${escHtml(remarksRaw)}</div>`
-                    : "";
-            const rankBlock =
-                rankLine !== ""
-                    ? `<div style="font-size:0.8rem; color:#1e40af; margin-top:4px; line-height:1.45; font-variant-numeric:tabular-nums;"><span style="color:#3b82f6;">ランク別:</span> ${rankLine}</div>`
-                    : "";
-
-            div.innerHTML = `
-                <div style="flex-grow:1; min-width:0;">
-                    <div style="display:flex; flex-wrap:wrap; align-items:baseline; gap:8px 16px; line-height:1.35;">
-                        <div style="font-size:0.85rem; color:#666; flex:0 1 auto;">
-                            ${escHtml(product.productCode)} ${makerTag} ${catTag} ${stockTag}
-                        </div>
-                        <div style="display:flex; flex-wrap:wrap; align-items:baseline; gap:8px 14px; flex:1; min-width:min(200px, 100%); color:#111827;">
-                            <div style="font-weight:600; flex:1; min-width:min(140px, 100%);">
-                                ${statusTag} ${escHtml(product.name)}
-                            </div>
-                            <div style="white-space:nowrap; font-variant-numeric:tabular-nums; flex-shrink:0;">
-                                定価: ¥${(product.basePrice || 0).toLocaleString()}
-                            </div>
-                        </div>
-                    </div>
-                    ${rankBlock}
-                    ${remarksBlock}
-                </div>
-                <button type="button" class="btn-edit-row" style="background:#2563eb; color:white; border:none; padding:6px 10px; border-radius:6px; flex-shrink:0; font-weight:600; font-size:0.875rem; cursor:pointer;">編集</button>
-            `;
-
-            const editBtn = div.querySelector(".btn-edit-row");
-            editBtn.addEventListener("click", function (event) {
-                event.stopPropagation();
-                openProductEditor(product);
-            });
-
-            productListContainer.appendChild(div);
-        });
-
-        if (products.length > displayLimit) {
-            const msg = document.createElement("div");
-            msg.style.textAlign = "center";
-            msg.style.padding = "10px";
-            msg.style.color = "#666";
-            msg.innerHTML = `他 ${products.length - displayLimit} 件ヒットしています。検索で絞り込んでください。`;
-            productListContainer.appendChild(msg);
+        const resultInfo = document.createElement("div");
+        resultInfo.style.marginBottom = "10px";
+        resultInfo.style.fontSize = "0.9rem";
+        resultInfo.style.color = "#6b7280";
+        resultInfo.style.padding = "8px 12px 0";
+        if (totalPages > 1) {
+            resultInfo.innerHTML = `該当: <strong>${products.length}</strong> 件 · <strong>${fromN}</strong>〜<strong>${toN}</strong> 件を表示`;
+        } else {
+            resultInfo.innerHTML = `該当: <strong>${products.length}</strong> 件`;
         }
+        productListContainer.appendChild(resultInfo);
+
+        const itemsWrap = document.createElement("div");
+        itemsWrap.className = "admin-product-list-items";
+        limited.forEach((product) => appendProductRow(itemsWrap, product));
+        productListContainer.appendChild(itemsWrap);
+
+        if (totalPages > 1) {
+            productListContainer.appendChild(buildProductsPaginationNav(totalPages, page));
+        }
+    }
+
+    function renderProductList(products) {
+        lastFilteredProducts = products ? [...products] : [];
+        productsCurrentPage = 1;
+        renderProductListPage();
     }
 
     if (csvFileInput) {

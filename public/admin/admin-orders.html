@@ -349,7 +349,7 @@
 
         .orders-list-table .col-export-mark {
             display: inline-block;
-            font-size: 1.15rem;
+            font-size: 0.95rem;
             font-weight: 700;
             line-height: 1;
             font-family: system-ui, "Segoe UI", sans-serif;
@@ -398,30 +398,41 @@
         .orders-list-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.9rem;
+            font-size: 0.875rem;
+            line-height: 1.35;
             --order-detail-bg: #cbd5e1;
             --order-detail-border: #b0bec9;
         }
 
         .orders-list-table thead th {
             text-align: left;
-            padding: 10px 12px;
+            padding: 8px 10px;
             background: #f3f4f6;
             color: #374151;
             font-weight: 600;
             border-bottom: 1px solid #e5e7eb;
             white-space: nowrap;
+            box-sizing: border-box;
+            vertical-align: middle;
         }
 
         .orders-list-table tbody td {
-            padding: 10px 12px;
+            padding: 8px 10px;
             border-bottom: 1px solid #e5e7eb;
             vertical-align: middle;
             color: #111827;
         }
 
-        .orders-list-table .order-summary-row:hover {
-            background: #f9fafb;
+        .orders-list-table tbody tr.order-summary-row:nth-child(4n + 1) td {
+            background: #ffffff;
+        }
+
+        .orders-list-table tbody tr.order-summary-row:nth-child(4n + 3) td {
+            background: #f8fafc;
+        }
+
+        .orders-list-table tbody tr.order-summary-row:not(.order-summary-row--detail-open):hover td {
+            background: #f1f5f9;
         }
 
         .orders-list-table tbody .order-summary-row {
@@ -437,7 +448,7 @@
             opacity: 0.24;
         }
 
-        .orders-list-table .order-summary-row.order-summary-row--dimmed:hover {
+        .orders-list-table .order-summary-row.order-summary-row--dimmed:hover td {
             background: #f3f4f6;
         }
 
@@ -473,8 +484,7 @@
         .orders-list-table th.col-select {
             text-align: center;
             width: 2.25rem;
-            padding-left: 10px;
-            padding-right: 6px;
+            padding: 8px 6px;
             vertical-align: middle;
         }
 
@@ -490,6 +500,15 @@
             white-space: nowrap;
             color: #6b7280;
             font-variant-numeric: tabular-nums;
+            font-size: 0.875rem;
+        }
+
+        .orders-list-table tbody td.col-id,
+        .orders-list-table tbody td.col-status,
+        .orders-list-table tbody td.col-party,
+        .orders-list-table tbody td.col-product,
+        .orders-list-table tbody td.col-numeric {
+            font-size: 0.875rem;
         }
 
         .orders-list-table .col-party {
@@ -499,7 +518,6 @@
         .orders-list-table .col-product {
             max-width: 220px;
             color: #6b7280;
-            font-size: 0.875rem;
         }
 
         .orders-list-table .order-detail-row td.order-detail-cell {

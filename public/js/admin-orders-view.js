@@ -94,9 +94,9 @@
 
         const deliveryName = info.name || "（宛名なし）";
         const cName = order.customerName || "名称不明";
-        const customerCellHtml = `<span style="font-weight:bold; font-size:1.02rem;">${cName}</span>`;
+        const customerCellHtml = `<span>${cName}</span>`;
 
-        const deliveryCellHtml = `<span style="font-weight:bold; font-size:1.05rem;">${deliveryName} 様</span>`;
+        const deliveryCellHtml = `<span>${deliveryName} 様</span>`;
 
         let tableHTML = `
             <table style="width:100%; margin-top:10px; border-collapse:collapse; font-size: 0.95rem;">
@@ -138,7 +138,7 @@
             <td class="col-date">${orderDateStr}</td>
             <td class="col-id"><strong>${order.orderId}</strong></td>
             <td class="col-status">
-                <span style="background-color: ${statusColor}; color: ${statusFg}; border: 1px solid ${statusBorder}; padding: 3px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; white-space: nowrap;">
+                <span style="background-color: ${statusColor}; color: ${statusFg}; border: 1px solid ${statusBorder}; padding: 2px 5px; border-radius: 3px; font-size: 0.6875rem; font-weight: 600; white-space: nowrap; line-height: 1.25;">
                     ${order.status || "未発送"}
                 </span>
             </td>
@@ -147,7 +147,7 @@
             <td class="col-numeric"><strong>¥${totalAmount.toLocaleString()}</strong></td>
             <td class="col-export">${exportBadge}</td>
             <td class="col-action">
-                <button type="button" class="btn-toggle-detail" style="padding: 6px 12px; background-color: #8cc4dc; color: #111827; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem;">
+                <button type="button" class="btn-toggle-detail" style="box-sizing: border-box; padding: 4px 10px; background: #a1d8e6; color: #111827; border: 1px solid #a1d8e6; border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-weight: 600; font-family: inherit; line-height: 1.25; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); display: inline-flex; align-items: center; justify-content: center;">
                     詳細 ▼
                 </button>
             </td>`;
