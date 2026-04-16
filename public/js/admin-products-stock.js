@@ -11,11 +11,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const addWarehousePresetBtn = document.querySelector("#add-warehouse-preset");
     const warehousePresetList = document.querySelector("#warehouse-preset-list");
 
-    const stockCsvInput = document.querySelector("#stock-csv-input");
-    const btnStockUl = document.querySelector("#btn-stock-ul");
-    const stockTemplateBtn = document.querySelector("#stock-template-btn");
-    const stockImportStatus = document.querySelector("#stock-import-status");
-
     const stockManualForm = document.querySelector("#stock-manual-form");
     const manualCodeInput = document.querySelector("#manual-stock-code");
     const manualTotalInput = document.querySelector("#manual-total-qty");
@@ -68,7 +63,7 @@ document.addEventListener("DOMContentLoaded", function () {
             <input type="text" class="form-control preset-code" placeholder="例: 本社" value="${(data.code || "").replace(/"/g, "&quot;").replace(/</g, "&lt;")}" style="width:100px; min-width:80px;">
             <label class="preset-label" style="flex:0 0 auto; width:70px; font-size:0.9rem; color:#555;">倉庫名</label>
             <input type="text" class="form-control preset-name" placeholder="例: 本社倉庫" value="${(data.name || "").replace(/"/g, "&quot;").replace(/</g, "&lt;")}" style="flex:1; min-width:180px;">
-            <button type="button" class="warehouse-preset-remove btn-danger" style="background:#dc3545; color:white; border:none; padding:4px 10px;">削除</button>
+            <button type="button" class="warehouse-preset-remove" style="background:transparent; color:#111827; border:none; padding:4px 10px; cursor:pointer;">削除</button>
         `;
         row.querySelector(".warehouse-preset-remove").addEventListener("click", () => {
             row.remove();
@@ -151,70 +146,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (stockSettingsStatus) stockSettingsStatus.textContent = "保存に失敗しました";
             } finally {
                 stockSaveSettingsBtn.disabled = false;
-            }
-        });
-    }
-
-    if (btnStockUl && stockCsvInput) {
-        btnStockUl.addEventListener("click", (ev) => {
-            ev.preventDefault();
-            ev.stopPropagation();
-            stockCsvInput.click();
-        });
-    }
-
-    if (stockCsvInput) {
-        stockCsvInput.addEventListener("change", async () => {
-            const file = stockCsvInput.files && stockCsvInput.files[0];
-            if (!file) return;
-
-            const formData = new FormData();
-            formData.append("stockFile", file);
-
-            if (btnStockUl) {
-                btnStockUl.disabled = true;
-                btnStockUl.textContent = "処理中...";
-            }
-            if (stockImportStatus) stockImportStatus.textContent = "取込中...";
-            try {
-                const response = await adminApiFetch("/api/admin/stocks/import", {
-                    method: "POST",
-                    body: formData
-                });
-                const data = await response.json();
-                if (data.success) {
-                    toastSuccess("在庫データを取り込みました");
-                    if (stockImportStatus) stockImportStatus.textContent = "取込完了";
-                } else {
-                    throw new Error(data.message || "取込に失敗しました");
-                }
-            } catch (error) {
-                console.error(error);
-                toastError(error.message || "在庫取込に失敗しました");
-                if (stockImportStatus) stockImportStatus.textContent = "取込に失敗しました";
-            } finally {
-                stockCsvInput.value = "";
-                if (btnStockUl) {
-                    btnStockUl.disabled = false;
-                    btnStockUl.textContent = "↑ UL";
-                }
-            }
-        });
-    }
-
-    if (stockTemplateBtn) {
-        stockTemplateBtn.addEventListener("click", async () => {
-            try {
-                const res = await adminApiFetch("/api/admin/stocks/template", { credentials: "include" });
-                if (!res.ok) throw new Error(await res.text());
-                const blob = await res.blob();
-                const a = document.createElement("a");
-                a.href = URL.createObjectURL(blob);
-                a.download = "stock_template.xlsx";
-                a.click();
-                URL.revokeObjectURL(a.href);
-            } catch (err) {
-                toastError(err.message || "テンプレートのダウンロードに失敗しました");
             }
         });
     }

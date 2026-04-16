@@ -569,21 +569,15 @@
                 </div>
             </div>
 
-            <div class="admin-section" id="stock-management-section" style="border-top: 5px solid #20c997;">
+            <div class="admin-section" id="stock-management-section" style="border-top: 5px solid #8cc4dc;">
                 <details class="stock-mgmt-details" id="stock-mgmt-details">
                     <summary class="stock-mgmt-summary">
                         <span class="stock-mgmt-summary-leading">
                             <span class="stock-mgmt-chevron" aria-hidden="true"></span>
                             <h2>在庫連携・表示設定</h2>
                         </span>
-                        <div class="stock-section-heading-actions" style="display:inline-flex; gap:8px; flex-wrap:wrap; align-items:center;">
-                            <input type="file" id="stock-csv-input" class="product-master-csv-input-hidden" accept=".csv,.xlsx,.xls" tabindex="-1" aria-label="在庫 ↑ UL 取込">
-                            <button type="button" id="btn-stock-ul" class="page-header-toolbar-btn">↑ UL</button>
-                        </div>
                     </summary>
                     <div class="stock-mgmt-body">
-                <div id="stock-import-status" style="font-size:0.9rem; margin-bottom:12px; min-height:1.2em;"></div>
-
                 <div class="stock-grid" style="display:flex; flex-wrap:wrap; gap:20px; margin-bottom:20px;">
                     <div class="stock-card" style="flex:1; min-width:280px; background:#f8f9fa; padding:15px; border-radius:6px; border:1px solid #dee2e6;">
                         <h3 style="margin-top:0;">表示設定</h3>
@@ -608,25 +602,20 @@
                             <input type="number" id="stock-highlight-minutes" class="form-control" min="15" value="180">
                         </div>
                         <div class="form-group" style="margin-top:14px; border-top:1px solid #dee2e6; padding-top:12px;">
-                            <label>登録倉庫名（テンプレ・CSV取込で使用）</label>
-                            <p style="color:#666; font-size:0.85rem; margin:4px 0 8px 0;">倉庫コードと倉庫名を登録すると、テンプレDLのサンプルに反映されます。</p>
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                                <span style="font-size:0.9rem; color:#555;">各倉庫の「コード」と「倉庫名」を登録してください</span>
-                                <button type="button" id="add-warehouse-preset" class="btn-primary" style="background:#6c757d; padding:4px 10px;">＋ 追加</button>
+                            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:6px;">
+                                <label style="margin-bottom:0;">登録倉庫名</label>
+                                <button type="button" id="add-warehouse-preset" class="btn-primary" style="background:#e5e7eb; color:#374151; border:1px solid #d1d5db; padding:4px 10px;">＋ 追加</button>
                             </div>
                             <div id="warehouse-preset-list" style="margin-top:8px;"></div>
                         </div>
-                        <button id="stock-save-settings" class="btn-primary">設定を保存</button>
+                        <div style="display:flex; justify-content:flex-end; margin-top:4px;">
+                            <button id="stock-save-settings" type="button" class="btn-primary" style="background:#8cc4dc; color:#111827; border:none; padding:8px 16px;">設定を保存</button>
+                        </div>
                         <div id="stock-settings-status" style="margin-top:10px; font-size:0.9rem; color:#17a2b8;"></div>
                     </div>
                 </div>
 
-                <p style="color:#666; font-size:0.85rem; margin:0 0 16px 0; display:flex; flex-wrap:wrap; align-items:center; gap:10px;">
-                    <span>在庫ファイル取込の対応形式: CSV / Excel（.xlsx, .xls）。フォーマット: product_code,total_qty,warehouse_code,warehouse_qty,timestamp,publish,hidden_message</span>
-                    <button type="button" id="stock-template-btn" class="page-header-toolbar-btn">テンプレDL</button>
-                </p>
-
-                <div class="admin-subsection" style="background:#fff; border:1px solid #dee2e6; border-radius:6px; padding:15px;">
+                <div class="admin-subsection" style="background:#f8f9fa; border:1px solid #dee2e6; border-radius:6px; padding:15px;">
                     <h3>手動在庫調整</h3>
                     <form id="stock-manual-form">
                         <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
@@ -634,7 +623,7 @@
                                 <label for="manual-stock-code">商品コード</label>
                                 <input type="text" id="manual-stock-code" class="form-control" required>
                             </div>
-                            <button type="button" id="load-stock-btn" class="btn-primary" style="height:38px;">現在庫を読み込む</button>
+                            <button type="button" id="load-stock-btn" class="btn-primary" style="height:38px; background:transparent; color:#111827; border:1px solid #d1d5db;">現在庫を読み込む</button>
                         </div>
                         <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:10px;">
                             <div class="form-group" style="flex:1; min-width:150px;">
