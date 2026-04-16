@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const warehousePresetList = document.querySelector("#warehouse-preset-list");
 
     const stockCsvInput = document.querySelector("#stock-csv-input");
-    const stockImportBtn = document.querySelector("#stock-import-btn");
+    const btnStockUl = document.querySelector("#btn-stock-ul");
     const stockTemplateBtn = document.querySelector("#stock-template-btn");
     const stockImportStatus = document.querySelector("#stock-import-status");
 
@@ -155,17 +155,26 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    if (stockImportBtn) {
-        stockImportBtn.addEventListener("click", async () => {
-            if (!stockCsvInput || !stockCsvInput.files || stockCsvInput.files.length === 0) {
-                toastWarning("在庫の ↑ UL 用ファイルを選択してください");
-                return;
-            }
-            const file = stockCsvInput.files[0];
+    if (btnStockUl && stockCsvInput) {
+        btnStockUl.addEventListener("click", (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            stockCsvInput.click();
+        });
+    }
+
+    if (stockCsvInput) {
+        stockCsvInput.addEventListener("change", async () => {
+            const file = stockCsvInput.files && stockCsvInput.files[0];
+            if (!file) return;
+
             const formData = new FormData();
             formData.append("stockFile", file);
 
-            stockImportBtn.disabled = true;
+            if (btnStockUl) {
+                btnStockUl.disabled = true;
+                btnStockUl.textContent = "処理中...";
+            }
             if (stockImportStatus) stockImportStatus.textContent = "取込中...";
             try {
                 const response = await adminApiFetch("/api/admin/stocks/import", {
@@ -176,7 +185,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (data.success) {
                     toastSuccess("在庫データを取り込みました");
                     if (stockImportStatus) stockImportStatus.textContent = "取込完了";
-                    stockCsvInput.value = "";
                 } else {
                     throw new Error(data.message || "取込に失敗しました");
                 }
@@ -185,7 +193,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 toastError(error.message || "在庫取込に失敗しました");
                 if (stockImportStatus) stockImportStatus.textContent = "取込に失敗しました";
             } finally {
-                stockImportBtn.disabled = false;
+                stockCsvInput.value = "";
+                if (btnStockUl) {
+                    btnStockUl.disabled = false;
+                    btnStockUl.textContent = "↑ UL";
+                }
             }
         });
     }

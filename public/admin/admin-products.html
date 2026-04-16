@@ -61,8 +61,76 @@
             letter-spacing: 0.02em;
         }
 
-        #stock-management-section > h2 {
+        #stock-management-section .stock-mgmt-summary h2 {
             color: #374151;
+        }
+
+        .stock-mgmt-details {
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            background: #fff;
+        }
+
+        .stock-mgmt-summary {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 12px 14px;
+            cursor: pointer;
+            list-style: none;
+            font-weight: 600;
+            color: #374151;
+            user-select: none;
+        }
+
+        .stock-mgmt-summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .stock-mgmt-summary-leading {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .stock-mgmt-summary-leading h2 {
+            margin: 0;
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        .stock-mgmt-chevron {
+            display: inline-block;
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 8px solid #6b7280;
+            transform: rotate(-90deg);
+            transition: transform 0.15s ease;
+            flex-shrink: 0;
+        }
+
+        .stock-mgmt-details[open] .stock-mgmt-chevron {
+            transform: rotate(0deg);
+        }
+
+        .stock-mgmt-body {
+            padding: 0 14px 16px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .stock-mgmt-details:not([open]) .stock-mgmt-body {
+            padding-top: 0;
+            border-top: none;
+        }
+
+        .stock-mgmt-details[open] .stock-mgmt-body {
+            padding-top: 14px;
         }
 
         .page-header-inline-actions {
@@ -502,12 +570,23 @@
             </div>
 
             <div class="admin-section" id="stock-management-section" style="border-top: 5px solid #20c997;">
-                <h2>📦 在庫連携・表示設定</h2>
-                <p style="color:#555;">在庫表示ON/OFF、CSV連携、手動調整をまとめて管理します。</p>
+                <details class="stock-mgmt-details" id="stock-mgmt-details">
+                    <summary class="stock-mgmt-summary">
+                        <span class="stock-mgmt-summary-leading">
+                            <span class="stock-mgmt-chevron" aria-hidden="true"></span>
+                            <h2>在庫連携・表示設定</h2>
+                        </span>
+                        <div class="stock-section-heading-actions" style="display:inline-flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                            <input type="file" id="stock-csv-input" class="product-master-csv-input-hidden" accept=".csv,.xlsx,.xls" tabindex="-1" aria-label="在庫 ↑ UL 取込">
+                            <button type="button" id="btn-stock-ul" class="page-header-toolbar-btn">↑ UL</button>
+                        </div>
+                    </summary>
+                    <div class="stock-mgmt-body">
+                <div id="stock-import-status" style="font-size:0.9rem; margin-bottom:12px; min-height:1.2em;"></div>
 
                 <div class="stock-grid" style="display:flex; flex-wrap:wrap; gap:20px; margin-bottom:20px;">
                     <div class="stock-card" style="flex:1; min-width:280px; background:#f8f9fa; padding:15px; border-radius:6px; border:1px solid #dee2e6;">
-                        <h3 style="margin-top:0;">🖥️ 表示設定</h3>
+                        <h3 style="margin-top:0;">表示設定</h3>
                         <label style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
                             <input type="checkbox" id="stock-display-toggle">
                             商品一覧で在庫数を表示する
@@ -529,7 +608,7 @@
                             <input type="number" id="stock-highlight-minutes" class="form-control" min="15" value="180">
                         </div>
                         <div class="form-group" style="margin-top:14px; border-top:1px solid #dee2e6; padding-top:12px;">
-                            <label>📋 登録倉庫名（テンプレ・CSV取込で使用）</label>
+                            <label>登録倉庫名（テンプレ・CSV取込で使用）</label>
                             <p style="color:#666; font-size:0.85rem; margin:4px 0 8px 0;">倉庫コードと倉庫名を登録すると、テンプレDLのサンプルに反映されます。</p>
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                                 <span style="font-size:0.9rem; color:#555;">各倉庫の「コード」と「倉庫名」を登録してください</span>
@@ -540,21 +619,15 @@
                         <button id="stock-save-settings" class="btn-primary">設定を保存</button>
                         <div id="stock-settings-status" style="margin-top:10px; font-size:0.9rem; color:#17a2b8;"></div>
                     </div>
-
-                    <div class="stock-card" style="flex:1; min-width:280px; background:#f8f9fa; padding:15px; border-radius:6px; border:1px solid #dee2e6;">
-                        <h3 style="margin-top:0;">📥 在庫 ↑ UL 取込</h3>
-                        <input type="file" id="stock-csv-input" accept=".csv,.xlsx,.xls" style="width:100%; margin-bottom:10px;">
-                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                            <button id="stock-import-btn" class="btn-primary" style="background:#17a2b8;">取込を実行</button>
-                            <button type="button" id="stock-template-btn" class="btn-primary" style="background:#6c757d;">テンプレDL</button>
-                        </div>
-                        <small style="color:#666;">対応形式: CSV / Excel（.xlsx, .xls） フォーマット: product_code,total_qty,warehouse_code,warehouse_qty,timestamp,publish,hidden_message</small>
-                        <div id="stock-import-status" style="margin-top:10px; font-size:0.9rem;"></div>
-                    </div>
                 </div>
 
+                <p style="color:#666; font-size:0.85rem; margin:0 0 16px 0; display:flex; flex-wrap:wrap; align-items:center; gap:10px;">
+                    <span>在庫ファイル取込の対応形式: CSV / Excel（.xlsx, .xls）。フォーマット: product_code,total_qty,warehouse_code,warehouse_qty,timestamp,publish,hidden_message</span>
+                    <button type="button" id="stock-template-btn" class="page-header-toolbar-btn">テンプレDL</button>
+                </p>
+
                 <div class="admin-subsection" style="background:#fff; border:1px solid #dee2e6; border-radius:6px; padding:15px;">
-                    <h3>🛠️ 手動在庫調整</h3>
+                    <h3>手動在庫調整</h3>
                     <form id="stock-manual-form">
                         <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
                             <div class="form-group" style="flex:1; min-width:180px;">
@@ -593,7 +666,7 @@
 
                         <div style="border:1px dashed #ccc; padding:10px; border-radius:4px; margin-bottom:15px;">
                             <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <h4 style="margin:0;">🏭 倉庫別在庫</h4>
+                                <h4 style="margin:0;">倉庫別在庫</h4>
                                 <button type="button" id="add-warehouse-row" class="btn-primary" style="background:#17a2b8; padding:4px 10px;">＋ 倉庫を追加</button>
                             </div>
                             <p style="color:#666; font-size:0.85rem; margin:6px 0 8px 0;">各倉庫のコード・倉庫名・数量を入力してください。</p>
@@ -612,6 +685,8 @@
                         <div id="manual-stock-status" style="margin-top:10px; font-size:0.9rem;"></div>
                     </form>
                 </div>
+                    </div>
+                </details>
             </div>
             </div>
 
