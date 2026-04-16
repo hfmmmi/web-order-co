@@ -266,6 +266,7 @@ input[type="text"], input[type="password"] {
 
 .pagination-area .product-pagination__page.is-current {
     background: #e5e7eb;
+    border-color: #d1d5db;
     color: #111827;
     text-decoration: none;
     cursor: default;

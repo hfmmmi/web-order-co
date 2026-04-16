@@ -588,9 +588,10 @@
         }
 
         .orders-pagination-btn.is-current {
-            background: #3b82f6;
-            border-color: #2563eb;
-            color: #fff;
+            background: #e5e7eb;
+            border-color: #d1d5db;
+            color: #111827;
+            cursor: default;
         }
 
         .orders-pagination-ellipsis {
@@ -720,15 +721,12 @@
                             <option value="一部発送">一部発送</option>
                             <option value="発送済">発送済</option>
                         </select>
-                        <input type="date" id="filter-date-start" class="orders-search-toolbar__field orders-search-toolbar__date"
-                            onclick="this.showPicker()">
+                        <input type="date" id="filter-date-start" class="orders-search-toolbar__field orders-search-toolbar__date">
                         <span class="orders-search-toolbar__tilde">～</span>
-                        <input type="date" id="filter-date-end" class="orders-search-toolbar__field orders-search-toolbar__date"
-                            onclick="this.showPicker()">
+                        <input type="date" id="filter-date-end" class="orders-search-toolbar__field orders-search-toolbar__date">
                         <div class="input-with-clear">
                             <input type="text" id="order-search-text" class="orders-search-toolbar__field orders-search-toolbar__keyword"
-                                placeholder="得意先・商品名・注文IDで検索…"
-                                aria-label="得意先・商品名・注文IDで検索">
+                                aria-label="キーワードで検索">
                             <span class="clear-input-btn" id="clear-order-search-btn">×</span>
                         </div>
                         <button type="button" id="order-search-btn" class="order-search-btn">
@@ -761,9 +759,9 @@
             <div class="orders-download-modal__field">
                 <div id="orders-download-modal-dates-label" style="font-size:0.8rem;font-weight:600;color:#374151;margin-bottom:6px;">注文日</div>
                 <div class="orders-download-modal__dates" role="group" aria-labelledby="orders-download-modal-dates-label">
-                    <input type="date" id="orders-download-modal-date-start" onclick="this.showPicker()" aria-label="注文日 開始">
+                    <input type="date" id="orders-download-modal-date-start" aria-label="注文日 開始">
                     <span>～</span>
-                    <input type="date" id="orders-download-modal-date-end" onclick="this.showPicker()" aria-label="注文日 終了">
+                    <input type="date" id="orders-download-modal-date-end" aria-label="注文日 終了">
                 </div>
             </div>
             <div class="orders-download-modal__field">

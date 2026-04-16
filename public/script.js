@@ -558,3 +558,45 @@ function createAnnouncementBanner(ann) {
 
     return banner;
 }
+
+/**
+ * ネイティブの <input type="date">: フォーカス中に同コントロールを再度押下するとピッカーを閉じる。
+ * 初回フォーカス時は showPicker で開く（動的追加された日付入力にも MutationObserver で対応）。
+ */
+(function initDatePickerToggleAll() {
+    function bindDatePickerToggle(el) {
+        if (!el || el.nodeName !== "INPUT" || el.type !== "date" || el.dataset.datePickerToggleBound) return;
+        el.dataset.datePickerToggleBound = "1";
+        if (el.getAttribute("onclick")) el.removeAttribute("onclick");
+        el.addEventListener("mousedown", function (e) {
+            if (document.activeElement === el) {
+                e.preventDefault();
+                el.blur();
+            }
+        });
+        el.addEventListener("focus", function () {
+            if (typeof el.showPicker !== "function") return;
+            try {
+                el.showPicker();
+            } catch (err) { /* 非対応ブラウザ等 */ }
+        });
+    }
+    function scan(root) {
+        (root || document).querySelectorAll('input[type="date"]').forEach(bindDatePickerToggle);
+    }
+    function start() {
+        scan(document);
+        if (!document.body) return;
+        var t;
+        var mo = new MutationObserver(function () {
+            clearTimeout(t);
+            t = setTimeout(function () { scan(document); }, 50);
+        });
+        mo.observe(document.body, { childList: true, subtree: true });
+    }
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", start);
+    } else {
+        start();
+    }
+})();

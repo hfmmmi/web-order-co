@@ -195,48 +195,78 @@
         
         const defaultCompany = order.deliveryCompany || "";
         const defaultNumber = order.trackingNumber || "";
+        const dcTrim = String(defaultCompany).trim();
+        let checkSagawa = "";
+        let checkSeino = "";
+        let checkYamato = "";
+        let checkOther = "";
+        let otherCarrierValueAttr = "";
+        if (dcTrim === "佐川急便" || dcTrim === "佐川") checkSagawa = " checked";
+        else if (dcTrim === "西濃運輸") checkSeino = " checked";
+        else if (dcTrim === "ヤマト運輸") checkYamato = " checked";
+        else if (dcTrim) {
+            checkOther = " checked";
+            otherCarrierValueAttr = ` value="${escapeAttr(dcTrim)}"`;
+        }
+
+        let indOpt0 = "";
+        let indOptSagawa = "";
+        let indOptSeino = "";
+        let indOptYamato = "";
+        let indOptOther = "";
+        if (!dcTrim) indOpt0 = " selected";
+        else if (dcTrim === "佐川急便" || dcTrim === "佐川") indOptSagawa = " selected";
+        else if (dcTrim === "西濃運輸") indOptSeino = " selected";
+        else if (dcTrim === "ヤマト運輸") indOptYamato = " selected";
+        else indOptOther = " selected";
+        const indOtherDisplay = indOptOther ? "inline-block" : "none";
+        const indOtherDisabledAttr = indOptOther ? "" : " disabled";
+        const indOtherValueAttr = indOptOther ? ` value="${escapeAttr(dcTrim)}"` : "";
 
         operationArea.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:2px solid #e5e7eb; padding-bottom:8px;">
-                <h4 style="margin:0; font-size:1rem; color:#111827;">🚛 出荷オペレーション</h4>
+                <h4 style="margin:0; font-size:1rem; color:#111827;">出荷オペレーション</h4>
                 <label style="font-size:0.9rem; font-weight:bold; cursor:pointer; color:#3b82f6;">
                     <input type="checkbox" class="check-individual-mode"> 個別配送モード(便を分ける)
                 </label>
             </div>
             <div class="estimate-message-area" style="display:flex; align-items:flex-end; gap:10px; margin-bottom:15px; flex-wrap:wrap;">
                 <div style="flex-grow:1; min-width:200px;">
-                    <label style="font-size:0.8rem; font-weight:bold; display:block;">📅 納期目安（顧客に表示）</label>
+                    <label style="font-size:0.8rem; font-weight:bold; display:block;">納期目安 <span style="color:#111827;">( 確認中 / お取り寄せ中 など )</span></label>
                     <input type="text" class="input-estimate-message" value="${(savedEstimate || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}" 
-                        placeholder="例: 納期確認中 / メーカー取り寄せ2週間程度 / メーカー欠品中納期未定 / CANON直送のため納期確認中" 
                         style="width:100%; padding:6px; box-sizing:border-box; border:1px solid #e5e7eb; border-radius:8px;">
                 </div>
-                <button class="btn-update-estimate" style="background:#38bdf8; color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer; font-weight:bold; white-space:nowrap;">
+                <button class="btn-update-estimate" type="button" style="background:transparent; color:#111827; border:1px solid #d1d5db; padding:8px 15px; border-radius:8px; cursor:pointer; font-weight:bold; white-space:nowrap;">
                     納期目安の更新
                 </button>
             </div>
-            <div class="global-input-area" style="display:flex; gap:15px; flex-wrap:wrap; margin-bottom:15px;">
-                <div class="date-input-group" style="background:#fff; padding:8px; border-radius:8px; border:1px solid #e5e7eb;">
-                    <label style="font-size:0.8rem; font-weight:bold; display:block;">納品予定日（一括設定）</label>
-                    <div style="display:flex; align-items:center; gap:5px;">
-                        <input type="date" class="input-delivery-date" value="${dateValueForInput}" style="padding:4px;">
-                        <label style="font-size:0.8rem; cursor:pointer;">
-                            <input type="checkbox" class="check-date-unknown" ${isDateUnknown ? "checked" : ""}> 確約不可
-                        </label>
-                    </div>
+            <div class="global-input-area" style="display:flex; flex-wrap:nowrap; align-items:flex-end; gap:12px; margin-bottom:15px; overflow-x:auto; min-width:0;">
+                <div class="date-input-group" style="display:flex; flex-direction:row; align-items:center; flex-wrap:nowrap; gap:8px; flex-shrink:0; background:#fff; padding:6px 10px; border-radius:8px; border:1px solid #e5e7eb;">
+                    <span style="font-size:0.8rem; font-weight:bold; white-space:nowrap; line-height:1.2;">納品予定日</span>
+                    <input type="date" class="input-delivery-date" value="${dateValueForInput}" style="padding:2px 4px; margin:0; vertical-align:middle; width:auto; min-width:9.5rem; max-width:11rem; box-sizing:border-box; font-size:0.85rem;">
+                    <label style="font-size:0.8rem; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:4px; margin:0;">
+                        <input type="checkbox" class="check-date-unknown" ${isDateUnknown ? "checked" : ""}> 確約不可
+                    </label>
                 </div>
-                <div class="shipping-info-group" style="display:flex; gap:15px; flex-grow:1;">
-                    <div style="flex-grow:1;">
-                        <label style="font-size:0.8rem; font-weight:bold; display:block;">配送業者 (一括)</label>
-                        <input type="text" class="input-company" value="${defaultCompany}" placeholder="例: ヤマト運輸" style="width:100%; padding:6px; box-sizing:border-box;">
+                <div class="shipping-info-group" style="display:flex; flex-direction:row; flex-wrap:nowrap; gap:12px; flex:1; min-width:0; align-items:flex-end;">
+                    <div style="flex:1; min-width:0;">
+                        <label style="font-size:0.8rem; font-weight:bold; display:block; margin-bottom:4px;">配送業者</label>
+                        <div class="bulk-carrier-fields" style="display:flex; flex-wrap:wrap; gap:6px 14px; align-items:center;">
+                            <label style="font-size:0.8rem; cursor:pointer; white-space:nowrap;"><input type="checkbox" class="bulk-carrier-check check-carrier-sagawa"${checkSagawa}> 佐川急便</label>
+                            <label style="font-size:0.8rem; cursor:pointer; white-space:nowrap;"><input type="checkbox" class="bulk-carrier-check check-carrier-seino"${checkSeino}> 西濃運輸</label>
+                            <label style="font-size:0.8rem; cursor:pointer; white-space:nowrap;"><input type="checkbox" class="bulk-carrier-check check-carrier-yamato"${checkYamato}> ヤマト運輸</label>
+                            <label style="font-size:0.8rem; cursor:pointer; white-space:nowrap;"><input type="checkbox" class="bulk-carrier-check check-carrier-other"${checkOther}> その他</label>
+                            <input type="text" class="input-carrier-other" style="min-width:100px; flex:1; max-width:240px; padding:4px 6px; font-size:0.8rem; box-sizing:border-box; border:1px solid #e5e7eb; border-radius:6px;"${otherCarrierValueAttr}>
+                        </div>
                     </div>
-                    <div style="flex-grow:1;">
-                        <label style="font-size:0.8rem; font-weight:bold; display:block;">送り状番号 (一括)</label>
-                        <input type="text" class="input-number" value="${defaultNumber}" placeholder="1234-5678-9012" style="width:100%; padding:6px; box-sizing:border-box;">
+                    <div style="flex:0 1 220px; min-width:140px; max-width:280px;">
+                        <label style="font-size:0.8rem; font-weight:bold; display:block; margin-bottom:4px;">送り状番号</label>
+                        <input type="text" class="input-number" value="${defaultNumber}" style="width:100%; padding:6px; box-sizing:border-box;">
                     </div>
                 </div>
             </div>
             <div class="shipment-qty-area" style="background:#fff; padding:10px; border:1px solid #e5e7eb; border-radius:8px; margin-bottom:15px;">
-                <p style="margin:0 0 5px 0; font-weight:bold; font-size:0.9rem;">📦 出荷する数量を入力</p>
+                <p style="margin:0 0 5px 0; font-weight:bold; font-size:0.9rem;">出荷する数量を入力</p>
                 <table style="width:100%; font-size:0.9rem; border-collapse:collapse;">
                     <thead style="background:#f3f4f6;">
                         <tr>
@@ -261,10 +291,19 @@
                             return `
                             <tr class="item-row" data-code="${item.code}" style="${isDone ? 'opacity:0.5; background:#f3f4f6;' : ''}">
                                 <td style="padding:5px;">
-                                    ${item.name}<br><span style="font-size:0.8em; color:#6b7280;">${item.code}</span>
+                                    ${item.name}
                                     <div class="individual-inputs" style="display:none; margin-top:5px; padding:5px; background:#f1f5f9; border-radius:6px;">
-                                        <input type="text" class="ind-company" placeholder="配送業者" value="${defaultCompany}" style="width:45%; padding:2px; font-size:0.8rem;">
-                                        <input type="text" class="ind-number" placeholder="送り状番号" value="${defaultNumber}" style="width:50%; padding:2px; font-size:0.8rem;">
+                                        <div style="display:flex; flex-wrap:wrap; align-items:center; gap:6px;">
+                                            <select class="ind-company-select" style="font-size:0.8rem; min-width:8.5rem; padding:2px 4px; box-sizing:border-box;">
+                                                <option value=""${indOpt0}>配送業者</option>
+                                                <option value="佐川急便"${indOptSagawa}>佐川急便</option>
+                                                <option value="西濃運輸"${indOptSeino}>西濃運輸</option>
+                                                <option value="ヤマト運輸"${indOptYamato}>ヤマト運輸</option>
+                                                <option value="その他"${indOptOther}>その他</option>
+                                            </select>
+                                            <input type="text" class="ind-company-other" style="display:${indOtherDisplay}; flex:1; min-width:70px; max-width:180px; padding:2px 4px; font-size:0.8rem; box-sizing:border-box; border:1px solid #e5e7eb; border-radius:4px;"${indOtherDisabledAttr}${indOtherValueAttr}>
+                                            <input type="text" class="ind-number" placeholder="送り状番号" value="${defaultNumber}" style="min-width:100px; flex:1; max-width:200px; padding:2px 4px; font-size:0.8rem; box-sizing:border-box;">
+                                        </div>
                                     </div>
                                 </td>
                                 <td style="padding:5px; text-align:center;">${item.quantity}</td>
@@ -281,15 +320,15 @@
                     </tbody>
                 </table>
             </div>
-            <div style="display:flex; justify-content:flex-end; gap:10px;">
-                <button class="btn-register-shipment" style="background:#22c55e; color:white; border:none; padding:8px 20px; border-radius:8px; font-weight:bold; cursor:pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
-                    出荷確定 (WEB反映のみ)
-                </button>
-            </div>
-            <div class="order-delete-area" style="margin-top:16px; padding-top:14px; border-top:1px dashed #e5e7eb; display:flex; align-items:center; flex-wrap:wrap; gap:10px; justify-content:flex-end;">
-                ${order.exported_at ? `<button type="button" class="btn-reset-export" style="background:#6b7280; color:#fff; border:none; padding:8px 14px; border-radius:8px; font-weight:bold; cursor:pointer; font-size:0.85rem;">未連携に</button>` : ""}
-                <button type="button" class="btn-delete-order" style="background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; padding:8px 14px; border-radius:8px; font-weight:bold; cursor:pointer; font-size:0.85rem;">
-                    削除
+            <div class="order-actions-footer" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-top:12px; padding-top:14px; border-top:1px dashed #e5e7eb;">
+                <div class="order-delete-area" style="display:flex; align-items:center; flex-wrap:wrap; gap:10px;">
+                    ${order.exported_at ? `<button type="button" class="btn-reset-export" style="background:transparent; color:#111827; border:1px solid #d1d5db; padding:8px 14px; border-radius:8px; font-weight:bold; cursor:pointer; font-size:0.85rem;">未連携に</button>` : ""}
+                    <button type="button" class="btn-delete-order" style="background:transparent; color:#111827; border:1px solid #d1d5db; padding:8px 14px; border-radius:8px; font-weight:bold; cursor:pointer; font-size:0.85rem;">
+                        削除
+                    </button>
+                </div>
+                <button type="button" class="btn-register-shipment" style="background:#a1d8e6; color:#111827; border:none; padding:8px 20px; border-radius:8px; font-weight:bold; cursor:pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+                    出荷確定
                 </button>
             </div>
         `;
@@ -299,6 +338,48 @@
         const individualModeCheck = operationArea.querySelector(".check-individual-mode");
         const shippingInfoGroup = operationArea.querySelector(".shipping-info-group");
         const itemRows = operationArea.querySelectorAll(".item-row");
+
+        function syncIndCompanyOtherForRow(row) {
+            const sel = row.querySelector(".ind-company-select");
+            const oth = row.querySelector(".ind-company-other");
+            if (!sel || !oth) return;
+            if (sel.value === "その他") {
+                oth.style.display = "inline-block";
+                oth.disabled = false;
+            } else {
+                oth.style.display = "none";
+                oth.disabled = true;
+                oth.value = "";
+            }
+        }
+
+        itemRows.forEach(row => {
+            const sel = row.querySelector(".ind-company-select");
+            if (sel) {
+                syncIndCompanyOtherForRow(row);
+                sel.addEventListener("change", function() {
+                    syncIndCompanyOtherForRow(row);
+                });
+            }
+        });
+
+        function syncBulkOtherInputEnabled() {
+            const otherCb = operationArea.querySelector(".check-carrier-other");
+            const otherIn = operationArea.querySelector(".input-carrier-other");
+            if (otherIn && otherCb) otherIn.disabled = !otherCb.checked;
+        }
+        syncBulkOtherInputEnabled();
+
+        operationArea.querySelectorAll(".bulk-carrier-check").forEach(cb => {
+            cb.addEventListener("change", function() {
+                if (this.checked) {
+                    operationArea.querySelectorAll(".bulk-carrier-check").forEach(x => {
+                        if (x !== this) x.checked = false;
+                    });
+                }
+                syncBulkOtherInputEnabled();
+            });
+        });
 
         dateUnknownCheck.addEventListener("change", () => {
             if(dateUnknownCheck.checked) dateInput.value = ""; 
@@ -310,15 +391,19 @@
         individualModeCheck.addEventListener("change", function() {
             const isInd = this.checked;
             if(isInd) {
-                shippingInfoGroup.querySelector(".input-company").disabled = true;
+                operationArea.querySelectorAll(".bulk-carrier-check").forEach(c => { c.disabled = true; });
+                const otherIn = operationArea.querySelector(".input-carrier-other");
+                if (otherIn) otherIn.disabled = true;
                 shippingInfoGroup.querySelector(".input-number").disabled = true;
                 shippingInfoGroup.style.opacity = "0.4";
                 itemRows.forEach(row => {
                     const inputs = row.querySelector(".individual-inputs");
                     if(inputs) inputs.style.display = "block";
+                    syncIndCompanyOtherForRow(row);
                 });
             } else {
-                shippingInfoGroup.querySelector(".input-company").disabled = false;
+                operationArea.querySelectorAll(".bulk-carrier-check").forEach(c => { c.disabled = false; });
+                syncBulkOtherInputEnabled();
                 shippingInfoGroup.querySelector(".input-number").disabled = false;
                 shippingInfoGroup.style.opacity = "1";
                 itemRows.forEach(row => {
@@ -351,7 +436,16 @@
                 const qty = parseInt(input.value);
                 if(qty > 0) {
                     const row = input.closest("tr");
-                    const indCompany = row.querySelector(".ind-company").value;
+                    const sel = row.querySelector(".ind-company-select");
+                    let indCompany = "";
+                    if (sel) {
+                        if (sel.value === "その他") {
+                            const o = row.querySelector(".ind-company-other");
+                            indCompany = o ? o.value.trim() : "";
+                        } else {
+                            indCompany = sel.value.trim();
+                        }
+                    }
                     const indNumber = row.querySelector(".ind-number").value;
                     shipItems.push({
                         code: input.dataset.code, name: input.dataset.name, quantity: qty,
@@ -369,7 +463,13 @@
 
             let finalPayload = [];
             if (!isInd) {
-                const gCompany = operationArea.querySelector(".input-company").value;
+                let gCompany = "";
+                if (operationArea.querySelector(".check-carrier-sagawa").checked) gCompany = "佐川急便";
+                else if (operationArea.querySelector(".check-carrier-seino").checked) gCompany = "西濃運輸";
+                else if (operationArea.querySelector(".check-carrier-yamato").checked) gCompany = "ヤマト運輸";
+                else if (operationArea.querySelector(".check-carrier-other").checked) {
+                    gCompany = operationArea.querySelector(".input-carrier-other").value.trim();
+                }
                 const gNumber = operationArea.querySelector(".input-number").value;
                 finalPayload.push({
                     deliveryCompany: gCompany, trackingNumber: gNumber,

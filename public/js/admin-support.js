@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (tickets.length === 0) {
             // ステータスに応じたメッセージ
             let msg = "データはありません";
-            if(currentFilter === 'open') msg = "現在、未対応の申請はありません ✅";
+            if(currentFilter === 'open') msg = "現在、未対応の申請はありません";
             else if(currentFilter === 'verifying') msg = "検証中の案件はありません";
             else if(currentFilter === 'resolved') msg = "完了済みの案件はありません";
             
@@ -89,12 +89,10 @@ document.addEventListener("DOMContentLoaded", function () {
             // 色分け設定
             let borderColor = "#ccc";
             let bgColor = "#fff";
-            let icon = "✉️";
 
             if (isBug) {
                 borderColor = "#dc3545";
                 bgColor = "#fff5f5";
-                icon = "🐛";
             }
             // 完了済みは少し薄くする
             if (ticket.status === "resolved") {
@@ -132,15 +130,15 @@ document.addEventListener("DOMContentLoaded", function () {
             card.style.borderRadius = "8px";
 
             const statusOptions = `
-                <option value="open" ${ticket.status === 'open' ? 'selected' : ''}>🔴 未対応</option>
-                <option value="verifying" ${ticket.status === 'verifying' ? 'selected' : ''}>🟡 検証中</option>
-                <option value="resolved" ${ticket.status === 'resolved' ? 'selected' : ''}>✅ 対応完了</option>
+                <option value="open" ${ticket.status === 'open' ? 'selected' : ''}>未対応</option>
+                <option value="verifying" ${ticket.status === 'verifying' ? 'selected' : ''}>検証中</option>
+                <option value="resolved" ${ticket.status === 'resolved' ? 'selected' : ''}>対応完了</option>
             `;
 
             // ★UI変更: 2列グリッドで「WEB(左) vs 社内(右)」を対比
             card.innerHTML = `
                 <div style="display:flex; justify-content:space-between; margin-bottom:10px; border-bottom:1px solid ${borderColor}; padding-bottom:5px;">
-                    <span style="font-weight:bold; font-size:1.1rem;">${icon} ${ticketId}</span>
+                    <span style="font-weight:bold; font-size:1.1rem;">${ticketId}</span>
                     <span style="font-size:0.85rem; color:#555;">${dateStr}</span>
                 </div>
 
@@ -188,7 +186,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             : String(a.originalName || a.storedName || "file").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
                         return `<li><a href="/support/attachment/${tid}/${sn}" target="_blank" rel="noopener">${lab}</a></li>`;
                     }).join("");
-                    return `<div style="margin-bottom:10px;"><label style="font-size:0.8rem; font-weight:bold;">📎 添付ファイル</label><ul style="margin:6px 0 0 18px; font-size:0.9rem;">${items}</ul></div>`;
+                    return `<div style="margin-bottom:10px;"><label style="font-size:0.8rem; font-weight:bold;">添付ファイル</label><ul style="margin:6px 0 0 18px; font-size:0.9rem;">${items}</ul></div>`;
                 })()}
 
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;">
@@ -208,7 +206,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 </div>
 
                 <div style="margin-bottom:10px;">
-                    <label style="font-size:0.8rem; font-weight:bold;">📝 対応履歴 (Log)</label>
+                    <label style="font-size:0.8rem; font-weight:bold;">対応履歴 (Log)</label>
                     ${historyHtml}
                 </div>
 
@@ -221,7 +219,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         <input type="text" id="historyLog-${ticketId}" placeholder="例: 電話で謝罪、代替品手配済み..." style="flex:1; padding:5px;">
                     </div>
                     <button onclick="updateTicket('${ticketId}')" style="width:100%; background:#0d6efd; color:white; border:none; padding:8px; border-radius:4px; cursor:pointer; font-weight:bold;">
-                        💾 更新・履歴追加
+                        更新・履歴追加
                     </button>
                 </div>
             `;
