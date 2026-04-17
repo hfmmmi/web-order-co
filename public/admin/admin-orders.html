@@ -601,7 +601,7 @@
             user-select: none;
         }
 
-        /* 受注検索: ▽ 全ステータス〜検索 まで1行・高さ40pxで揃える */
+        /* 受注検索: 全ステータス〜検索 まで1行・高さ40pxで揃える */
         .orders-search-toolbar {
             display: flex;
             flex-wrap: nowrap;
@@ -627,12 +627,22 @@
             background-color: #fff;
         }
 
-        #order-status-filter {
-            width: 155px;
-            padding: 0 10px;
+        /* ステータス: 先頭オプションは「全ステータス」、右端に下矢印でプルダウンを示す */
+        #order-status-filter,
+        #orders-download-modal-status {
             appearance: none;
             -webkit-appearance: none;
             -moz-appearance: none;
+            padding: 0 34px 0 10px;
+            background-color: #fff;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px 16px;
+        }
+
+        #order-status-filter {
+            width: 155px;
         }
 
         .orders-search-toolbar__date {
@@ -716,7 +726,7 @@
 
                     <div class="orders-search-toolbar">
                         <select id="order-status-filter" class="orders-search-toolbar__field">
-                            <option value="">▽ 全ステータス</option>
+                            <option value="">全ステータス</option>
                             <option value="未発送">未発送</option>
                             <option value="一部発送">一部発送</option>
                             <option value="発送済">発送済</option>
@@ -750,7 +760,7 @@
             <div class="orders-download-modal__field">
                 <label for="orders-download-modal-status">ステータス</label>
                 <select id="orders-download-modal-status">
-                    <option value="">▽ 全ステータス</option>
+                    <option value="">全ステータス</option>
                     <option value="未発送">未発送</option>
                     <option value="一部発送">一部発送</option>
                     <option value="発送済">発送済</option>

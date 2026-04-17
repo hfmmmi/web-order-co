@@ -2,7 +2,6 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("☎️ CRM Manager Loaded");
 
     const supportListContainer = document.querySelector("#support-ticket-list");
-    const refreshSupportBtn = document.querySelector("#refresh-support-btn");
     const kaitoriContainer = document.querySelector("#kaitori-list-container");
     // ★重要: 全チケットデータを保持するメモリキャッシュ
     let allSupportTickets = [];
@@ -98,9 +97,6 @@ document.addEventListener("DOMContentLoaded", function () {
             if (ticket.status === "resolved") {
                 borderColor = "#adb5bd";
                 bgColor = "#f8f9fa"; 
-            } else if (ticket.status === "verifying") {
-                borderColor = "#ffc107"; 
-                bgColor = "#fff3cd";
             }
 
             // 日付整形
@@ -158,14 +154,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     <div style="display:flex; flex-direction:column; gap:10px;">
                         <div>
-                            <label style="font-size:0.7rem; font-weight:bold; color:#0d6efd;">社内受注NO. (基幹)</label>
+                            <label style="font-size:0.7rem; font-weight:bold; color:#666;">社内受注NO. (基幹)</label>
                             <input type="text" id="internalOrderNo-${ticketId}" value="${ticket.internalOrderNo || ''}" placeholder="未入力"
-                                style="width:100%; box-sizing:border-box; border:2px solid #9ec5fe; background:#fff; font-weight:bold;">
+                                style="width:100%; box-sizing:border-box; border:1px solid #ced4da; background:#fff; font-size:0.9rem;">
                         </div>
                         <div>
-                            <label style="font-size:0.7rem; font-weight:bold; color:#0d6efd;">社内発注NO. (基幹)</label>
+                            <label style="font-size:0.7rem; font-weight:bold; color:#666;">社内発注NO. (基幹)</label>
                             <input type="text" id="internalCustomerPo-${ticketId}" value="${ticket.internalCustomerPoNumber || ''}" placeholder="未入力"
-                                style="width:100%; box-sizing:border-box; border:2px solid #9ec5fe; background:#fff; font-weight:bold;">
+                                style="width:100%; box-sizing:border-box; border:1px solid #ced4da; background:#fff; font-size:0.9rem;">
                         </div>
                     </div>
                 </div>
@@ -210,17 +206,19 @@ document.addEventListener("DOMContentLoaded", function () {
                     ${historyHtml}
                 </div>
 
-                <div style="background:rgba(0,0,0,0.05); padding:10px; border-radius:4px; margin-top:10px;">
+                <div style="margin-top:10px;">
                     <label style="font-size:0.8rem; font-weight:bold;">ステータス更新 & メモ</label>
-                    <div style="display:flex; gap:10px; margin-bottom:5px;">
+                    <div style="display:flex; gap:10px; margin-bottom:0;">
                         <select id="status-${ticketId}" style="padding:5px;">
                             ${statusOptions}
                         </select>
                         <input type="text" id="historyLog-${ticketId}" placeholder="例: 電話で謝罪、代替品手配済み..." style="flex:1; padding:5px;">
                     </div>
-                    <button onclick="updateTicket('${ticketId}')" style="width:100%; background:#0d6efd; color:white; border:none; padding:8px; border-radius:4px; cursor:pointer; font-weight:bold;">
-                        更新・履歴追加
-                    </button>
+                    <div style="display:flex; justify-content:flex-end; margin-top:1em;">
+                        <button type="button" onclick="updateTicket('${ticketId}')" style="width:max-content; box-sizing:border-box; padding:8px 1ch; background:#b7dbff; color:#111827; border:none; border-radius:4px; cursor:pointer; font-weight:bold; font-size:0.8125rem; font-family:inherit;">
+                            更新・履歴追加
+                        </button>
+                    </div>
                 </div>
             `;
             supportListContainer.appendChild(card);
@@ -269,7 +267,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     };
 
-    if (refreshSupportBtn) refreshSupportBtn.addEventListener("click", fetchSupportTickets);
 
     // ---------------------------------------------------------
     // ツールバー: テンプレートDL / 全件DL / CSV取込（商品マスタ管理と同系）

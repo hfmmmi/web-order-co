@@ -138,7 +138,7 @@
             <td class="col-date">${orderDateStr}</td>
             <td class="col-id"><strong>${order.orderId}</strong></td>
             <td class="col-status">
-                <span style="background-color: ${statusColor}; color: ${statusFg}; border: 1px solid ${statusBorder}; padding: 2px 5px; border-radius: 3px; font-size: 0.6875rem; font-weight: 600; white-space: nowrap; line-height: 1.25;">
+                <span style="background-color: ${statusColor}; color: ${statusFg}; border: 1px solid ${statusBorder}; padding: 5px 10px; border-radius: 3px; font-size: 0.8125rem; font-weight: 600; white-space: nowrap; line-height: 1.25;">
                     ${order.status || "未発送"}
                 </span>
             </td>
