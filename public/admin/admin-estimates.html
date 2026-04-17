@@ -20,7 +20,8 @@
         .admin-main-content {
             flex-grow: 1;
             padding: 20px;
-            --admin-main-bg: #eef1f5;
+            --admin-main-bg: #f4f6f9;
+            background: #f4f6f9;
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -34,7 +35,14 @@
             padding-bottom: 12px;
         }
 
-        .page-header h2 {
+        .page-header-leading {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .page-header-leading h2 {
             margin: 0;
             font-size: 1.65rem;
             font-weight: 700;
@@ -42,8 +50,81 @@
             letter-spacing: 0.02em;
         }
 
-        .admin-main-scroll > .admin-section:first-child h2 {
+        .estimate-panel {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px 18px;
+            margin-bottom: 16px;
+            background: #fafafa;
+        }
+
+        .estimate-panel:last-of-type {
+            margin-bottom: 0;
+        }
+
+        .estimate-panel h3 {
+            margin: 0 0 12px 0;
+            font-size: 1.05rem;
+            font-weight: 600;
             color: #374151;
+        }
+
+        .estimate-panel p {
+            margin: 0 0 12px 0;
+            font-size: 0.9rem;
+            color: #4b5563;
+            line-height: 1.55;
+        }
+
+        .estimate-panel .estimate-note {
+            margin: 10px 0 0 0;
+            padding-left: 0;
+            font-size: 0.9rem;
+            color: #6b7280;
+            line-height: 1.55;
+        }
+
+        .estimate-hint-warn {
+            color: #b91c1c;
+        }
+
+        .estimate-panel p.estimate-hint-warn {
+            margin: 0 0 12px 0;
+            font-size: 0.9rem;
+            line-height: 1.55;
+            color: #b91c1c;
+        }
+
+        .estimate-row-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .estimate-label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+            color: #374151;
+        }
+
+        .estimate-subblock {
+            margin-bottom: 15px;
+        }
+
+        .estimate-subblock:last-child {
+            margin-bottom: 0;
+        }
+
+        .estimate-footer-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 12px;
         }
 
         .admin-main-scroll {
@@ -88,6 +169,35 @@
             cursor: pointer;
         }
 
+        #estimate-upload-btn,
+        #delete-manufacturer-btn,
+        #add-delete-product-btn,
+        #import-delete-product-btn {
+            background: #a1d8e6;
+            color: #4b5563;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+        }
+
+        #estimate-upload-btn:hover:not(:disabled),
+        #delete-manufacturer-btn:hover:not(:disabled),
+        #add-delete-product-btn:hover:not(:disabled),
+        #import-delete-product-btn:hover:not(:disabled) {
+            filter: brightness(0.96);
+        }
+
+        #estimate-upload-btn:disabled,
+        #delete-manufacturer-btn:disabled,
+        #add-delete-product-btn:disabled,
+        #import-delete-product-btn:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+
         .btn-danger {
             background: #dc3545;
             color: white;
@@ -96,6 +206,34 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 0.8rem;
+        }
+
+        .estimate-panel .btn-danger {
+            padding: 8px 16px;
+            font-size: 0.875rem;
+        }
+
+        .btn-secondary {
+            background: #fff;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-family: inherit;
+        }
+
+        .btn-secondary:hover {
+            background: #f9fafb;
+        }
+
+        .estimate-muted {
+            display: block;
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: #6b7280;
+            line-height: 1.45;
         }
 
         .blocked-list-container {
@@ -131,68 +269,64 @@
 
         <main class="admin-main-content">
             <div class="page-header">
-                <h2><span class="admin-page-icon" data-admin-icon="estimates" aria-hidden="true"></span>見積・特価管理</h2>
+                <div class="page-header-leading">
+                    <h2>見積・特価管理</h2>
+                </div>
             </div>
 
             <div class="admin-main-scroll">
-                <div class="admin-section" style="border-top: 5px solid #17a2b8;">
-                    <h2 style="margin-top:0;">📑 見積・特価管理</h2>
-                    <p>販売管理システムから出力された「見積CSV」を取り込み、Webシステムに反映させます。</p>
-
-                    <div style="background: #e3f2fd; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
-                        <h3 style="margin-top:0; color:#0d47a1;">📥 見積データの取込</h3>
-                        <div style="display:flex; gap:10px; align-items: center;">
+                <div class="admin-section">
+                    <div class="estimate-panel">
+                        <h3>見積データの取込</h3>
+                        <div class="estimate-row-actions">
                             <input type="file" id="estimate-file-input" accept=".csv, .xlsx, .xls">
-                            <button id="estimate-upload-btn" class="btn-primary" style="background:#0d47a1;">見積データを取り込む</button>
+                            <button type="button" id="estimate-upload-btn">取込</button>
                         </div>
-                        <ul style="font-size:0.9rem; color:#555; margin-top:10px; margin-bottom:0;">
-                            <li>対応形式: 販売管理システムから出力されたCSV または Excel</li>
-                            <li>更新ルール: 既存の見積データは全てクリアされ、新しいファイルの内容で上書きされます。</li>
-                        </ul>
+                        <p class="estimate-note">既存の見積データは全てクリアされ、新しいファイルの内容で上書きされます。</p>
                     </div>
 
-                    <div style="background: #ffebee; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
-                        <h3 style="margin-top:0; color:#c62828;">🗑️ メーカー別見積削除</h3>
-                        <p style="font-size:0.9rem;">定価改定などにより、特定のメーカーの既存見積データを<strong>完全に削除</strong>します。<br><span style="color:#c62828;">⚠️ この操作は取り消せません。削除前にバックアップを取ることを推奨します。</span></p>
+                    <div class="estimate-panel">
+                        <h3>メーカー別見積削除</h3>
+                        <p>入力したメーカー名が含まれる見積がすべて削除されます（部分一致・大文字小文字区別なし）</p>
+                        <p class="estimate-hint-warn">この操作は取り消せません。削除前にバックアップを取ることを推奨します。</p>
 
-                        <div style="display:flex; gap:10px; margin-bottom:10px;">
-                            <input type="text" id="delete-manufacturer-input" class="form-control" style="width:300px;" placeholder="メーカー名を入力 (例: RICOH, OKI, CANON)">
-                            <button id="delete-manufacturer-btn" class="btn-primary" style="background:#c62828;">🗑️ 見積を削除</button>
+                        <div class="estimate-row-actions">
+                            <input type="text" id="delete-manufacturer-input" class="form-control" style="max-width:300px;" placeholder="メーカー名を入力 (例: RICOH, OKI, CANON)">
+                            <button type="button" id="delete-manufacturer-btn">削除</button>
                         </div>
-                        <small style="color:#666;">※<strong>商品名</strong>に入力したメーカー名が含まれる見積がすべて削除されます（部分一致・大文字小文字区別なし）</small>
                     </div>
 
-                    <div style="background: #fff3e0; padding: 15px; border-radius: 5px; border: 2px solid #ff9800;">
-                        <h3 style="margin-top:0; color:#e65100;">🗑️ 商品コード別見積削除</h3>
-                        <p style="font-size:0.9rem;">特定の商品コードを指定して見積データを<strong>完全に削除</strong>します。<br><span style="color:#e65100;">⚠️ この操作は取り消せません。</span></p>
+                    <div class="estimate-panel">
+                        <h3>商品コード別見積削除</h3>
+                        <p>特定の商品コードを指定して見積データを<strong>完全に削除</strong>します。<span class="estimate-hint-warn">この操作は取り消せません。</span></p>
 
-                        <div style="margin-bottom: 15px;">
-                            <label style="font-weight:bold; display:block; margin-bottom:5px;">📝 削除する商品コードを追加</label>
-                            <div style="display:flex; gap:10px;">
-                                <input type="text" id="delete-product-input" class="form-control" style="width:300px;" placeholder="商品コードを入力 (例: PRD-001)">
-                                <button id="add-delete-product-btn" class="btn-primary" style="background:#ff9800;">リストに追加</button>
+                        <div class="estimate-subblock">
+                            <label class="estimate-label" for="delete-product-input">削除する商品コードを追加</label>
+                            <div class="estimate-row-actions">
+                                <input type="text" id="delete-product-input" class="form-control" style="max-width:300px;" placeholder="商品コードを入力 (例: PRD-001)">
+                                <button type="button" id="add-delete-product-btn">追加</button>
                             </div>
                         </div>
 
-                        <div style="margin-bottom: 15px; padding:10px; background:#fffde7; border-radius:4px;">
-                            <label style="font-weight:bold; display:block; margin-bottom:5px;">📥 CSV一括読み込み</label>
-                            <div style="display:flex; gap:10px; align-items:center;">
+                        <div class="estimate-subblock" style="padding:12px; background:#fff; border:1px solid #e5e7eb; border-radius:6px;">
+                            <label class="estimate-label">CSV一括読み込み</label>
+                            <div class="estimate-row-actions">
                                 <input type="file" id="delete-product-csv-input" accept=".csv, .txt">
-                                <button id="import-delete-product-btn" class="btn-primary" style="background:#f57c00;">CSV取込</button>
+                                <button type="button" id="import-delete-product-btn">取込</button>
                             </div>
-                            <small style="color:#666;">※1列目に商品コードを記載したCSV/TXTファイル（ヘッダー行は除外されます）</small>
+                            <small class="estimate-muted">※1列目に商品コードを記載したCSV/TXTファイル（ヘッダー行は除外されます）</small>
                         </div>
 
-                        <div style="margin-bottom: 10px;">
-                            <label style="font-weight:bold; display:block; margin-bottom:5px;">📋 削除予定の商品コード (<span id="delete-product-count">0</span>件)</label>
+                        <div class="estimate-subblock">
+                            <label class="estimate-label">削除予定の商品コード（<span id="delete-product-count">0</span>件）</label>
                             <div id="delete-product-list" class="blocked-list-container" style="max-height:200px; overflow-y:auto;">
-                                <span style='color:#999;'>削除する商品コードを追加してください</span>
+                                <span style="color:#9ca3af;">削除する商品コードを追加してください</span>
                             </div>
                         </div>
 
-                        <div style="display:flex; justify-content:space-between; margin-top: 10px;">
-                            <button id="clear-delete-product-btn" class="btn-danger" style="padding:8px 16px; background:#6c757d;">リストをクリア</button>
-                            <button id="exec-delete-product-btn" class="btn-primary" style="background:#c62828;">🗑️ 見積を削除実行</button>
+                        <div class="estimate-footer-actions">
+                            <button type="button" id="clear-delete-product-btn" class="btn-secondary">リストをクリア</button>
+                            <button type="button" id="exec-delete-product-btn" class="btn-danger">見積を削除実行</button>
                         </div>
                     </div>
                 </div>

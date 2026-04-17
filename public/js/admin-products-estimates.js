@@ -41,7 +41,7 @@
                     toastError("通信エラーが発生しました");
                 } finally {
                     estimateUploadBtn.disabled = false;
-                    estimateUploadBtn.textContent = "見積データを取り込む";
+                    estimateUploadBtn.textContent = "取込";
                 }
             });
         }
@@ -54,7 +54,7 @@
                     return;
                 }
 
-                const confirmMsg = `【⚠️ 削除確認】\n\n商品名に「${manufacturer}」を含む見積データをすべて削除します。\n（大文字/小文字は区別しません）\n\nこの操作は取り消せません。\n本当に削除しますか？`;
+                const confirmMsg = `【削除確認】\n\n商品名に「${manufacturer}」を含む見積データをすべて削除します。\n（大文字/小文字は区別しません）\n\nこの操作は取り消せません。\n本当に削除しますか？`;
                 if (!confirm(confirmMsg)) return;
 
                 const doubleCheck = prompt(`削除を実行するには「${manufacturer}」と入力してください：`);
@@ -85,7 +85,7 @@
                     toastError("通信エラーが発生しました");
                 } finally {
                     deleteManufacturerBtn.disabled = false;
-                    deleteManufacturerBtn.textContent = "🗑️ 見積を削除";
+                    deleteManufacturerBtn.textContent = "削除";
                 }
             });
         }
