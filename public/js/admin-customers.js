@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("👥 Customer & Price Manager Loaded");
 
     const custListArea = document.querySelector("#cust-list-area");
+    const custResultInfo = document.querySelector("#cust-result-info");
     const custTableBody = document.querySelector("#cust-table-body");
     const searchInput = document.querySelector("#cust-search-keyword");
     const searchBtn = document.querySelector("#cust-search-btn");
@@ -12,6 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const priceCsvBtn = document.querySelector("#price-csv-btn");
     const customerCsvFileInput = document.querySelector("#customer-csv-file-input");
     const customerCsvExcelBtn = document.querySelector("#btn-customer-csv-excel");
+    const customerCsvDownloadBtn = document.querySelector("#btn-customer-csv-download");
 
     // Modal Elements (New)
     const custModal = document.getElementById("customer-modal");
@@ -214,9 +216,30 @@ document.addEventListener("DOMContentLoaded", function () {
     // -------------------------------------------------------------
     // 顧客一覧ロジック (招待機能付き)
     // -------------------------------------------------------------
+    function renderCustomerResultInfo(totalCount, currentPageNum, pageSize, rowCount, totalPagesNum) {
+        if (!custResultInfo) return;
+        const tc = Math.max(0, parseInt(String(totalCount), 10) || 0);
+        const ps = Math.max(1, parseInt(String(pageSize), 10) || 25);
+        const page = Math.max(1, parseInt(String(currentPageNum), 10) || 1);
+        const tp = Math.max(1, parseInt(String(totalPagesNum), 10) || 1);
+        if (tc === 0) {
+            custResultInfo.innerHTML = "該当: <strong>0</strong> 件";
+            return;
+        }
+        if (tp > 1 && rowCount > 0) {
+            const fromN = (page - 1) * ps + 1;
+            const toN = fromN + rowCount - 1;
+            custResultInfo.innerHTML =
+                `該当: <strong>${tc}</strong> 件 · <strong>${fromN}</strong>〜<strong>${toN}</strong> 件を表示`;
+        } else {
+            custResultInfo.innerHTML = `該当: <strong>${tc}</strong> 件`;
+        }
+    }
+
     async function loadCustomers(page = 1) {
         if (!custTableBody) return;
         const keyword = searchInput ? searchInput.value : "";
+        if (custResultInfo) custResultInfo.innerHTML = "";
         custTableBody.innerHTML = "<tr><td colspan='5'>読み込み中...</td></tr>";
 
         try {
@@ -225,6 +248,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (res.status === 401) {
                 custTableBody.innerHTML = "<tr><td colspan='4'>認証待ち...</td></tr>";
+                if (custResultInfo) custResultInfo.innerHTML = "";
                 return;
             }
 
@@ -236,6 +260,9 @@ document.addEventListener("DOMContentLoaded", function () {
             custTableBody.innerHTML = "";
             currentPage = Number(data.currentPage) || 1;
             totalPages = Math.max(1, Number(data.totalPages) || 1);
+            const pageSize = Math.max(1, parseInt(String(data.pageSize), 10) || 25);
+            const totalCount = Math.max(0, parseInt(String(data.totalCount), 10) || 0);
+            renderCustomerResultInfo(totalCount, currentPage, pageSize, data.customers.length, totalPages);
             renderCustomerPagination();
 
             if (data.customers.length === 0) {
@@ -246,26 +273,26 @@ document.addEventListener("DOMContentLoaded", function () {
             data.customers.forEach(c => {
                 const tr = document.createElement("tr");
                 tr.innerHTML = `
-                    <td style="padding:8px;">${c.customerId}</td>
-                    <td style="padding:8px;">${c.customerName}</td>
-                    <td style="padding:8px; font-size:0.85rem;">${(c.email || "").trim() || "-"}</td>
-                    <td style="padding:8px; text-align:center;">${c.priceRank || "-"}</td>
-                    <td style="padding:8px; text-align:center;">
+                    <td>${c.customerId}</td>
+                    <td>${c.customerName}</td>
+                    <td class="cust-col-email">${(c.email || "").trim() || "-"}</td>
+                    <td>${c.priceRank || "-"}</td>
+                    <td>
                         <button class="btn-proxy-login" data-id="${c.customerId}" data-name="${c.customerName}"
-                        style="padding:3px 8px; background:#6f42c1; color:white; border:none; border-radius:3px; cursor:pointer; margin-right:5px;" title="この顧客としてユーザー画面を表示">
+                        style="padding:2px 6px; font-size:0.75rem; background:transparent; color:#111827; border:1px solid #d1d5db; border-radius:3px; cursor:pointer; margin-right:4px;" title="この顧客としてユーザー画面を表示">
                         代理ログイン
                         </button>
                         <button class="btn-invite" data-id="${c.customerId}" data-name="${c.customerName}" data-email="${(c.email || "").replace(/"/g, "&quot;")}"
-                        style="padding:3px 8px; background:#28a745; color:white; border:none; border-radius:3px; cursor:pointer; margin-right:5px;" title="招待メール送信またはURL発行">
+                        style="padding:2px 6px; font-size:0.75rem; background:transparent; color:#111827; border:1px solid #d1d5db; border-radius:3px; cursor:pointer; margin-right:4px;" title="招待メール送信またはURL発行">
                         招待
                         </button>
                         <button class="btn-edit-cust" data-id="${c.customerId}" data-name="${c.customerName}" data-rank="${c.priceRank || ""}" data-email="${(c.email || "").replace(/"/g, "&quot;")}"
                         data-delivery-name="${attrEscape(c.deliveryName)}" data-delivery-zip="${attrEscape(c.deliveryZip)}" data-delivery-address="${attrEscape(c.deliveryAddress)}" data-delivery-tel="${attrEscape(c.deliveryTel)}"
-                        style="padding:3px 8px; background:#ffc107; color:#212529; border:none; border-radius:3px; cursor:pointer; margin-right:5px;">
+                        style="padding:2px 6px; font-size:0.75rem; background:transparent; color:#111827; border:1px solid #d1d5db; border-radius:3px; cursor:pointer; margin-right:4px;">
                         編集
                         </button>
                         <button class="btn-god-mode" data-id="${c.customerId}" data-name="${c.customerName}" 
-                        style="padding:3px 8px; background:#17a2b8; color:white; border:none; border-radius:3px; cursor:pointer;">
+                        style="padding:2px 6px; font-size:0.75rem; background:transparent; color:#111827; border:1px solid #d1d5db; border-radius:3px; cursor:pointer;">
                         特価設定
                         </button>
                     </td>
@@ -386,6 +413,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         } catch (err) {
             console.error(err);
+            if (custResultInfo) custResultInfo.innerHTML = "";
             custTableBody.innerHTML = "<tr><td colspan='5' style='color:red'>読み込みエラー</td></tr>";
         }
     }
@@ -426,7 +454,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function openModal(mode, data = {}) {
         cmMode.value = mode;
         if (mode === "add") {
-            cmTitle.textContent = "新規顧客追加";
+            cmTitle.textContent = "新規追加";
             cmId.readOnly = false;
             cmId.style.backgroundColor = "white";
             cmPassNote.textContent = "(必須)";
@@ -533,6 +561,69 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     }
 
+    function escapeCsvCell(val) {
+        const s = String(val == null ? "" : val);
+        if (/[",\r\n]/.test(s)) {
+            return "\"" + s.replace(/"/g, "\"\"") + "\"";
+        }
+        return s;
+    }
+
+    async function downloadCustomerMasterCsv() {
+        if (!customerCsvDownloadBtn) return;
+        customerCsvDownloadBtn.disabled = true;
+        try {
+            const all = [];
+            let page = 1;
+            let totalPages = 1;
+            while (page <= totalPages) {
+                const res = await adminApiFetch(`/api/admin/customers?keyword=&page=${page}`);
+                if (res.status === 401) return;
+                const d = await res.json();
+                totalPages = Math.max(1, parseInt(String(d.totalPages || 1), 10) || 1);
+                const chunk = Array.isArray(d.customers) ? d.customers : [];
+                all.push(...chunk);
+                page++;
+            }
+
+            const header = ["顧客ID", "パスワード", "顧客名", "価格ランク", "メール", "納品先名", "納品先郵便番号", "納品先住所", "納品先電話"];
+            const lines = [header.map(escapeCsvCell).join(",")];
+            all.forEach(function (c) {
+                lines.push([
+                    escapeCsvCell(c.customerId),
+                    escapeCsvCell(""),
+                    escapeCsvCell(c.customerName),
+                    escapeCsvCell(c.priceRank || ""),
+                    escapeCsvCell(c.email || ""),
+                    escapeCsvCell(c.deliveryName || ""),
+                    escapeCsvCell(c.deliveryZip || ""),
+                    escapeCsvCell(c.deliveryAddress || ""),
+                    escapeCsvCell(c.deliveryTel || "")
+                ].join(","));
+            });
+
+            const body = lines.join("\r\n") + "\r\n";
+            const blob = new Blob(["\uFEFF" + body], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+            a.href = url;
+            a.download = "customers_" + stamp + ".csv";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+            if (typeof toastSuccess === "function") {
+                toastSuccess("顧客マスタを " + all.length + " 件ダウンロードしました", 3000);
+            }
+        } catch (e) {
+            console.error(e);
+            if (typeof toastError === "function") toastError("ダウンロードに失敗しました");
+        } finally {
+            customerCsvDownloadBtn.disabled = false;
+        }
+    }
+
     if (customerCsvExcelBtn && customerCsvFileInput) {
         customerCsvExcelBtn.addEventListener("click", function () {
             customerCsvFileInput.click();
@@ -541,6 +632,9 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!this.files || !this.files[0]) return;
             uploadCsv(this, "/api/upload-customer-data");
         });
+    }
+    if (customerCsvDownloadBtn) {
+        customerCsvDownloadBtn.addEventListener("click", downloadCustomerMasterCsv);
     }
     if (priceCsvBtn) {
         priceCsvBtn.addEventListener("click", () => uploadCsv(priceCsvInput, "/api/upload-price-data"));

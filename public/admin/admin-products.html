@@ -656,7 +656,7 @@
                         <div style="border:1px dashed #ccc; padding:10px; border-radius:4px; margin-bottom:15px;">
                             <div style="display:flex; justify-content:space-between; align-items:center;">
                                 <h4 style="margin:0;">倉庫別在庫</h4>
-                                <button type="button" id="add-warehouse-row" class="btn-primary" style="background:#17a2b8; padding:4px 10px;">＋ 倉庫を追加</button>
+                                <button type="button" id="add-warehouse-row" class="btn-primary" style="background:transparent; color:#111827; border:1px solid #d1d5db; padding:4px 10px;">＋ 倉庫を追加</button>
                             </div>
                             <p style="color:#666; font-size:0.85rem; margin:6px 0 8px 0;">各倉庫のコード・倉庫名・数量を入力してください。</p>
                             <div id="warehouse-list-header" style="display:none; gap:8px; margin-bottom:4px; padding:0 2px; font-size:0.85rem; color:#555;">
@@ -670,7 +670,9 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn-primary" style="background:#28a745;">在庫を保存する</button>
+                        <div style="display:flex; justify-content:flex-end; margin-top:4px;">
+                            <button type="submit" class="btn-primary" style="background:#8cc4dc; color:#111827; border:none; padding:8px 16px;">在庫を保存</button>
+                        </div>
                         <div id="manual-stock-status" style="margin-top:10px; font-size:0.9rem;"></div>
                     </form>
                 </div>

@@ -12,6 +12,9 @@ const { INTEGRATION_SNAPSHOT_MAX_LIMIT } = require("../utils/integrationSnapshot
 // DBパス設定
 const CUSTOMERS_DB_PATH = dbPath("customers.json");
 
+/** 管理画面・顧客一覧APIの既定ページサイズ（受注管理の 25 件に合わせる） */
+const DEFAULT_CUSTOMER_PAGE_SIZE = 25;
+
 /** xlsx は ZIP 形式のため先頭が PK。それ以外は CSV として扱う（商品マスタ取込と同じ判定） */
 function isExcelBuffer(buf) {
     if (!buf || (buf.length !== undefined && buf.length < 2)) return false;
@@ -51,11 +54,11 @@ class CustomerService {
     // ★追加: 全顧客取得（API互換性のため）
     // admin-api.js から呼ばれるショートカット
     async getAllCustomers(keyword = "", page = 1) {
-        return await this.searchCustomers(keyword, page, 50);
+        return await this.searchCustomers(keyword, page, DEFAULT_CUSTOMER_PAGE_SIZE);
     }
 
     // 3. 顧客検索（ページネーション対応）
-    async searchCustomers(keyword = "", page = 1, limit = 50) {
+    async searchCustomers(keyword = "", page = 1, limit = DEFAULT_CUSTOMER_PAGE_SIZE) {
         const list = await this._loadAll();
         // ★修正: null安全対策 (keywordがundefinedの場合に備える)
         const safeKeyword = (keyword || "").normalize('NFKC').toLowerCase();
@@ -87,7 +90,8 @@ class CustomerService {
             customers: safeList,
             totalCount: filtered.length,
             currentPage: Number(page),
-            totalPages: Math.ceil(filtered.length / limit)
+            totalPages: Math.ceil(filtered.length / limit) || 1,
+            pageSize: limit
         };
     }
 
@@ -156,32 +160,52 @@ class CustomerService {
 
             for (let i = 1; i < jsonData.length; i++) {
                 const row = jsonData[i];
-                if (!row || row.length < 2) continue;
+                if (!row || !row.length) continue;
 
                 const inputId = String(row[0]).trim();
-                const inputPass = String(row[1]).trim();
+                const inputPass = row[1] != null ? String(row[1]).trim() : "";
                 const inputName = row[2] ? String(row[2]).trim() : "名称未設定";
                 const inputRank = row[3] ? String(row[3]).trim().toUpperCase() : "";
                 const inputEmail = row[4] ? String(row[4]).trim() : "";
 
-                if (!inputId || !inputPass) continue;
+                if (!inputId) continue;
 
-                const hashedPassword = await bcrypt.hash(inputPass, 10);
                 const idx = customerList.findIndex(c => c.customerId === inputId);
 
                 if (idx !== -1) {
-                    customerList[idx].password = hashedPassword;
+                    if (inputPass) {
+                        customerList[idx].password = await bcrypt.hash(inputPass, 10);
+                    }
                     customerList[idx].customerName = inputName;
                     customerList[idx].priceRank = inputRank;
                     if (inputEmail) customerList[idx].email = inputEmail;
+                    if (row.length > 5) {
+                        customerList[idx].deliveryName = row[5] != null ? String(row[5]).trim() : "";
+                    }
+                    if (row.length > 6) {
+                        customerList[idx].deliveryZip = row[6] != null ? String(row[6]).trim() : "";
+                    }
+                    if (row.length > 7) {
+                        customerList[idx].deliveryAddress = row[7] != null ? String(row[7]).trim() : "";
+                    }
+                    if (row.length > 8) {
+                        customerList[idx].deliveryTel = row[8] != null ? String(row[8]).trim() : "";
+                    }
                     updateCount++;
                 } else {
+                    if (!inputPass) continue;
+
+                    const hashedPassword = await bcrypt.hash(inputPass, 10);
                     customerList.push({
                         customerId: inputId,
                         password: hashedPassword,
                         customerName: inputName,
                         priceRank: inputRank,
-                        email: inputEmail
+                        email: inputEmail,
+                        deliveryName: row.length > 5 && row[5] != null ? String(row[5]).trim() : "",
+                        deliveryZip: row.length > 6 && row[6] != null ? String(row[6]).trim() : "",
+                        deliveryAddress: row.length > 7 && row[7] != null ? String(row[7]).trim() : "",
+                        deliveryTel: row.length > 8 && row[8] != null ? String(row[8]).trim() : ""
                     });
                     addCount++;
                 }

@@ -208,11 +208,6 @@
             font-size: 0.8rem;
         }
 
-        .estimate-panel .btn-danger {
-            padding: 8px 16px;
-            font-size: 0.875rem;
-        }
-
         .btn-secondary {
             background: #fff;
             color: #374151;
@@ -226,6 +221,26 @@
 
         .btn-secondary:hover {
             background: #f9fafb;
+        }
+
+        #exec-delete-product-btn {
+            background: transparent;
+            color: #111827;
+            border: 1px solid #d1d5db;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-family: inherit;
+        }
+
+        #exec-delete-product-btn:hover:not(:disabled) {
+            background: #f9fafb;
+        }
+
+        #exec-delete-product-btn:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
         }
 
         .estimate-muted {
@@ -326,7 +341,7 @@
 
                         <div class="estimate-footer-actions">
                             <button type="button" id="clear-delete-product-btn" class="btn-secondary">リストをクリア</button>
-                            <button type="button" id="exec-delete-product-btn" class="btn-danger">見積を削除実行</button>
+                            <button type="button" id="exec-delete-product-btn">見積を削除実行</button>
                         </div>
                     </div>
                 </div>
