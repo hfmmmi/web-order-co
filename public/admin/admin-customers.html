@@ -164,31 +164,43 @@
 
         .admin-section { background: white; padding: 12px 14px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); margin-bottom: 12px; }
 
-        #cust-result-info { margin-bottom: 6px; font-size: 0.8125rem; color: #6b7280; }
+        #cust-result-info { margin-bottom: 6px; font-size: 0.875rem; color: #6b7280; }
 
         #cust-list-area {
             min-height: 60px;
             border: 1px solid #e5e7eb;
             border-radius: 8px;
             margin-bottom: 6px;
+            background: #fff;
         }
         #cust-list-area .cust-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.8125rem;
+            font-size: 0.875rem;
+            line-height: 1.35;
         }
-        #cust-list-area .cust-table thead { background: #f3f4f6; position: sticky; top: 0; }
+        #cust-list-area .cust-table thead {
+            background: #f3f4f6;
+            position: sticky;
+            top: 0;
+        }
+        #cust-list-area .cust-table thead th {
+            font-weight: 600;
+            color: #374151;
+        }
         #cust-list-area .cust-table th,
         #cust-list-area .cust-table td {
-            padding: 5px 6px;
+            padding: 8px 10px;
             text-align: left;
-            border-bottom: 1px solid #eef0f3;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: middle;
+            color: #111827;
         }
         #cust-list-area .cust-table th:nth-child(4),
         #cust-list-area .cust-table th:nth-child(5),
         #cust-list-area .cust-table td:nth-child(4),
         #cust-list-area .cust-table td:nth-child(5) { text-align: center; }
-        #cust-list-area .cust-table td.cust-col-email { font-size: 0.78rem; }
+        #cust-list-area .cust-table td.cust-col-email { font-size: 0.8125rem; color: #374151; }
 
         /* モーダル用CSS (簡易版・style.cssに移設推奨) */
         .modal-overlay {

@@ -279,20 +279,20 @@ document.addEventListener("DOMContentLoaded", function () {
                     <td>${c.priceRank || "-"}</td>
                     <td>
                         <button class="btn-proxy-login" data-id="${c.customerId}" data-name="${c.customerName}"
-                        style="padding:2px 6px; font-size:0.75rem; background:transparent; color:#111827; border:1px solid #d1d5db; border-radius:3px; cursor:pointer; margin-right:4px;" title="この顧客としてユーザー画面を表示">
+                        style="padding:4px 8px; font-size:0.8125rem; background:transparent; color:#111827; border:1px solid #d1d5db; border-radius:6px; cursor:pointer; margin-right:4px;" title="この顧客としてユーザー画面を表示">
                         代理ログイン
                         </button>
                         <button class="btn-invite" data-id="${c.customerId}" data-name="${c.customerName}" data-email="${(c.email || "").replace(/"/g, "&quot;")}"
-                        style="padding:2px 6px; font-size:0.75rem; background:transparent; color:#111827; border:1px solid #d1d5db; border-radius:3px; cursor:pointer; margin-right:4px;" title="招待メール送信またはURL発行">
+                        style="padding:4px 8px; font-size:0.8125rem; background:transparent; color:#111827; border:1px solid #d1d5db; border-radius:6px; cursor:pointer; margin-right:4px;" title="招待メール送信またはURL発行">
                         招待
                         </button>
                         <button class="btn-edit-cust" data-id="${c.customerId}" data-name="${c.customerName}" data-rank="${c.priceRank || ""}" data-email="${(c.email || "").replace(/"/g, "&quot;")}"
                         data-delivery-name="${attrEscape(c.deliveryName)}" data-delivery-zip="${attrEscape(c.deliveryZip)}" data-delivery-address="${attrEscape(c.deliveryAddress)}" data-delivery-tel="${attrEscape(c.deliveryTel)}"
-                        style="padding:2px 6px; font-size:0.75rem; background:transparent; color:#111827; border:1px solid #d1d5db; border-radius:3px; cursor:pointer; margin-right:4px;">
+                        style="padding:4px 8px; font-size:0.8125rem; background:transparent; color:#111827; border:1px solid #d1d5db; border-radius:6px; cursor:pointer; margin-right:4px;">
                         編集
                         </button>
                         <button class="btn-god-mode" data-id="${c.customerId}" data-name="${c.customerName}" 
-                        style="padding:2px 6px; font-size:0.75rem; background:transparent; color:#111827; border:1px solid #d1d5db; border-radius:3px; cursor:pointer;">
+                        style="padding:4px 8px; font-size:0.8125rem; background:transparent; color:#111827; border:1px solid #d1d5db; border-radius:6px; cursor:pointer;">
                         特価設定
                         </button>
                     </td>
