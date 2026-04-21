@@ -5,39 +5,428 @@
     <title>システム設定 - WEB受注システム</title>
     <link rel="stylesheet" href="../style.css">
     <style>
-        body { margin: 0; overflow: hidden; }
-        .admin-layout-wrapper { display: flex; height: 100vh; }
-        .admin-main-content { flex-grow: 1; background: #f4f6f9; --admin-main-bg: #f4f6f9; padding: 20px; display: flex; flex-direction: column; overflow: hidden; height: 100vh; box-sizing: border-box; }
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
 
-        .page-header { margin-bottom: 20px; border-bottom: 2px solid #dee2e6; padding-bottom: 10px; }
-        .page-header h2 { color: #374151; }
-        .admin-section { background: white; padding: 20px; border-radius: 5px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); margin-bottom: 20px; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
-        .form-control { width: 100%; max-width: 500px; padding: 8px; box-sizing: border-box; border: 1px solid #ced4da; border-radius: 4px; }
-        textarea.form-control { min-height: 120px; font-family: monospace; }
-        .feature-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
-        .feature-item { display: flex; align-items: center; gap: 8px; padding: 8px; background: #f8f9fa; border-radius: 4px; }
-        .feature-item input { width: 18px; height: 18px; cursor: pointer; }
-        .settings-tabs { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid #dee2e6; }
-        .settings-tabs button { padding: 10px 20px; border: none; background: #e9ecef; cursor: pointer; border-radius: 4px 4px 0 0; }
-        .settings-tabs button.active { background: white; border: 1px solid #dee2e6; border-bottom: 1px solid white; margin-bottom: -1px; font-weight: bold; }
-        .tab-panel { display: none; }
-        .tab-panel.active { display: block; }
-        .hint { font-size: 0.85rem; color: #6c757d; margin-top: 4px; }
-        .announcement-item { border: 1px solid #dee2e6; border-radius: 4px; padding: 15px; margin-bottom: 15px; background: #f8f9fa; }
-        .announcement-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .announcement-item-header h4 { margin: 0; }
-        .announcement-controls { display: flex; gap: 10px; }
-        .announcement-form { display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid #dee2e6; }
-        .announcement-form.active { display: block; }
-        .form-row { display: flex; gap: 15px; margin-bottom: 15px; }
-        .form-row .form-group { flex: 1; }
-        .btn-small { padding: 6px 12px; font-size: 0.9rem; }
-        .btn-danger { background: #dc3545; color: white; }
-        .btn-secondary { background: #6c757d; color: white; }
-        .btn-primary { background: #007bff; color: white; }
-        .btn-success { background: #28a745; color: white; }
+        .admin-layout-wrapper {
+            display: flex;
+            height: 100vh;
+        }
+
+        .admin-main-content {
+            flex-grow: 1;
+            padding: 20px;
+            --admin-main-bg: #eef1f5;
+            background: #eef1f5;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .page-header {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+        }
+
+        .page-header-leading {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .page-header-leading h2 {
+            margin: 0;
+            font-size: 1.65rem;
+            font-weight: 700;
+            color: #374151;
+            letter-spacing: 0.02em;
+        }
+
+        .admin-section {
+            background: #fff;
+            padding: 22px 24px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            margin-bottom: 20px;
+        }
+
+        .admin-section h3 {
+            margin: 0 0 16px 0;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .admin-section h4 {
+            margin: 16px 0 12px 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .settings-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .settings-tabs .tab-btn {
+            padding: 10px 14px;
+            border: 1px solid transparent;
+            border-bottom: none;
+            background: #f3f4f6;
+            color: #374151;
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+            font-weight: 600;
+            font-size: 0.875rem;
+            font-family: inherit;
+        }
+
+        .settings-tabs .tab-btn:hover {
+            background: #e5e7eb;
+        }
+
+        .settings-tabs .tab-btn.active {
+            background: #fff;
+            border-color: #e5e7eb;
+            border-bottom-color: #fff;
+            margin-bottom: -1px;
+            color: #111827;
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            width: 100%;
+            max-width: 500px;
+            padding: 8px 10px;
+            box-sizing: border-box;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-family: inherit;
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            font-family: ui-monospace, monospace;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .hint {
+            display: block;
+            font-size: 0.8125rem;
+            color: #6b7280;
+            margin-top: 6px;
+            line-height: 1.45;
+        }
+
+        .settings-hint-spaced {
+            margin-bottom: 15px;
+        }
+
+        .settings-shipping-rules-list {
+            margin-top: 15px;
+        }
+
+        .settings-btn-add-shipping {
+            margin-top: 10px;
+        }
+
+        .settings-announce-intro {
+            margin-bottom: 20px;
+        }
+
+        .settings-announce-warn {
+            color: #dc2626;
+        }
+
+        .settings-hint-mt {
+            margin-top: 10px;
+        }
+
+        .settings-form-narrow {
+            max-width: 120px;
+        }
+
+        .settings-rank-names-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .settings-muted-block {
+            color: #4b5563;
+            margin-bottom: 15px;
+            line-height: 1.55;
+            font-size: 0.9rem;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+
+        .feature-item input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .shipping-rule-row {
+            margin-bottom: 15px;
+            padding: 14px 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            background: #f9fafb;
+        }
+
+        .shipping-rule-row-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .shipping-rule-row-head label {
+            margin: 0;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .shipping-rule-row .shipping-rule-maker {
+            margin-bottom: 8px;
+        }
+
+        .announcement-item {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin-bottom: 15px;
+            background: #f9fafb;
+        }
+
+        .announcement-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .announcement-item-header h4 {
+            margin: 0;
+            color: #374151;
+        }
+
+        .announcement-controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .announcement-form {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .announcement-form.active {
+            display: block;
+        }
+
+        .announcements-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .announcements-toolbar h3 {
+            margin: 0;
+        }
+
+        .settings-hr {
+            margin: 20px 0;
+            border: none;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .settings-footer-actions {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .settings-btn-save {
+            padding: 10px 18px;
+            font-weight: 600;
+            font-family: inherit;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            border: 1px solid #1d4ed8;
+            background: #2563eb;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .settings-btn-save:hover {
+            background: #1d4ed8;
+        }
+
+        .settings-btn-save:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+
+        .settings-btn-save-admin {
+            padding: 8px 14px;
+            font-weight: 600;
+            font-family: inherit;
+            font-size: 0.875rem;
+            border-radius: 8px;
+            border: 1px solid #0891b2;
+            background: #06b6d4;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .settings-btn-save-admin:hover {
+            background: #0891b2;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            font-family: inherit;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 1px solid #d1d5db;
+            background: #fff;
+            color: #374151;
+        }
+
+        .btn-small:hover {
+            background: #f3f4f6;
+            border-color: #9ca3af;
+        }
+
+        .btn-secondary {
+            background: #fff;
+            color: #374151;
+            border-color: #d1d5db;
+        }
+
+        .btn-danger {
+            background: #fff;
+            color: #b91c1c;
+            border-color: #fecaca;
+        }
+
+        .btn-danger:hover {
+            background: #fef2f2;
+            border-color: #f87171;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: #fff;
+            border-color: #1d4ed8;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-success {
+            background: #059669;
+            color: #fff;
+            border-color: #047857;
+        }
+
+        .btn-success:hover {
+            background: #047857;
+        }
+
+        .settings-flex-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .settings-flex-row .form-group {
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .settings-smtp-port {
+            max-width: 120px;
+        }
+
+        .settings-smtp-secure-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 28px;
+        }
     </style>
 </head>
 <body>
@@ -47,8 +436,9 @@
 
         <main class="admin-main-content">
             <div class="page-header">
-                <h2><span class="admin-page-icon" data-admin-icon="settings" aria-hidden="true"></span>システム設定 (System Configuration)</h2>
-                <p style="color: #666;">メール・機能のON/OFFを設定します。パスワードは環境変数 MAIL_PASSWORD で設定してください。</p>
+                <div class="page-header-leading">
+                    <h2><span class="admin-page-icon" data-admin-icon="settings" aria-hidden="true"></span>システム設定</h2>
+                </div>
             </div>
 
             <div class="admin-main-scroll">
@@ -85,13 +475,13 @@
                             <label>SMTPホスト (host)</label>
                             <input type="text" id="smtpHost" class="form-control" placeholder="例: smtp.example.com（空欄ならGmail等のプリセット使用）">
                         </div>
-                        <div style="display:flex; gap:15px;">
-                            <div class="form-group" style="flex:1;">
+                        <div class="settings-flex-row">
+                            <div class="form-group">
                                 <label>SMTPポート (port)</label>
-                                <input type="number" id="smtpPort" class="form-control" placeholder="587" style="max-width:120px;">
+                                <input type="number" id="smtpPort" class="form-control settings-smtp-port" placeholder="587">
                             </div>
-                            <div class="form-group" style="flex:1;">
-                                <label style="display:flex; align-items:center; gap:8px; margin-top:28px;">
+                            <div class="form-group">
+                                <label class="settings-smtp-secure-label" for="smtpSecure">
                                     <input type="checkbox" id="smtpSecure" value="1"> SSL/TLS (secure)
                                 </label>
                                 <span class="hint">465番ポートの場合はON</span>
@@ -125,7 +515,7 @@
                             <label>サポート申請の本文 (supportBody)</label>
                             <textarea id="supportBody" class="form-control" placeholder="プレースホルダ: {{ticketId}}, {{categoryLabel}}, {{customerName}}, {{customerId}}, {{date}}, {{orderId}}, {{customerPoNumber}}, {{detail}}, {{attachmentsList}}"></textarea>
                         </div>
-                        <hr style="margin:20px 0;">
+                        <hr class="settings-hr">
                         <h4>📨 招待・パスワード再設定メール（顧客宛）</h4>
                         <div class="form-group">
                             <label>初回招待の件名 (inviteSubject)</label>
@@ -158,7 +548,7 @@
                 <div id="tab-admin-account" class="tab-panel">
                     <div class="admin-section">
                         <h3>管理者ログインID・パスワード</h3>
-                        <p style="color:#666; margin-bottom:15px;">管理者としてログインする際のIDとパスワードを設定します。パスワードを忘れた場合は、ログイン画面の「パスワードをお忘れの方」から再設定用リンクを受け取れます（メールアドレスを下記に設定するか、システム設定のサポート通知先に送信されます）。</p>
+                        <p class="settings-muted-block">管理者としてログインする際のIDとパスワードを設定します。パスワードを忘れた場合は、ログイン画面の「パスワードをお忘れの方」から再設定用リンクを受け取れます（メールアドレスを下記に設定するか、システム設定のサポート通知先に送信されます）。</p>
                         <div class="form-group">
                             <label for="admin-account-id">管理者ID（ログイン時に入力）</label>
                             <input type="text" id="admin-account-id" class="form-control" placeholder="例: admin" autocomplete="off">
@@ -178,8 +568,8 @@
                             <input type="password" id="admin-account-password" class="form-control" placeholder="変更する場合のみ入力（4文字以上）" autocomplete="new-password">
                             <span class="hint" id="admin-account-password-hint">空欄のまま保存すると既存のパスワードを維持します。</span>
                         </div>
-                        <p class="hint" style="margin-top:10px;">※「設定を保存」ではなく、このタブの内容を保存するには下の「管理者アカウントを保存」をクリックしてください。</p>
-                        <button type="button" id="btn-save-admin-account" style="background:#17a2b8; color:white; border:none; padding:10px 20px; border-radius:4px; cursor:pointer; font-weight:bold;">💾 管理者アカウントを保存</button>
+                        <p class="hint settings-hint-mt">※「設定を保存」ではなく、このタブの内容を保存するには下の「管理者アカウントを保存」をクリックしてください。</p>
+                        <button type="button" id="btn-save-admin-account" class="settings-btn-save-admin">💾 管理者アカウントを保存</button>
                     </div>
                 </div>
 
@@ -187,7 +577,7 @@
                 <div id="tab-recaptcha" class="tab-panel">
                     <div class="admin-section">
                         <h3>reCAPTCHA v2（「私はロボットではありません」）</h3>
-                        <p class="hint" style="margin-bottom: 15px;">ログイン失敗が2回を超えると、3回目以降はCAPTCHAの入力が必須になります。Google reCAPTCHA のサイトキーとシークレットキーを取得して設定してください。未設定の場合はCAPTCHAは使用されません。</p>
+                        <p class="hint settings-hint-spaced">ログイン失敗が2回を超えると、3回目以降はCAPTCHAの入力が必須になります。Google reCAPTCHA のサイトキーとシークレットキーを取得して設定してください。未設定の場合はCAPTCHAは使用されません。</p>
                         <div class="form-group">
                             <label>サイトキー (siteKey) — 公開用</label>
                             <input type="text" id="recaptchaSiteKey" class="form-control" placeholder="例: 6Lcxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off">
@@ -217,12 +607,12 @@
                 <div id="tab-rank-names" class="tab-panel">
                     <div class="admin-section">
                         <h3>ランク数と表示名</h3>
-                        <p class="hint" style="margin-bottom: 15px;">利用するランクの数（1〜26）を設定します。商品マスタの一括取込・価格表の列数や、顧客の価格ランクの選択肢に反映されます。各ランクの表示名を変更すると、テンプレートや価格表のヘッダーで「ランク1」「ランク2」の代わりにその名前が使われます。</p>
-                        <div class="form-group" style="max-width: 120px;">
+                        <p class="hint settings-hint-spaced">利用するランクの数（1〜26）を設定します。商品マスタの一括取込・価格表の列数や、顧客の価格ランクの選択肢に反映されます。各ランクの表示名を変更すると、テンプレートや価格表のヘッダーで「ランク1」「ランク2」の代わりにその名前が使われます。</p>
+                        <div class="form-group settings-form-narrow">
                             <label for="rank-count">ランクの数</label>
                             <input type="number" id="rank-count" class="form-control" min="1" max="26" value="10" placeholder="10">
                         </div>
-                        <div id="rank-names-list" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:12px;"></div>
+                        <div id="rank-names-list" class="settings-rank-names-grid"></div>
                     </div>
                 </div>
 
@@ -230,21 +620,21 @@
                 <div id="tab-shipping-cart" class="tab-panel">
                     <div class="admin-section">
                         <h3>カートの内容確認ページ（最下部のお知らせ）</h3>
-                        <p style="color:#666; margin-bottom:10px;">注文確定前のカート画面の最下部に表示する「送料・配送に関するお知らせ」です。入力した内容がそのまま表示されます（改行も反映）。空欄の場合は何も表示しません。</p>
+                        <p class="settings-muted-block">注文確定前のカート画面の最下部に表示する「送料・配送に関するお知らせ」です。入力した内容がそのまま表示されます（改行も反映）。空欄の場合は何も表示しません。</p>
                         <div class="form-group">
                             <label for="cart-shipping-notice">送料・配送お知らせ</label>
                             <textarea id="cart-shipping-notice" class="form-control" rows="12" placeholder="例:&#10;⚠️ 送料・配送に関する重要なお知らせ&#10;&#10;・表示価格はまとめ買い優遇価格です。&#10;・同一メーカー製品の合計が11,000円未満の場合は別途送料が発生します。"></textarea>
                         </div>
                     </div>
-                    <div class="admin-section" style="margin-top:25px;">
+                    <div class="admin-section">
                         <h3>送料規定（メーカー別・価格表Excel用）</h3>
-                        <p style="color:#666; margin-bottom:10px;">ランク別価格表をExcelでダウンロードする際、メーカーごとのシートの先頭に記載されます。「既定」はメーカーに該当する規定がない場合に使われます。メーカー名は商品マスタの「メーカー名」と一致させてください。</p>
+                        <p class="settings-muted-block">ランク別価格表をExcelでダウンロードする際、メーカーごとのシートの先頭に記載されます。「既定」はメーカーに該当する規定がない場合に使われます。メーカー名は商品マスタの「メーカー名」と一致させてください。</p>
                         <div class="form-group">
                             <label for="shipping-rule-default">既定（どのメーカーにも当てはまらない場合）</label>
                             <textarea id="shipping-rule-default" class="form-control" rows="4" placeholder="送料規定のテキスト（複数行可）"></textarea>
                         </div>
-                        <div id="shipping-rules-list" style="margin-top:15px;"></div>
-                        <button type="button" id="btn-add-shipping-rule" class="btn-small btn-secondary" style="margin-top:10px;">➕ メーカーを追加</button>
+                        <div id="shipping-rules-list" class="settings-shipping-rules-list"></div>
+                        <button type="button" id="btn-add-shipping-rule" class="btn-small btn-secondary settings-btn-add-shipping">➕ メーカーを追加</button>
                     </div>
                 </div>
 
@@ -323,22 +713,22 @@
                 <!-- お知らせタブ -->
                 <div id="tab-announcements" class="tab-panel">
                     <div class="admin-section">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                            <h3 style="margin: 0;">お知らせ・バナー管理</h3>
+                        <div class="announcements-toolbar">
+                            <h3>お知らせ・バナー管理</h3>
                             <button type="button" id="btn-add-announcement" class="btn-success btn-small">➕ 新規追加</button>
                         </div>
-                        <p style="color: #666; margin-bottom: 20px;">
+                        <p class="settings-muted-block settings-announce-intro">
                             <strong>【注文に関するお知らせ】</strong>（バナー）: 配送遅延、休業前後の締め時間変更など、注文・発送に直接関係するお知らせのみ。商品一覧・注文履歴ページに表示されます。<br>
                             <strong>【一般お知らせ】</strong>（お知らせページ）: その他の案内・ニュース。顧客画面の「お知らせ」ページに一覧表示されます。<br>
                             開始日時・終了日時を設定すると、自動的に表示・非表示が切り替わります。<br>
-                            <strong style="color: #d9534f;">※お知らせを追加・編集したら、画面上部の「💾 設定を保存」ボタンを押すと、顧客画面に反映されます。</strong>
+                            <strong class="settings-announce-warn">※お知らせを追加・編集したら、画面上部の「💾 設定を保存」ボタンを押すと、顧客画面に反映されます。</strong>
                         </p>
                         <div id="announcements-list"></div>
                     </div>
                 </div>
 
-                <div style="margin-top: 20px;">
-                    <button type="submit" id="btn-save" style="background: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 4px; cursor: pointer; font-weight: bold;">💾 設定を保存</button>
+                <div class="settings-footer-actions">
+                    <button type="submit" id="btn-save" class="settings-btn-save">💾 設定を保存</button>
                 </div>
             </form>
             </div>

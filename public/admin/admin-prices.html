@@ -2,23 +2,286 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>価格設定 - WEB受注システム</title>
+    <title>価格・掛率設定 - WEB受注システム</title>
     <link rel="stylesheet" href="../style.css">
     <style>
-        /* 管理画面レイアウト */
-        body { margin: 0; overflow: hidden; }
-        .admin-layout-wrapper { display: flex; height: 100vh; }
-        .admin-main-content { flex-grow: 1; background: #f4f6f9; --admin-main-bg: #f4f6f9; padding: 20px; display: flex; flex-direction: column; overflow: hidden; height: 100vh; box-sizing: border-box; }
-        
-        /* 共通パーツ */
-        .page-header { margin-bottom: 20px; border-bottom: 2px solid #dee2e6; padding-bottom: 10px; }
-        .page-header h2 { color: #374151; }
-        .admin-section { background: white; padding: 20px; border-radius: 5px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); margin-bottom: 20px; }
-
-        /* God Hand エリア独自スタイル */
-        .god-hand-area {
-            background-color: #f0f8ff; padding: 15px; border-radius: 5px; border: 1px solid #cfe2ff;
+        /* 管理画面レイアウト（受注・商品マスタと同系） */
+        body {
+            margin: 0;
+            overflow: hidden;
         }
+
+        .admin-layout-wrapper {
+            display: flex;
+            height: 100vh;
+        }
+
+        .admin-main-content {
+            flex-grow: 1;
+            background: #eef1f5;
+            --admin-main-bg: #eef1f5;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .page-header {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+        }
+
+        .page-header-leading {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .page-header-leading h2 {
+            margin: 0;
+            font-size: 1.65rem;
+            font-weight: 700;
+            color: #374151;
+            letter-spacing: 0.02em;
+        }
+
+        .admin-section {
+            background: #fff;
+            padding: 22px 24px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            margin-bottom: 20px;
+        }
+
+        .admin-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .prices-section-title {
+            margin: 0 0 14px 0;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        /* 受注・商品マスタと同型のツールバーボタン */
+        .page-header-toolbar-btn {
+            box-sizing: border-box;
+            width: max-content;
+            flex: 0 0 auto;
+            white-space: nowrap;
+            padding: 8px 10px;
+            cursor: pointer;
+            background: #fff;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            border-radius: 0;
+            font-weight: 600;
+            font-size: inherit;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        a.page-header-toolbar-btn {
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        a.page-header-toolbar-btn:visited {
+            color: #374151;
+        }
+
+        button.page-header-toolbar-btn {
+            margin: 0;
+            font-family: inherit;
+            font-size: inherit;
+            font-weight: 600;
+        }
+
+        .prices-subpanel {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 16px 18px;
+        }
+
+        .prices-form-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .prices-field {
+            position: relative;
+        }
+
+        .prices-field label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+
+        .prices-field-input {
+            padding: 8px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-family: inherit;
+            box-sizing: border-box;
+        }
+
+        .prices-suggest {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 4px;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            z-index: 100;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        #suggest-customer.prices-suggest {
+            width: 220px;
+        }
+
+        #suggest-product.prices-suggest {
+            width: 300px;
+        }
+
+        #price-edit-area {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            background: #fff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .page-header-toolbar-btn:hover {
+            background: #f3f4f6;
+            border-color: #9ca3af;
+        }
+
+        .prices-divider {
+            margin-top: 22px;
+            padding-top: 22px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .prices-data-table-wrap {
+            overflow-x: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .prices-data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+            line-height: 1.35;
+        }
+
+        .prices-data-table thead {
+            background: #f3f4f6;
+        }
+
+        .prices-data-table th,
+        .prices-data-table td {
+            padding: 8px 10px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+            color: #111827;
+        }
+
+        .prices-data-table th {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .prices-data-table th.prices-col-price,
+        .prices-data-table td.prices-col-price {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+
+        .prices-data-table td.prices-col-price {
+            font-weight: 700;
+            color: #dc2626;
+        }
+
+        .prices-data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* 一括ファイル用のコンパクトな登録ボタン */
+        button.page-header-toolbar-btn.prices-btn-register {
+            padding: 5px 8px;
+            font-size: 0.8125rem;
+        }
+
+        .prices-bulk-panel {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 16px 18px;
+        }
+
+        .prices-bulk-panel .prices-section-title {
+            margin-bottom: 8px;
+        }
+
+        .prices-bulk-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .prices-dl-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin-top: 12px;
+        }
+
+        .prices-dl-row label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.9rem;
+        }
+
+        #pricelist-rank-select {
+            padding: 8px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-family: inherit;
+            background: #fff;
+        }
+
     </style>
 </head>
 <body>
@@ -28,83 +291,83 @@
 
         <main class="admin-main-content">
             <div class="page-header">
-                <h2><span class="admin-page-icon" data-admin-icon="prices" aria-hidden="true"></span>価格設定 (Price Manager)</h2>
+                <div class="page-header-leading">
+                    <h2><span class="admin-page-icon" data-admin-icon="prices" aria-hidden="true"></span>価格・掛率設定</h2>
+                </div>
             </div>
 
             <div class="admin-main-scroll">
-            <div class="admin-section">
-                <h2 class="section-title" style="color: #007bff;">個別価格設定 (God Hand)</h2>
-                
-                <div class="god-hand-area">
-                    <p style="font-size:0.9rem; margin-top:0;">顧客と商品を検索し、その顧客専用の「特価」を即時設定します。</p>
-                    
-                    <div style="display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap;">
-                        <div style="position: relative;">
-                            <label style="font-size: 0.8rem; font-weight:bold;">顧客ID</label><br>
-                            <input type="text" id="price-customer-id" placeholder="ID検索..." autocomplete="off" style="padding: 6px;">
-                            <div id="suggest-customer" style="display:none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid #ccc; z-index: 100; max-height: 200px; overflow-y: auto; width: 200px;"></div>
-                        </div>
+                <div class="admin-section">
+                    <h2 class="prices-section-title">個別価格設定</h2>
 
-                        <div style="position: relative;">
-                            <label style="font-size: 0.8rem; font-weight:bold;">商品コード</label><br>
-                            <input type="text" id="price-product-code" placeholder="商品検索..." autocomplete="off" style="padding: 6px;">
-                            <div id="suggest-product" style="display:none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid #ccc; z-index: 100; max-height: 200px; overflow-y: auto; width: 300px;"></div>
-                        </div>
+                    <div class="prices-subpanel">
+                        <div class="prices-form-row">
+                            <div class="prices-field">
+                                <label for="price-customer-id">顧客ID</label>
+                                <input type="text" id="price-customer-id" class="prices-field-input" placeholder="ID検索…" autocomplete="off">
+                                <div id="suggest-customer" class="prices-suggest" role="listbox" aria-label="顧客候補"></div>
+                            </div>
 
-                        <div id="price-edit-area" style="display: none; background: #fff; padding: 4px 10px; border-radius: 4px; border: 1px solid #17a2b8; display:flex; align-items:center; gap:5px;">
-                            <span id="current-price-display" style="font-weight: bold; font-size: 0.9rem;">---</span>
-                            <span>➡</span>
-                            <input type="number" id="new-special-price" placeholder="新単価" style="width: 80px; padding: 4px; font-weight: bold; color: #d63384;">
-                            <button id="btn-save-price" style="background-color: #d63384; color: white; border: none; padding: 5px 10px; cursor: pointer;">保存</button>
+                            <div class="prices-field">
+                                <label for="price-product-code">商品コード</label>
+                                <input type="text" id="price-product-code" class="prices-field-input" placeholder="商品検索…" autocomplete="off">
+                                <div id="suggest-product" class="prices-suggest" role="listbox" aria-label="商品候補"></div>
+                            </div>
+
+                            <div id="price-edit-area">
+                                <span id="current-price-display" style="font-weight: 700; font-size: 0.9rem; color: #374151;">---</span>
+                                <span aria-hidden="true" style="color: #9ca3af;">→</span>
+                                <input type="number" id="new-special-price" class="prices-field-input" placeholder="新単価" style="width: 96px;">
+                                <button type="button" id="btn-save-price" class="page-header-toolbar-btn">保存</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="prices-divider">
+                        <h3 class="prices-section-title">設定済み個別特価リスト</h3>
+                        <div class="prices-data-table-wrap">
+                            <table class="prices-data-table">
+                                <thead>
+                                    <tr>
+                                        <th>顧客名</th>
+                                        <th>商品名</th>
+                                        <th class="prices-col-price">特別単価</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="special-price-table-body"></tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
 
-                <div style="margin-top: 30px; border-top: 1px solid #ccc; padding-top: 20px;">
-                    <h3>📊 設定済み個別特価リスト</h3>
-                    <button id="btn-refresh-prices" style="margin-bottom: 10px; cursor: pointer; padding: 5px 10px;">リスト更新</button>
-                    <table border="1" style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr style="background: #f8f9fa;">
-                                <th style="padding: 8px;">顧客名</th>
-                                <th style="padding: 8px;">商品名</th>
-                                <th style="padding: 8px;">特別単価</th>
-                                <th style="padding: 8px;">操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="special-price-table-body"></tbody>
-                    </table>
-                </div>
-
-                <div class="embedded-csv-area" style="margin-top:20px; background-color:#fff3cd; border-color:#ffeeba; padding:15px; border-radius:5px;">
-                    <h3>📥 個別価格一括登録 (↑ UL)</h3>
-                    <p style="font-size:0.8rem; margin:0 0 5px;">顧客ID, 商品コード, 単価 の形式でアップロードしてください。</p>
-                    <div style="display:flex; gap:10px;">
-                        <input type="file" id="price-csv-input" accept=".csv, .xlsx, .xls">
-                        <button id="price-csv-btn" style="background:#ffc107; border:none; padding:5px 15px; font-weight:bold;">一括登録</button>
+                <div class="admin-section">
+                    <div class="prices-bulk-panel">
+                        <h3 class="prices-section-title">個別価格一括登録</h3>
+                        <div class="prices-bulk-actions">
+                            <input type="file" id="price-csv-input" accept=".csv,.xlsx,.xls">
+                            <button type="button" id="price-csv-btn" class="page-header-toolbar-btn prices-btn-register">登録</button>
+                        </div>
                     </div>
                 </div>
 
-                <div class="admin-section" style="margin-top:20px;">
-                    <h2 class="section-title" style="color: #0d6efd;">📋 ランク別価格表ダウンロード</h2>
-                    <p style="font-size:0.9rem; color:#555;">各ランクの顧客に配布する価格表をダウンロードできます。Excelはメーカー別シートで、各シート先頭にシステム設定の「送料規定」が記載されます。<strong>ランク別単価の一括取込は商品マスタ管理の「↑ UL」</strong>（テンプレート／全件DLと同じ列形式）で行ってください。</p>
-                    <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:12px;">
-                        <span style="font-weight:bold;">ランクを選択:</span>
-                        <select id="pricelist-rank-select" style="padding:6px 10px; border-radius:4px;">
+                <div class="admin-section">
+                    <h2 class="prices-section-title">ランク別価格表ダウンロード</h2>
+                    <div class="prices-dl-row">
+                        <label for="pricelist-rank-select">ランクを選択</label>
+                        <select id="pricelist-rank-select">
                             <option value="A">A</option>
                         </select>
-                        <a id="pricelist-download-link" href="/api/admin/download-pricelist-by-rank/A" class="btn-pricelist-dl" style="display:inline-flex; align-items:center; padding:8px 16px; background:#0d6efd; color:white; text-decoration:none; border-radius:5px; font-weight:bold;">📥 CSV</a>
-                        <a id="pricelist-excel-link" href="/api/admin/download-pricelist-excel-by-rank/A" style="display:inline-flex; align-items:center; padding:8px 16px; background:#217346; color:white; text-decoration:none; border-radius:5px; font-weight:bold;">📥 Excel（メーカー別・送料規定付き）</a>
+                        <a id="pricelist-download-link" href="/api/admin/download-pricelist-by-rank/A" class="page-header-toolbar-btn">CSV</a>
+                        <a id="pricelist-excel-link" href="/api/admin/download-pricelist-excel-by-rank/A" class="page-header-toolbar-btn">Excel</a>
                     </div>
                 </div>
-            </div>
             </div>
         </main>
     </div>
 
     <script src="../js/admin-icons.js"></script>
     <script src="../js/admin-common.js"></script>
-    
+
     <script src="../js/admin-customers.js?v=7.2"></script>
     <script>
         (function() {

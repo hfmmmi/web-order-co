@@ -242,12 +242,12 @@ function renderShippingRulesList(shippingRules) {
     container.innerHTML = keys.map((maker, idx) => {
         const text = shippingRules[maker] || "";
         return `
-            <div class="shipping-rule-row" data-index="${idx}" style="margin-bottom:15px; padding:12px; border:1px solid #ddd; border-radius:4px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <label style="margin:0; font-weight:bold;">メーカー名</label>
+            <div class="shipping-rule-row" data-index="${idx}">
+                <div class="shipping-rule-row-head">
+                    <label for="shipping-rule-maker-${idx}">メーカー名</label>
                     <button type="button" class="btn-small btn-danger remove-shipping-rule">削除</button>
                 </div>
-                <input type="text" class="form-control shipping-rule-maker" value="${escapeHtml(maker)}" placeholder="例: RICOH, Canon" style="margin-bottom:8px;">
+                <input type="text" id="shipping-rule-maker-${idx}" class="form-control shipping-rule-maker" value="${escapeHtml(maker)}" placeholder="例: RICOH, Canon">
                 <textarea class="form-control shipping-rule-text" rows="3" placeholder="送料規定のテキスト">${escapeHtml(text)}</textarea>
             </div>
         `;
@@ -265,14 +265,13 @@ function addShippingRuleRow(makerName, text) {
     const idx = container.querySelectorAll(".shipping-rule-row").length;
     const div = document.createElement("div");
     div.className = "shipping-rule-row";
-    div.dataset.index = idx;
-    div.style.cssText = "margin-bottom:15px; padding:12px; border:1px solid #ddd; border-radius:4px;";
+    div.dataset.index = String(idx);
     div.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-            <label style="margin:0; font-weight:bold;">メーカー名</label>
+        <div class="shipping-rule-row-head">
+            <label for="shipping-rule-maker-new-${idx}">メーカー名</label>
             <button type="button" class="btn-small btn-danger remove-shipping-rule">削除</button>
         </div>
-        <input type="text" class="form-control shipping-rule-maker" value="${escapeHtml(makerName)}" placeholder="例: RICOH, Canon" style="margin-bottom:8px;">
+        <input type="text" id="shipping-rule-maker-new-${idx}" class="form-control shipping-rule-maker" value="${escapeHtml(makerName)}" placeholder="例: RICOH, Canon">
         <textarea class="form-control shipping-rule-text" rows="3" placeholder="送料規定のテキスト">${escapeHtml(text)}</textarea>
     `;
     div.querySelector(".remove-shipping-rule").addEventListener("click", function () {

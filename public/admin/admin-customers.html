@@ -8,27 +8,27 @@
         /* 管理画面レイアウト */
         body { margin: 0; overflow: hidden; }
         .admin-layout-wrapper { display: flex; height: 100vh; }
-        .admin-main-content { flex-grow: 1; background: #f4f6f9; --admin-main-bg: #f4f6f9; padding: 14px 16px; display: flex; flex-direction: column; overflow: hidden; height: 100vh; box-sizing: border-box; }
+        .admin-main-content { flex-grow: 1; background: #eef1f5; --admin-main-bg: #eef1f5; padding: 20px; display: flex; flex-direction: column; overflow: hidden; height: 100vh; box-sizing: border-box; }
         
-        /* 共通パーツ（受注管理・買取査定と同系の見出し） */
+        /* 共通パーツ（受注管理ページと同型） */
         .page-header {
-            margin-bottom: 10px;
+            margin-bottom: 20px;
             border-bottom: 1px solid #e5e7eb;
-            padding-bottom: 8px;
+            padding-bottom: 12px;
             display: flex;
             flex-direction: column;
             align-items: stretch;
-            gap: 8px;
+            gap: 10px;
         }
         .page-header-leading {
             display: flex;
             align-items: center;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 12px;
         }
-        .page-header h2 {
+        .page-header-leading h2 {
             margin: 0;
-            font-size: 1.45rem;
+            font-size: 1.65rem;
             font-weight: 700;
             color: #374151;
             letter-spacing: 0.02em;
@@ -58,19 +58,6 @@
             height: 1px;
             opacity: 0;
         }
-        .page-header-toolbar-btn--search {
-            background: transparent;
-            color: #111827;
-            border: 1px solid #d1d5db;
-            box-shadow: none;
-            padding: 5px 8px;
-            font-size: 0.8125rem;
-            font-weight: 600;
-        }
-        .page-header-toolbar-btn--search:hover {
-            background: #f9fafb;
-            filter: none;
-        }
         .cust-header-search-group {
             display: flex;
             align-items: center;
@@ -82,10 +69,10 @@
         .cust-header-search-field {
             flex: 1;
             min-width: 0;
-            padding: 6px 8px;
+            padding: 8px 10px;
             border: 1px solid #d1d5db;
-            border-radius: 6px;
-            font-size: 0.875rem;
+            border-radius: 8px;
+            font-size: inherit;
             box-sizing: border-box;
             font-family: inherit;
         }
@@ -242,7 +229,7 @@
                     <button type="button" id="btn-customer-csv-download" class="page-header-toolbar-btn">↓ DL</button>
                     <div class="cust-header-search-group">
                         <input type="text" id="cust-search-keyword" class="cust-header-search-field" placeholder="顧客ID・顧客名で検索" autocomplete="off" aria-label="顧客ID・顧客名で検索">
-                        <button type="button" id="cust-search-btn" class="page-header-toolbar-btn page-header-toolbar-btn--search">検索</button>
+                        <button type="button" id="cust-search-btn" class="page-header-toolbar-btn">検索</button>
                     </div>
                 </div>
             </div>

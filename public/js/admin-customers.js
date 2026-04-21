@@ -129,7 +129,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Special Price List Elements
     const specialPriceTableBody = document.querySelector("#special-price-table-body");
-    const btnRefreshPrices = document.querySelector("#btn-refresh-prices");
 
     let currentPage = 1;
     let totalPages = 1;
@@ -774,12 +773,12 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // =============================================================
-    // 14. 特価リスト表示・削除機能
+    // 14. 特価リスト表示
     // =============================================================
     async function loadSpecialPrices() {
         if (!specialPriceTableBody) return;
 
-        specialPriceTableBody.innerHTML = "<tr><td colspan='4' style='text-align:center'>データ読み込み中...</td></tr>";
+        specialPriceTableBody.innerHTML = "<tr><td colspan='3' style='text-align:center'>データ読み込み中...</td></tr>";
 
         try {
             const res = await adminApiFetch("/api/admin/special-prices-list");
@@ -789,7 +788,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             specialPriceTableBody.innerHTML = "";
             if (list.length === 0) {
-                specialPriceTableBody.innerHTML = "<tr><td colspan='4' style='text-align:center'>現在、個別特価の設定はありません</td></tr>";
+                specialPriceTableBody.innerHTML = "<tr><td colspan='3' style='text-align:center'>現在、個別特価の設定はありません</td></tr>";
                 return;
             }
 
@@ -798,62 +797,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 tr.innerHTML = `
                     <td style="padding:8px;">${item.customerName} <br><small style="color:#666">(${item.customerId})</small></td>
                     <td style="padding:8px;">${item.productName} <br><small style="color:#666">(${item.productCode})</small></td>
-                    <td style="padding:8px; font-weight:bold; color:#d9534f; text-align:right;">${parseInt(item.specialPrice).toLocaleString()} 円</td>
-                    <td style="padding:8px; text-align:center;">
-                        <button class="btn-delete-price" data-cust="${item.customerId}" data-prod="${item.productCode}" 
-                        style="padding:5px 10px; background:#dc3545; color:white; border:none; border-radius:4px; cursor:pointer;">
-                        解除
-                        </button>
-                    </td>
+                    <td class="prices-col-price">${parseInt(item.specialPrice, 10).toLocaleString()} 円</td>
                 `;
-
-                // 解除ボタンのイベント設定
-                tr.querySelector(".btn-delete-price").addEventListener("click", async function () {
-                    const cId = this.dataset.cust;
-                    const pCode = this.dataset.prod;
-                    const cName = item.customerName;
-
-                    if (!confirm(`${cName} 様の特価設定を解除しますか？\n（解除後はランク価格または定価が適用されます）`)) {
-                        return;
-                    }
-                    await deleteSpecialPrice(cId, pCode);
-                });
 
                 specialPriceTableBody.appendChild(tr);
             });
 
         } catch (error) {
             console.error("特価リスト取得エラー", error);
-            specialPriceTableBody.innerHTML = "<tr><td colspan='4' style='color:red; text-align:center'>読み込みエラーが発生しました</td></tr>";
+            specialPriceTableBody.innerHTML = "<tr><td colspan='3' style='color:red; text-align:center'>読み込みエラーが発生しました</td></tr>";
         }
-    }
-
-    // 特価を削除する関数
-    async function deleteSpecialPrice(customerId, productCode) {
-        try {
-            const res = await adminApiFetch("/api/delete-special-price", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ customerId, productCode })
-            });
-            const d = await res.json();
-
-            if (d.success) {
-                toastSuccess("特価設定を解除しました");
-                loadSpecialPrices(); // 再読み込み
-                // もしGodHandModeの表示が出ていればクリア
-                if (currentPriceDisplay) currentPriceDisplay.textContent = "---";
-            } else {
-                toastError("削除失敗: " + d.message);
-            }
-        } catch (e) {
-            toastError("通信エラーが発生しました");
-        }
-    }
-
-    // 更新ボタン
-    if (btnRefreshPrices) {
-        btnRefreshPrices.addEventListener("click", loadSpecialPrices);
     }
 
     // ランク一覧をAPIから取得してdatalistを更新（表示名付き）
