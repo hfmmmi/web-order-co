@@ -10,7 +10,7 @@ test("管理E2E: 設定保存後に再読込しても状態を維持する", asy
     await page.locator(".menu-item", { hasText: "システム設定" }).click();
     await expect(page).toHaveURL(/admin\/admin-settings\.html$/);
 
-    await page.getByRole("button", { name: "🔘 機能ON/OFF" }).click();
+    await page.getByRole("button", { name: "機能ON/OFF" }).click();
     const supportCheckbox = page.locator("#feat-support");
     await expect(supportCheckbox).toBeVisible();
     const before = await supportCheckbox.isChecked();
@@ -18,7 +18,7 @@ test("管理E2E: 設定保存後に再読込しても状態を維持する", asy
 
     await page.click("#btn-save");
     await page.reload();
-    await page.getByRole("button", { name: "🔘 機能ON/OFF" }).click();
+    await page.getByRole("button", { name: "機能ON/OFF" }).click();
     await expect(page.locator("#feat-support")).toBeChecked({ checked: !before });
 
     // 他E2Eに影響しないよう、変更したフラグを元に戻して終了する

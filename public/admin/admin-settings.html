@@ -84,6 +84,8 @@
         }
 
         .settings-tabs .tab-btn {
+            display: inline-flex;
+            align-items: center;
             padding: 10px 14px;
             border: 1px solid transparent;
             border-bottom: none;
@@ -94,6 +96,53 @@
             font-weight: 600;
             font-size: 0.875rem;
             font-family: inherit;
+        }
+
+        .settings-tab-icon,
+        .settings-section-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            vertical-align: middle;
+            margin-right: 6px;
+            color: #4b5563;
+            flex-shrink: 0;
+        }
+
+        .settings-tab-icon svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .settings-section-icon svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .settings-btn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 6px;
+            vertical-align: middle;
+            flex-shrink: 0;
+        }
+
+        .settings-btn-icon svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .settings-section-heading {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .settings-btn-with-icon {
+            display: inline-flex;
+            align-items: center;
         }
 
         .settings-tabs .tab-btn:hover {
@@ -154,6 +203,47 @@
         .form-row .form-group {
             flex: 1;
             min-width: 0;
+        }
+
+        /* 汎用・連携など：2列行の縦ラインを常に揃える（郵便番号＋住所で列がずれないように） */
+        .settings-collapse-body .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: start;
+        }
+
+        .settings-collapse-body .form-row .form-group {
+            flex: unset;
+            margin-bottom: 0;
+        }
+
+        .settings-collapse-body .form-row .form-control {
+            max-width: none;
+            width: 100%;
+        }
+
+        .settings-input-postal {
+            max-width: 140px;
+        }
+
+        /* メールタブ等：settings-flex-row も 2 列グリッドで縦ラインを揃える */
+        .settings-collapse-body .settings-flex-row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: start;
+        }
+
+        .settings-collapse-body .settings-flex-row .form-group {
+            margin-bottom: 0;
+        }
+
+        .settings-collapse-body .settings-flex-row .form-control {
+            max-width: none;
+            width: 100%;
         }
 
         .hint {
@@ -427,6 +517,64 @@
             gap: 8px;
             margin-top: 28px;
         }
+
+        .settings-collapse {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            background: #fff;
+            margin-bottom: 14px;
+            overflow: hidden;
+        }
+
+        .settings-collapse > summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            font-weight: 600;
+            font-size: 1.02rem;
+            color: #374151;
+            background: #f9fafb;
+            user-select: none;
+        }
+
+        .settings-collapse > summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .settings-collapse > summary::before {
+            content: "";
+            display: inline-block;
+            width: 0.45em;
+            height: 0.45em;
+            margin-right: 10px;
+            border-right: 2px solid #6b7280;
+            border-bottom: 2px solid #6b7280;
+            transform: rotate(-45deg);
+            vertical-align: 0.15em;
+            transition: transform 0.15s ease;
+        }
+
+        .settings-collapse[open] > summary::before {
+            transform: rotate(45deg);
+            vertical-align: 0.2em;
+        }
+
+        .settings-collapse[open] > summary {
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .settings-collapse-body {
+            padding: 18px 16px 4px;
+        }
+
+        .settings-collapse-body > h3,
+        .settings-collapse-body > h4 {
+            margin-top: 0;
+        }
+
+        .settings-collapse-body .settings-hr {
+            margin-top: 16px;
+        }
     </style>
 </head>
 <body>
@@ -443,133 +591,157 @@
 
             <div class="admin-main-scroll">
             <div class="settings-tabs">
-                <button type="button" class="tab-btn active" data-tab="mail">📧 メール</button>
-                <button type="button" class="tab-btn" data-tab="admin-account">👤 管理者アカウント</button>
-                <button type="button" class="tab-btn" data-tab="recaptcha">🔐 ログインCAPTCHA</button>
-                <button type="button" class="tab-btn" data-tab="features">🔘 機能ON/OFF</button>
-                <button type="button" class="tab-btn" data-tab="rank-names">🏷️ ランクの名前</button>
-                <button type="button" class="tab-btn" data-tab="shipping-cart">🚚 送料規定・カートお知らせ</button>
-                <button type="button" class="tab-btn" data-tab="announcements">📢 お知らせ・バナー</button>
-                <button type="button" class="tab-btn" data-tab="data-formats">🔧 汎用・連携</button>
+                <button type="button" class="tab-btn active" data-tab="mail"><span class="settings-tab-icon" data-admin-icon="settingsTabMail" aria-hidden="true"></span>メール</button>
+                <button type="button" class="tab-btn" data-tab="admin-account"><span class="settings-tab-icon" data-admin-icon="settingsTabUser" aria-hidden="true"></span>管理者アカウント</button>
+                <button type="button" class="tab-btn" data-tab="recaptcha"><span class="settings-tab-icon" data-admin-icon="settingsTabLock" aria-hidden="true"></span>ログインCAPTCHA</button>
+                <button type="button" class="tab-btn" data-tab="features"><span class="settings-tab-icon" data-admin-icon="settingsTabToggle" aria-hidden="true"></span>機能ON/OFF</button>
+                <button type="button" class="tab-btn" data-tab="rank-names"><span class="settings-tab-icon" data-admin-icon="settingsTabTag" aria-hidden="true"></span>ランクの名前</button>
+                <button type="button" class="tab-btn" data-tab="shipping-cart"><span class="settings-tab-icon" data-admin-icon="settingsTabShipping" aria-hidden="true"></span>送料規定・カートお知らせ</button>
+                <button type="button" class="tab-btn" data-tab="announcements"><span class="settings-tab-icon" data-admin-icon="settingsTabAnnounce" aria-hidden="true"></span>お知らせ・バナー</button>
+                <button type="button" class="tab-btn" data-tab="data-formats"><span class="settings-tab-icon" data-admin-icon="settingsTabData" aria-hidden="true"></span>汎用・連携</button>
             </div>
 
             <form id="settings-form">
                 <!-- メールタブ -->
                 <div id="tab-mail" class="tab-panel active">
                     <div class="admin-section">
-                        <h3>受信先・送信元</h3>
-                        <div class="form-group">
-                            <label>受注通知先 (orderNotifyTo)</label>
-                            <input type="text" id="orderNotifyTo" class="form-control" placeholder="irikura2@hifumi-m.com">
-                        </div>
-                        <div class="form-group">
-                            <label>サポート通知先 (supportNotifyTo)</label>
-                            <input type="text" id="supportNotifyTo" class="form-control" placeholder="irikura2@hifumi-m.com">
-                        </div>
-                        <div class="form-group">
-                            <label>送信元 (from)</label>
-                            <input type="text" id="mailFrom" class="form-control" placeholder="'WEB受注システム' &lt;user@example.com&gt;">
-                            <span class="hint">表示名とメールアドレスを &lt;&gt; で囲んで指定</span>
-                        </div>
-                        <div class="form-group">
-                            <label>SMTPホスト (host)</label>
-                            <input type="text" id="smtpHost" class="form-control" placeholder="例: smtp.example.com（空欄ならGmail等のプリセット使用）">
-                        </div>
-                        <div class="settings-flex-row">
-                            <div class="form-group">
-                                <label>SMTPポート (port)</label>
-                                <input type="number" id="smtpPort" class="form-control settings-smtp-port" placeholder="587">
+                        <details class="settings-collapse" open>
+                            <summary>受注・サポート通知先と送信元</summary>
+                            <div class="settings-collapse-body">
+                                <div class="form-group">
+                                    <label>受注通知先 (orderNotifyTo)</label>
+                                    <input type="text" id="orderNotifyTo" class="form-control" placeholder="irikura2@hifumi-m.com">
+                                </div>
+                                <div class="form-group">
+                                    <label>サポート通知先 (supportNotifyTo)</label>
+                                    <input type="text" id="supportNotifyTo" class="form-control" placeholder="irikura2@hifumi-m.com">
+                                </div>
+                                <div class="form-group">
+                                    <label>送信元 (from)</label>
+                                    <input type="text" id="mailFrom" class="form-control" placeholder="'WEB受注システム' &lt;user@example.com&gt;">
+                                    <span class="hint">表示名とメールアドレスを &lt;&gt; で囲んで指定</span>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label class="settings-smtp-secure-label" for="smtpSecure">
-                                    <input type="checkbox" id="smtpSecure" value="1"> SSL/TLS (secure)
-                                </label>
-                                <span class="hint">465番ポートの場合はON</span>
+                        </details>
+                        <details class="settings-collapse">
+                            <summary>SMTP接続（ホスト・認証）</summary>
+                            <div class="settings-collapse-body">
+                                <div class="form-group">
+                                    <label>SMTPホスト (host)</label>
+                                    <input type="text" id="smtpHost" class="form-control" placeholder="例: smtp.example.com（空欄ならGmail等のプリセット使用）">
+                                </div>
+                                <div class="settings-flex-row">
+                                    <div class="form-group">
+                                        <label>SMTPポート (port)</label>
+                                        <input type="number" id="smtpPort" class="form-control settings-smtp-port" placeholder="587">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="settings-smtp-secure-label" for="smtpSecure">
+                                            <input type="checkbox" id="smtpSecure" value="1"> SSL/TLS (secure)
+                                        </label>
+                                        <span class="hint">465番ポートの場合はON</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>SMTPユーザー (user)</label>
+                                    <input type="text" id="smtpUser" class="form-control" placeholder="メールアドレスまたはユーザー名">
+                                </div>
+                                <div class="form-group">
+                                    <label>SMTPパスワード (password)</label>
+                                    <input type="password" id="smtpPassword" class="form-control" placeholder="変更する場合のみ入力" autocomplete="new-password">
+                                    <span class="hint" id="smtpPasswordHint">空欄のまま保存すると既存のパスワードを維持します</span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label>SMTPユーザー (user)</label>
-                            <input type="text" id="smtpUser" class="form-control" placeholder="メールアドレスまたはユーザー名">
-                        </div>
-                        <div class="form-group">
-                            <label>SMTPパスワード (password)</label>
-                            <input type="password" id="smtpPassword" class="form-control" placeholder="変更する場合のみ入力" autocomplete="new-password">
-                            <span class="hint" id="smtpPasswordHint">空欄のまま保存すると既存のパスワードを維持します</span>
-                        </div>
-                    </div>
-                    <div class="admin-section">
-                        <h3>メールテンプレート</h3>
-                        <div class="form-group">
-                            <label>受注確認の件名 (orderSubject)</label>
-                            <input type="text" id="orderSubject" class="form-control" placeholder="【受注確認】注文ID: {{orderId}}">
-                        </div>
-                        <div class="form-group">
-                            <label>受注確認の本文 (orderBody)</label>
-                            <textarea id="orderBody" class="form-control" placeholder="プレースホルダ: {{customerName}}, {{orderId}}, {{date}}, {{clientOrderNumber}}, {{deliveryDate}}, {{shipperInfo}}"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label>サポート申請の件名 (supportSubject)</label>
-                            <input type="text" id="supportSubject" class="form-control" placeholder="【サポート申請】{{categoryLabel}} {{customerName}}様">
-                        </div>
-                        <div class="form-group">
-                            <label>サポート申請の本文 (supportBody)</label>
-                            <textarea id="supportBody" class="form-control" placeholder="プレースホルダ: {{ticketId}}, {{categoryLabel}}, {{customerName}}, {{customerId}}, {{date}}, {{orderId}}, {{customerPoNumber}}, {{detail}}, {{attachmentsList}}"></textarea>
-                        </div>
-                        <hr class="settings-hr">
-                        <h4>📨 招待・パスワード再設定メール（顧客宛）</h4>
-                        <div class="form-group">
-                            <label>初回招待の件名 (inviteSubject)</label>
-                            <input type="text" id="inviteSubject" class="form-control" placeholder="【WEB受注システム】初回ログインのご案内">
-                        </div>
-                        <div class="form-group">
-                            <label>初回招待の本文 (inviteBody)</label>
-                            <textarea id="inviteBody" class="form-control" placeholder="プレースホルダ: {{customerName}}, {{inviteUrl}}"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label>パスワード再設定の件名 (passwordResetSubject)</label>
-                            <input type="text" id="passwordResetSubject" class="form-control" placeholder="【WEB受注システム】パスワード再設定のご案内">
-                        </div>
-                        <div class="form-group">
-                            <label>パスワード再設定の本文 (passwordResetBody)</label>
-                            <textarea id="passwordResetBody" class="form-control" placeholder="プレースホルダ: {{customerName}}, {{inviteUrl}}"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label>パスワード変更完了通知の件名 (passwordChangedSubject)</label>
-                            <input type="text" id="passwordChangedSubject" class="form-control" placeholder="【WEB受注システム】パスワードが変更されました">
-                        </div>
-                        <div class="form-group">
-                            <label>パスワード変更完了通知の本文 (passwordChangedBody)</label>
-                            <textarea id="passwordChangedBody" class="form-control" placeholder="プレースホルダ: {{customerName}}, {{date}}"></textarea>
-                        </div>
+                        </details>
+                        <details class="settings-collapse">
+                            <summary>受注確認・サポート申請メールテンプレート</summary>
+                            <div class="settings-collapse-body">
+                                <div class="form-group">
+                                    <label>受注確認の件名 (orderSubject)</label>
+                                    <input type="text" id="orderSubject" class="form-control" placeholder="【受注確認】注文ID: {{orderId}}">
+                                </div>
+                                <div class="form-group">
+                                    <label>受注確認の本文 (orderBody)</label>
+                                    <textarea id="orderBody" class="form-control" placeholder="プレースホルダ: {{customerName}}, {{orderId}}, {{date}}, {{clientOrderNumber}}, {{deliveryDate}}, {{shipperInfo}}"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>サポート申請の件名 (supportSubject)</label>
+                                    <input type="text" id="supportSubject" class="form-control" placeholder="【サポート申請】{{categoryLabel}} {{customerName}}様">
+                                </div>
+                                <div class="form-group">
+                                    <label>サポート申請の本文 (supportBody)</label>
+                                    <textarea id="supportBody" class="form-control" placeholder="プレースホルダ: {{ticketId}}, {{categoryLabel}}, {{customerName}}, {{customerId}}, {{date}}, {{orderId}}, {{customerPoNumber}}, {{detail}}, {{attachmentsList}}"></textarea>
+                                </div>
+                            </div>
+                        </details>
+                        <details class="settings-collapse">
+                            <summary>招待・パスワード再設定・変更完了メール（顧客宛）</summary>
+                            <div class="settings-collapse-body">
+                                <p class="hint settings-hint-spaced" style="margin-top:0;">初回招待・パスワード再設定・変更完了の件名・本文です。</p>
+                                <div class="form-group">
+                                    <label>初回招待の件名 (inviteSubject)</label>
+                                    <input type="text" id="inviteSubject" class="form-control" placeholder="【WEB受注システム】初回ログインのご案内">
+                                </div>
+                                <div class="form-group">
+                                    <label>初回招待の本文 (inviteBody)</label>
+                                    <textarea id="inviteBody" class="form-control" placeholder="プレースホルダ: {{customerName}}, {{inviteUrl}}"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>パスワード再設定の件名 (passwordResetSubject)</label>
+                                    <input type="text" id="passwordResetSubject" class="form-control" placeholder="【WEB受注システム】パスワード再設定のご案内">
+                                </div>
+                                <div class="form-group">
+                                    <label>パスワード再設定の本文 (passwordResetBody)</label>
+                                    <textarea id="passwordResetBody" class="form-control" placeholder="プレースホルダ: {{customerName}}, {{inviteUrl}}"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>パスワード変更完了通知の件名 (passwordChangedSubject)</label>
+                                    <input type="text" id="passwordChangedSubject" class="form-control" placeholder="【WEB受注システム】パスワードが変更されました">
+                                </div>
+                                <div class="form-group">
+                                    <label>パスワード変更完了通知の本文 (passwordChangedBody)</label>
+                                    <textarea id="passwordChangedBody" class="form-control" placeholder="プレースホルダ: {{customerName}}, {{date}}"></textarea>
+                                </div>
+                            </div>
+                        </details>
                     </div>
                 </div>
 
                 <!-- 管理者アカウントタブ -->
                 <div id="tab-admin-account" class="tab-panel">
                     <div class="admin-section">
-                        <h3>管理者ログインID・パスワード</h3>
-                        <p class="settings-muted-block">管理者としてログインする際のIDとパスワードを設定します。パスワードを忘れた場合は、ログイン画面の「パスワードをお忘れの方」から再設定用リンクを受け取れます（メールアドレスを下記に設定するか、システム設定のサポート通知先に送信されます）。</p>
-                        <div class="form-group">
-                            <label for="admin-account-id">管理者ID（ログイン時に入力）</label>
-                            <input type="text" id="admin-account-id" class="form-control" placeholder="例: admin" autocomplete="off">
-                            <span class="hint">英数字・ピリオド・アンダースコア・ハイフンのみ。変更後は新しいIDでログインしてください。</span>
-                        </div>
-                        <div class="form-group">
-                            <label for="admin-account-name">表示名</label>
-                            <input type="text" id="admin-account-name" class="form-control" placeholder="例: 管理者">
-                        </div>
-                        <div class="form-group">
-                            <label for="admin-account-email">メールアドレス（パスワード再設定リンクの送信先）</label>
-                            <input type="email" id="admin-account-email" class="form-control" placeholder="空欄の場合はサポート通知先に送信">
-                            <span class="hint">パスワードを忘れた場合、ここに再設定リンクを送ります。未設定時はシステム設定の「サポート通知先」に送信されます。</span>
-                        </div>
-                        <div class="form-group">
-                            <label for="admin-account-password">パスワード</label>
-                            <input type="password" id="admin-account-password" class="form-control" placeholder="変更する場合のみ入力（4文字以上）" autocomplete="new-password">
-                            <span class="hint" id="admin-account-password-hint">空欄のまま保存すると既存のパスワードを維持します。</span>
-                        </div>
-                        <p class="hint settings-hint-mt">※「設定を保存」ではなく、このタブの内容を保存するには下の「管理者アカウントを保存」をクリックしてください。</p>
-                        <button type="button" id="btn-save-admin-account" class="settings-btn-save-admin">💾 管理者アカウントを保存</button>
+                        <details class="settings-collapse" open>
+                            <summary>管理者ID・表示名</summary>
+                            <div class="settings-collapse-body">
+                                <p class="settings-muted-block" style="margin-top:0;">管理者としてログインする際のIDと表示名を設定します。パスワードを忘れた場合は、ログイン画面の「パスワードをお忘れの方」から再設定用リンクを受け取れます（メールアドレスは下のブロックで設定するか、システム設定のサポート通知先に送信されます）。</p>
+                                <div class="form-group">
+                                    <label for="admin-account-id">管理者ID（ログイン時に入力）</label>
+                                    <input type="text" id="admin-account-id" class="form-control" placeholder="例: admin" autocomplete="off">
+                                    <span class="hint">英数字・ピリオド・アンダースコア・ハイフンのみ。変更後は新しいIDでログインしてください。</span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="admin-account-name">表示名</label>
+                                    <input type="text" id="admin-account-name" class="form-control" placeholder="例: 管理者">
+                                </div>
+                            </div>
+                        </details>
+                        <details class="settings-collapse">
+                            <summary>メールアドレス・パスワード</summary>
+                            <div class="settings-collapse-body">
+                                <div class="form-group">
+                                    <label for="admin-account-email">メールアドレス（パスワード再設定リンクの送信先）</label>
+                                    <input type="email" id="admin-account-email" class="form-control" placeholder="空欄の場合はサポート通知先に送信">
+                                    <span class="hint">パスワードを忘れた場合、ここに再設定リンクを送ります。未設定時はシステム設定の「サポート通知先」に送信されます。</span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="admin-account-password">パスワード</label>
+                                    <input type="password" id="admin-account-password" class="form-control" placeholder="変更する場合のみ入力（4文字以上）" autocomplete="new-password">
+                                    <span class="hint" id="admin-account-password-hint">空欄のまま保存すると既存のパスワードを維持します。</span>
+                                </div>
+                                <p class="hint settings-hint-mt">※「設定を保存」ではなく、このタブの内容を保存するには下の「管理者アカウントを保存」をクリックしてください。</p>
+                                <button type="button" id="btn-save-admin-account" class="settings-btn-save-admin settings-btn-with-icon"><span class="settings-btn-icon" data-admin-icon="settingsBtnSave" aria-hidden="true"></span>管理者アカウントを保存</button>
+                            </div>
+                        </details>
                     </div>
                 </div>
 
@@ -619,94 +791,114 @@
                 <!-- 送料規定・カートお知らせタブ -->
                 <div id="tab-shipping-cart" class="tab-panel">
                     <div class="admin-section">
-                        <h3>カートの内容確認ページ（最下部のお知らせ）</h3>
-                        <p class="settings-muted-block">注文確定前のカート画面の最下部に表示する「送料・配送に関するお知らせ」です。入力した内容がそのまま表示されます（改行も反映）。空欄の場合は何も表示しません。</p>
-                        <div class="form-group">
-                            <label for="cart-shipping-notice">送料・配送お知らせ</label>
-                            <textarea id="cart-shipping-notice" class="form-control" rows="12" placeholder="例:&#10;⚠️ 送料・配送に関する重要なお知らせ&#10;&#10;・表示価格はまとめ買い優遇価格です。&#10;・同一メーカー製品の合計が11,000円未満の場合は別途送料が発生します。"></textarea>
-                        </div>
-                    </div>
-                    <div class="admin-section">
-                        <h3>送料規定（メーカー別・価格表Excel用）</h3>
-                        <p class="settings-muted-block">ランク別価格表をExcelでダウンロードする際、メーカーごとのシートの先頭に記載されます。「既定」はメーカーに該当する規定がない場合に使われます。メーカー名は商品マスタの「メーカー名」と一致させてください。</p>
-                        <div class="form-group">
-                            <label for="shipping-rule-default">既定（どのメーカーにも当てはまらない場合）</label>
-                            <textarea id="shipping-rule-default" class="form-control" rows="4" placeholder="送料規定のテキスト（複数行可）"></textarea>
-                        </div>
-                        <div id="shipping-rules-list" class="settings-shipping-rules-list"></div>
-                        <button type="button" id="btn-add-shipping-rule" class="btn-small btn-secondary settings-btn-add-shipping">➕ メーカーを追加</button>
+                        <details class="settings-collapse" open>
+                            <summary>カートの内容確認ページ（最下部のお知らせ）</summary>
+                            <div class="settings-collapse-body">
+                                <p class="settings-muted-block" style="margin-top:0;">注文確定前のカート画面の最下部に表示する「送料・配送に関するお知らせ」です。入力した内容がそのまま表示されます（改行も反映）。空欄の場合は何も表示しません。</p>
+                                <div class="form-group">
+                                    <label for="cart-shipping-notice">送料・配送お知らせ</label>
+                                    <textarea id="cart-shipping-notice" class="form-control" rows="12" placeholder="例:&#10;【注意】送料・配送に関する重要なお知らせ&#10;&#10;・表示価格はまとめ買い優遇価格です。&#10;・同一メーカー製品の合計が11,000円未満の場合は別途送料が発生します。"></textarea>
+                                </div>
+                            </div>
+                        </details>
+                        <details class="settings-collapse">
+                            <summary>送料規定（メーカー別・価格表Excel用）</summary>
+                            <div class="settings-collapse-body">
+                                <p class="settings-muted-block" style="margin-top:0;">ランク別価格表をExcelでダウンロードする際、メーカーごとのシートの先頭に記載されます。「既定」はメーカーに該当する規定がない場合に使われます。メーカー名は商品マスタの「メーカー名」と一致させてください。</p>
+                                <div class="form-group">
+                                    <label for="shipping-rule-default">既定（どのメーカーにも当てはまらない場合）</label>
+                                    <textarea id="shipping-rule-default" class="form-control" rows="4" placeholder="送料規定のテキスト（複数行可）"></textarea>
+                                </div>
+                                <div id="shipping-rules-list" class="settings-shipping-rules-list"></div>
+                                <button type="button" id="btn-add-shipping-rule" class="btn-small btn-secondary settings-btn-add-shipping settings-btn-with-icon"><span class="settings-btn-icon" data-admin-icon="settingsBtnPlus" aria-hidden="true"></span>メーカーを追加</button>
+                            </div>
+                        </details>
                     </div>
                 </div>
 
                 <!-- 汎用・連携（見積PDF・価格表・受注CSV・物流取込） -->
                 <div id="tab-data-formats" class="tab-panel">
                     <div class="admin-section">
-                        <h3>顧客向け見積PDFの発行元</h3>
-                        <p class="hint">カート画面の「見積書」に反映されます。</p>
-                        <div class="form-row">
-                            <div class="form-group"><label>会社名</label><input type="text" id="df-pb-company" class="form-control" placeholder="株式会社○○"></div>
-                            <div class="form-group"><label>ロゴ文言</label><input type="text" id="df-pb-logo" class="form-control"></div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group"><label>郵便番号</label><input type="text" id="df-pb-zip" class="form-control" style="max-width:140px;"></div>
-                            <div class="form-group" style="flex:2;"><label>住所</label><input type="text" id="df-pb-address" class="form-control"></div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group"><label>TEL</label><input type="text" id="df-pb-tel" class="form-control"></div>
-                            <div class="form-group"><label>FAX</label><input type="text" id="df-pb-fax" class="form-control"></div>
-                        </div>
-                        <div class="form-group"><label>担当欄の表示</label><input type="text" id="df-pb-contact" class="form-control" placeholder="担当者"></div>
-                        <div class="form-row">
-                            <div class="form-group"><label>件名（顧客側ブロック）</label><input type="text" id="df-pb-subject" class="form-control"></div>
-                            <div class="form-group"><label>支払条件</label><input type="text" id="df-pb-payment" class="form-control"></div>
-                        </div>
-                        <div class="form-group"><label>有効期限の文言</label><input type="text" id="df-pb-valid" class="form-control" placeholder="発行より1ヶ月"></div>
-                        <div class="form-group"><label>備考フッター（HTML可・改行可）</label><textarea id="df-pb-footer" class="form-control" rows="4"></textarea></div>
-                    </div>
-                    <div class="admin-section">
-                        <h3>価格表（↑ UL）のカテゴリ・ヘッダー</h3>
-                        <p class="hint">商品マスタの「仕様」列の値の並び・Excelシート分けに使います。</p>
-                        <div class="form-group"><label>カテゴリの並び（カンマ区切り）</label><input type="text" id="df-pl-sort" class="form-control" placeholder="純正,再生,汎用,海外純正"></div>
-                        <div class="form-row">
-                            <div class="form-group"><label>メーカー別シートにするカテゴリ名</label><input type="text" id="df-pl-split" class="form-control" placeholder="純正"></div>
-                            <div class="form-group"><label>シート内をメーカー順に並べ替えるカテゴリ</label><input type="text" id="df-pl-sortsheet" class="form-control" placeholder="再生"></div>
-                        </div>
-                        <div class="form-group"><label>カテゴリ→Excelシート名（JSONオブジェクト）</label><textarea id="df-pl-sheetnames" class="form-control" rows="3" placeholder='{"再生":"再生","汎用":"汎用"}'></textarea></div>
-                        <div class="form-group"><label>価格表CSVのヘッダー行（カンマ区切り・改行なし）</label><input type="text" id="df-pl-csv-h" class="form-control"></div>
-                        <div class="form-group"><label>商品名から除去する文字列（価格表の表示用）</label><input type="text" id="df-pl-strip" class="form-control" placeholder="商品コード"></div>
-                        <div class="form-group"><label>価格表Excelのヘッダー列（カンマ区切り）</label><input type="text" id="df-pl-xlsx-h" class="form-control"></div>
-                    </div>
-                    <div class="admin-section">
-                        <h3>物流ステータスCSV取込（列名）</h3>
-                        <p class="hint">社内メモ内の公開注文ID検出用の正規表現・列名の候補をカンマ区切りで指定します。</p>
-                        <div class="form-group"><label>メモ欄の列名候補</label><input type="text" id="df-li-memo" class="form-control" placeholder="社内メモ,備考"></div>
-                        <div class="form-group"><label>公開ID検出の正規表現</label><input type="text" id="df-li-pattern" class="form-control" placeholder="W(\\d{11})"></div>
-                        <div class="form-row">
-                            <div class="form-group"><label>受注番号の列名候補</label><input type="text" id="df-li-ordno" class="form-control"></div>
-                            <div class="form-group"><label>得意先名の列名候補</label><input type="text" id="df-li-cust" class="form-control"></div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group"><label>合計金額の列名候補</label><input type="text" id="df-li-total" class="form-control"></div>
-                            <div class="form-group"><label>受注日の列名候補</label><input type="text" id="df-li-odate" class="form-control"></div>
-                        </div>
-                        <div class="form-group"><label>納品日・納期の列名候補</label><input type="text" id="df-li-ddate" class="form-control"></div>
-                        <div class="form-group"><label>新規行の source 文字列</label><input type="text" id="df-li-src" class="form-control" placeholder="FLAM"></div>
-                    </div>
-                    <div class="admin-section">
-                        <h3>受注データCSVエクスポート（基幹連携）</h3>
-                        <p class="hint">ヘッダー行のみ変更する場合は1行目を編集。データ列の対応を変える場合は列キー配列をJSONで指定（列数はヘッダーと一致必須）。空欄は既定のまま。</p>
-                        <div class="form-group"><label>ヘッダー行（カンマ区切り1行）</label><textarea id="df-order-csv-h" class="form-control" rows="4" placeholder="空欄＝システム既定"></textarea></div>
-                        <div class="form-group"><label>列キー（JSON配列・例: ["orderId","orderDate","empty",...]）</label><textarea id="df-order-csv-keys" class="form-control" rows="6" placeholder="空欄＝システム既定。利用可能キー: orderId, orderDate, customerId, customerName, deliveryNote, internalMemo, productCode, productName, unitPrice, quantity, empty, literal:0"></textarea></div>
-                    </div>
-                    <div class="admin-section">
-                        <h3>見積Excel/CSV取込の列名エイリアス（上級者向け）</h3>
-                        <p class="hint">既定の別名に追加するヘッダー名をJSONで指定します。キー: estimateId, customerId, productCode, productName, price, validUntil, manufacturer, subject</p>
-                        <textarea id="df-est-aliases" class="form-control" rows="5" placeholder='例: {"customerId":["取引先コード"]}'></textarea>
-                    </div>
-                    <div class="admin-section">
-                        <h3>固定列インデックス取込（Excel・上級者向け）</h3>
-                        <p class="hint">csvService.importFlamData 等で使用。通常は空欄で既定（0始まり列番号のJSON）。</p>
-                        <textarea id="df-fixed-cols" class="form-control" rows="3" placeholder='{"orderId":0,"orderDate":1,...}'></textarea>
+                        <details class="settings-collapse" open>
+                            <summary>顧客向け見積PDFの発行元</summary>
+                            <div class="settings-collapse-body">
+                                <p class="hint" style="margin-top:0;">カート画面の「見積書」に反映されます。</p>
+                                <div class="form-row">
+                                    <div class="form-group"><label>会社名</label><input type="text" id="df-pb-company" class="form-control" placeholder="株式会社○○"></div>
+                                    <div class="form-group"><label>ロゴ文言</label><input type="text" id="df-pb-logo" class="form-control"></div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group"><label>郵便番号</label><input type="text" id="df-pb-zip" class="form-control settings-input-postal"></div>
+                                    <div class="form-group"><label>住所</label><input type="text" id="df-pb-address" class="form-control"></div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group"><label>TEL</label><input type="text" id="df-pb-tel" class="form-control"></div>
+                                    <div class="form-group"><label>FAX</label><input type="text" id="df-pb-fax" class="form-control"></div>
+                                </div>
+                                <div class="form-group"><label>担当欄の表示</label><input type="text" id="df-pb-contact" class="form-control" placeholder="担当者"></div>
+                                <div class="form-row">
+                                    <div class="form-group"><label>件名（顧客側ブロック）</label><input type="text" id="df-pb-subject" class="form-control"></div>
+                                    <div class="form-group"><label>支払条件</label><input type="text" id="df-pb-payment" class="form-control"></div>
+                                </div>
+                                <div class="form-group"><label>有効期限の文言</label><input type="text" id="df-pb-valid" class="form-control" placeholder="発行より1ヶ月"></div>
+                                <div class="form-group"><label>備考フッター（HTML可・改行可）</label><textarea id="df-pb-footer" class="form-control" rows="4"></textarea></div>
+                            </div>
+                        </details>
+                        <details class="settings-collapse">
+                            <summary>価格表（↑ UL）のカテゴリ・ヘッダー</summary>
+                            <div class="settings-collapse-body">
+                                <p class="hint" style="margin-top:0;">商品マスタの「仕様」列の値の並び・Excelシート分けに使います。</p>
+                                <div class="form-group"><label>カテゴリの並び（カンマ区切り）</label><input type="text" id="df-pl-sort" class="form-control" placeholder="純正,再生,汎用,海外純正"></div>
+                                <div class="form-row">
+                                    <div class="form-group"><label>メーカー別シートにするカテゴリ名</label><input type="text" id="df-pl-split" class="form-control" placeholder="純正"></div>
+                                    <div class="form-group"><label>シート内をメーカー順に並べ替えるカテゴリ</label><input type="text" id="df-pl-sortsheet" class="form-control" placeholder="再生"></div>
+                                </div>
+                                <div class="form-group"><label>カテゴリ→Excelシート名（JSONオブジェクト）</label><textarea id="df-pl-sheetnames" class="form-control" rows="3" placeholder='{"再生":"再生","汎用":"汎用"}'></textarea></div>
+                                <div class="form-group"><label>価格表CSVのヘッダー行（カンマ区切り・改行なし）</label><input type="text" id="df-pl-csv-h" class="form-control"></div>
+                                <div class="form-group"><label>商品名から除去する文字列（価格表の表示用）</label><input type="text" id="df-pl-strip" class="form-control" placeholder="商品コード"></div>
+                                <div class="form-group"><label>価格表Excelのヘッダー列（カンマ区切り）</label><input type="text" id="df-pl-xlsx-h" class="form-control"></div>
+                            </div>
+                        </details>
+                        <details class="settings-collapse">
+                            <summary>物流ステータスCSV取込（列名）</summary>
+                            <div class="settings-collapse-body">
+                                <p class="hint" style="margin-top:0;">社内メモ内の公開注文ID検出用の正規表現・列名の候補をカンマ区切りで指定します。</p>
+                                <div class="form-group"><label>メモ欄の列名候補</label><input type="text" id="df-li-memo" class="form-control" placeholder="社内メモ,備考"></div>
+                                <div class="form-group"><label>公開ID検出の正規表現</label><input type="text" id="df-li-pattern" class="form-control" placeholder="W(\\d{11})"></div>
+                                <div class="form-row">
+                                    <div class="form-group"><label>受注番号の列名候補</label><input type="text" id="df-li-ordno" class="form-control"></div>
+                                    <div class="form-group"><label>得意先名の列名候補</label><input type="text" id="df-li-cust" class="form-control"></div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group"><label>合計金額の列名候補</label><input type="text" id="df-li-total" class="form-control"></div>
+                                    <div class="form-group"><label>受注日の列名候補</label><input type="text" id="df-li-odate" class="form-control"></div>
+                                </div>
+                                <div class="form-group"><label>納品日・納期の列名候補</label><input type="text" id="df-li-ddate" class="form-control"></div>
+                                <div class="form-group"><label>新規行の source 文字列</label><input type="text" id="df-li-src" class="form-control" placeholder="FLAM"></div>
+                            </div>
+                        </details>
+                        <details class="settings-collapse">
+                            <summary>受注データCSVエクスポート（基幹連携）</summary>
+                            <div class="settings-collapse-body">
+                                <p class="hint" style="margin-top:0;">ヘッダー行のみ変更する場合は1行目を編集。データ列の対応を変える場合は列キー配列をJSONで指定（列数はヘッダーと一致必須）。空欄は既定のまま。</p>
+                                <div class="form-group"><label>ヘッダー行（カンマ区切り1行）</label><textarea id="df-order-csv-h" class="form-control" rows="4" placeholder="空欄＝システム既定"></textarea></div>
+                                <div class="form-group"><label>列キー（JSON配列・例: ["orderId","orderDate","empty",...]）</label><textarea id="df-order-csv-keys" class="form-control" rows="6" placeholder="空欄＝システム既定。利用可能キー: orderId, orderDate, customerId, customerName, deliveryNote, internalMemo, productCode, productName, unitPrice, quantity, empty, literal:0"></textarea></div>
+                            </div>
+                        </details>
+                        <details class="settings-collapse">
+                            <summary>見積Excel/CSV取込の列名エイリアス（上級者向け）</summary>
+                            <div class="settings-collapse-body">
+                                <p class="hint" style="margin-top:0;">既定の別名に追加するヘッダー名をJSONで指定します。キー: estimateId, customerId, productCode, productName, price, validUntil, manufacturer, subject</p>
+                                <div class="form-group"><label>列名エイリアス（JSON）</label><textarea id="df-est-aliases" class="form-control" rows="5" placeholder='例: {"customerId":["取引先コード"]}'></textarea></div>
+                            </div>
+                        </details>
+                        <details class="settings-collapse">
+                            <summary>固定列インデックス取込（Excel・上級者向け）</summary>
+                            <div class="settings-collapse-body">
+                                <p class="hint" style="margin-top:0;">csvService.importFlamData 等で使用。通常は空欄で既定（0始まり列番号のJSON）。</p>
+                                <div class="form-group"><label>列インデックス（JSON）</label><textarea id="df-fixed-cols" class="form-control" rows="3" placeholder='{"orderId":0,"orderDate":1,...}'></textarea></div>
+                            </div>
+                        </details>
                     </div>
                 </div>
 
@@ -715,20 +907,20 @@
                     <div class="admin-section">
                         <div class="announcements-toolbar">
                             <h3>お知らせ・バナー管理</h3>
-                            <button type="button" id="btn-add-announcement" class="btn-success btn-small">➕ 新規追加</button>
+                            <button type="button" id="btn-add-announcement" class="btn-success btn-small settings-btn-with-icon"><span class="settings-btn-icon" data-admin-icon="settingsBtnPlus" aria-hidden="true"></span>新規追加</button>
                         </div>
                         <p class="settings-muted-block settings-announce-intro">
                             <strong>【注文に関するお知らせ】</strong>（バナー）: 配送遅延、休業前後の締め時間変更など、注文・発送に直接関係するお知らせのみ。商品一覧・注文履歴ページに表示されます。<br>
                             <strong>【一般お知らせ】</strong>（お知らせページ）: その他の案内・ニュース。顧客画面の「お知らせ」ページに一覧表示されます。<br>
                             開始日時・終了日時を設定すると、自動的に表示・非表示が切り替わります。<br>
-                            <strong class="settings-announce-warn">※お知らせを追加・編集したら、画面上部の「💾 設定を保存」ボタンを押すと、顧客画面に反映されます。</strong>
+                            <strong class="settings-announce-warn">※お知らせを追加・編集したら、画面上部の「設定を保存」ボタンを押すと、顧客画面に反映されます。</strong>
                         </p>
                         <div id="announcements-list"></div>
                     </div>
                 </div>
 
                 <div class="settings-footer-actions">
-                    <button type="submit" id="btn-save" class="settings-btn-save">💾 設定を保存</button>
+                    <button type="submit" id="btn-save" class="settings-btn-save settings-btn-with-icon"><span class="settings-btn-icon" data-admin-icon="settingsBtnSave" aria-hidden="true"></span>設定を保存</button>
                 </div>
             </form>
             </div>

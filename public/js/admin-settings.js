@@ -403,7 +403,7 @@ async function saveSettings(e) {
 }
 
 // =================================================================
-// 📢 お知らせ管理機能
+// お知らせ管理機能
 // =================================================================
 
 function renderAnnouncements() {
@@ -426,13 +426,13 @@ function renderAnnouncements() {
         const startDate = ann.startDate ? new Date(ann.startDate).toLocaleString("ja-JP") : "即時表示";
         const endDate = ann.endDate ? new Date(ann.endDate).toLocaleString("ja-JP") : "無期限";
         const targetLabel = ann.target === "customer" ? "顧客向け" : ann.target === "admin" ? "管理画面向け" : "全員向け";
-        const categoryLabel = (ann.category || "general") === "order" ? "📦 注文関連（バナー）" : "📄 一般（お知らせページ）";
+        const categoryLabel = (ann.category || "general") === "order" ? "注文関連（バナー）" : "一般（お知らせページ）";
         
         return `
             <div class="announcement-item" data-index="${index}" style="border-left: 4px solid ${colors.border};">
                 <div class="announcement-item-header">
                     <h4 style="color: ${colors.text};">
-                        ${ann.enabled ? "✅" : "❌"} ${ann.title || "（タイトルなし）"}
+                        ${ann.enabled ? '<span style="font-size:0.8rem;font-weight:700;color:#15803d;margin-right:6px;">有効</span>' : '<span style="font-size:0.8rem;font-weight:700;color:#b91c1c;margin-right:6px;">無効</span>'} ${ann.title || "（タイトルなし）"}
                         <span style="font-size: 0.85rem; font-weight: normal; color: #666; margin-left: 10px;">
                             [${categoryLabel}] [${targetLabel}] ${ann.type || "info"}
                         </span>
@@ -474,8 +474,8 @@ function renderAnnouncementForm(ann, index) {
             <div class="form-group">
                 <label>カテゴリ</label>
                 <select class="form-control" id="ann-category-${index}">
-                    <option value="order" ${(ann.category || "general") === "order" ? "selected" : ""}>📦 注文関連（商品一覧・注文履歴ページのバナーに表示）</option>
-                    <option value="general" ${(ann.category || "general") === "general" ? "selected" : ""}>📄 一般（お知らせページに表示）</option>
+                    <option value="order" ${(ann.category || "general") === "order" ? "selected" : ""}>注文関連（商品一覧・注文履歴ページのバナーに表示）</option>
+                    <option value="general" ${(ann.category || "general") === "general" ? "selected" : ""}>一般（お知らせページに表示）</option>
                 </select>
             </div>
             <div class="form-group">
