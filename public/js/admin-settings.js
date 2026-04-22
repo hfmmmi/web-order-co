@@ -11,11 +11,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     initTabs();
     document.getElementById("settings-form").addEventListener("submit", saveSettings);
 
-    const btnSaveAdminAccount = document.getElementById("btn-save-admin-account");
-    if (btnSaveAdminAccount) {
-        btnSaveAdminAccount.addEventListener("click", saveAdminAccount);
-    }
-    
     const btnAddShippingRule = document.getElementById("btn-add-shipping-rule");
     if (btnAddShippingRule) {
         btnAddShippingRule.addEventListener("click", () => addShippingRuleRow("", ""));
@@ -50,6 +45,29 @@ const FEATURE_DEFS = {
         { key: "adminSupport", label: "サポート・不具合" }
     ]
 };
+
+/** settings.json の mail.from（"表示名" <addr> または addr のみ）を画面用に分解 */
+function parseMailFromField(raw) {
+    const s = String(raw || "").trim();
+    if (!s) return { displayName: "", address: "" };
+    const m = s.match(/^(.+?)\s*<([^<>]+)>\s*$/);
+    if (!m) return { displayName: "", address: s };
+    let name = m[1].trim();
+    if ((name.startsWith('"') && name.endsWith('"')) || (name.startsWith("'") && name.endsWith("'"))) {
+        name = name.slice(1, -1).replace(/\\"/g, '"').replace(/\\\\/g, "\\");
+    }
+    return { displayName: name, address: m[2].trim() };
+}
+
+/** 画面の2欄を nodemailer 向け mail.from 文字列に結合 */
+function buildMailFromField(displayName, address) {
+    const addr = String(address || "").trim();
+    const name = String(displayName || "").trim();
+    if (!addr) return "";
+    if (!name) return addr;
+    const q = name.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+    return `"${q}" <${addr}>`;
+}
 
 function initTabs() {
     document.querySelectorAll(".tab-btn").forEach(btn => {
@@ -98,44 +116,32 @@ async function loadAdminAccount() {
     }
 }
 
-async function saveAdminAccount() {
+/** 「設定を保存」と同時に呼ぶ。管理者アカウント欄が無い画面では何もしない */
+async function persistAdminAccountFromForm() {
     const idEl = document.getElementById("admin-account-id");
+    if (!idEl) return;
     const nameEl = document.getElementById("admin-account-name");
     const emailEl = document.getElementById("admin-account-email");
     const passwordEl = document.getElementById("admin-account-password");
-    const btn = document.getElementById("btn-save-admin-account");
-    if (!idEl || !btn) return;
     const adminId = (idEl.value || "").trim();
     if (!adminId) {
-        if (typeof toastError === "function") toastError("管理者IDを入力してください");
-        else alert("管理者IDを入力してください");
-        return;
+        throw new Error("管理者IDを入力してください");
     }
-    btn.disabled = true;
     const body = {
         adminId,
         name: (nameEl && nameEl.value) ? nameEl.value.trim() : "",
         email: (emailEl && emailEl.value) ? emailEl.value.trim() : ""
     };
     if (passwordEl && passwordEl.value.trim()) body.password = passwordEl.value;
-    try {
-        const res = await fetch("/api/admin/account", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body)
-        });
-        const json = await res.json();
-        if (!res.ok) throw new Error(json.message || "保存に失敗しました");
-        if (typeof toastSuccess === "function") toastSuccess("管理者アカウントを保存しました");
-        else alert("管理者アカウントを保存しました");
-        passwordEl.value = "";
-        await loadAdminAccount();
-    } catch (err) {
-        if (typeof toastError === "function") toastError(err.message);
-        else alert(err.message);
-    } finally {
-        btn.disabled = false;
-    }
+    const res = await fetch("/api/admin/account", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+    });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.message || "管理者アカウントの保存に失敗しました");
+    if (passwordEl) passwordEl.value = "";
+    await loadAdminAccount();
 }
 
 async function loadSettings() {
@@ -147,7 +153,9 @@ async function loadSettings() {
         // メール
         document.getElementById("orderNotifyTo").value = data.mail?.orderNotifyTo || "";
         document.getElementById("supportNotifyTo").value = data.mail?.supportNotifyTo || "";
-        document.getElementById("mailFrom").value = data.mail?.from || "";
+        const fromParts = parseMailFromField(data.mail?.from || "");
+        document.getElementById("mailFromDisplayName").value = fromParts.displayName;
+        document.getElementById("mailFromAddress").value = fromParts.address;
         document.getElementById("smtpHost").value = data.mail?.smtp?.host || "";
         document.getElementById("smtpPort").value = data.mail?.smtp?.port || 587;
         document.getElementById("smtpSecure").checked = !!data.mail?.smtp?.secure;
@@ -315,13 +323,25 @@ async function saveSettings(e) {
     const btn = document.getElementById("btn-save");
     btn.disabled = true;
 
+    try {
+        await persistAdminAccountFromForm();
+    } catch (err) {
+        if (typeof toastError === "function") toastError(err.message);
+        else alert(err.message);
+        btn.disabled = false;
+        return;
+    }
+
     const smtpPasswordEl = document.getElementById("smtpPassword");
     const smtpPassword = smtpPasswordEl.value;
     const isPasswordManagedByEnv = smtpPasswordEl.disabled;
     const mail = {
         orderNotifyTo: document.getElementById("orderNotifyTo").value.trim(),
         supportNotifyTo: document.getElementById("supportNotifyTo").value.trim(),
-        from: document.getElementById("mailFrom").value.trim(),
+        from: buildMailFromField(
+            document.getElementById("mailFromDisplayName").value,
+            document.getElementById("mailFromAddress").value
+        ),
         smtp: {
             host: document.getElementById("smtpHost").value.trim(),
             port: parseInt(document.getElementById("smtpPort").value, 10) || 587,
@@ -481,10 +501,10 @@ function renderAnnouncementForm(ann, index) {
             <div class="form-group">
                 <label>種類</label>
                 <select class="form-control" id="ann-type-${index}">
-                    <option value="info" ${ann.type === "info" ? "selected" : ""}>情報 (info)</option>
-                    <option value="warning" ${ann.type === "warning" ? "selected" : ""}>警告 (warning)</option>
-                    <option value="error" ${ann.type === "error" ? "selected" : ""}>エラー (error)</option>
-                    <option value="success" ${ann.type === "success" ? "selected" : ""}>成功 (success)</option>
+                    <option value="info" ${ann.type === "info" ? "selected" : ""}>情報</option>
+                    <option value="warning" ${ann.type === "warning" ? "selected" : ""}>警告</option>
+                    <option value="error" ${ann.type === "error" ? "selected" : ""}>エラー</option>
+                    <option value="success" ${ann.type === "success" ? "selected" : ""}>成功</option>
                 </select>
             </div>
             <div class="form-group">
