@@ -177,6 +177,11 @@
             font-size: 0.9rem;
         }
 
+        .settings-label-muted-suffix {
+            color: #6b7280;
+            font-weight: 400;
+        }
+
         .form-control {
             width: 100%;
             max-width: 500px;
@@ -481,6 +486,17 @@
             background: #047857;
         }
 
+        .btn-small.settings-btn-announcement-add {
+            background: transparent;
+            color: #111827;
+            border-color: #d1d5db;
+        }
+
+        .btn-small.settings-btn-announcement-add:hover {
+            background: #f3f4f6;
+            border-color: #9ca3af;
+        }
+
         .settings-flex-row {
             display: flex;
             gap: 15px;
@@ -704,9 +720,8 @@
                             <div class="settings-collapse-body">
                                 <p class="settings-muted-block" style="margin-top:0;">管理者としてログインする際のIDと表示名を設定します。</p>
                                 <div class="form-group">
-                                    <label for="admin-account-id">管理者ID（ログイン時に入力）</label>
+                                    <label for="admin-account-id">管理者ID<span class="settings-label-muted-suffix">（英数字・ピリオド・アンダースコア・ハイフンのみ）</span></label>
                                     <input type="text" id="admin-account-id" class="form-control" placeholder="例: admin" autocomplete="off">
-                                    <span class="hint">英数字・ピリオド・アンダースコア・ハイフンのみ。</span>
                                 </div>
                                 <div class="form-group">
                                     <label for="admin-account-name">表示名</label>
@@ -778,7 +793,7 @@
                 <div id="tab-shipping-cart" class="tab-panel">
                     <div class="admin-section">
                         <details class="settings-collapse" open>
-                            <summary>カートの内容確認ページ（最下部のお知らせ）</summary>
+                            <summary>カートの内容確認ページ</summary>
                             <div class="settings-collapse-body">
                                 <p class="settings-muted-block" style="margin-top:0;">注文確定前のカート画面の最下部に表示する「送料・配送に関するお知らせ」です。</p>
                                 <div class="form-group">
@@ -788,7 +803,7 @@
                             </div>
                         </details>
                         <details class="settings-collapse">
-                            <summary>送料規定（メーカー別・価格表Excel用）</summary>
+                            <summary>送料規定</summary>
                             <div class="settings-collapse-body">
                                 <p class="settings-muted-block" style="margin-top:0;">ランク別価格表をExcelでダウンロードする際、メーカーごとのシートの先頭に記載されます。「既定」はメーカーに該当する規定がない場合に使われます。メーカー名は商品マスタの「メーカー名」と一致させてください。</p>
                                 <div class="form-group">
@@ -893,7 +908,7 @@
                     <div class="admin-section">
                         <div class="announcements-toolbar">
                             <h3>お知らせ・バナー管理</h3>
-                            <button type="button" id="btn-add-announcement" class="btn-success btn-small settings-btn-with-icon"><span class="settings-btn-icon" data-admin-icon="settingsBtnPlus" aria-hidden="true"></span>新規追加</button>
+                            <button type="button" id="btn-add-announcement" class="btn-small settings-btn-with-icon settings-btn-announcement-add"><span class="settings-btn-icon" data-admin-icon="settingsBtnPlus" aria-hidden="true"></span>新規追加</button>
                         </div>
                         <p class="settings-muted-block settings-announce-intro">
                             <strong>【注文に関するお知らせ】</strong>（バナー）: 配送遅延、休業前後の締め時間変更など、注文・発送に直接関係するお知らせのみ。商品一覧・注文履歴ページに表示されます。<br>
