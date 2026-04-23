@@ -306,6 +306,41 @@ class OrderService {
         });
     }
 
+    /**
+     * 管理者用: 納品先・備考・荷主・明細など注文の表示用詳細を更新（出荷履歴・ステータスは変更しない）
+     */
+    async updateAdminOrderDetails(orderId, opts) {
+        const { deliveryInfo: di, items } = opts || {};
+        return await runWithJsonFileWriteLock(ORDERS_DB, async () => {
+            const orders = await this._loadJson(ORDERS_DB);
+            const targetIndex = orders.findIndex((o) => String(o.orderId) === String(orderId));
+            if (targetIndex === -1) throw new Error("Order not found");
+
+            const order = orders[targetIndex];
+            if (di) {
+                if (!order.deliveryInfo) order.deliveryInfo = {};
+                const keys = ["date", "zip", "tel", "address", "name", "note", "clientOrderNumber"];
+                keys.forEach((k) => {
+                    if (di[k] !== undefined) order.deliveryInfo[k] = di[k];
+                });
+                if (di.shipper !== undefined) {
+                    order.deliveryInfo.shipper = { ...(order.deliveryInfo.shipper || {}), ...di.shipper };
+                }
+            }
+            if (items && items.length > 0) {
+                order.items = items.map((it) => ({
+                    code: it.code,
+                    name: it.name && String(it.name).trim() !== "" ? it.name : "商品名不明",
+                    price: Math.round(Number(it.price)) || 0,
+                    quantity: Math.round(Number(it.quantity)) || 1
+                }));
+            }
+
+            await fs.writeFile(ORDERS_DB, JSON.stringify(orders, null, 2));
+            return true;
+        });
+    }
+
     /** 管理者用: 注文を orders.json から完全削除（在庫引当があれば解放を試みる） */
     async deleteOrder(orderId) {
         return await runWithJsonFileWriteLock(ORDERS_DB, async () => {

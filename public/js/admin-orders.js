@@ -286,7 +286,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
             const data = await response.json();
             if (data.success) {
-                toastSuccess(`出荷確定しました（ステータス: ${data.newStatus}）`, 4000);
+                toastSuccess(`更新しました（ステータス: ${data.newStatus}）`, 4000);
                 fetchOrders();
             } else {
                 toastError("登録失敗: " + data.message);
@@ -336,6 +336,237 @@ document.addEventListener("DOMContentLoaded", function () {
                 toastError("失敗しました: " + data.message);
             }
         } catch(e) { console.error(e); toastError("通信エラー"); }
+    }
+
+    function escAttrOrderEdit(s) {
+        return String(s == null ? "" : s)
+            .replace(/&/g, "&amp;")
+            .replace(/"/g, "&quot;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+    }
+
+    function escTextareaOrderEdit(s) {
+        return String(s == null ? "" : s)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+    }
+
+    let orderDetailsEditorEls = null;
+
+    function ensureOrderDetailsEditorModal() {
+        if (orderDetailsEditorEls) return orderDetailsEditorEls;
+        const wrap = document.createElement("div");
+        wrap.id = "admin-order-details-editor";
+        wrap.style.cssText = "display:none;position:fixed;inset:0;z-index:9999;";
+        wrap.innerHTML =
+            '<div class="admin-order-edit-backdrop" style="position:absolute;inset:0;background:rgba(15,23,42,0.45);cursor:pointer;"></div>' +
+            '<div class="admin-order-edit-panel" style="position:relative;max-width:760px;margin:32px auto;background:#fff;border-radius:12px;max-height:calc(100vh - 64px);overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,0.18);">' +
+            '<div style="padding:18px 22px;border-bottom:1px solid #e5e7eb;">' +
+            '<h3 style="margin:0;font-size:1.1rem;color:#111827;">注文内容の編集</h3>' +
+            '<div style="font-size:0.85rem;color:#64748b;margin-top:6px;">注文ID <span data-oe="order-id"></span></div></div>' +
+            '<div data-oe="form" style="padding:16px 22px;"></div>' +
+            '<div style="padding:12px 22px 18px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;background:#f9fafb;">' +
+            '<button type="button" data-oe="cancel" style="padding:8px 18px;border-radius:8px;border:1px solid #d1d5db;background:#fff;color:#111827;font-weight:600;cursor:pointer;font-family:inherit;">キャンセル</button>' +
+            '<button type="button" data-oe="save" style="padding:8px 22px;border-radius:8px;border:1px solid #b0cde5;background:#d6e7f1;color:#111827;font-weight:700;cursor:pointer;font-family:inherit;">保存</button>' +
+            "</div></div>";
+        document.body.appendChild(wrap);
+        const backdrop = wrap.querySelector(".admin-order-edit-backdrop");
+        const formHost = wrap.querySelector('[data-oe="form"]');
+        const orderIdEl = wrap.querySelector('[data-oe="order-id"]');
+        const btnCancel = wrap.querySelector('[data-oe="cancel"]');
+        const btnSave = wrap.querySelector('[data-oe="save"]');
+        orderDetailsEditorEls = { wrap, formHost, orderIdEl, btnCancel, btnSave, currentOrder: null };
+        backdrop.addEventListener("click", closeOrderDetailsEditor);
+        btnCancel.addEventListener("click", closeOrderDetailsEditor);
+        wrap.addEventListener("keydown", function (ev) {
+            if (ev.key === "Escape" && wrap.style.display === "block") closeOrderDetailsEditor();
+        });
+        btnSave.addEventListener("click", submitOrderDetailsEditor);
+        return orderDetailsEditorEls;
+    }
+
+    function closeOrderDetailsEditor() {
+        if (!orderDetailsEditorEls) return;
+        orderDetailsEditorEls.wrap.style.display = "none";
+        orderDetailsEditorEls.currentOrder = null;
+    }
+
+    function oeDeliveryField(label, key, value, multiline) {
+        const k = escAttrOrderEdit(key);
+        if (multiline) {
+            return (
+                '<label style="display:flex;flex-direction:column;gap:4px;font-size:0.8rem;font-weight:600;color:#374151;"><span>' +
+                label +
+                '</span><textarea data-oe-delivery="' +
+                k +
+                '" rows="2" style="padding:8px;border:1px solid #e5e7eb;border-radius:8px;resize:vertical;font-family:inherit;font-size:0.85rem;">' +
+                escTextareaOrderEdit(value) +
+                "</textarea></label>"
+            );
+        }
+        return (
+            '<label style="display:flex;flex-direction:column;gap:4px;font-size:0.8rem;font-weight:600;color:#374151;"><span>' +
+            label +
+            '</span><input type="text" data-oe-delivery="' +
+            k +
+            '" value="' +
+            escAttrOrderEdit(value) +
+            '" style="padding:8px;border:1px solid #e5e7eb;border-radius:8px;font-size:0.85rem;box-sizing:border-box;"></label>'
+        );
+    }
+
+    function oeShipField(label, key, value) {
+        const k = escAttrOrderEdit(key);
+        return (
+            '<label style="display:flex;flex-direction:column;gap:4px;font-size:0.8rem;font-weight:600;color:#374151;"><span>' +
+            label +
+            '</span><input type="text" data-oe-ship="' +
+            k +
+            '" value="' +
+            escAttrOrderEdit(value) +
+            '" style="padding:8px;border:1px solid #e5e7eb;border-radius:8px;font-size:0.85rem;box-sizing:border-box;"></label>'
+        );
+    }
+
+    function openOrderDetailsEditor(order) {
+        const ui = ensureOrderDetailsEditorModal();
+        const info = order.deliveryInfo || {};
+        const ship = info.shipper || {};
+        const items =
+            order.items && order.items.length
+                ? order.items
+                : [{ code: "", name: "", price: 0, quantity: 1 }];
+        ui.orderIdEl.textContent = order.orderId != null ? String(order.orderId) : "";
+        const rows = items
+            .map(function (it) {
+                return (
+                    '<tr class="oe-item-row">' +
+                    '<td style="padding:4px;"><input type="text" class="oe-code" value="' +
+                    escAttrOrderEdit(it.code) +
+                    '" style="width:100%;min-width:6.5rem;box-sizing:border-box;padding:6px;border:1px solid #e5e7eb;border-radius:6px;font-size:0.85rem;"></td>' +
+                    '<td style="padding:4px;"><input type="text" class="oe-name" value="' +
+                    escAttrOrderEdit(it.name) +
+                    '" style="width:100%;min-width:9rem;box-sizing:border-box;padding:6px;border:1px solid #e5e7eb;border-radius:6px;font-size:0.85rem;"></td>' +
+                    '<td style="padding:4px;text-align:right;"><input type="number" class="oe-price" min="0" max="999999999" step="1" value="' +
+                    escAttrOrderEdit(it.price != null ? it.price : 0) +
+                    '" style="width:5.5rem;padding:6px;border:1px solid #e5e7eb;border-radius:6px;font-size:0.85rem;"></td>' +
+                    '<td style="padding:4px;text-align:right;"><input type="number" class="oe-qty" min="1" max="9999" step="1" value="' +
+                    escAttrOrderEdit(it.quantity != null ? it.quantity : 1) +
+                    '" style="width:4rem;padding:6px;border:1px solid #e5e7eb;border-radius:6px;font-size:0.85rem;"></td>' +
+                    "</tr>"
+                );
+            })
+            .join("");
+        ui.formHost.innerHTML =
+            '<fieldset style="border:1px solid #e5e7eb;border-radius:8px;padding:12px;margin:0 0 14px;">' +
+            '<legend style="font-weight:700;font-size:0.9rem;padding:0 6px;">納品先</legend>' +
+            '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;">' +
+            oeDeliveryField("納品先氏名", "name", info.name || "", false) +
+            oeDeliveryField("郵便番号", "zip", info.zip || "", false) +
+            oeDeliveryField("住所", "address", info.address || "", true) +
+            oeDeliveryField("電話番号", "tel", info.tel || "", false) +
+            oeDeliveryField("納品日（表示用）", "date", info.date || "", false) +
+            oeDeliveryField("備考", "note", info.note || "", true) +
+            oeDeliveryField("貴社発注番号", "clientOrderNumber", info.clientOrderNumber || "", false) +
+            "</div></fieldset>" +
+            '<fieldset style="border:1px solid #e5e7eb;border-radius:8px;padding:12px;margin:0 0 14px;">' +
+            '<legend style="font-weight:700;font-size:0.9rem;padding:0 6px;">荷主（ご依頼主）</legend>' +
+            '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;">' +
+            oeShipField("郵便番号", "zip", ship.zip || "") +
+            oeShipField("住所", "address", ship.address || "") +
+            oeShipField("氏名", "name", ship.name || "") +
+            oeShipField("電話", "tel", ship.tel || "") +
+            "</div></fieldset>" +
+            '<div style="font-weight:700;font-size:0.9rem;margin-bottom:8px;color:#111827;">商品明細</div>' +
+            '<table style="width:100%;border-collapse:collapse;font-size:0.85rem;"><thead><tr style="background:#f1f5f9;">' +
+            '<th style="text-align:left;padding:6px;">コード</th><th style="text-align:left;padding:6px;">品名</th>' +
+            '<th style="text-align:right;padding:6px;">単価</th><th style="text-align:right;padding:6px;">数量</th></tr></thead><tbody>' +
+            rows +
+            "</tbody></table>";
+        ui.wrap.style.display = "block";
+        ui.currentOrder = order;
+    }
+
+    async function submitOrderDetailsEditor() {
+        if (!orderDetailsEditorEls || !orderDetailsEditorEls.currentOrder) return;
+        const ui = orderDetailsEditorEls;
+        const order = ui.currentOrder;
+        const fh = ui.formHost;
+        const gv = function (key) {
+            const el = fh.querySelector('[data-oe-delivery="' + key + '"]');
+            return el ? String(el.value).trim() : "";
+        };
+        const sv = function (key) {
+            const el = fh.querySelector('[data-oe-ship="' + key + '"]');
+            return el ? String(el.value).trim() : "";
+        };
+        const deliveryInfo = {
+            name: gv("name"),
+            zip: gv("zip"),
+            address: gv("address"),
+            tel: gv("tel"),
+            date: gv("date"),
+            note: gv("note"),
+            clientOrderNumber: gv("clientOrderNumber"),
+            shipper: {
+                zip: sv("zip"),
+                address: sv("address"),
+                name: sv("name"),
+                tel: sv("tel")
+            }
+        };
+        const itemRows = fh.querySelectorAll(".oe-item-row");
+        const items = [];
+        itemRows.forEach(function (row) {
+            const code = row.querySelector(".oe-code").value.trim();
+            const name = row.querySelector(".oe-name").value.trim();
+            const price = parseInt(row.querySelector(".oe-price").value, 10);
+            const qty = parseInt(row.querySelector(".oe-qty").value, 10);
+            if (!code) return;
+            if (!qty || qty < 1) return;
+            items.push({
+                code: code,
+                name: name,
+                price: Number.isFinite(price) ? price : 0,
+                quantity: qty
+            });
+        });
+        if (items.length === 0) {
+            toastWarning("商品コードが入力された明細を1行以上指定してください");
+            return;
+        }
+        const payload = {
+            orderId: order.orderId,
+            deliveryInfo: deliveryInfo,
+            items: items
+        };
+        try {
+            const fetchFn = typeof window.adminApiFetch === "function" ? window.adminApiFetch : fetch;
+            const response = await fetchFn("/api/admin/update-order-details", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json().catch(function () {
+                return {};
+            });
+            if (response.ok && data.success) {
+                toastSuccess("注文内容を更新しました");
+                closeOrderDetailsEditor();
+                fetchOrders();
+            } else {
+                const msg =
+                    (data && data.message) ||
+                    (data && data.errors && data.errors[0] && data.errors[0].message) ||
+                    "保存に失敗しました";
+                toastError(msg);
+            }
+        } catch (e) {
+            console.error(e);
+            toastError("通信エラーが発生しました");
+        }
     }
 
     // ---------------------------------------------------------
@@ -1275,6 +1506,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 if(confirm("【警告】\nCSV連携状態を「未連携」に戻します。\n次回の「未連携出力」対象に含まれるようになります。\n実行しますか？")) {
                     resetExportStatus(order.orderId);
                 }
+            });
+        }
+
+        const btnEditDetails = detailDiv.querySelector(".btn-edit-order-details");
+        if (btnEditDetails) {
+            btnEditDetails.addEventListener("click", function () {
+                openOrderDetailsEditor(order);
             });
         }
     }

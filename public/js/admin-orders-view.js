@@ -226,18 +226,18 @@
         operationArea.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:2px solid #e5e7eb; padding-bottom:8px;">
                 <h4 style="margin:0; font-size:1rem; color:#111827;">出荷オペレーション</h4>
-                <label style="font-size:0.9rem; font-weight:bold; cursor:pointer; color:#3b82f6;">
-                    <input type="checkbox" class="check-individual-mode"> 個別配送モード(便を分ける)
+                <label style="font-size:0.9rem; font-weight:bold; cursor:pointer; color:#111827;">
+                    <input type="checkbox" class="check-individual-mode"> 個別配送モード
                 </label>
             </div>
             <div class="estimate-message-area" style="display:flex; align-items:flex-end; gap:10px; margin-bottom:15px; flex-wrap:wrap;">
                 <div style="flex-grow:1; min-width:200px;">
-                    <label style="font-size:0.8rem; font-weight:bold; display:block;">納期目安 <span style="color:#111827;">( 確認中 / お取り寄せ中 など )</span></label>
+                    <label style="font-size:0.8rem; font-weight:bold; display:block;">納期目安</label>
                     <input type="text" class="input-estimate-message" value="${(savedEstimate || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}" 
                         style="width:100%; padding:6px; box-sizing:border-box; border:1px solid #e5e7eb; border-radius:8px;">
                 </div>
                 <button class="btn-update-estimate" type="button" style="background:transparent; color:#111827; border:1px solid #d1d5db; padding:8px 15px; border-radius:8px; cursor:pointer; font-weight:bold; white-space:nowrap;">
-                    納期目安の更新
+                    更新
                 </button>
             </div>
             <div class="global-input-area" style="display:flex; flex-wrap:nowrap; align-items:flex-end; gap:12px; margin-bottom:15px; overflow-x:auto; min-width:0;">
@@ -322,13 +322,14 @@
             </div>
             <div class="order-actions-footer" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-top:12px; padding-top:14px; border-top:1px dashed #e5e7eb;">
                 <div class="order-delete-area" style="display:flex; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <button type="button" class="btn-edit-order-details" style="background:transparent; color:#111827; border:1px solid #d1d5db; padding:8px 14px; border-radius:8px; font-weight:bold; cursor:pointer; font-size:0.85rem;">編集</button>
                     ${order.exported_at ? `<button type="button" class="btn-reset-export" style="background:transparent; color:#111827; border:1px solid #d1d5db; padding:8px 14px; border-radius:8px; font-weight:bold; cursor:pointer; font-size:0.85rem;">未連携に</button>` : ""}
                     <button type="button" class="btn-delete-order" style="background:transparent; color:#111827; border:1px solid #d1d5db; padding:8px 14px; border-radius:8px; font-weight:bold; cursor:pointer; font-size:0.85rem;">
                         削除
                     </button>
                 </div>
                 <button type="button" class="btn-register-shipment" style="background:#d6e7f1; color:#111827; border:1px solid #b0cde5; padding:8px 20px; border-radius:8px; font-weight:bold; cursor:pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
-                    出荷確定
+                    更新
                 </button>
             </div>
         `;
@@ -413,7 +414,7 @@
             }
         });
 
-        // 納期目安の更新ボタン
+        // 納期目安「更新」ボタン
         operationArea.querySelector(".btn-update-estimate").addEventListener("click", function() {
             const text = operationArea.querySelector(".input-estimate-message").value.trim();
             if(actions.updateDeliveryEstimate) {
@@ -421,7 +422,7 @@
             }
         });
 
-        // 出荷確定ボタン
+        // 出荷登録（表示ラベルは「更新」）
         operationArea.querySelector(".btn-register-shipment").addEventListener("click", function() {
             const isInd = individualModeCheck.checked;
             const d = dateInput.value;

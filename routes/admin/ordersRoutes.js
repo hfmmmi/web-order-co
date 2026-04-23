@@ -10,7 +10,11 @@ const { requireAdmin } = require("./requireAdmin");
 const orderListExport = require("../../utils/orderListExport");
 const customerService = require("../../services/customerService");
 const { validateBody } = require("../../middlewares/validate");
-const { adminCreateOrderSchema, adminDeleteOrderSchema } = require("../../validators/requestSchemas");
+const {
+    adminCreateOrderSchema,
+    adminDeleteOrderSchema,
+    adminUpdateOrderDetailsSchema
+} = require("../../validators/requestSchemas");
 
 router.post("/update-order-status", (req, res, next) => {
     if (!req.session.isAdmin && !req.session.customerId) return res.status(401).json({ message: "権限なし" });
@@ -61,6 +65,22 @@ router.post("/admin/orders-delete", requireAdmin, validateBody(adminDeleteOrderS
         }
         console.error("admin orders-delete:", e);
         return res.status(500).json({ success: false, message: "注文の削除に失敗しました" });
+    }
+});
+
+router.post("/admin/update-order-details", requireAdmin, validateBody(adminUpdateOrderDetailsSchema), async (req, res) => {
+    try {
+        await orderService.updateAdminOrderDetails(req.body.orderId, {
+            deliveryInfo: req.body.deliveryInfo,
+            items: req.body.items
+        });
+        return res.json({ success: true });
+    } catch (e) {
+        if (e.message === "Order not found") {
+            return res.status(404).json({ success: false, message: "注文が見つかりません" });
+        }
+        console.error("admin update-order-details:", e);
+        return res.status(500).json({ success: false, message: "保存に失敗しました" });
     }
 });
 

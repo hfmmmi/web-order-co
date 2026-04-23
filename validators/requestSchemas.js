@@ -100,6 +100,50 @@ const adminDeleteOrderSchema = z
     })
     .strict();
 
+/** 管理画面: 注文詳細（納品先・明細・備考等）の編集 */
+const adminOrderDetailsDeliverySchema = z
+    .object({
+        date: optionalTrimmedString(50),
+        zip: optionalTrimmedString(20),
+        tel: optionalTrimmedString(30),
+        address: optionalTrimmedString(300),
+        name: optionalTrimmedString(100),
+        note: optionalTrimmedString(1000),
+        clientOrderNumber: optionalTrimmedString(100),
+        shipper: shipperSchema.partial().optional()
+    })
+    .strict();
+
+const adminUpdateOrderDetailsItemSchema = z
+    .object({
+        code: z.preprocess(
+            (v) => (typeof v === "string" ? v.trim() : v),
+            z.string().min(1).max(120)
+        ),
+        name: z.preprocess(
+            (v) => (v === undefined || v === null ? "" : typeof v === "string" ? v.trim() : ""),
+            z.string().max(300)
+        ),
+        price: z.coerce.number().int().min(0).max(999999999),
+        quantity: z.coerce.number().int().min(1).max(9999)
+    })
+    .strict();
+
+const adminUpdateOrderDetailsSchema = z
+    .object({
+        orderId: z.preprocess(
+            (v) => (v === undefined || v === null ? v : String(v).trim()),
+            z.string().min(1).max(40)
+        ),
+        deliveryInfo: adminOrderDetailsDeliverySchema.optional(),
+        items: z.array(adminUpdateOrderDetailsItemSchema).min(1).optional()
+    })
+    .strict()
+    .refine((d) => d.deliveryInfo !== undefined || d.items !== undefined, {
+        message: "deliveryInfo または items を指定してください",
+        path: ["deliveryInfo"]
+    });
+
 const addCustomerSchema = z
     .object({
         customerId: customerIdSchema,
@@ -262,6 +306,7 @@ module.exports = {
     placeOrderSchema,
     adminCreateOrderSchema,
     adminDeleteOrderSchema,
+    adminUpdateOrderDetailsSchema,
     addCustomerSchema,
     updateCustomerSchema,
     adminAccountUpdateSchema,

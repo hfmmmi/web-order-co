@@ -11,8 +11,10 @@ jest.mock("../../services/mailService", () => ({
     sendLoginFailureAlert: jest.fn().mockResolvedValue({ success: true })
 }));
 
+const fs = require("fs").promises;
 const request = require("supertest");
 const { app } = require("../../server");
+const { dbPath } = require("../../dbPaths");
 const orderService = require("../../services/orderService");
 const priceService = require("../../services/priceService");
 const settingsService = require("../../services/settingsService");
@@ -370,5 +372,56 @@ describe("Aランク: admin orders / prices 分岐カバレッジ", () => {
         await agent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
         const res = await agent.get("/api/admin/rank-list");
         expect(res.statusCode).toBe(500);
+    });
+
+    test("POST /api/admin/update-order-details は未ログインで 401", async () => {
+        const res = await request(app)
+            .post("/api/admin/update-order-details")
+            .send({ orderId: "1", deliveryInfo: { name: "x" } });
+        expect(res.statusCode).toBe(401);
+    });
+
+    test("POST /api/admin/update-order-details は納品情報と明細を更新する", async () => {
+        const admin = request.agent(app);
+        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        const create = await admin.post("/api/admin/orders-create").send({
+            customerId: "TEST001",
+            cart: [{ code: "P001", name: "n", price: 1000, quantity: 1 }],
+            deliveryInfo: { name: "旧宛名", address: "旧住所", zip: "100", tel: "03", note: "旧備考" },
+            orderDate: "2026-04-01"
+        });
+        expect(create.statusCode).toBe(200);
+        const oid = create.body.orderId;
+        const res = await admin.post("/api/admin/update-order-details").send({
+            orderId: oid,
+            deliveryInfo: {
+                name: "新宛名",
+                address: "新住所",
+                note: "新備考",
+                shipper: { name: "荷主名" }
+            },
+            items: [{ code: "P001", name: "更新品名", price: 2000, quantity: 2 }]
+        });
+        expect(res.statusCode).toBe(200);
+        expect(res.body.success).toBe(true);
+        const raw = JSON.parse(await fs.readFile(dbPath("orders.json"), "utf8"));
+        const o = raw.find((x) => String(x.orderId) === String(oid));
+        expect(o).toBeTruthy();
+        expect(o.deliveryInfo.name).toBe("新宛名");
+        expect(o.deliveryInfo.shipper.name).toBe("荷主名");
+        expect(o.items[0].price).toBe(2000);
+        expect(o.items[0].quantity).toBe(2);
+        expect(o.items[0].name).toBe("更新品名");
+    });
+
+    test("POST /api/admin/update-order-details は存在しない注文で 404", async () => {
+        const admin = request.agent(app);
+        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        const res = await admin.post("/api/admin/update-order-details").send({
+            orderId: "no-such-order-id-999999",
+            deliveryInfo: { name: "x" }
+        });
+        expect(res.statusCode).toBe(404);
+        expect(res.body.success).toBe(false);
     });
 });
