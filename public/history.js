@@ -213,10 +213,14 @@ function renderHistoryList(orders, container) {
                 detailDiv.style.display = "block";
                 toggleBtn.textContent = "閉じる ▲";
                 toggleBtn.style.backgroundColor = "#6c757d";
+                toggleBtn.style.borderColor = "#5c636a";
+                toggleBtn.style.color = "#fff";
             } else {
                 detailDiv.style.display = "none";
                 toggleBtn.textContent = "詳細を見る ▼";
-                toggleBtn.style.backgroundColor = "#17a2b8";
+                toggleBtn.style.backgroundColor = "#dfe3e6";
+                toggleBtn.style.borderColor = "#c5cdd5";
+                toggleBtn.style.color = "#111827";
             }
         });
 
@@ -250,10 +254,8 @@ function generateHistoryCardHTML(order) {
 
     if (statusText === "発送済") {
         statusColor = "#28a745"; // 緑
-    } else if (statusText === "一部発送") {
-        statusColor = "#fd7e14"; // オレンジ
-    } else if (statusText === "未発送") {
-        statusColor = "#dc3545"; // 赤
+    } else if (statusText === "一部発送" || statusText === "未発送") {
+        statusColor = "#d6e7f1"; // 受注管理の未発送・一部発送ラベルと同系色
     }
 
     const info = order.deliveryInfo || {};
@@ -285,7 +287,7 @@ function generateHistoryCardHTML(order) {
             <div style="flex-grow: 1;">
                 <div style="margin-bottom: 4px;">
                     <strong style="font-size: 1.1rem;">${dateStr}</strong>
-                    <span style="background-color: ${statusColor}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; margin-left: 8px; vertical-align: text-bottom;">
+                    <span style="background-color: ${statusColor}; color: ${statusText === "未発送" || statusText === "一部発送" ? "#111827" : "white"}; border: 1px solid ${statusText === "未発送" || statusText === "一部発送" ? "#b0cde5" : "transparent"}; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; margin-left: 8px; vertical-align: text-bottom;">
                         ${statusText}
                     </span>
                     <span style="font-size: 0.85rem; color: #666; margin-left: 10px;">ID: ${order.orderId}</span>
@@ -302,7 +304,7 @@ function generateHistoryCardHTML(order) {
 
             <div style="text-align: right; min-width: 90px; padding-left: 10px;">
                 <div style="font-size: 1.2rem; font-weight: bold; color: #333; margin-bottom: 5px;">¥${totalAmount.toLocaleString()}</div>
-                <button class="btn-toggle-detail" style="cursor: pointer; padding: 5px 10px; background-color: #17a2b8; color: white; border: none; border-radius: 4px; font-size: 0.85rem;">
+                <button class="btn-toggle-detail" style="cursor: pointer; padding: 5px 10px; background-color: #dfe3e6; color: #111827; border: 1px solid #c5cdd5; border-radius: 4px; font-size: 0.85rem;">
                     詳細 ▼
                 </button>
             </div>

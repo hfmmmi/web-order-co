@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", function () {
             activeSelect.value = isActive ? "true" : "false";
         }
         codeInput.readOnly = true;
-        codeInput.style.backgroundColor = "#e9ecef";
+        codeInput.style.backgroundColor = "#f3f4f6";
         isEditMode = true;
         if (deleteToolBtn) deleteToolBtn.style.display = "inline-flex";
         setTabLabel("商品登録（編集）");
@@ -121,7 +121,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!sessionListEl) return;
         if (sessionAdded.length === 0) {
             sessionListEl.innerHTML =
-                "<p style=\"margin:0; color:#888; font-size:0.88rem;\">まだありません。「保存」で新規登録するとここに表示されます。</p>";
+                "<p style=\"margin:0; color:#6b7280; font-size:0.88rem;\">まだありません。「保存」で新規登録するとここに表示されます。</p>";
             return;
         }
         const rows = sessionAdded
@@ -150,7 +150,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function renderReferenceList(products) {
         if (!refListEl) return;
         if (products.length === 0) {
-            refListEl.innerHTML = "<p style=\"margin:0; color:#888;\">商品がありません</p>";
+            refListEl.innerHTML = "<p style=\"margin:0; color:#6b7280;\">商品がありません</p>";
             return;
         }
         const limit = 150;
@@ -166,13 +166,13 @@ document.addEventListener("DOMContentLoaded", function () {
             )
             .join("");
         if (products.length > limit) {
-            refListEl.innerHTML += `<p style="margin:8px 0 0; color:#666; font-size:0.85rem;">先頭 ${limit} 件を表示しています。検索で絞り込んでください。</p>`;
+            refListEl.innerHTML += `<p style="margin:8px 0 0; color:#4b5563; font-size:0.85rem;">先頭 ${limit} 件を表示しています。検索で絞り込んでください。</p>`;
         }
     }
 
     async function fetchProductList() {
         if (!refListEl) return;
-        refListEl.innerHTML = "<p style=\"margin:0; color:#888;\">読み込み中…</p>";
+        refListEl.innerHTML = "<p style=\"margin:0; color:#6b7280;\">読み込み中…</p>";
         try {
             const response = await adminApiFetch("/api/admin/products");
             if (response.status === 401) {

@@ -282,7 +282,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 </div>
                 <div class="admin-product-row-actions">
                     ${rankBtnHtml}
-                    <button type="button" class="btn-edit-row" style="box-sizing: border-box; padding: 6px 10px; background: #a1d8e6; color: #111827; border: 1px solid #a1d8e6; border-radius: 6px; flex-shrink: 0; font-weight: 600; font-size: 0.75rem; font-family: inherit; line-height: 1.25; cursor: pointer; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); display: inline-flex; align-items: center; justify-content: center;">編集</button>
+                    <button type="button" class="btn-edit-row" style="box-sizing: border-box; padding: 6px 10px; background: #dfe3e6; color: #111827; border: 1px solid #c5cdd5; border-radius: 6px; flex-shrink: 0; font-weight: 600; font-size: 0.75rem; font-family: inherit; line-height: 1.25; cursor: pointer; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); display: inline-flex; align-items: center; justify-content: center;">編集</button>
                 </div>
             `;
 

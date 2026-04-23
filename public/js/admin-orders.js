@@ -1019,7 +1019,8 @@ document.addEventListener("DOMContentLoaded", function () {
         detTr.style.display = isHidden ? "table-row" : "none";
         if (toggleBtn) {
             toggleBtn.textContent = isHidden ? "閉じる ▲" : "詳細 ▼";
-            toggleBtn.style.backgroundColor = "#a1d8e6";
+            toggleBtn.style.backgroundColor = "#dfe3e6";
+            toggleBtn.style.borderColor = "#c5cdd5";
             toggleBtn.setAttribute("aria-expanded", isHidden ? "true" : "false");
         }
         const tbody = sumTr && sumTr.closest("tbody");
@@ -1036,7 +1037,8 @@ document.addEventListener("DOMContentLoaded", function () {
             });
             orderListContainer.querySelectorAll(".btn-toggle-detail").forEach(function (btn) {
                 btn.textContent = "詳細 ▼";
-                btn.style.backgroundColor = "#a1d8e6";
+                btn.style.backgroundColor = "#dfe3e6";
+                btn.style.borderColor = "#c5cdd5";
                 btn.setAttribute("aria-expanded", "false");
             });
             orderListContainer.querySelectorAll(".orders-list-table tbody").forEach(syncOrderSummaryRowDimming);

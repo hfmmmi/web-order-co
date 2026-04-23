@@ -78,15 +78,13 @@ class KaitoriView {
                     badgeClass = "badge-danger";
                     badgeStyle = "background-color: #dc3545 !important; color: white !important; font-weight: bold;";
                 } else if (status === "査定中") {
-                    badgeClass = "badge-warning";
-                    badgeStyle = "color: #fff !important; background-color: #ff7575 !important;";
-                } else if (status === "保留") {
                     badgeClass = "badge-info";
-                    badgeStyle = "color: #111827 !important; background-color: #fff !important; border: 1px solid #e5e7eb !important;";
-                } else if (status === "成立") {
-                    // 「現在の依頼」見出しアクセント・.badge-warning と同じ #a1d8e6
-                    badgeClass = "badge-warning";
-                    badgeStyle = "";
+                    badgeStyle =
+                        "color: #111827 !important; background-color: #d6e7f1 !important; border: 1px solid #b0cde5 !important; font-weight: 600;";
+                } else if (status === "保留" || status === "成立") {
+                    badgeClass = "badge-info";
+                    badgeStyle =
+                        "color: #111827 !important; background-color: #fff !important; border: 1px solid #e5e7eb !important;";
                 }
 
                 statusCellHtml = `<td><span class="badge ${badgeClass}" style="${badgeStyle}">${status}</span></td>`;
@@ -185,7 +183,7 @@ class KaitoriView {
         const trAdd = document.createElement("tr");
         trAdd.innerHTML = `
             <td colspan="5" style="text-align:center; padding-top:10px;">
-                <button type="button" class="btn-add-item-osaka" style="cursor:pointer; margin-right:10px; background:#d9f0f5; border:1px solid #a1d8e6; color:#1e4d59; padding:6px 10px; border-radius:8px;">＋ 大阪へ追加</button>
+                <button type="button" class="btn-add-item-osaka" style="cursor:pointer; margin-right:10px; background:#d6e7f1; border:1px solid #b0cde5; color:#1e293b; padding:6px 10px; border-radius:8px;">＋ 大阪へ追加</button>
                 <button type="button" class="btn-add-item-hyogo" style="cursor:pointer; background:#eef2ff; border:1px solid #6366f1; color:#4338ca; padding:6px 10px; border-radius:8px;">＋ 兵庫へ追加</button>
             </td>`;
         this.mItemList.appendChild(trAdd);

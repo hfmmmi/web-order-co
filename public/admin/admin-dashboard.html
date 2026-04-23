@@ -74,41 +74,15 @@
             height: 18px;
         }
 
-        h3.dashboard-section-title {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        h3.dashboard-section-title .admin-page-icon {
-            margin-right: 0;
-            flex-shrink: 0;
-            color: #9ca3af;
-        }
-
-        h3.dashboard-section-title .admin-page-icon svg {
-            width: 18px;
-            height: 18px;
-        }
-
         .dashboard-analytics p {
             margin: 0;
             font-size: 0.9rem;
         }
 
-        .dashboard-section-title {
-            margin: 0 0 16px 0;
-            font-size: 0.82rem;
-            font-weight: 600;
-            color: #6b7280;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-        }
-
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 18px;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px;
         }
 
         .dash-card {
@@ -139,15 +113,27 @@
             bottom: 0;
             width: 5px;
             border-radius: 12px 0 0 12px;
+            background: #dfe3e6;
         }
 
         .dash-card-inner {
             display: flex;
             align-items: center;
             gap: 0;
-            padding: 18px 20px 18px 22px;
-            min-height: 72px;
+            padding: 20px 22px 20px 24px;
+            min-height: 82px;
             box-sizing: border-box;
+        }
+
+        .dashboard-surface .dash-card-icon {
+            width: 3rem;
+            height: 3rem;
+            margin-right: 16px;
+        }
+
+        .dashboard-surface .dash-card-icon svg {
+            width: 24px;
+            height: 24px;
         }
 
         .dash-card-body {
@@ -156,8 +142,8 @@
         }
 
         .dash-card-body h3 {
-            margin: 0 0 6px 0;
-            font-size: 1rem;
+            margin: 0 0 7px 0;
+            font-size: 1.125rem;
             font-weight: 700;
             color: #111827;
             line-height: 1.35;
@@ -166,12 +152,12 @@
         .dash-card-body p {
             margin: 0 0 8px 0;
             color: #6b7280;
-            font-size: 0.875rem;
+            font-size: 0.9375rem;
             line-height: 1.45;
         }
 
         .dash-card .stat-value {
-            font-size: 0.9rem;
+            font-size: 1rem;
             font-weight: 600;
             color: #4b5563;
             display: block;
@@ -182,15 +168,11 @@
             flex-shrink: 0;
             margin-left: 12px;
             color: #9ca3af;
-            font-size: 1.35rem;
+            font-size: 1.5rem;
             font-weight: 300;
             line-height: 1;
         }
 
-        .card-orders .dash-card-accent { background: #22c55e; }
-        .card-kaitori .dash-card-accent { background: #eab308; }
-        .card-support .dash-card-accent { background: #ec4899; }
-        .card-system .dash-card-accent { background: #38bdf8; }
     </style>
 </head>
 <body>
@@ -210,7 +192,6 @@
                 <p>売上推移・利益率分析グラフ (Coming Soon in Phase 4)</p>
             </section>
 
-            <h3 class="dashboard-section-title"><span class="admin-page-icon" data-admin-icon="quickSection" aria-hidden="true"></span>Quick Access &amp; Status</h3>
             <div class="dashboard-grid" id="dashboard-cards">
                 <div class="dash-card card-orders" data-feature="adminOrders" onclick="location.href='admin-orders.html'" role="link" tabindex="0" onkeydown="if(event.key==='Enter')location.href='admin-orders.html'">
                     <div class="dash-card-accent" aria-hidden="true"></div>

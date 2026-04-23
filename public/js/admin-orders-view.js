@@ -74,14 +74,14 @@
             statusColor = "#ffffff";
             statusFg = "inherit";
             statusBorder = "#e5e7eb";
-        } else if (order.status === "一部発送") {
-            statusColor = "#ff7575";
-            statusFg = "#ffffff";
-            statusBorder = "#e86666";
+        } else if (order.status === "一部発送" || !order.status || order.status === "未発送") {
+            statusColor = "#d6e7f1";
+            statusFg = "#111827";
+            statusBorder = "#b0cde5";
         } else {
-            statusColor = "#ff7575";
-            statusFg = "#ffffff";
-            statusBorder = "#e86666";
+            statusColor = "#e5e7eb";
+            statusFg = "#374151";
+            statusBorder = "#d1d5db";
         }
 
         // 連携ステータス表示（一覧は記号のみ／title で補足）
@@ -147,7 +147,7 @@
             <td class="col-numeric"><strong>¥${totalAmount.toLocaleString()}</strong></td>
             <td class="col-export">${exportBadge}</td>
             <td class="col-action">
-                <button type="button" class="btn-toggle-detail" style="box-sizing: border-box; padding: 4px 10px; background: #a1d8e6; color: #111827; border: 1px solid #a1d8e6; border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-weight: 600; font-family: inherit; line-height: 1.25; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); display: inline-flex; align-items: center; justify-content: center;">
+                <button type="button" class="btn-toggle-detail" style="box-sizing: border-box; padding: 4px 10px; background: #dfe3e6; color: #111827; border: 1px solid #c5cdd5; border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-weight: 600; font-family: inherit; line-height: 1.25; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); display: inline-flex; align-items: center; justify-content: center;">
                     詳細 ▼
                 </button>
             </td>`;
@@ -327,7 +327,7 @@
                         削除
                     </button>
                 </div>
-                <button type="button" class="btn-register-shipment" style="background:#a1d8e6; color:#111827; border:none; padding:8px 20px; border-radius:8px; font-weight:bold; cursor:pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+                <button type="button" class="btn-register-shipment" style="background:#d6e7f1; color:#111827; border:1px solid #b0cde5; padding:8px 20px; border-radius:8px; font-weight:bold; cursor:pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
                     出荷確定
                 </button>
             </div>

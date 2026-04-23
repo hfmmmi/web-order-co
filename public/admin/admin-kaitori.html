@@ -63,7 +63,7 @@
 
         .kaitori-section-title-accent {
             margin: 0;
-            border-left: 5px solid #a1d8e6;
+            border-left: 5px solid #dfe3e6;
             padding-left: 10px;
         }
 
@@ -162,11 +162,16 @@
         }
 
         #btn-add-kaitori-item.kaitori-btn--primary {
-            background: #b7dbff !important;
+            background: #dfe3e6 !important;
             color: #111827 !important;
+            border: 1px solid #c5cdd5 !important;
         }
 
-        /* アクティブサブタブの枠は #a1d8e6 に合わせる */
+        #btn-add-kaitori-item.kaitori-btn--primary:hover:not(:disabled) {
+            filter: brightness(0.97);
+        }
+
+        /* アクティブサブタブ（受注の「詳細」系アクセント色に合わせる） */
         .kaitori-btn-csv-excel {
             flex: 0 0 auto;
             width: auto;
@@ -350,9 +355,9 @@
         }
 
         .sub-tab-btn.active {
-            background: #a1d8e6;
+            background: #dfe3e6;
             color: #111827;
-            border-color: #a1d8e6;
+            border-color: #c5cdd5;
         }
 
         .sub-view {
@@ -513,8 +518,8 @@
         }
 
         .badge-warning {
-            background-color: #a1d8e6;
-            color: #212529;
+            background-color: #dfe3e6;
+            color: #111827;
         }
 
         .badge-success {
@@ -526,7 +531,8 @@
         }
 
         .badge-info {
-            background-color: #17a2b8;
+            background-color: #d6e7f1;
+            color: #111827;
         }
 
         /* モーダル用CSS (簡易版) */
@@ -728,7 +734,7 @@
                     </table>
                 </div>
 
-                <div style="background:#d9f0f5; padding:16px; border-radius:12px; border:1px solid #a1d8e6;">
+                <div style="background:#d6e7f1; padding:16px; border-radius:12px; border:1px solid #b0cde5;">
                     <label style="font-weight:600; font-size:0.9rem; display:block; margin-bottom:8px; color:#374151;">⚙️ ステータス操作</label>
                     <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom: 10px;">
                         <select id="m-status-select"

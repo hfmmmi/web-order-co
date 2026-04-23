@@ -215,7 +215,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         <input type="text" id="historyLog-${ticketId}" placeholder="例: 電話で謝罪、代替品手配済み..." style="flex:1; padding:5px;">
                     </div>
                     <div style="display:flex; justify-content:flex-end; margin-top:1em;">
-                        <button type="button" onclick="updateTicket('${ticketId}')" style="width:max-content; box-sizing:border-box; padding:8px 1ch; background:#b7dbff; color:#111827; border:none; border-radius:4px; cursor:pointer; font-weight:bold; font-size:0.8125rem; font-family:inherit;">
+                        <button type="button" onclick="updateTicket('${ticketId}')" style="width:max-content; box-sizing:border-box; padding:8px 1ch; background:#dfe3e6; color:#111827; border:1px solid #c5cdd5; border-radius:4px; cursor:pointer; font-weight:bold; font-size:0.8125rem; font-family:inherit;">
                             更新・履歴追加
                         </button>
                     </div>
