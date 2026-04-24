@@ -26,6 +26,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const cmEmail = document.getElementById("cm-email");
     const cmRank = document.getElementById("cm-rank");
     const cmPassNote = document.getElementById("cm-pass-note");
+    const cmPassRequiredStar = document.getElementById("cm-pass-required-star");
     const cmDeliveryName = document.getElementById("cm-delivery-name");
     const cmDeliveryZip = document.getElementById("cm-delivery-zip");
     const cmDeliveryAddress = document.getElementById("cm-delivery-address");
@@ -456,7 +457,10 @@ document.addEventListener("DOMContentLoaded", function () {
             cmTitle.textContent = "新規追加";
             cmId.readOnly = false;
             cmId.style.backgroundColor = "white";
-            cmPassNote.textContent = "(必須)";
+            if (cmPassRequiredStar) cmPassRequiredStar.style.display = "inline";
+            if (cmPassNote) {
+                cmPassNote.textContent = "";
+            }
 
             cmId.value = "";
             cmName.value = "";
@@ -471,7 +475,10 @@ document.addEventListener("DOMContentLoaded", function () {
             cmTitle.textContent = "顧客情報編集";
             cmId.readOnly = true;
             cmId.style.backgroundColor = "#e9ecef";
-            cmPassNote.textContent = "(空欄なら変更なし)";
+            if (cmPassRequiredStar) cmPassRequiredStar.style.display = "none";
+            if (cmPassNote) {
+                cmPassNote.textContent = "(空欄なら変更なし)";
+            }
 
             cmId.value = data.id;
             cmName.value = data.name;
@@ -506,7 +513,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             // バリデーション
             if (mode === "add" && !payload.password) {
-                toastWarning("新規登録時はパスワードが必須です");
+                toastWarning("新規登録時はパスワードを入力してください");
                 return;
             }
 

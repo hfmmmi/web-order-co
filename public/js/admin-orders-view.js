@@ -12,6 +12,13 @@
             .replace(/</g, "&lt;");
     }
 
+    function escapeHtml(str) {
+        return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+    }
+
     /**
      * 注文日などを YYYY/MM/DD で表示（時刻なし）。一覧フィルタの JST 日付扱いに合わせる。
      */
@@ -155,6 +162,13 @@
         let dateDisplay = info.date || "指定なし";
         if(info.dateUnknown) dateDisplay = `<span style="color:#ef4444; font-weight:bold;">⚠ 確約不可</span>`;
 
+        const noteTrimmed = info.note != null ? String(info.note).trim() : "";
+        const noteSectionHtml = noteTrimmed
+            ? `<div style="margin:10px 0 0 0; padding:15px; background:#f9fafb; border-radius: 8px; border:1px solid #e5e7eb;">
+                <div><strong>備考：</strong> ${escapeHtml(noteTrimmed)}</div>
+            </div>`
+            : "";
+
         const detailContent = `
             <div style="margin:10px 0; padding:15px; background:#f9fafb; border-radius: 8px; border:1px solid #e5e7eb;">
                 <div style="display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px 20px; align-items:start;">
@@ -163,9 +177,7 @@
                 </div>
             </div>
             ${tableHTML}
-            <div style="margin:10px 0 0 0; padding:15px; background:#f9fafb; border-radius: 8px; border:1px solid #e5e7eb;">
-                <div><strong>備考：</strong> ${info.note || "なし"}</div>
-            </div>
+            ${noteSectionHtml}
         `;
 
         return { summaryCellsHtml: summaryCellsHtml, detailContent: detailContent };

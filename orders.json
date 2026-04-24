@@ -687,7 +687,7 @@
     "items": [
       {
         "code": "J6400S",
-        "name": "RICOH ﾄﾅｰｶｰﾄﾘｯｼﾞ6400S【600574】2本入り (純正)",
+        "name": "RICOH ﾄﾅｰｶｰﾄﾘｯｼﾞ6400S【600574】2本入り",
         "price": 28000,
         "quantity": 1
       }
@@ -698,7 +698,14 @@
       "tel": "0268752815",
       "address": "長野県上田市保野1039-13",
       "name": "ひふみマネジメント株式会社",
-      "note": " (宛名: ひふみマネジメント株式会社, TEL: 0268752815)"
+      "note": "",
+      "clientOrderNumber": "",
+      "shipper": {
+        "zip": "",
+        "address": "",
+        "name": "",
+        "tel": ""
+      }
     },
     "status": "発送済",
     "deliveryCompany": "佐川",

@@ -346,13 +346,6 @@ document.addEventListener("DOMContentLoaded", function () {
             .replace(/>/g, "&gt;");
     }
 
-    function escTextareaOrderEdit(s) {
-        return String(s == null ? "" : s)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;");
-    }
-
     let orderDetailsEditorEls = null;
 
     function ensureOrderDetailsEditorModal() {
@@ -362,7 +355,7 @@ document.addEventListener("DOMContentLoaded", function () {
         wrap.style.cssText = "display:none;position:fixed;inset:0;z-index:9999;";
         wrap.innerHTML =
             '<div class="admin-order-edit-backdrop" style="position:absolute;inset:0;background:rgba(15,23,42,0.45);cursor:pointer;"></div>' +
-            '<div class="admin-order-edit-panel" style="position:relative;max-width:760px;margin:32px auto;background:#fff;border-radius:12px;max-height:calc(100vh - 64px);overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,0.18);">' +
+            '<div class="admin-order-edit-panel" style="position:relative;max-width:920px;margin:32px auto;background:#fff;border-radius:12px;max-height:calc(100vh - 64px);overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,0.18);">' +
             '<div style="padding:18px 22px;border-bottom:1px solid #e5e7eb;">' +
             '<h3 style="margin:0;font-size:1.1rem;color:#111827;">注文内容の編集</h3>' +
             '<div style="font-size:0.85rem;color:#64748b;margin-top:6px;">注文ID <span data-oe="order-id"></span></div></div>' +
@@ -393,27 +386,16 @@ document.addEventListener("DOMContentLoaded", function () {
         orderDetailsEditorEls.currentOrder = null;
     }
 
-    function oeDeliveryField(label, key, value, multiline) {
+    function oeDeliveryField(label, key, value) {
         const k = escAttrOrderEdit(key);
-        if (multiline) {
-            return (
-                '<label style="display:flex;flex-direction:column;gap:4px;font-size:0.8rem;font-weight:600;color:#374151;"><span>' +
-                label +
-                '</span><textarea data-oe-delivery="' +
-                k +
-                '" rows="2" style="padding:8px;border:1px solid #e5e7eb;border-radius:8px;resize:vertical;font-family:inherit;font-size:0.85rem;">' +
-                escTextareaOrderEdit(value) +
-                "</textarea></label>"
-            );
-        }
         return (
-            '<label style="display:flex;flex-direction:column;gap:4px;font-size:0.8rem;font-weight:600;color:#374151;"><span>' +
+            '<label style="display:flex;flex-direction:column;gap:4px;font-size:0.8rem;font-weight:600;color:#374151;min-width:0;"><span>' +
             label +
             '</span><input type="text" data-oe-delivery="' +
             k +
             '" value="' +
             escAttrOrderEdit(value) +
-            '" style="padding:8px;border:1px solid #e5e7eb;border-radius:8px;font-size:0.85rem;box-sizing:border-box;"></label>'
+            '" style="width:100%;min-width:0;padding:8px;border:1px solid #e5e7eb;border-radius:8px;font-size:0.85rem;box-sizing:border-box;font-family:inherit;"></label>'
         );
     }
 
@@ -463,13 +445,17 @@ document.addEventListener("DOMContentLoaded", function () {
             '<fieldset style="border:1px solid #e5e7eb;border-radius:8px;padding:12px;margin:0 0 14px;">' +
             '<legend style="font-weight:700;font-size:0.9rem;padding:0 6px;">納品先</legend>' +
             '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;">' +
-            oeDeliveryField("納品先氏名", "name", info.name || "", false) +
-            oeDeliveryField("郵便番号", "zip", info.zip || "", false) +
-            oeDeliveryField("住所", "address", info.address || "", true) +
-            oeDeliveryField("電話番号", "tel", info.tel || "", false) +
-            oeDeliveryField("納品日（表示用）", "date", info.date || "", false) +
-            oeDeliveryField("備考", "note", info.note || "", true) +
-            oeDeliveryField("貴社発注番号", "clientOrderNumber", info.clientOrderNumber || "", false) +
+            oeDeliveryField("納品先氏名", "name", info.name || "") +
+            oeDeliveryField("郵便番号", "zip", info.zip || "") +
+            oeDeliveryField("電話番号", "tel", info.tel || "") +
+            '</div>' +
+            '<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-top:10px;align-items:stretch;">' +
+            oeDeliveryField("住所", "address", info.address || "") +
+            oeDeliveryField("備考", "note", info.note || "") +
+            '</div>' +
+            '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:10px;">' +
+            oeDeliveryField("納品日（表示用）", "date", info.date || "") +
+            oeDeliveryField("貴社発注番号", "clientOrderNumber", info.clientOrderNumber || "") +
             "</div></fieldset>" +
             '<fieldset style="border:1px solid #e5e7eb;border-radius:8px;padding:12px;margin:0 0 14px;">' +
             '<legend style="font-weight:700;font-size:0.9rem;padding:0 6px;">荷主（ご依頼主）</legend>' +

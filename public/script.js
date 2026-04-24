@@ -66,6 +66,32 @@ window.toastWarning = (msg, duration) => window.showToast(msg, 'warning', durati
 window.toastInfo = (msg, duration) => window.showToast(msg, 'info', duration);
 
 // --- 🛡️ 1. セッション切れ監視 (検問所システム: Global Scope) ---
+function getFetchRequestUrlString(input) {
+    if (typeof input === "string") return input;
+    if (typeof Request !== "undefined" && input instanceof Request) return input.url;
+    if (input && typeof input === "object" && typeof input.url === "string") return input.url;
+    return "";
+}
+
+/** 顧客セッション必須APIで、管理者ログイン中など「顧客IDが無いだけ」の401 — 管理セッションは有効なので再ログイン誘導しない */
+function isCustomerOnlyAuth401Passthrough(requestUrlString) {
+    if (!requestUrlString) return false;
+    try {
+        const pathname = new URL(requestUrlString, window.location.origin).pathname;
+        const normalized = pathname.length > 1 && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+        const set = new Set([
+            "/api/account/proxy-request",
+            "/api/account/proxy-request/approve",
+            "/api/account/proxy-request/reject",
+            "/support/my-tickets",
+            "/request-support"
+        ]);
+        return set.has(normalized);
+    } catch (e) {
+        return false;
+    }
+}
+
 const originalFetch = window.fetch;
 window.fetch = async (...args) => {
     try {
@@ -77,6 +103,10 @@ window.fetch = async (...args) => {
         
         // 「権限なし(401)」＝期限切れ or システム再起動などでセッションが無効になった場合
         if (response.status === 401 && !isLoginPage) {
+            const reqUrl = getFetchRequestUrlString(args[0]);
+            if (isCustomerOnlyAuth401Passthrough(reqUrl)) {
+                return response;
+            }
             if (!window.isRedirecting) {
                 window.isRedirecting = true;
                 alert("再ログインが必要です。\n（長時間の無操作やシステム更新によりセッションが切れた場合があります）\n\nログイン画面に移動します。");

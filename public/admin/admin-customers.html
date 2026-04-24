@@ -211,6 +211,29 @@
             from { transform: translateY(-20px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
+
+        #customer-modal .cm-required {
+            color: #dc2626;
+            font-weight: 700;
+            margin-left: 2px;
+        }
+
+        #customer-modal #cm-btn-save {
+            width: 100%;
+            padding: 10px;
+            background: #d6e7f1;
+            color: #111827;
+            border: 1px solid #b0cde5;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            box-sizing: border-box;
+        }
+
+        #customer-modal #cm-btn-save:hover:not(:disabled) {
+            background: #c5dceb;
+        }
     </style>
 </head>
 <body>
@@ -268,19 +291,19 @@
                 <form id="cm-form">
                     <input type="hidden" id="cm-mode" value="add"> 
                     
-                    <label style="display:block; font-weight:bold; margin-bottom:5px;">顧客ID (必須・変更不可)</label>
+                    <label for="cm-id" style="display:block; font-weight:bold; margin-bottom:5px;">顧客ID<span class="cm-required" aria-hidden="true">*</span><span style="font-weight:600; color:#6b7280; font-size:0.9em;">（変更不可）</span></label>
                     <input type="text" id="cm-id" required style="width:100%; padding:8px; margin-bottom:10px; box-sizing: border-box;">
 
-                    <label style="display:block; font-weight:bold; margin-bottom:5px;">顧客名 (必須)</label>
+                    <label for="cm-name" style="display:block; font-weight:bold; margin-bottom:5px;">顧客名<span class="cm-required" aria-hidden="true">*</span></label>
                     <input type="text" id="cm-name" required style="width:100%; padding:8px; margin-bottom:10px; box-sizing: border-box;">
 
-                    <label style="display:block; font-weight:bold; margin-bottom:5px;">パスワード <span id="cm-pass-note" style="font-size:0.8rem; color:red;"></span></label>
+                    <label for="cm-password" style="display:block; font-weight:bold; margin-bottom:5px;">パスワード<span id="cm-pass-required-star" class="cm-required" style="display:none;" aria-hidden="true">*</span> <span id="cm-pass-note" style="font-size:0.8rem; color:#6b7280;"></span></label>
                     <input type="text" id="cm-password" style="width:100%; padding:8px; margin-bottom:10px; box-sizing: border-box;">
 
-                    <label style="display:block; font-weight:bold; margin-bottom:5px;">メールアドレス</label>
+                    <label for="cm-email" style="display:block; font-weight:bold; margin-bottom:5px;">メールアドレス</label>
                     <input type="email" id="cm-email" placeholder="招待メール送信先（任意）" style="width:100%; padding:8px; margin-bottom:10px; box-sizing: border-box;">
 
-                    <label style="display:block; font-weight:bold; margin-bottom:5px;">価格ランク</label>
+                    <label for="cm-rank" style="display:block; font-weight:bold; margin-bottom:5px;">価格ランク</label>
                     <input type="text" id="cm-rank" placeholder="A, B, C... または空欄" list="rank-list" style="width:100%; padding:8px; margin-bottom:10px; box-sizing: border-box;">
                     <datalist id="rank-list">
                         <option value="A"></option>
@@ -294,16 +317,16 @@
                     </datalist>
 
                     <p style="font-size:0.85rem; color:#555; margin:0 0 8px 0; line-height:1.4;">納品先（新規受注で「顧客マスタを反映」に使用）</p>
-                    <label style="display:block; font-weight:bold; margin-bottom:5px;">納品先名</label>
+                    <label for="cm-delivery-name" style="display:block; font-weight:bold; margin-bottom:5px;">納品先名</label>
                     <input type="text" id="cm-delivery-name" maxlength="100" style="width:100%; padding:8px; margin-bottom:10px; box-sizing: border-box;">
-                    <label style="display:block; font-weight:bold; margin-bottom:5px;">納品先 郵便番号</label>
+                    <label for="cm-delivery-zip" style="display:block; font-weight:bold; margin-bottom:5px;">郵便番号</label>
                     <input type="text" id="cm-delivery-zip" maxlength="20" inputmode="numeric" style="width:100%; padding:8px; margin-bottom:10px; box-sizing: border-box;">
-                    <label style="display:block; font-weight:bold; margin-bottom:5px;">納品先 住所</label>
+                    <label for="cm-delivery-address" style="display:block; font-weight:bold; margin-bottom:5px;">住所</label>
                     <input type="text" id="cm-delivery-address" maxlength="300" style="width:100%; padding:8px; margin-bottom:10px; box-sizing: border-box;">
-                    <label style="display:block; font-weight:bold; margin-bottom:5px;">納品先 電話</label>
+                    <label for="cm-delivery-tel" style="display:block; font-weight:bold; margin-bottom:5px;">電話</label>
                     <input type="text" id="cm-delivery-tel" maxlength="30" style="width:100%; padding:8px; margin-bottom:20px; box-sizing: border-box;">
 
-                    <button type="submit" style="width:100%; padding:10px; background:#007bff; color:white; border:none; font-weight:bold; border-radius:4px; cursor:pointer;">保存</button>
+                    <button type="submit" id="cm-btn-save">保存</button>
                 </form>
             </div>
         </div>

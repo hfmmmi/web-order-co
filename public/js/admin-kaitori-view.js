@@ -147,17 +147,6 @@ class KaitoriView {
 
     renderEditableItems(req, onCalculate, onDeleteItem) {
         this.mItemList.innerHTML = "";
-        
-        // ヘッダー
-        const thRow = document.createElement("tr");
-        thRow.innerHTML = `
-            <th style="text-align:left;">商品名</th>
-            <th style="width:80px;">単価</th>
-            <th style="width:60px;">数量</th>
-            <th style="width:80px;">小計</th>
-            <th style="width:40px;"></th>
-        `;
-        this.mItemList.appendChild(thRow);
 
         const itemsWithIndex = req.items.map((item, index) => ({ item, index }));
         const hyogoGroup = itemsWithIndex.filter(x => x.item.destination === "兵庫");
@@ -166,7 +155,7 @@ class KaitoriView {
         // 兵庫グループ描画
         if (hyogoGroup.length > 0) {
             const hRow = document.createElement("tr");
-            hRow.innerHTML = `<td colspan="5" style="background:#eef2ff; font-weight:600; color:#4338ca; padding:10px 12px; font-size:0.9rem;">⚓ 兵庫納品分 (${hyogoGroup.length}件)</td>`;
+            hRow.innerHTML = `<td colspan="5" style="background:#f1f3f4; font-weight:600; color:#374151; padding:10px 12px; font-size:0.9rem;">兵庫納品分 (${hyogoGroup.length}件)</td>`;
             this.mItemList.appendChild(hRow);
             hyogoGroup.forEach(x => this.mItemList.appendChild(this._createEditableRow(x.item, x.index, onCalculate, onDeleteItem)));
         }
@@ -174,7 +163,7 @@ class KaitoriView {
         // 大阪グループ描画
         if (osakaGroup.length > 0) {
             const oRow = document.createElement("tr");
-            oRow.innerHTML = `<td colspan="5" style="background:#d9f0f5; font-weight:600; color:#1e4d59; padding:10px 12px; font-size:0.9rem;">🏢 大阪納品分 (${osakaGroup.length}件)</td>`;
+            oRow.innerHTML = `<td colspan="5" style="background:#f1f3f4; font-weight:600; color:#374151; padding:10px 12px; font-size:0.9rem;">大阪納品分 (${osakaGroup.length}件)</td>`;
             this.mItemList.appendChild(oRow);
             osakaGroup.forEach(x => this.mItemList.appendChild(this._createEditableRow(x.item, x.index, onCalculate, onDeleteItem)));
         }
@@ -183,8 +172,8 @@ class KaitoriView {
         const trAdd = document.createElement("tr");
         trAdd.innerHTML = `
             <td colspan="5" style="text-align:center; padding-top:10px;">
-                <button type="button" class="btn-add-item-osaka" style="cursor:pointer; margin-right:10px; background:#d6e7f1; border:1px solid #b0cde5; color:#1e293b; padding:6px 10px; border-radius:8px;">＋ 大阪へ追加</button>
-                <button type="button" class="btn-add-item-hyogo" style="cursor:pointer; background:#eef2ff; border:1px solid #6366f1; color:#4338ca; padding:6px 10px; border-radius:8px;">＋ 兵庫へ追加</button>
+                <button type="button" class="btn-add-item-osaka" style="cursor:pointer; margin-right:10px; background:transparent; border:1px solid #d1d5db; color:#111827; padding:6px 10px; border-radius:8px; font-weight:600;">＋ 大阪へ追加</button>
+                <button type="button" class="btn-add-item-hyogo" style="cursor:pointer; background:transparent; border:1px solid #d1d5db; color:#111827; padding:6px 10px; border-radius:8px; font-weight:600;">＋ 兵庫へ追加</button>
             </td>`;
         this.mItemList.appendChild(trAdd);
     }
@@ -222,9 +211,10 @@ class KaitoriView {
 
         const tdDel = document.createElement("td");
         const btnDel = document.createElement("button");
+        btnDel.type = "button";
+        btnDel.className = "kaitori-item-delete-btn";
+        btnDel.setAttribute("aria-label", "この行を削除");
         btnDel.textContent = "×";
-        btnDel.style.color = "red";
-        btnDel.style.cursor = "pointer";
         btnDel.onclick = () => onDeleteItem(index);
         tdDel.appendChild(btnDel);
 
@@ -279,7 +269,7 @@ class KaitoriView {
         document.getElementById("km-price").value = item ? item.price : 0;
         document.getElementById("km-destination").value = item ? item.destination : "大阪";
         const delBtn = document.getElementById("km-btn-delete");
-        if (delBtn) delBtn.style.display = item ? "block" : "none";
+        if (delBtn) delBtn.style.display = item ? "inline-flex" : "none";
         this.masterModal.style.display = "flex";
     }
 
