@@ -7,13 +7,23 @@
     <title>商品一覧 - WEB受注システム</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* 見積検索用の追加スタイル */
+        /* 受注管理ページ（admin-orders）と同系のニュートラル配色 */
+        body.products-page {
+            background-color: #eef1f5;
+        }
+
+        body.products-page .container {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
         .estimate-section {
-            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            background: #D6E7F1;
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 20px;
-            border: 1px solid #90caf9;
+            border: 1px solid #e5e7eb;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -22,8 +32,8 @@
         }
 
         .estimate-label {
-            font-weight: bold;
-            color: #0d47a1;
+            font-weight: 700;
+            color: #374151;
             display: flex;
             align-items: center;
             gap: 5px;
@@ -35,38 +45,177 @@
             flex-grow: 1;
             max-width: 400px;
         }
-        
-        /* 見積モード時のバナー */
-        .estimate-mode-banner {
-            background-color: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeeba;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            display: none; /* デフォルト非表示 */
+
+        .estimate-input-group input[type="text"] {
+            padding: 8px 10px;
+            flex-grow: 1;
+            border: 1px solid #d1d5db;
+            border-radius: 0;
+            font-size: 0.95rem;
+        }
+
+        .estimate-call-btn {
+            background: #fff;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            padding: 8px 15px;
+            border-radius: 0;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .estimate-call-btn:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+
+        .estimate-hint {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .product-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+            flex-wrap: wrap;
+        }
+
+        .product-tab {
+            padding: 12px 20px;
+            border: 1px solid #d1d5db;
+            background: #fff;
+            color: #374151;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 0;
+            transition: background 0.15s, color 0.15s, border-color 0.15s;
+            margin-bottom: -2px;
+            font-size: 0.95rem;
+        }
+
+        .product-tab:hover {
+            background: #f9fafb;
+        }
+
+        .product-tab.active {
+            background: #374151;
+            color: #fff;
+            border-color: #374151;
+        }
+
+        .control-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 20px;
+            padding: 16px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+
+        .product-frequent-count {
+            display: inline-block;
+            margin-left: 6px;
+            padding: 2px 8px;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+            font-weight: 600;
+        }
+
+        /* 見積モード時のバナー */
+        .estimate-mode-banner {
+            background-color: #f9fafb;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .estimate-mode-banner strong {
+            color: #111827;
+        }
+
+        .estimate-banner-clear {
+            background: #fff;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .estimate-banner-clear:hover {
+            background: #f9fafb;
+        }
+
+        body.products-page #search-result-info {
+            color: #374151;
+        }
+
+        body.products-page .product-table th {
+            background-color: #f9fafb;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+        }
+
+        body.products-page .product-table td {
+            border: 1px solid #e5e7eb;
+        }
+
+        body.products-page .product-table tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+
+        /* 検索・読込ボタンが縦書きにならないよう明示 */
+        body.products-page .search-hero-box #search-btn {
+            white-space: nowrap;
+            writing-mode: horizontal-tb;
+            text-orientation: mixed;
+            flex-shrink: 0;
+            min-width: 4.5em;
+        }
+
+        body.products-page .estimate-input-group #estimate-search-btn {
+            white-space: nowrap;
+            writing-mode: horizontal-tb;
+            text-orientation: mixed;
+            flex-shrink: 0;
+            min-width: 3.5em;
         }
     </style>
 </head>
 
-<body>
+<body class="products-page">
     <nav class="global-nav">
         <a href="products.html" class="nav-logo">
-            <span>🚀 WEB受注システム</span>
+            <span>WEB受注システム</span>
         </a>
         <div class="nav-links">
             <a href="announcements.html" class="nav-item" data-feature="announcements">お知らせ</a>
-            <a href="products.html" class="nav-item" style="color: #ffc107; border-bottom: 2px solid #ffc107;">商品一覧</a>
+            <a href="products.html" class="nav-item nav-item--current">商品一覧</a>
             <a href="history.html" class="nav-item" data-feature="history">注文履歴</a>
-            <a href="kaitori.html" class="nav-item" data-feature="kaitori">💰 空カートリッジ買取</a>
-            <a href="cart.html" class="nav-item nav-cart" data-feature="cart">🛒 カート</a>
+            <a href="kaitori.html" class="nav-item" data-feature="kaitori">空カートリッジ買取</a>
+            <a href="cart.html" class="nav-item nav-cart" data-feature="cart">カート</a>
             <a href="support.html" class="nav-item" data-feature="support">サポート</a>
-            <a href="https://www.e-kaisyu.jp/" target="_blank" style="background-color:#28a745; color:white;" data-feature="collection">♻️
-                回収依頼</a>
+            <a href="https://www.e-kaisyu.jp/" target="_blank" class="nav-item" data-feature="collection">回収依頼</a>
             <a href="account.html" class="nav-item">アカウント設定</a>
-            <a href="#" class="nav-item" id="logout-btn" style="color:#ff6b6b;">ログアウト</a>
+            <a href="#" class="nav-item" id="logout-btn">ログアウト</a>
         </div>
     </nav>
 
@@ -74,28 +223,21 @@
         
         <div class="estimate-section">
             <div class="estimate-label">
-                <span>📑 お見積りをお持ちの方</span>
+                <span>見積書をお持ちの方</span>
             </div>
             <div class="estimate-input-group">
-                <input type="text" id="estimate-input" placeholder="見積番号を入力 (例: 15936)" style="padding: 8px; flex-grow: 1; border: 1px solid #ccc; border-radius: 0;">
-                <button id="estimate-search-btn" style="background: #0d47a1; color: white; border: none; padding: 8px 15px; border-radius: 0; cursor: pointer; font-weight: bold;">呼び出し</button>
+                <input type="text" id="estimate-input" placeholder="見積番号を入力 (例: 15936)">
+                <button type="button" id="estimate-search-btn" class="estimate-call-btn">読込</button>
             </div>
-            <div style="font-size: 0.8rem; color: #555;">
+            <div class="estimate-hint">
                 ※有効期限内の見積のみ表示されます
             </div>
         </div>
 
-        <!-- ★タブ切り替えUI -->
-        <div class="product-tabs" style="display: flex; gap: 0; margin-bottom: 15px; border-bottom: 2px solid #dee2e6;">
-            <button class="product-tab active" data-tab="all" style="padding: 12px 24px; border: none; background: #007bff; color: white; font-weight: bold; cursor: pointer; border-radius: 0; transition: all 0.2s;">
-                📦 全商品
-            </button>
-            <button class="product-tab" data-tab="frequent" style="padding: 12px 24px; border: none; background: #e9ecef; color: #495057; font-weight: bold; cursor: pointer; border-radius: 0; transition: all 0.2s;">
-                🔥 よく注文する商品
-            </button>
-            <button class="product-tab" data-tab="favorites" style="padding: 12px 24px; border: none; background: #e9ecef; color: #495057; font-weight: bold; cursor: pointer; border-radius: 0; transition: all 0.2s;">
-                ⭐ お気に入り
-            </button>
+        <div class="product-tabs">
+            <button type="button" class="product-tab active" data-tab="all">全商品</button>
+            <button type="button" class="product-tab" data-tab="frequent">よく注文する商品</button>
+            <button type="button" class="product-tab" data-tab="favorites">お気に入り</button>
         </div>
 
         <div class="control-panel">
@@ -104,25 +246,23 @@
                     <input type="text" id="search-input" placeholder="商品名、型番、メーカーで検索..." autocomplete="off">
                     <span class="clear-input-btn" onclick="document.getElementById('search-input').value=''; document.getElementById('search-input').focus();">×</span>
                 </div>
-                <button id="search-btn">🔍 検索</button>
+                <button type="button" id="search-btn">検索</button>
             </div>
 
-            <a href="/download-my-pricelist" class="btn-download-hero">
-                📥 価格表をダウンロード
-            </a>
+            <a href="pricelist-view.html" target="_blank" rel="noopener noreferrer" class="btn-download-hero">価格表を開く</a>
         </div>
 
         <div id="estimate-mode-banner" class="estimate-mode-banner">
             <div style="flex-grow: 1;">
-                <strong>📑 見積番号 <span id="current-estimate-id"></span> の内容を表示中</strong>
-                <span id="current-estimate-subject" style="margin-left: 15px; color: #6a5a00; font-weight: bold;"></span><br>
-                <small>※ここに表示されている価格は、この見積限定の特別価格です。</small>
-                <small id="current-estimate-valid" style="margin-left: 15px; color: #d32f2f; font-weight: bold;"></small>
+                <strong>見積番号 <span id="current-estimate-id"></span> の内容を表示中</strong>
+                <span id="current-estimate-subject" style="margin-left: 15px; color: #4b5563; font-weight: bold;"></span><br>
+                <small style="color: #6b7280;">※ここに表示されている価格は、この見積限定の特別価格です。</small>
+                <small id="current-estimate-valid" style="margin-left: 15px; color: #b91c1c; font-weight: bold;"></small>
             </div>
-            <button id="clear-estimate-btn" style="background: #856404; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">通常一覧に戻る</button>
+            <button type="button" id="clear-estimate-btn" class="estimate-banner-clear">通常一覧に戻る</button>
         </div>
 
-        <div id="search-result-info" style="margin-bottom: 15px; font-weight: bold; color: #555; font-size: 1rem; padding-left: 5px;">
+        <div id="search-result-info" style="margin-bottom: 15px; font-weight: 700; font-size: 1rem; padding-left: 5px;">
         </div>
 
         <div class="table-container">
@@ -134,7 +274,7 @@
                         <th style="width: 100px;">仕様</th>
                         <th style="width: 90px;">価格</th>
                         <th style="width: 140px;">在庫</th>
-                        <th style="width: 150px;">発注</th>
+                        <th style="width: 178px; min-width: 178px;">発注</th>
                     </tr>
                 </thead>
                 <tbody id="product-list-body">

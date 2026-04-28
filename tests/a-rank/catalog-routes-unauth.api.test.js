@@ -54,4 +54,9 @@ describe("Aランク: catalogRoutes 未認証", () => {
         const res = await request(app).get("/download-my-pricelist");
         expect(res.statusCode).toBe(401);
     });
+
+    test("GET /my-pricelist-data は未ログインで401", async () => {
+        const res = await request(app).get("/my-pricelist-data");
+        expect(res.statusCode).toBe(401);
+    });
 });

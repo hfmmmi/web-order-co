@@ -1,7 +1,16 @@
+/*
+ * 基準文字サイズ：ブラウザ幅を狭めると少しずつ小さく（広いときは最大16px相当）。
+ * px で固定されている箇所は変わらないが、rem / em 指定は連動する。
+ */
+html {
+    font-size: clamp(11px, 0.75vw + 9.5px, 16px);
+}
+
 body {
     background-color: #f0f0f0;
     margin: 0;
     font-family: sans-serif;
+    font-size: 1rem;
 }
 
 .body-login {
@@ -70,14 +79,26 @@ input[type="text"], input[type="password"] {
     border-radius: 4px;
 }
 
+/* 顧客向けメイン領域：デスクトップでは広め、スマホではほぼ全幅 */
 .container {
-    width: 80%;
-    max-width: 900px;
+    width: 94%;
+    max-width: 1320px;
     margin: 20px auto;
     background-color: white;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+    .container {
+        width: 100%;
+        max-width: none;
+        margin: 12px 0;
+        padding: 16px 14px;
+        border-radius: 0;
+    }
 }
 
 .product-list {
@@ -249,19 +270,21 @@ input[type="text"], input[type="password"] {
     justify-content: center;
     font-size: 0.95rem;
     line-height: 1;
-    border: 1px solid #86efac;
+    border: 1px solid #d1d5db;
     border-radius: 2px;
     background: #fff;
-    color: #2563eb;
-    text-decoration: underline;
+    color: #374151;
+    text-decoration: none;
     cursor: pointer;
     font-family: inherit;
-    transition: background 0.15s, color 0.15s;
+    font-weight: 600;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
 .pagination-area .product-pagination__page:hover:not(:disabled) {
     background: #f9fafb;
-    color: #1d4ed8;
+    color: #111827;
+    border-color: #9ca3af;
 }
 
 .pagination-area .product-pagination__page.is-current {
@@ -331,11 +354,13 @@ input[type="text"], input[type="password"] {
 .global-nav {
     background-color: #343a40;
     color: white;
-    padding: 0 20px;
-    height: 60px;
+    padding: 10px 20px;
+    min-height: 60px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     margin-bottom: 20px;
 }
@@ -352,7 +377,10 @@ input[type="text"], input[type="password"] {
 
 .nav-links {
     display: flex;
-    gap: 20px;
+    flex-wrap: wrap;
+    gap: 10px 12px;
+    align-items: center;
+    justify-content: flex-end;
 }
 
 .nav-item {
@@ -360,36 +388,55 @@ input[type="text"], input[type="password"] {
     text-decoration: none;
     font-weight: bold;
     font-size: 0.95rem;
-    transition: color 0.2s;
-    display: flex;
+    transition: color 0.2s, border-color 0.2s, background-color 0.2s;
+    display: inline-flex;
     align-items: center;
     gap: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    padding: 6px 12px;
+    border-radius: 4px;
+    box-sizing: border-box;
 }
 
 .nav-item:hover {
     color: white;
-    text-decoration: underline;
+    text-decoration: none;
+    border-color: rgba(255, 255, 255, 0.75);
+    background-color: rgba(255, 255, 255, 0.08);
 }
 
-.nav-cart {
-    background-color: #28a745;
-    padding: 5px 10px;
-    border-radius: 4px;
-    color: white !important;
+/* 現在地（各ページで nav-item に併用） */
+.nav-item--current {
+    color: #ffc107 !important;
+    border: 2px solid #ffc107;
+    padding: 5px 11px;
 }
-.nav-cart:hover {
-    background-color: #218838;
-    text-decoration: none;
+
+.nav-item--current:hover {
+    color: #ffda6a !important;
+    border-color: #ffda6a;
+    background-color: rgba(255, 193, 7, 0.12);
+}
+
+#logout-btn.nav-item {
+    color: #ff8a8a !important;
+    border-color: rgba(255, 138, 138, 0.45);
+}
+
+#logout-btn.nav-item:hover {
+    color: #ffb3b3 !important;
+    border-color: rgba(255, 138, 138, 0.85);
+    background-color: rgba(255, 107, 107, 0.15);
 }
 
 /* スマホ対応 */
 @media (max-width: 600px) {
     .global-nav {
-        padding: 0 10px;
+        padding: 8px 10px;
         font-size: 0.8rem;
     }
     .nav-links {
-        gap: 10px;
+        gap: 8px 10px;
     }
 }
 
@@ -782,48 +829,58 @@ input[type="text"], input[type="password"] {
 }
 
 .search-hero-box input {
-    padding: 12px 15px; /* 入力エリアを拡大 */
+    padding: 12px 15px;
     font-size: 1.05rem;
-    border: 2px solid #ced4da; /* 枠線を少し太く */
+    border: 1px solid #d1d5db;
     border-radius: 6px;
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .search-hero-box input:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+    border-color: #9ca3af;
+    box-shadow: 0 0 0 2px rgba(55, 65, 81, 0.12);
     outline: none;
 }
 
 .search-hero-box button {
     width: auto;
-    padding: 0 25px;
-    font-weight: bold;
+    padding: 0 22px;
+    font-weight: 600;
     font-size: 1rem;
     border-radius: 6px;
+    background: #fff;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-/* 価格表DLボタンの特別装飾 */
+.search-hero-box button:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+}
+
+/* 価格表DL（管理画面のツールバーボタンに寄せたニュートラル） */
 .btn-download-hero {
-    background: linear-gradient(135deg, #17a2b8, #117a8b); /* 高級感のあるグラデーション */
-    color: white;
+    background: #fff;
+    color: #374151;
+    border: 1px solid #d1d5db;
     padding: 12px 24px;
     text-decoration: none;
     border-radius: 6px;
-    font-weight: bold;
+    font-weight: 600;
     font-size: 1rem;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    box-shadow: 0 4px 6px rgba(23, 162, 184, 0.2);
-    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: background 0.15s, border-color 0.15s;
     white-space: nowrap;
 }
 
 .btn-download-hero:hover {
-    transform: translateY(-2px); /* ホバー時にふわっと浮く */
-    box-shadow: 0 6px 12px rgba(23, 162, 184, 0.3);
-    color: white;
+    background: #f9fafb;
+    border-color: #9ca3af;
+    color: #111827;
 }
 
 /* モバイル対応：狭い画面では縦並び */

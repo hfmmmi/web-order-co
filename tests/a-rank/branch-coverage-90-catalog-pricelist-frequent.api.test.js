@@ -40,6 +40,14 @@ describe("分岐90向け: catalog 価格表・頻度・カート", () => {
         expect(res.text).toContain("商品コード");
     });
 
+    test("GET /my-pricelist-data はログインで rows を返す", async () => {
+        const agent = request.agent(app);
+        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        const res = await agent.get("/my-pricelist-data");
+        expect(res.status).toBe(200);
+        expect(Array.isArray(res.body.rows)).toBe(true);
+    });
+
     test("GET /download-my-pricelist は読込失敗で500", async () => {
         const fsp = require("fs").promises;
         const origRead = jest.requireActual("fs").promises.readFile;

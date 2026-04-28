@@ -172,7 +172,7 @@ async function fetchProducts(page = 1) {
 
         // 検索結果情報の表示
         if (rawKeyword && infoArea) {
-            infoArea.textContent = `🔍 "${rawKeyword}" の検索結果: ${data.pagination.totalItems} 件`;
+            infoArea.textContent = `「${rawKeyword}」の検索結果: ${data.pagination.totalItems} 件`;
         }
 
         renderProductList(data.items);
@@ -293,13 +293,7 @@ function switchTab(tabName) {
 function updateTabUI() {
     const tabs = document.querySelectorAll(".product-tab");
     tabs.forEach(tab => {
-        if (tab.dataset.tab === currentTab) {
-            tab.style.background = "#007bff";
-            tab.style.color = "white";
-        } else {
-            tab.style.background = "#e9ecef";
-            tab.style.color = "#495057";
-        }
+        tab.classList.toggle("active", tab.dataset.tab === currentTab);
     });
 }
 
@@ -334,15 +328,15 @@ async function fetchFrequentProducts() {
         if (data.items.length === 0) {
             listBody.innerHTML = `
                 <tr><td colspan="6" style="text-align:center; padding:40px;">
-                    <div style="font-size: 1.2rem; color: #666; margin-bottom: 10px;">📭 まだ注文履歴がありません</div>
-                    <div style="font-size: 0.9rem; color: #999;">商品を注文すると、ここによく注文する商品が表示されます</div>
+                    <div style="font-size: 1.2rem; color: #374151; margin-bottom: 10px;">まだ注文履歴がありません</div>
+                    <div style="font-size: 0.9rem; color: #6b7280;">商品を注文すると、ここによく注文する商品が表示されます</div>
                 </td></tr>
             `;
             return;
         }
 
         if (infoArea) {
-            infoArea.innerHTML = `🔥 <strong>よく注文する商品</strong> (${data.items.length}件) - 注文回数の多い順に表示`;
+            infoArea.innerHTML = `<strong>よく注文する商品</strong>（${data.items.length}件）— 注文回数の多い順`;
         }
 
         renderProductList(data.items, false, true); // isFrequentMode = true
@@ -364,8 +358,8 @@ async function fetchFavoriteProducts() {
     if (favoriteList.length === 0) {
         listBody.innerHTML = `
             <tr><td colspan="6" style="text-align:center; padding:40px;">
-                <div style="font-size: 1.2rem; color: #666; margin-bottom: 10px;">⭐ お気に入りがまだありません</div>
-                <div style="font-size: 0.9rem; color: #999;">商品一覧で ☆ マークをクリックしてお気に入りに追加できます</div>
+                <div style="font-size: 1.2rem; color: #374151; margin-bottom: 10px;">お気に入りがまだありません</div>
+                <div style="font-size: 0.9rem; color: #6b7280;">発注欄の「☆」（数量の左）からお気に入りに追加できます</div>
             </td></tr>
         `;
         if (infoArea) infoArea.textContent = "";
@@ -390,7 +384,7 @@ async function fetchFavoriteProducts() {
         currentProductList = favoriteItems;
 
         if (infoArea) {
-            infoArea.innerHTML = `⭐ <strong>お気に入り商品</strong> (${favoriteItems.length}件)`;
+            infoArea.innerHTML = `<strong>お気に入り商品</strong>（${favoriteItems.length}件）`;
         }
 
         if (favoriteItems.length === 0) {
@@ -433,7 +427,7 @@ function renderStockCell(product) {
     const reserved = Number(info.reservedQty) || 0;
     const statusClass = available <= 0 ? "stock-zero" : "stock-available";
     const tooltip = formatStockTimestamp(info.lastSyncedAt);
-    const staleBadge = info.isStale ? `<span class="stock-stale" title="同期が古い可能性があります">⚠</span>` : "";
+    const staleBadge = info.isStale ? `<span class="stock-stale" title="同期が古い可能性があります">古</span>` : "";
     const lockBadge = info.manualLock ? `<span class="stock-lock" title="手動ロック中">LOCK</span>` : "";
     const warehouses = Array.isArray(info.warehouses) ? info.warehouses : [];
     const chips = warehouses.slice(0, 2).map(w => {
@@ -489,26 +483,26 @@ function renderProductList(items, isEstimateMode = false, isFrequentMode = false
         let badgeDisplay = "";
 
         if (isEstimateMode) {
-            priceDisplay = `<span style="color:#d63384; font-weight:bold; font-size:1.1rem;">¥${product.price.toLocaleString()}</span>`;
-            badgeDisplay = `<span class="badge badge-warning" style="background:#ffc107; color:#000;">見積特価</span>`;
+            priceDisplay = `<span style="color:#111827; font-weight:bold; font-size:1.1rem;">¥${product.price.toLocaleString()}</span>`;
+            badgeDisplay = `<span class="badge badge-warning" style="background:#f3f4f6; color:#374151; border:1px solid #e5e7eb;">見積特価</span>`;
         } else if (product.isSpecialPrice) {
-            priceDisplay = `<span style="color:#d63384; font-weight:bold;">¥${product.price.toLocaleString()}</span>`;
-            badgeDisplay = `<span class="badge badge-info" style="background:#17a2b8; color:#fff;">特別価格</span>`;
+            priceDisplay = `<span style="color:#111827; font-weight:bold;">¥${product.price.toLocaleString()}</span>`;
+            badgeDisplay = `<span class="badge badge-info" style="background:#f3f4f6; color:#374151; border:1px solid #e5e7eb;">特別価格</span>`;
         } else {
             priceDisplay = `¥${product.price.toLocaleString()}`;
         }
 
-        // お気に入り状態をチェック
+        // お気に入り（発注欄で ☆ / ★ を表示）
         const isFavorite = favoriteList.includes(product.productCode);
-        const favIcon = isFavorite ? "★" : "☆";
-        const favBgColor = isFavorite ? "#fff3cd" : "#f8f9fa";
-        const favColor = isFavorite ? "#ffc107" : "#adb5bd";
-        const favBorder = isFavorite ? "#ffc107" : "#dee2e6";
+        const favStar = isFavorite ? "★" : "☆";
+        const favBtnStyle = isFavorite
+            ? "background:#fffbeb; border:1px solid #fcd34d; color:#ca8a04;"
+            : "background:#fff; border:1px solid #d1d5db; color:#9ca3af;";
 
         // よく注文する商品モードでは注文回数を表示
         let frequentBadge = "";
         if (isFrequentMode && product.orderCount) {
-            frequentBadge = `<span style="background: linear-gradient(135deg, #ff6b6b, #ffa500); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; margin-left: 5px;">🔥 ${product.orderCount}回注文</span>`;
+            frequentBadge = `<span class="product-frequent-count">${product.orderCount}回注文</span>`;
         }
 
         const stockHtml = renderStockCell(product);
@@ -520,24 +514,30 @@ function renderProductList(items, isEstimateMode = false, isFrequentMode = false
         const specText = esc(product.category || "—");
         const codeAttr = escAttr(product.productCode);
 
+        const favButtonHtml = `<button type="button" class="btn-favorite" data-code="${codeAttr}"
+                        style="${favBtnStyle} border-radius:4px; font-size:1rem; font-weight:700; cursor:pointer; width:32px; min-width:32px; padding:6px 0; line-height:1; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; box-sizing:border-box;"
+                        title="${isFavorite ? "お気に入りから削除" : "お気に入りに追加"}">${favStar}</button>`;
+
         let orderCellInner;
         if (isQuoteRequired) {
             orderCellInner = `
-                <div style="display:flex; align-items:center; gap:5px;">
+                <div style="display:flex; align-items:center; gap:6px; flex-wrap:nowrap;">
+                    ${favButtonHtml}
                     <input type="number" min="1" value="1" id="qty-${product.productCode}"
-                        style="width:50px; padding:5px; border:1px solid #ddd; border-radius:4px;" disabled title="価格が0円の商品はお問い合わせください">
+                        style="width:46px; flex-shrink:0; padding:5px; border:1px solid #ddd; border-radius:4px;" disabled title="価格が0円の商品はお問い合わせください">
                     <button type="button" class="btn-quote-request" data-code="${codeAttr}"
-                        style="background:#6f42c1; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; white-space:nowrap;" title="見積依頼（サポート）を別タブで開きます">
+                        style="background:#fff; color:#374151; border:1px solid #d1d5db; padding:6px 10px; border-radius:4px; cursor:pointer; white-space:nowrap; font-weight:600; flex-shrink:0;" title="見積依頼（サポート）を別タブで開きます">
                         要問合
                     </button>
                 </div>`;
         } else {
             orderCellInner = `
-                <div style="display:flex; align-items:center; gap:5px;">
+                <div style="display:flex; align-items:center; gap:6px; flex-wrap:nowrap;">
+                    ${favButtonHtml}
                     <input type="number" min="1" value="1" id="qty-${product.productCode}"
-                        style="width:50px; padding:5px; border:1px solid #ddd; border-radius:4px;" ${disableOrder ? "disabled" : ""}>
+                        style="width:46px; flex-shrink:0; padding:5px; border:1px solid #ddd; border-radius:4px;" ${disableOrder ? "disabled" : ""}>
                     <button type="button" class="btn-add-cart" data-code="${codeAttr}"
-                        style="background:${disableOrder ? "#adb5bd" : "#007bff"}; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:${disableOrder ? "not-allowed" : "pointer"};" ${disableOrder ? "disabled" : ""}>
+                        style="background:${disableOrder ? "#e5e7eb" : "#B1BECB"}; color:${disableOrder ? "#9ca3af" : "#1f2937"}; border:1px solid ${disableOrder ? "#e5e7eb" : "#94a3b8"}; padding:6px 10px; border-radius:4px; cursor:${disableOrder ? "not-allowed" : "pointer"}; font-weight:600; white-space:nowrap; flex-shrink:0;" ${disableOrder ? "disabled" : ""}>
                         ${disableOrder ? "在庫なし" : "カート"}
                     </button>
                 </div>`;
@@ -551,19 +551,12 @@ function renderProductList(items, isEstimateMode = false, isFrequentMode = false
                 </div>
             </td>
             <td style="vertical-align:middle; min-width:200px;">
-                <div style="display:flex; align-items:flex-start; gap:6px;">
-                    <button class="btn-favorite" data-code="${codeAttr}"
-                        style="background:${favBgColor}; border:1px solid ${favBorder}; border-radius:4px; font-size:1rem; cursor:pointer; color:${favColor}; width:28px; height:28px; min-width:28px; padding:0; flex-shrink:0; line-height:1; display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box;"
-                        title="${isFavorite ? "お気に入りから削除" : "お気に入りに追加"}">
-                        ${favIcon}
-                    </button>
-                    <div style="flex:1; min-width:0; overflow-wrap:break-word;">
-                        <div style="font-weight:bold; font-size:1rem; word-wrap:break-word; overflow-wrap:break-word;">${product.name}</div>
-                        <div style="font-size:0.85rem; color:#666; margin-top:2px;">
-                            ${esc(product.productCode)} ${badgeDisplay} ${frequentBadge}
-                        </div>
-                        ${isEstimateMode ? `<div style="font-size:0.8rem; color:#d63384;">有効期限: ${product.validUntil || "不明"}</div>` : ""}
+                <div style="min-width:0; overflow-wrap:break-word;">
+                    <div style="font-weight:bold; font-size:1rem; word-wrap:break-word; overflow-wrap:break-word;">${esc(product.name)}</div>
+                    <div style="font-size:0.85rem; color:#666; margin-top:2px;">
+                        ${esc(product.productCode)} ${badgeDisplay} ${frequentBadge}
                     </div>
+                    ${isEstimateMode ? `<div style="font-size:0.8rem; color:#6b7280;">有効期限: ${product.validUntil || "不明"}</div>` : ""}
                 </div>
             </td>
             <td style="vertical-align:middle; width:100px; font-size:0.9rem; word-break:break-word; color:#333;">
@@ -575,7 +568,7 @@ function renderProductList(items, isEstimateMode = false, isFrequentMode = false
             <td style="width:140px; vertical-align:middle;">
                 ${stockHtml}
             </td>
-            <td style="width:140px; vertical-align:middle;">
+            <td style="width:178px; min-width:178px; max-width:178px; vertical-align:middle; white-space:nowrap;">
                 ${orderCellInner}
             </td>
         `;
@@ -605,12 +598,13 @@ function renderProductList(items, isEstimateMode = false, isFrequentMode = false
             addBtn.title = "在庫不足のためカート追加不可";
         }
 
-        // お気に入りボタン
         const favBtn = tr.querySelector(".btn-favorite");
-        favBtn.addEventListener("click", function() {
-            const code = this.getAttribute("data-code");
-            toggleFavorite(code, this);
-        });
+        if (favBtn) {
+            favBtn.addEventListener("click", function () {
+                const code = this.getAttribute("data-code");
+                toggleFavorite(code, this);
+            });
+        }
 
         listBody.appendChild(tr);
     });
@@ -623,21 +617,19 @@ function toggleFavorite(productCode, buttonElement) {
     const index = favoriteList.indexOf(productCode);
     
     if (index === -1) {
-        // 追加
         favoriteList.push(productCode);
         buttonElement.textContent = "★";
-        buttonElement.style.color = "#ffc107";
-        buttonElement.style.background = "#fff3cd";
-        buttonElement.style.borderColor = "#ffc107";
+        buttonElement.style.color = "#ca8a04";
+        buttonElement.style.background = "#fffbeb";
+        buttonElement.style.borderColor = "#fcd34d";
         buttonElement.title = "お気に入りから削除";
         toastSuccess("お気に入りに追加しました", 1500);
     } else {
-        // 削除
         favoriteList.splice(index, 1);
         buttonElement.textContent = "☆";
-        buttonElement.style.color = "#adb5bd";
-        buttonElement.style.background = "#f8f9fa";
-        buttonElement.style.borderColor = "#dee2e6";
+        buttonElement.style.color = "#9ca3af";
+        buttonElement.style.background = "#fff";
+        buttonElement.style.borderColor = "#d1d5db";
         buttonElement.title = "お気に入りに追加";
         toastInfo("お気に入りから削除しました", 1500);
         
@@ -649,8 +641,8 @@ function toggleFavorite(productCode, buttonElement) {
             if (listBody.children.length === 0) {
                 listBody.innerHTML = `
                     <tr><td colspan="6" style="text-align:center; padding:40px;">
-                        <div style="font-size: 1.2rem; color: #666; margin-bottom: 10px;">⭐ お気に入りがまだありません</div>
-                        <div style="font-size: 0.9rem; color: #999;">商品一覧で ☆ マークをクリックしてお気に入りに追加できます</div>
+                        <div style="font-size: 1.2rem; color: #374151; margin-bottom: 10px;">お気に入りがまだありません</div>
+                        <div style="font-size: 0.9rem; color: #6b7280;">発注欄の「☆」（数量の左）からお気に入りに追加できます</div>
                     </td></tr>
                 `;
             }
@@ -675,23 +667,11 @@ function getVisiblePageNumbers(current, total, maxSlots = 9) {
     return Array.from({ length: end - start + 1 }, (_, i) => start + i);
 }
 
-function createProductPaginationNavButton(label, pageNum, iconChar, iconFirst) {
+function createProductPaginationNavButton(label, pageNum) {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "product-pagination__nav";
-    const icon = document.createElement("span");
-    icon.className = "product-pagination__nav-icon";
-    icon.setAttribute("aria-hidden", "true");
-    icon.textContent = iconChar;
-    const text = document.createElement("span");
-    text.textContent = label;
-    if (iconFirst) {
-        btn.appendChild(icon);
-        btn.appendChild(text);
-    } else {
-        btn.appendChild(text);
-        btn.appendChild(icon);
-    }
+    btn.textContent = label;
     btn.addEventListener("click", () => {
         fetchProducts(pageNum);
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -712,7 +692,7 @@ function setupPagination(pagination) {
     const total = pagination.totalPages;
 
     if (current > 1) {
-        container.appendChild(createProductPaginationNavButton("前へ", current - 1, "‹", true));
+        container.appendChild(createProductPaginationNavButton("前へ", current - 1));
     }
 
     getVisiblePageNumbers(current, total, 5).forEach((p) => {
@@ -736,7 +716,7 @@ function setupPagination(pagination) {
     });
 
     if (current < total) {
-        container.appendChild(createProductPaginationNavButton("次へ", current + 1, "›", false));
+        container.appendChild(createProductPaginationNavButton("次へ", current + 1));
     }
 }
 

@@ -13,6 +13,39 @@ const PRODUCTS_DB_PATH = dbPath("products.json");
 const PRICES_DB_PATH = dbPath("prices.json");
 const RANK_PRICES_DB_PATH = dbPath("rank_prices.json");
 
+/** 価格表CSV・一覧API共通：ランク適用後の販売価格が0より大きい行のみ */
+async function buildMyPricelistRows(customerId, myRank) {
+    const [productData, pricesData, rankData] = await Promise.all([
+        fs.readFile(PRODUCTS_DB_PATH, "utf-8"),
+        fs.readFile(PRICES_DB_PATH, "utf-8"),
+        fs.readFile(RANK_PRICES_DB_PATH, "utf-8").catch(() => "{}")
+    ]);
+
+    const productMaster = JSON.parse(productData);
+    const priceList = JSON.parse(pricesData);
+    const rankPriceMap = JSON.parse(rankData);
+
+    const rows = [];
+    productMaster.forEach(product => {
+        if (!rankPriceMap[product.productCode]) return;
+        const specialPriceEntry = priceList.find(p => p.customerId === customerId && p.productCode === product.productCode);
+        const productWithRank = { ...product, rankPrices: rankPriceMap[product.productCode] || {} };
+        const finalPrice = calculateFinalPrice(productWithRank, myRank, specialPriceEntry);
+
+        if (finalPrice === 0) return;
+
+        rows.push({
+            productCode: product.productCode,
+            name: product.name,
+            manufacturer: product.manufacturer || "",
+            category: product.category || "",
+            price: finalPrice
+        });
+    });
+
+    return rows;
+}
+
 router.get("/products", async (req, res) => {
     if (!req.session.customerId) return res.status(401).json({ message: "ログインが必要です" });
 
@@ -290,29 +323,12 @@ router.get("/download-my-pricelist", async (req, res) => {
     const myRank = req.session.priceRank || "";
 
     try {
-        const [productData, pricesData, rankData] = await Promise.all([
-            fs.readFile(PRODUCTS_DB_PATH, "utf-8"),
-            fs.readFile(PRICES_DB_PATH, "utf-8"),
-            fs.readFile(RANK_PRICES_DB_PATH, "utf-8").catch(() => "{}")
-        ]);
-
-        const productMaster = JSON.parse(productData);
-        const priceList = JSON.parse(pricesData);
-        const rankPriceMap = JSON.parse(rankData);
+        const rows = await buildMyPricelistRows(customerId, myRank);
 
         const headers = "商品コード,商品名,メーカー,規格,貴社提供価格\n";
-        const csvRows = [];
-
-        productMaster.forEach(product => {
-            if (!rankPriceMap[product.productCode]) return;
-            const specialPriceEntry = priceList.find(p => p.customerId === customerId && p.productCode === product.productCode);
-            const productWithRank = { ...product, rankPrices: rankPriceMap[product.productCode] || {} };
-            const finalPrice = calculateFinalPrice(productWithRank, myRank, specialPriceEntry);
-
-            if (finalPrice === 0) return;
-
-            const row = `${product.productCode},"${product.name}",${product.manufacturer || ""},${product.category || ""},${finalPrice}`;
-            csvRows.push(row);
+        const csvRows = rows.map(r => {
+            const safeName = String(r.name || "").replace(/"/g, '""');
+            return `${r.productCode},"${safeName}",${r.manufacturer},${r.category},${r.price}`;
         });
 
         const csvData = "\uFEFF" + headers + csvRows.join("\n");
@@ -325,6 +341,19 @@ router.get("/download-my-pricelist", async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).send("CSV生成エラー");
+    }
+});
+
+/** 価格表をブラウザ一覧表示するためのJSON（ダウンロードと同一ロジック） */
+router.get("/my-pricelist-data", async (req, res) => {
+    if (!req.session.customerId) return res.status(401).json({ message: "ログインが必要です" });
+
+    try {
+        const rows = await buildMyPricelistRows(req.session.customerId, req.session.priceRank || "");
+        res.json({ rows });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "データの取得に失敗しました" });
     }
 });
 

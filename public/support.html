@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>サポート申請 - WEB受注システム</title>
     <link rel="stylesheet" href="style.css">
     <style>
@@ -79,7 +80,7 @@
         .support-tabs {
             display: flex;
             gap: 10px;
-            max-width: 900px;
+            max-width: 100%;
             margin: 24px auto 0;
             padding: 0 4px;
         }
@@ -113,7 +114,7 @@
             padding: 20px;
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            max-width: 900px;
+            max-width: 100%;
             margin: 20px auto 40px;
         }
 
@@ -249,18 +250,18 @@
 
     <nav class="global-nav">
         <a href="products.html" class="nav-logo">
-            <span>🚀 WEB受注システム</span>
+            <span>WEB受注システム</span>
         </a>
         <div class="nav-links">
             <a href="announcements.html" class="nav-item" data-feature="announcements">お知らせ</a>
             <a href="products.html" class="nav-item">商品一覧</a>
             <a href="history.html" class="nav-item" data-feature="history">注文履歴</a>
-            <a href="kaitori.html" class="nav-item" data-feature="kaitori">💰 空カートリッジ買取</a>
-            <a href="cart.html" class="nav-item nav-cart" data-feature="cart">🛒 カート</a>
-            <a href="support.html" class="nav-item" style="color: #ffc107; border-bottom: 2px solid #ffc107;" data-feature="support">サポート</a>
-            <a href="https://www.e-kaisyu.jp/" target="_blank" style="background-color:#28a745; color:white;" data-feature="collection">♻️ 回収依頼</a>
+            <a href="kaitori.html" class="nav-item" data-feature="kaitori">空カートリッジ買取</a>
+            <a href="cart.html" class="nav-item nav-cart" data-feature="cart">カート</a>
+            <a href="support.html" class="nav-item nav-item--current" data-feature="support">サポート</a>
+            <a href="https://www.e-kaisyu.jp/" target="_blank" class="nav-item" data-feature="collection">回収依頼</a>
             <a href="account.html" class="nav-item">アカウント設定</a>
-            <a href="#" class="nav-item" id="logout-btn" style="color:#ff6b6b;">ログアウト</a>
+            <a href="#" class="nav-item" id="logout-btn">ログアウト</a>
         </div>
     </nav>
     <div class="container">
