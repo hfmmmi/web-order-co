@@ -515,7 +515,7 @@ function renderProductList(items, isEstimateMode = false, isFrequentMode = false
         const codeAttr = escAttr(product.productCode);
 
         const favButtonHtml = `<button type="button" class="btn-favorite" data-code="${codeAttr}"
-                        style="${favBtnStyle} border-radius:4px; font-size:1rem; font-weight:700; cursor:pointer; width:32px; min-width:32px; padding:6px 0; line-height:1; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; box-sizing:border-box;"
+                        style="${favBtnStyle} border-radius:4px; font-size:1rem; font-weight:700; cursor:pointer; width:32px; height:32px; min-width:32px; padding:0; line-height:1; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; box-sizing:border-box;"
                         title="${isFavorite ? "お気に入りから削除" : "お気に入りに追加"}">${favStar}</button>`;
 
         let orderCellInner;
@@ -524,7 +524,7 @@ function renderProductList(items, isEstimateMode = false, isFrequentMode = false
                 <div style="display:flex; align-items:center; gap:6px; flex-wrap:nowrap;">
                     ${favButtonHtml}
                     <input type="number" min="1" value="1" id="qty-${product.productCode}"
-                        style="width:46px; flex-shrink:0; padding:5px; border:1px solid #ddd; border-radius:4px;" disabled title="価格が0円の商品はお問い合わせください">
+                        style="width:40px; height:32px; flex-shrink:0; padding:0; border:1px solid #ddd; border-radius:4px; box-sizing:border-box; text-align:center;" disabled title="価格が0円の商品はお問い合わせください">
                     <button type="button" class="btn-quote-request" data-code="${codeAttr}"
                         style="background:#fff; color:#374151; border:1px solid #d1d5db; padding:6px 10px; border-radius:4px; cursor:pointer; white-space:nowrap; font-weight:600; flex-shrink:0;" title="見積依頼（サポート）を別タブで開きます">
                         要問合
@@ -535,7 +535,7 @@ function renderProductList(items, isEstimateMode = false, isFrequentMode = false
                 <div style="display:flex; align-items:center; gap:6px; flex-wrap:nowrap;">
                     ${favButtonHtml}
                     <input type="number" min="1" value="1" id="qty-${product.productCode}"
-                        style="width:46px; flex-shrink:0; padding:5px; border:1px solid #ddd; border-radius:4px;" ${disableOrder ? "disabled" : ""}>
+                        style="width:40px; height:32px; flex-shrink:0; padding:0; border:1px solid #ddd; border-radius:4px; box-sizing:border-box; text-align:center;" ${disableOrder ? "disabled" : ""}>
                     <button type="button" class="btn-add-cart" data-code="${codeAttr}"
                         style="background:${disableOrder ? "#e5e7eb" : "#B1BECB"}; color:${disableOrder ? "#9ca3af" : "#1f2937"}; border:1px solid ${disableOrder ? "#e5e7eb" : "#94a3b8"}; padding:6px 10px; border-radius:4px; cursor:${disableOrder ? "not-allowed" : "pointer"}; font-weight:600; white-space:nowrap; flex-shrink:0;" ${disableOrder ? "disabled" : ""}>
                         ${disableOrder ? "在庫なし" : "カート"}

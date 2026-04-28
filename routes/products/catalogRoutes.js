@@ -3,6 +3,7 @@
 const express = require("express");
 const router = express.Router();
 const fs = require("fs").promises;
+const ExcelJS = require("exceljs");
 
 const { calculateFinalPrice } = require("../../utils/priceCalc");
 const { buildStockInfo, getStockContext } = require("../../utils/stockPresentation");
@@ -341,6 +342,68 @@ router.get("/download-my-pricelist", async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).send("CSV生成エラー");
+    }
+});
+
+router.get("/download-my-pricelist-excel", async (req, res) => {
+    if (!req.session.customerId) return res.status(401).send("ログインが必要です");
+
+    const customerId = req.session.customerId;
+    const myRank = req.session.priceRank || "";
+
+    try {
+        const rows = await buildMyPricelistRows(customerId, myRank);
+        const workbook = new ExcelJS.Workbook();
+        const sheet = workbook.addWorksheet("価格表");
+        sheet.columns = [
+            { header: "商品コード", key: "productCode", width: 18 },
+            { header: "商品名", key: "name", width: 42 },
+            { header: "メーカー", key: "manufacturer", width: 20 },
+            { header: "規格", key: "category", width: 18 },
+            { header: "貴社提供価格", key: "price", width: 16 }
+        ];
+
+        rows.forEach((row) => {
+            sheet.addRow({
+                productCode: row.productCode,
+                name: row.name,
+                manufacturer: row.manufacturer,
+                category: row.category,
+                price: Number(row.price) || 0
+            });
+        });
+
+        sheet.getRow(1).font = { bold: true };
+        sheet.getRow(1).alignment = { vertical: "middle", horizontal: "center" };
+        sheet.eachRow((row, rowNumber) => {
+            row.eachCell((cell) => {
+                cell.border = {
+                    top: { style: "thin", color: { argb: "FFE5E7EB" } },
+                    left: { style: "thin", color: { argb: "FFE5E7EB" } },
+                    bottom: { style: "thin", color: { argb: "FFE5E7EB" } },
+                    right: { style: "thin", color: { argb: "FFE5E7EB" } }
+                };
+                if (rowNumber === 1) {
+                    cell.fill = {
+                        type: "pattern",
+                        pattern: "solid",
+                        fgColor: { argb: "FFF9FAFB" }
+                    };
+                }
+            });
+        });
+
+        sheet.getColumn("price").numFmt = "#,##0";
+        sheet.getColumn("price").alignment = { horizontal: "right" };
+
+        const filename = encodeURIComponent("最新価格表.xlsx");
+        res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        res.setHeader("Content-Disposition", `attachment; filename*=UTF-8''${filename}`);
+        await workbook.xlsx.write(res);
+        res.end();
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Excel生成エラー");
     }
 });
 

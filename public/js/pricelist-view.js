@@ -19,8 +19,19 @@
         const table = document.getElementById("pricelist-table");
         const tbody = document.getElementById("pricelist-table-body");
         const countEl = document.getElementById("pricelist-count");
+        const closeTabBtn = document.getElementById("close-tab-btn");
 
         if (!status || !table || !tbody) return;
+
+        if (closeTabBtn) {
+            closeTabBtn.addEventListener("click", function () {
+                window.close();
+                // スクリプトで閉じられないケース（手動で開いたタブ）向けフォールバック
+                setTimeout(function () {
+                    if (!window.closed) window.location.href = "products.html";
+                }, 100);
+            });
+        }
 
         fetch("/my-pricelist-data", { credentials: "same-origin" })
             .then(function (res) {

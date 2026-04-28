@@ -25,22 +25,39 @@
         }
 
         body.pricelist-view-page h1 {
-            text-align: left;
             font-size: 1.35rem;
             font-weight: 700;
             color: #374151;
-            margin: 0 0 8px 0;
+            margin: 0;
         }
 
         body.pricelist-view-page .pricelist-meta {
             font-size: 0.9rem;
             color: #6b7280;
+            margin: 0;
+        }
+
+        body.pricelist-view-page .pricelist-header-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: flex-end;
+            gap: 10px;
             margin-bottom: 16px;
         }
 
-        body.pricelist-view-page .pricelist-back {
-            display: inline-block;
+        body.pricelist-view-page .pricelist-header-row h1 {
+            margin-right: auto;
+        }
+
+        body.pricelist-view-page .pricelist-actions {
+            display: flex;
+            gap: 8px;
             margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        body.pricelist-view-page .pricelist-action-btn {
+            display: inline-block;
             font-size: 0.9rem;
             font-weight: 600;
             color: #374151;
@@ -49,9 +66,10 @@
             padding: 6px 12px;
             border-radius: 6px;
             background: #fff;
+            cursor: pointer;
         }
 
-        body.pricelist-view-page .pricelist-back:hover {
+        body.pricelist-view-page .pricelist-action-btn:hover {
             background: #f9fafb;
         }
 
@@ -100,9 +118,14 @@
 
 <body class="pricelist-view-page">
     <div class="container">
-        <a class="pricelist-back" href="products.html">商品一覧へ戻る</a>
-        <h1>価格表一覧</h1>
-        <p class="pricelist-meta">貴社ランク適用後の提供価格です（<span id="pricelist-count">0</span> 件）。</p>
+        <div class="pricelist-actions">
+            <button type="button" id="close-tab-btn" class="pricelist-action-btn">タブを閉じる</button>
+            <a id="download-pricelist-btn" class="pricelist-action-btn" href="/download-my-pricelist-excel">価格表をDL</a>
+        </div>
+        <div class="pricelist-header-row">
+            <h1>価格表一覧</h1>
+            <p class="pricelist-meta">（<span id="pricelist-count">0</span> 件）</p>
+        </div>
 
         <div id="pricelist-status">読み込み中です…</div>
 
