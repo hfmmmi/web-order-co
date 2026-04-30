@@ -26,9 +26,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function statusLabel(status) {
-        if (status === "resolved") return "✅ 対応完了";
-        if (status === "verifying") return "🟡 検証中";
-        return "🔴 未対応";
+        if (status === "resolved") return "対応完了";
+        if (status === "verifying") return "検証中";
+        return "未対応";
     }
 
     function safeText(value) {
@@ -42,12 +42,22 @@ document.addEventListener("DOMContentLoaded", function () {
         return d.toLocaleString("ja-JP");
     }
 
+    /** 問い合わせ区分（API値 → 表示文言。旧 support/bug も履歴表示用に解釈） */
+    function categoryLabelJa(cat) {
+        if (cat === "product") return "商品について";
+        if (cat === "system") return "システムについて";
+        if (cat === "other") return "その他";
+        if (cat === "bug") return "システムについて";
+        if (cat === "support") return "通常のお問い合わせ";
+        return cat ? String(cat) : "未設定";
+    }
+
     function renderMyTickets(tickets) {
         if (!myTicketsContainer) return;
         myTicketsContainer.innerHTML = "";
 
         if (!Array.isArray(tickets) || tickets.length === 0) {
-            myTicketsContainer.innerHTML = "<p style=\"color:#666;\">まだ問い合わせ履歴はありません。</p>";
+            myTicketsContainer.innerHTML = "<p class=\"support-history-empty\">まだ問い合わせ履歴はありません。</p>";
             return;
         }
 
@@ -56,13 +66,13 @@ document.addEventListener("DOMContentLoaded", function () {
             const statusClass = ticket.status ? `status-${ticket.status}` : "status-open";
             card.className = `support-ticket-card ${statusClass}`;
 
-            let historyHtml = "<div style=\"padding:8px; color:#777; font-size:0.88rem;\">対応履歴はまだありません。</div>";
+            let historyHtml = "<div class=\"history-row-empty\">対応履歴はまだありません。</div>";
             if (Array.isArray(ticket.history) && ticket.history.length > 0) {
                 historyHtml = ticket.history
                     .map((h) => {
                         const byText = h.by ? `（${safeText(h.by)}）` : "";
                         return `<div class="history-row">
-                            <div style="color:#666; font-size:0.8rem;">${safeText(formatDate(h.date))}</div>
+                            <div class="history-row-date">${safeText(formatDate(h.date))}</div>
                             <div>${safeText(h.action)} ${byText}</div>
                         </div>`;
                     })
@@ -72,7 +82,7 @@ document.addEventListener("DOMContentLoaded", function () {
             let attachHtml = "";
             if (Array.isArray(ticket.attachments) && ticket.attachments.length > 0) {
                 const tid = encodeURIComponent(ticket.ticketId || "");
-                attachHtml = `<div style="margin-top:8px; font-size:0.88rem;">
+                attachHtml = `<div class="support-ticket-attach">
                     <strong>添付:</strong>
                     <ul style="margin:6px 0 0 18px; padding:0;">
                         ${ticket.attachments.map((a) => {
@@ -90,18 +100,18 @@ document.addEventListener("DOMContentLoaded", function () {
                     <span>${safeText(statusLabel(ticket.status))}</span>
                     <span>受付: ${safeText(formatDate(ticket.timestamp))}</span>
                 </div>
-                <div style="font-size:0.9rem; margin-bottom:6px;">
-                    種別: <strong>${safeText(ticket.type || "未設定")}</strong> / 区分: ${safeText(ticket.category === "bug" ? "システム不具合" : "通常問い合わせ")}
+                <div class="support-ticket-line">
+                    種別: <strong>${safeText(ticket.type || "未設定")}</strong> / 区分: ${safeText(categoryLabelJa(ticket.category))}
                 </div>
-                <div style="font-size:0.88rem; color:#555; margin-bottom:6px;">
+                <div class="support-ticket-line support-ticket-line--muted">
                     注文ID: ${safeText(ticket.orderId || "-")} / 貴社発注NO: ${safeText(ticket.customerPoNumber || "-")}
                 </div>
                 <div class="support-ticket-detail">${safeText(ticket.detail || "")}</div>
                 ${attachHtml}
-                <div style="margin-top:8px; font-size:0.88rem; color:#555;">
+                <div class="support-ticket-line support-ticket-line--muted">
                     希望対応: ${safeText(ticket.desiredAction || "-")} / 回収指定日: ${safeText(ticket.collectionDate || "-")}
                 </div>
-                <div style="margin-top:8px; font-size:0.9rem; font-weight:bold;">対応履歴</div>
+                <div class="support-ticket-section-title">対応履歴</div>
                 <div class="history-list">${historyHtml}</div>
             `;
             myTicketsContainer.appendChild(card);
@@ -110,7 +120,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function loadMyTickets() {
         if (!myTicketsContainer) return;
-        myTicketsContainer.innerHTML = "<p style=\"color:#666;\">問い合わせ履歴を読み込み中...</p>";
+        myTicketsContainer.innerHTML = "<p class=\"support-history-loading\">問い合わせ履歴を読み込み中...</p>";
         try {
             const response = await fetch("/support/my-tickets");
             const result = await response.json();
@@ -247,8 +257,7 @@ document.addEventListener("DOMContentLoaded", function () {
             event.preventDefault(); // 画面リロードを阻止
 
             // 入力値を取得
-            const categoryEl = document.querySelector('input[name="category"]:checked');
-            const categoryVal = categoryEl ? categoryEl.value : "support"; // デフォルトはsupport
+            const categoryVal = "product";
             const typeVal = document.getElementById("support-type").value;
             const detailVal = document.getElementById("support-detail").value;
             const orderIdVal = orderInput ? orderInput.value : "";
@@ -264,10 +273,10 @@ document.addEventListener("DOMContentLoaded", function () {
             const files = fileInput && fileInput.files ? Array.from(fileInput.files) : [];
             if (files.length > 5) {
                 msgDiv.style.color = "red";
-                msgDiv.textContent = "❌ 添付は最大5ファイルまでです。";
+                msgDiv.textContent = "添付は最大5ファイルまでです。";
                 if (btn) {
                     btn.disabled = false;
-                    btn.textContent = "申請を送信する";
+                    btn.textContent = "送信する";
                 }
                 return;
             }
@@ -305,7 +314,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 if (result.success) {
                     msgDiv.style.color = "green";
-                    msgDiv.textContent = "✅ 申請を受け付けました。管理者が確認次第ご連絡します。";
+                    msgDiv.textContent = "申請を受け付けました。管理者が確認次第ご連絡します。";
                     form.reset();
                     if (fileInput) fileInput.value = "";
                     const namesEp = document.getElementById("support-attachment-names");
@@ -316,9 +325,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     const dzClear = document.getElementById("support-dropzone");
                     if (dzClear) dzClear.classList.remove("support-dropzone--over");
 
-                    const defaultRadio = document.querySelector('input[name="category"][value="support"]');
-                    if (defaultRadio) defaultRadio.checked = true;
-
                     await loadMyTickets();
                     activateTab("support-history-panel");
                 } else {
@@ -327,11 +333,11 @@ document.addEventListener("DOMContentLoaded", function () {
             } catch (error) {
                 console.error(error);
                 msgDiv.style.color = "red";
-                msgDiv.textContent = "❌ エラーが発生しました: " + error.message;
+                msgDiv.textContent = "エラーが発生しました: " + error.message;
             } finally {
                 if (btn) {
                     btn.disabled = false;
-                    btn.textContent = "申請を送信する";
+                    btn.textContent = "送信する";
                 }
             }
         });

@@ -74,6 +74,24 @@ async function sendOrderConfirmation(order, customerName) {
     }
 }
 
+/** サポートチケットの category を通知メール用の日本語ラベルに変換（旧 support/bug を含む） */
+function supportCategoryMailLabel(category) {
+    switch (String(category || "")) {
+        case "product":
+            return "商品について";
+        case "system":
+            return "システムについて";
+        case "other":
+            return "その他";
+        case "bug":
+            return "システムについて";
+        case "support":
+            return "通常のお問い合わせ";
+        default:
+            return "その他";
+    }
+}
+
 /**
  * サポート申請受付メールを管理者に送信する
  * @param {Object} ticketData - チケットデータ
@@ -82,7 +100,7 @@ async function sendOrderConfirmation(order, customerName) {
 async function sendSupportNotification(ticketData) {
     try {
         const config = await settingsService.getMailConfig();
-        const categoryLabel = ticketData.category === "bug" ? "🐛 不具合報告" : "✉️ サポート/問合せ";
+        const categoryLabel = supportCategoryMailLabel(ticketData.category);
 
         const att = Array.isArray(ticketData.attachments) ? ticketData.attachments : [];
         const attachmentsList = att.length

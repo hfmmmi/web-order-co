@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         tickets.forEach(ticket => {
-            const isBug = ticket.category === "bug";
+            const isBug = ticket.category === "bug" || ticket.category === "system";
             const ticketId = ticket.ticketId;
             
             // 色分け設定

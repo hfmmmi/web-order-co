@@ -145,10 +145,14 @@ router.post("/request-support", async (req, res) => {
             throw e;
         }
 
+        const rawCat = newRequest.category != null ? String(newRequest.category).trim() : "";
+        const allowedCategories = new Set(["product", "system", "other", "support", "bug"]);
+        const normalizedCategory = allowedCategories.has(rawCat) ? rawCat : "product";
+
         const ticketData = {
             ticketId: ticketId,
             status: "open",
-            category: newRequest.category || "support",
+            category: normalizedCategory,
             orderId: newRequest.orderId || "",
             ...newRequest,
             internalOrderNo: "",
@@ -160,7 +164,11 @@ router.post("/request-support", async (req, res) => {
             customerId: req.session.customerId,
             customerName: req.session.customerName,
             timestamp: new Date().toISOString(),
-            attachments: attachmentRecords
+            attachments: attachmentRecords,
+            category: normalizedCategory,
+            ticketId: ticketId,
+            customerId: req.session.customerId,
+            customerName: req.session.customerName
         };
 
         await runWithJsonFileWriteLock(SUPPORT_DB_PATH, async () => {
@@ -206,7 +214,7 @@ router.get("/support/my-tickets", async (req, res) => {
             .map((t) => ({
                 ticketId: t.ticketId || "",
                 status: t.status || "open",
-                category: t.category || "support",
+                category: t.category || "product",
                 type: t.type || "",
                 detail: t.detail || "",
                 orderId: t.orderId || "",
