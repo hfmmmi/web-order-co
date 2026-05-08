@@ -42,16 +42,6 @@ document.addEventListener("DOMContentLoaded", function () {
         return d.toLocaleString("ja-JP");
     }
 
-    /** 問い合わせ区分（API値 → 表示文言。旧 support/bug も履歴表示用に解釈） */
-    function categoryLabelJa(cat) {
-        if (cat === "product") return "商品について";
-        if (cat === "system") return "システムについて";
-        if (cat === "other") return "その他";
-        if (cat === "bug") return "システムについて";
-        if (cat === "support") return "通常のお問い合わせ";
-        return cat ? String(cat) : "未設定";
-    }
-
     function renderMyTickets(tickets) {
         if (!myTicketsContainer) return;
         myTicketsContainer.innerHTML = "";
@@ -98,18 +88,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 <div class="support-ticket-meta">
                     <span><strong>${safeText(ticket.ticketId || "-")}</strong></span>
                     <span>${safeText(statusLabel(ticket.status))}</span>
-                    <span>受付: ${safeText(formatDate(ticket.timestamp))}</span>
+                    <span>受付：${safeText(formatDate(ticket.timestamp))}</span>
                 </div>
                 <div class="support-ticket-line">
-                    種別: <strong>${safeText(ticket.type || "未設定")}</strong> / 区分: ${safeText(categoryLabelJa(ticket.category))}
+                    申請項目：<strong>${safeText(ticket.type || "未設定")}</strong>
                 </div>
                 <div class="support-ticket-line support-ticket-line--muted">
-                    注文ID: ${safeText(ticket.orderId || "-")} / 貴社発注NO: ${safeText(ticket.customerPoNumber || "-")}
+                    注文ID：${safeText(ticket.orderId || "-")}
                 </div>
                 <div class="support-ticket-detail">${safeText(ticket.detail || "")}</div>
                 ${attachHtml}
                 <div class="support-ticket-line support-ticket-line--muted">
-                    希望対応: ${safeText(ticket.desiredAction || "-")} / 回収指定日: ${safeText(ticket.collectionDate || "-")}
+                    希望対応：${safeText(ticket.desiredAction || "-")} / 回収指定日：${safeText(ticket.collectionDate || "-")}
                 </div>
                 <div class="support-ticket-section-title">対応履歴</div>
                 <div class="history-list">${historyHtml}</div>

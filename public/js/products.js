@@ -753,6 +753,10 @@ function addToCart(code, quantity) {
 }
 
 function updateCartBadge() {
+    if (typeof window.updateGlobalCartBadge === "function") {
+        window.updateGlobalCartBadge();
+        return;
+    }
     const navCart = document.querySelector(".nav-cart");
     if (!navCart) return;
 

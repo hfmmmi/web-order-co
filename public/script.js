@@ -15,6 +15,49 @@ function escapeHtml(str) {
     return div.innerHTML;
 }
 
+/**
+ * セッション保存中のカート数量を、グローバルナビの「カート」リンクへ反映する
+ * （どの顧客ページを開いても件数を表示するための共通処理）
+ */
+function updateGlobalCartBadge() {
+    const navCart = document.querySelector(".nav-cart");
+    if (!navCart) return;
+
+    let cart = [];
+    try {
+        const raw = sessionStorage.getItem("cart");
+        const parsed = raw ? JSON.parse(raw) : [];
+        cart = Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+        cart = [];
+    }
+
+    const totalQty = cart.reduce(function (sum, item) {
+        const qty = Number(item && item.quantity);
+        return sum + (Number.isFinite(qty) ? qty : 0);
+    }, 0);
+
+    let badge = navCart.querySelector(".cart-badge");
+    if (totalQty > 0) {
+        if (!badge) {
+            badge = document.createElement("span");
+            badge.className = "cart-badge";
+            badge.style.background = "red";
+            badge.style.color = "white";
+            badge.style.borderRadius = "50%";
+            badge.style.padding = "2px 6px";
+            badge.style.fontSize = "0.75rem";
+            badge.style.marginLeft = "5px";
+            navCart.appendChild(badge);
+        }
+        badge.textContent = String(totalQty);
+    } else if (badge) {
+        badge.remove();
+    }
+}
+
+window.updateGlobalCartBadge = updateGlobalCartBadge;
+
 // --- 🍞 0. トースト通知システム (Toast Notification) ---
 window.showToast = function(message, type = 'info', duration = 3000) {
     // コンテナがなければ作成
@@ -149,6 +192,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 
     // タイマー始動
     resetTimer();
+    updateGlobalCartBadge();
 
     // ログイン画面の要素を探す
     const loginButton = document.querySelector("#login-btn"); 
