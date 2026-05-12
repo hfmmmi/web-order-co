@@ -7,50 +7,72 @@
     <title>空カートリッジ買取 - WEB受注システム</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* --- タブ切り替えスタイル --- */
+        /* 商品一覧ページと同系のニュートラル配色 */
+        body.kaitori-page {
+            background-color: #eef1f5;
+        }
+
+        body.kaitori-page > .container {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        body.kaitori-page .kaitori-page-heading {
+            margin: 0;
+            color: #111827;
+        }
+
+        body.kaitori-page .kaitori-intro-muted {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        body.kaitori-page .kaitori-warning {
+            color: #b91c1c;
+            font-weight: 700;
+        }
+
+        /* タブ（商品一覧の product-tabs に寄せる） */
         .tab-menu {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #dee2e6;
+            gap: 0;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+            flex-wrap: wrap;
         }
 
         .tab-item {
-            padding: 12px 25px;
+            padding: 12px 20px;
             cursor: pointer;
-            font-weight: bold;
-            color: #6c757d;
+            font-weight: 600;
+            color: #374151;
             border-radius: 0;
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
+            background: #fff;
+            border: 1px solid #d1d5db;
             border-bottom: none;
-            transition: all 0.2s;
+            margin-bottom: -2px;
+            transition: background 0.15s, color 0.15s, border-color 0.15s;
+            font-size: 0.95rem;
         }
 
         .tab-item:hover {
-            background: #e9ecef;
+            background: #f9fafb;
         }
 
         .tab-item.active {
-            background: #fff;
-            color: #28a745;
-            /* テーマカラー */
-            border-top: 3px solid #28a745;
-            margin-bottom: -2px;
-            /* 線を隠す */
-            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.05);
+            background: #dfe3e6;
+            color: #111827;
+            border-color: #d1d5db;
         }
 
-        /* --- 表示エリア制御 --- */
         .view-section {
             display: none;
-            /* デフォルト非表示 */
             animation: fadeIn 0.3s ease-in-out;
         }
 
         .view-section.active {
             display: block;
-            /* activeがつくと表示 */
         }
 
         @keyframes fadeIn {
@@ -58,14 +80,12 @@
                 opacity: 0;
                 transform: translateY(5px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
 
-        /* --- 既存スタイル --- */
         .kaitori-wrapper {
             display: flex;
             gap: 20px;
@@ -77,34 +97,74 @@
             background: #fff;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
 
         .kaitori-side {
             flex: 1;
             position: sticky;
             top: 20px;
-            background: #f8f9fa;
+            background: #f9fafb;
             padding: 20px;
             border-radius: 8px;
-            border: 1px solid #dee2e6;
+            border: 1px solid #e5e7eb;
             min-width: 280px;
         }
 
-        /* ★修正: Flexboxの整列設定を強化 */
+        .kaitori-side h3 {
+            margin-top: 0;
+            color: #111827;
+        }
+
         .filter-area {
-            background-color: #e9ecef;
-            padding: 15px;
-            border-radius: 5px;
+            background: #f9fafb;
+            padding: 16px;
+            border-radius: 8px;
             margin-bottom: 20px;
             display: flex;
             gap: 10px;
             align-items: center;
-            /* 上下中央揃え（ボタンの縦巨大化防止） */
+            border: 1px solid #e5e7eb;
+        }
+
+        .kaitori-search-input {
+            flex: 1;
+            min-width: 0;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            color: #111827;
+        }
+
+        .kaitori-search-input:focus {
+            border-color: #9ca3af;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(55, 65, 81, 0.12);
+        }
+
+        .kaitori-search-btn {
+            flex-shrink: 0;
+            padding: 10px 20px;
+            background: #fff;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .kaitori-search-btn:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
         }
 
         .product-card {
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #e5e7eb;
             padding: 15px 0;
             display: flex;
             justify-content: space-between;
@@ -116,9 +176,32 @@
         }
 
         .price-text {
-            color: #dc3545;
-            font-weight: bold;
-            font-size: 1.1rem;
+            color: #111827;
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+
+        .kaitori-dest-badge {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: 6px;
+            vertical-align: middle;
+            border: 1px solid #e5e7eb;
+        }
+
+        .kaitori-dest-badge--hyogo {
+            background: #f0f9ff;
+            color: #1e3a5f;
+            border-color: #bfdbfe;
+        }
+
+        .kaitori-dest-badge--osaka {
+            background: #f9fafb;
+            color: #374151;
+            border-color: #d1d5db;
         }
 
         .cart-list ul {
@@ -131,13 +214,70 @@
 
         .cart-list li {
             padding: 8px 0;
-            border-bottom: 1px dashed #ccc;
+            border-bottom: 1px dashed #e5e7eb;
             font-size: 0.9rem;
             display: flex;
             justify-content: space-between;
+            color: #374151;
         }
 
-        /* モーダル共通 */
+        .kaitori-total-line {
+            text-align: right;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #111827;
+            margin: 15px 0;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 12px;
+        }
+
+        .btn-kaitori-primary {
+            width: 100%;
+            padding: 12px;
+            background: #d6e7f1;
+            color: #111827;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-kaitori-primary:hover:not(:disabled) {
+            background: #c5dbe9;
+            border-color: #d1d5db;
+        }
+
+        .btn-kaitori-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .kaitori-history-panel {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-kaitori-refresh {
+            padding: 8px 14px;
+            cursor: pointer;
+            background: #fff;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-kaitori-refresh:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -151,80 +291,102 @@
             z-index: 1000;
         }
 
-        .modal-content {
-            background: white;
-            padding: 25px;
+        body.kaitori-page .modal-content {
+            background: #fff;
+            padding: 24px;
             border-radius: 8px;
             width: 90%;
             max-width: 600px;
             max-height: 90vh;
             overflow-y: auto;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        body.kaitori-page .modal-content h3 {
+            margin-top: 0;
+            color: #111827;
         }
 
         .logistics-section {
-            margin-bottom: 20px;
-            padding: 15px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
+            margin-bottom: 16px;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
         }
 
         .hyogo-style {
-            background-color: #f0fff4;
-            border-color: #c3e6cb;
+            background-color: #f9fafb;
+            border-left: 3px solid #d6e7f1;
         }
 
         .osaka-style {
-            background-color: #f0f8ff;
-            border-color: #b8daff;
+            background-color: #f9fafb;
+            border-left: 3px solid #9ca3af;
+        }
+
+        .logistics-section h4 {
+            margin: 0 0 10px 0;
+            color: #374151;
+            font-size: 1rem;
         }
 
         .address-box {
             background: #fff;
-            border: 2px solid #17a2b8;
-            padding: 10px;
-            border-radius: 5px;
+            border: 1px solid #d1d5db;
+            padding: 12px;
+            border-radius: 8px;
             margin-bottom: 15px;
             font-size: 0.9rem;
             line-height: 1.5;
-            color: #333;
+            color: #374151;
         }
 
         .address-title {
-            font-weight: bold;
-            color: #17a2b8;
-            margin-bottom: 5px;
+            font-weight: 700;
+            color: #374151;
+            margin-bottom: 6px;
             display: block;
         }
 
         .form-group {
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
         .form-group label {
             display: block;
             margin-bottom: 5px;
-            font-weight: bold;
+            font-weight: 600;
             font-size: 0.9rem;
+            color: #374151;
         }
 
         .form-group input,
         .form-group select {
             width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            padding: 8px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
             box-sizing: border-box;
         }
 
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #9ca3af;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(55, 65, 81, 0.1);
+        }
+
         .required-badge {
-            background: #dc3545;
-            color: white;
-            font-size: 0.7rem;
-            padding: 2px 5px;
-            border-radius: 3px;
-            margin-left: 5px;
+            background: #fef2f2;
+            color: #991b1b;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 6px;
             vertical-align: middle;
+            border: 1px solid #fecaca;
         }
 
         .modal-actions {
@@ -234,124 +396,169 @@
             margin-top: 20px;
         }
 
-        /* 履歴関連 */
+        .btn-kaitori-secondary {
+            padding: 10px 16px;
+            border: 1px solid #d1d5db;
+            background: #fff;
+            color: #374151;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-kaitori-secondary:hover {
+            background: #f9fafb;
+        }
+
+        .btn-kaitori-submit {
+            padding: 10px 20px;
+            border: 1px solid #e5e7eb;
+            background: #d6e7f1;
+            color: #111827;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-kaitori-submit:hover:not(:disabled) {
+            background: #c5dbe9;
+        }
+
         .history-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 15px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
         }
 
         .history-table th,
         .history-table td {
             padding: 12px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #e5e7eb;
             text-align: left;
             font-size: 0.9rem;
         }
 
         .history-table th {
-            background-color: #f8f9fa;
-            font-weight: bold;
+            background-color: #f9fafb;
+            font-weight: 700;
+            color: #374151;
         }
 
-        /* --- アコーディオン用追加CSS --- */
         .history-main-row {
             cursor: pointer;
-            transition: background 0.2s;
+            transition: background 0.15s;
         }
 
         .history-main-row:hover {
-            background: #f1f8ff;
-            /* ホバー時の薄い青 */
+            background: #f9fafb;
         }
 
         .history-detail-row {
             display: none;
-            /* 初期非表示 */
             background: #fafafa;
         }
 
         .history-detail-row.open {
             display: table-row;
-            /* クラス付与で表示 */
         }
 
         .detail-content-wrapper {
             padding: 15px 20px;
-            border-left: 4px solid #17a2b8;
-            /* アクセントライン */
+            border-left: 3px solid #d6e7f1;
             background: #fff;
-            margin: 5px 10px;
-            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
+            margin: 8px 10px;
+            border-radius: 0 8px 8px 0;
+            border: 1px solid #e5e7eb;
+            border-left-width: 3px;
         }
 
         .toggle-icon {
             display: inline-block;
             transition: transform 0.3s;
-            font-size: 0.8rem;
-            color: #666;
+            font-size: 0.75rem;
+            color: #6b7280;
         }
 
         .history-main-row.active .toggle-icon {
             transform: rotate(180deg);
-            /* 開いたときに矢印を回転 */
-            color: #17a2b8;
+            color: #374151;
         }
-
-        /* -------------------------- */
 
         .status-badge {
             padding: 4px 8px;
-            border-radius: 4px;
+            border-radius: 6px;
             font-size: 0.8rem;
-            font-weight: bold;
+            font-weight: 600;
             display: inline-block;
+            border: 1px solid transparent;
         }
 
         .st-blue {
-            background: #cce5ff;
-            color: #004085;
+            background: #f9fafb;
+            color: #374151;
+            border-color: #e5e7eb;
         }
 
         .st-green {
-            background: #d4edda;
-            color: #155724;
+            background: #ecfdf5;
+            color: #065f46;
+            border-color: #a7f3d0;
         }
 
         .st-red {
-            background: #f8d7da;
-            color: #721c24;
+            background: #fef2f2;
+            color: #991b1b;
+            border-color: #fecaca;
         }
 
-        /* 詳細モーダル用テーブル（アコーディオン内でも流用） */
         .detail-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.85rem;
             margin-top: 10px;
+            border: 1px solid #e5e7eb;
         }
 
         .detail-table th {
-            background: #eee;
+            background: #f9fafb;
             text-align: left;
-            padding: 8px;
+            padding: 8px 10px;
+            color: #374151;
+            font-weight: 600;
+            border-bottom: 1px solid #e5e7eb;
         }
 
         .detail-table td {
-            border-bottom: 1px solid #eee;
-            padding: 8px;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 8px 10px;
+            color: #374151;
         }
 
         .detail-total {
             text-align: right;
-            font-weight: bold;
+            font-weight: 700;
             padding: 10px;
             font-size: 1rem;
+            color: #111827;
+        }
+
+        @media (max-width: 900px) {
+            .kaitori-wrapper {
+                flex-direction: column;
+            }
+            .kaitori-side {
+                position: static;
+                width: 100%;
+                min-width: 0;
+            }
         }
     </style>
 </head>
 
-<body>
+<body class="kaitori-page">
     <nav class="global-nav">
         <a href="products.html" class="nav-logo"><span>WEB受注システム</span></a>
         <div class="nav-links">
@@ -369,57 +576,53 @@
 
     <div class="container">
         <div class="tab-menu">
-            <div class="tab-item active" data-target="view-new">📝 空カートリッジ査定依頼</div>
-            <div class="tab-item" data-target="view-history">📜 申請履歴・状況</div>
+            <div class="tab-item active" data-target="view-new">空カートリッジ査定依頼</div>
+            <div class="tab-item" data-target="view-history">申請履歴・状況</div>
         </div>
 
         <div id="view-new" class="view-section active">
             <div style="margin-bottom: 20px;">
-                <h2 style="margin:0;">使用済み空カートリッジ買取 (査定依頼)</h2>
-                <p style="color:#666; font-size:0.9rem;">
+                <h2 class="kaitori-page-heading">使用済み空カートリッジ買取 (査定依頼)</h2>
+                <p class="kaitori-intro-muted">
                     使用済みの空カートリッジを検索して追加してください。<br>
-                    <span style="color:#dc3545; font-weight:bold;">※未使用品・新品のインク/トナーの買取は営業担当までご連絡ください。</span>
+                    <span class="kaitori-warning">※未使用品・新品のインク/トナーの買取は営業担当までご連絡ください。</span>
                 </p>
             </div>
 
             <div class="kaitori-wrapper">
                 <div class="kaitori-main">
                     <div class="filter-area">
-                        <input type="text" id="search-input" placeholder="型番、商品名、メーカーで検索..."
-                            style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 1rem;">
-                        <button id="btn-search"
-                            style="width: auto; flex-shrink: 0; padding:10px 25px; background:#17a2b8; color:#fff; border:none; border-radius:4px; font-weight:bold; cursor:pointer; white-space: nowrap;">検索</button>
+                        <input type="text" id="search-input" class="kaitori-search-input" placeholder="型番、商品名、メーカーで検索...">
+                        <button type="button" id="btn-search" class="kaitori-search-btn">検索</button>
                     </div>
                     <div id="product-list-container">
-                        <p style="text-align:center;">データを読み込んでいます...</p>
+                        <p class="kaitori-intro-muted" style="text-align:center;">データを読み込んでいます...</p>
                     </div>
+                    <div id="kaitori-pagination-container" class="pagination-area" aria-label="商品一覧のページ送り"></div>
                 </div>
 
                 <div class="kaitori-side">
-                    <h3 style="margin-top:0;">見積りリスト</h3>
+                    <h3>見積りリスト</h3>
                     <div id="cart-container" class="cart-list">
-                        <p style="color:#666;">商品を選択してください</p>
+                        <p class="kaitori-intro-muted">商品を選択してください</p>
                     </div>
-                    <div id="total-price-display"
-                        style="text-align:right; font-weight:bold; font-size:1.2rem; color:#28a745; margin:15px 0; border-top:2px solid #ddd; padding-top:10px;">
-                        合計: ¥0</div>
-                    <button id="btn-pre-submit" disabled
-                        style="width:100%; padding:12px; background-color:#28a745; color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer; opacity:0.6;">発送情報の入力へ</button>
+                    <div id="total-price-display" class="kaitori-total-line">合計: ¥0</div>
+                    <button type="button" id="btn-pre-submit" class="btn-kaitori-primary" disabled>発送情報の入力へ</button>
                 </div>
             </div>
         </div>
 
         <div id="view-history" class="view-section">
-            <h2 style="margin:0 0 10px 0;">申請履歴・ステータス状況</h2>
-            <div style="background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <p style="font-size:0.9rem; color:#666; margin:0;">
+            <h2 class="kaitori-page-heading" style="margin:0 0 10px 0;">申請履歴・ステータス状況</h2>
+            <div class="kaitori-history-panel">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <p class="kaitori-intro-muted" style="margin:0;">
                         ※ 行をクリックすると、詳細（アイテム内訳や発送情報）が開閉します。
                     </p>
-                    <button id="btn-refresh-history" style="padding:5px 10px; cursor:pointer;">🔄 更新</button>
+                    <button type="button" id="btn-refresh-history" class="btn-kaitori-refresh">更新</button>
                 </div>
                 <div id="history-container">
-                    <p>読み込み中...</p>
+                    <p class="kaitori-intro-muted">読み込み中...</p>
                 </div>
             </div>
         </div>
@@ -428,25 +631,25 @@
 
     <div id="modal-logistics" class="modal-overlay">
         <div class="modal-content">
-            <h3 style="margin-top:0;">📦 発送・回収情報の入力</h3>
-            <p style="font-size:0.9rem; color:#666;">お荷物の個数や発送状況を入力してください。</p>
+            <h3>発送・回収情報の入力</h3>
+            <p class="kaitori-intro-muted">お荷物の個数や発送状況を入力してください。</p>
 
             <div id="section-hyogo" class="logistics-section hyogo-style" style="display:none;">
-                <h4 style="margin:0 0 10px 0; color:#155724;">🟢 兵庫 (回収便依頼)</h4>
+                <h4>兵庫 (回収便依頼)</h4>
                 <div class="form-group">
-                    <label>📦 梱包個数 <span class="required-badge">必須</span></label>
-                    <input type="number" id="hyogo-box-count" min="1" placeholder="例: 2">
+                    <label>梱包個数 <span class="required-badge">必須</span></label>
+                    <input type="number" id="hyogo-box-count" min="1">
                 </div>
-                <p style="font-size:0.85rem; color:#155724;">
+                <p class="kaitori-intro-muted" style="font-size:0.85rem;">
                     ※ご申請後、弊社にて回収便を手配し、回収予定日をご連絡いたします。
                 </p>
             </div>
 
             <div id="section-osaka" class="logistics-section osaka-style" style="display:none;">
-                <h4 style="margin:0 0 10px 0; color:#0c5460;">🔵 大阪 (元払い発送)</h4>
+                <h4>大阪 (元払い発送)</h4>
 
                 <div class="address-box">
-                    <span class="address-title">📮 送り先住所</span>
+                    <span class="address-title">送り先住所</span>
                     〒547-0016<br>
                     大阪府大阪市平野区長吉長原3-15-26<br>
                     株式会社リーアルネット(エンプティ買取担当)<br>
@@ -454,13 +657,13 @@
                 </div>
 
                 <div class="form-group">
-                    <label>📦 梱包個数 <span class="required-badge">必須</span></label>
-                    <input type="number" id="osaka-box-count" min="1" placeholder="例: 1">
+                    <label>梱包個数 <span class="required-badge">必須</span></label>
+                    <input type="number" id="osaka-box-count" min="1">
                 </div>
-                <hr style="border:0; border-top:1px dashed #b8daff; margin:10px 0;">
-                <p style="font-size:0.85rem; margin-bottom:10px;">発送済みの方は以下もご記入ください</p>
+                <hr style="border:0; border-top:1px dashed #e5e7eb; margin:12px 0;">
+                <p class="kaitori-intro-muted" style="font-size:0.85rem; margin-bottom:10px;">発送済みの方は以下もご記入ください</p>
                 <div class="form-group">
-                    <label>🚚 運送業者 <span class="required-badge">必須</span></label>
+                    <label>運送業者 <span class="required-badge">必須</span></label>
                     <select id="osaka-carrier">
                         <option value="">(選択してください)</option>
                         <option value="ヤマト運輸">ヤマト運輸</option>
@@ -474,20 +677,18 @@
                         style="display:none; margin-top:5px;">
                 </div>
                 <div class="form-group">
-                    <label>🔖 送り状番号 <span class="required-badge">必須</span></label>
-                    <input type="text" id="osaka-tracking" placeholder="1234-5678-9012">
+                    <label>送り状番号 <span class="required-badge">必須</span></label>
+                    <input type="text" id="osaka-tracking">
                 </div>
                 <div class="form-group">
-                    <label>📅 出荷日 <span class="required-badge">必須</span></label>
+                    <label>出荷日 <span class="required-badge">必須</span></label>
                     <input type="date" id="osaka-ship-date">
                 </div>
             </div>
 
             <div class="modal-actions">
-                <button id="btn-modal-cancel"
-                    style="padding:10px; border:none; background:#ccc; border-radius:5px; cursor:pointer;">戻る</button>
-                <button id="btn-final-submit"
-                    style="padding:10px 20px; border:none; background:#28a745; color:white; font-weight:bold; border-radius:5px; cursor:pointer;">申請を確定する</button>
+                <button type="button" id="btn-modal-cancel" class="btn-kaitori-secondary">戻る</button>
+                <button type="button" id="btn-final-submit" class="btn-kaitori-submit">申請を確定する</button>
             </div>
         </div>
     </div>

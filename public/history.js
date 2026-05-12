@@ -1,5 +1,86 @@
 let allOrders = []; // 検索用に全データをここに保持しておく
 
+/** 1ページあたりの表示件数（商品一覧のページ送りと同型UI） */
+const HISTORY_PER_PAGE = 15;
+/** 現在表示している注文配列（全件または検索結果） */
+let historyViewOrders = [];
+let historyCurrentPage = 1;
+/** 最後に renderHistoryList に渡したリスト用コンテナ（ページ切替で再利用） */
+let historyListContainerEl = null;
+
+function clearHistoryPagination() {
+    const pag = document.querySelector("#pagination-container");
+    if (pag) pag.innerHTML = "";
+}
+
+/** 商品一覧 products.js と同じ窓表示ロジック */
+function getHistoryVisiblePageNumbers(current, total, maxSlots = 5) {
+    if (total <= maxSlots) {
+        return Array.from({ length: total }, (_, i) => i + 1);
+    }
+    const half = Math.floor(maxSlots / 2);
+    let start = Math.max(1, current - half);
+    let end = Math.min(total, start + maxSlots - 1);
+    if (end - start + 1 < maxSlots) {
+        start = Math.max(1, end - maxSlots + 1);
+    }
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+}
+
+function createHistoryPaginationNavButton(label, pageNum) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "product-pagination__nav";
+    btn.textContent = label;
+    btn.addEventListener("click", () => {
+        historyCurrentPage = pageNum;
+        renderHistoryPage();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+    return btn;
+}
+
+function setupHistoryPagination(totalPages, currentPage) {
+    const container = document.querySelector("#pagination-container");
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    if (!totalPages || totalPages <= 1) return;
+
+    const current = Math.min(Math.max(1, currentPage), totalPages);
+    const total = totalPages;
+
+    if (current > 1) {
+        container.appendChild(createHistoryPaginationNavButton("前へ", current - 1));
+    }
+
+    getHistoryVisiblePageNumbers(current, total, 5).forEach((p) => {
+        if (p === current) {
+            const cur = document.createElement("span");
+            cur.className = "product-pagination__page is-current";
+            cur.textContent = String(p);
+            cur.setAttribute("aria-current", "page");
+            container.appendChild(cur);
+            return;
+        }
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "product-pagination__page";
+        btn.textContent = String(p);
+        btn.addEventListener("click", () => {
+            historyCurrentPage = p;
+            renderHistoryPage();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+        container.appendChild(btn);
+    });
+
+    if (current < total) {
+        container.appendChild(createHistoryPaginationNavButton("次へ", current + 1));
+    }
+}
+
 // =========================================================
 // 🔄 クイック再注文機能 (Quick Reorder)
 // =========================================================
@@ -105,6 +186,7 @@ async function fetchHistory() {
 
         // ログインしていない場合
         if (response.status === 401) {
+            clearHistoryPagination();
             alert("セッションが切れました。ログインし直してください。");
             window.location.href = "/";
             return;
@@ -114,7 +196,8 @@ async function fetchHistory() {
 
         if (!data.success) {
             const esc = (s) => (s == null ? "" : String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"));
-            container.innerHTML = "<p class=\"error\">エラー: " + (typeof escapeHtml !== "undefined" ? escapeHtml(data.message) : esc(data.message)) + "</p>";
+            clearHistoryPagination();
+            container.innerHTML = "<p class=\"history-error\">エラー: " + (typeof escapeHtml !== "undefined" ? escapeHtml(data.message) : esc(data.message)) + "</p>";
             return;
         } 
 
@@ -124,7 +207,8 @@ async function fetchHistory() {
 
         } catch (error) {
         console.error("履歴取得エラー", error);
-        container.innerHTML = "<p>通信エラーが発生しました。</p>";
+        clearHistoryPagination();
+        container.innerHTML = "<p class=\"history-error\">通信エラーが発生しました。</p>";
     }
 }
 
@@ -174,16 +258,34 @@ function filterOrders(keyword) {
     renderHistoryList(filtered, container);
 }
 
-// データをHTMLに変換して表示する
+// データをHTMLに変換して表示する（15件／ページ、商品一覧と同型のページ送り）
 function renderHistoryList(orders, container) {
-    container.innerHTML = ""; 
+    historyListContainerEl = container;
+    historyViewOrders = Array.isArray(orders) ? orders : [];
+    historyCurrentPage = 1;
+    renderHistoryPage();
+}
 
-    if (orders.length === 0) {
-        container.innerHTML = "<p style='text-align:center;'>表示できる履歴がありません</p>";
+function renderHistoryPage() {
+    const container = historyListContainerEl || document.querySelector("#history-list-container");
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    if (historyViewOrders.length === 0) {
+        clearHistoryPagination();
+        container.innerHTML = "<p class=\"history-empty\">表示できる履歴がありません</p>";
         return;
     }
 
-    orders.forEach(order => {
+    const totalPages = Math.max(1, Math.ceil(historyViewOrders.length / HISTORY_PER_PAGE));
+    if (historyCurrentPage > totalPages) historyCurrentPage = totalPages;
+    if (historyCurrentPage < 1) historyCurrentPage = 1;
+
+    const start = (historyCurrentPage - 1) * HISTORY_PER_PAGE;
+    const pageOrders = historyViewOrders.slice(start, start + HISTORY_PER_PAGE);
+
+    pageOrders.forEach(order => {
         // HTML生成職人を呼び出す
         const htmlData = generateHistoryCardHTML(order);
 
@@ -196,10 +298,8 @@ function renderHistoryList(orders, container) {
 
         // 詳細エリア(初期は非表示)
         const detailDiv = document.createElement("div");
+        detailDiv.className = "history-detail-panel";
         detailDiv.style.display = "none";
-        detailDiv.style.marginTop = "15px";
-        detailDiv.style.borderTop = "1px dashed #ddd";
-        detailDiv.style.paddingTop = "15px";
         
         detailDiv.innerHTML = htmlData.detailContent;
 
@@ -212,15 +312,11 @@ function renderHistoryList(orders, container) {
             if (detailDiv.style.display === "none") {
                 detailDiv.style.display = "block";
                 toggleBtn.textContent = "閉じる ▲";
-                toggleBtn.style.backgroundColor = "#6c757d";
-                toggleBtn.style.borderColor = "#5c636a";
-                toggleBtn.style.color = "#fff";
+                toggleBtn.classList.add("is-open");
             } else {
                 detailDiv.style.display = "none";
                 toggleBtn.textContent = "詳細を見る ▼";
-                toggleBtn.style.backgroundColor = "#dfe3e6";
-                toggleBtn.style.borderColor = "#c5cdd5";
-                toggleBtn.style.color = "#111827";
+                toggleBtn.classList.remove("is-open");
             }
         });
 
@@ -241,6 +337,8 @@ function renderHistoryList(orders, container) {
 
         container.appendChild(card);
     });
+
+    setupHistoryPagination(totalPages, historyCurrentPage);
 }
 
 // ★HTML生成職人 (顧客閲覧用バージョン・完全版)
@@ -248,14 +346,19 @@ function generateHistoryCardHTML(order) {
     const dateStr = new Date(order.orderDate).toLocaleString("ja-JP");
     const totalAmount = order.totalAmount || 0;
     
-    // ステータスの色分け
-    let statusColor = "#6c757d"; // デフォルト:グレー
+    // ステータスバッジ（商品一覧系のニュートラル／控えめなアクセント）
     let statusText = order.status || "受付済";
-
+    let statusBg = "#f3f4f6";
+    let statusFg = "#374151";
+    let statusBd = "#e5e7eb";
     if (statusText === "発送済") {
-        statusColor = "#28a745"; // 緑
+        statusBg = "transparent";
+        statusFg = "#111827";
+        statusBd = "#d1d5db";
     } else if (statusText === "一部発送" || statusText === "未発送") {
-        statusColor = "#d6e7f1"; // 受注管理の未発送・一部発送ラベルと同系色
+        statusBg = "#D6E7F1";
+        statusFg = "#111827";
+        statusBd = "#b8d4e8";
     }
 
     const info = order.deliveryInfo || {};
@@ -266,19 +369,19 @@ function generateHistoryCardHTML(order) {
         const firstItem = order.items[0];
         const firstName = firstItem.name || firstItem.code;
         const extraCount = order.items.length - 1;
-        itemSummary = extraCount > 0 ? `${firstName} <span style="color:#666; font-size:0.9em;">(+他${extraCount}点)</span>` : firstName;
+        itemSummary = extraCount > 0 ? `${firstName} <span style="color:#6b7280; font-size:0.9em;">(+他${extraCount}点)</span>` : firstName;
     }
 
     // 2. 名義サマリ
     let headerInfoParts = [];
-    if (info.clientOrderNumber) headerInfoParts.push(`<span style="color: #007bff; font-weight:bold;">[No:${info.clientOrderNumber}]</span>`);
+    if (info.clientOrderNumber) headerInfoParts.push(`<span style="color:#6b7280; font-weight:600;">[No:${info.clientOrderNumber}]</span>`);
     const deliveryName = info.name || "（宛名なし）";
-    headerInfoParts.push(`<span style="font-weight:bold; color:#333;">➡ ${deliveryName} 様</span>`);
-    if (info.shipper && info.shipper.name) headerInfoParts.push(`<span style="color: #28a745; font-size:0.9em;">(荷主: ${info.shipper.name})</span>`);
+    headerInfoParts.push(`<span style="font-weight:700; color:#111827;">${deliveryName} 様</span>`);
+    if (info.shipper && info.shipper.name) headerInfoParts.push(`<span style="color:#6b7280; font-size:0.9em;">(荷主: ${info.shipper.name})</span>`);
     const headerInfoHTML = headerInfoParts.join(" ");
     const esc = (s) => (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     const estimateSummaryHtml = info.estimateMessage
-        ? `<div style="margin-top:4px; font-size:0.9rem; color:#856404; background:#fff3cd; padding:6px 10px; border-radius:4px; border-left:3px solid #ffc107;">📅 納期目安: ${esc(info.estimateMessage)}</div>`
+        ? `<div style="margin-top:6px; font-size:0.9rem; color:#374151; background:#f9fafb; padding:8px 12px; border-radius:8px; border:1px solid #e5e7eb; border-left:3px solid #D6E7F1;">納期目安: ${esc(info.estimateMessage)}</div>`
         : "";
 
     // 概要部分
@@ -286,27 +389,25 @@ function generateHistoryCardHTML(order) {
         <div class="order-header">
             <div style="flex-grow: 1;">
                 <div style="margin-bottom: 4px;">
-                    <strong style="font-size: 1.1rem;">${dateStr}</strong>
-                    <span style="background-color: ${statusColor}; color: ${statusText === "未発送" || statusText === "一部発送" ? "#111827" : "white"}; border: 1px solid ${statusText === "未発送" || statusText === "一部発送" ? "#b0cde5" : "transparent"}; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; margin-left: 8px; vertical-align: text-bottom;">
+                    <strong style="font-size: 1.1rem; color:#111827;">${dateStr}</strong>
+                    <span style="background-color: ${statusBg}; color: ${statusFg}; border: 1px solid ${statusBd}; padding: 3px 8px; border-radius: 6px; font-size: 0.8rem; margin-left: 8px; vertical-align: text-bottom; font-weight:600;">
                         ${statusText}
                     </span>
-                    <span style="font-size: 0.85rem; color: #666; margin-left: 10px;">ID: ${order.orderId}</span>
+                    <span style="font-size: 0.85rem; color: #6b7280; margin-left: 10px;">ID: ${order.orderId}</span>
                 </div>
                 
                 <div style="font-size: 0.95rem; margin-bottom: 6px; line-height: 1.4;">
                     ${headerInfoHTML}
                 </div>
                 ${estimateSummaryHtml}
-                <div style="font-size: 0.9rem; color: #555; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 95%;">
+                <div style="font-size: 0.9rem; color: #6b7280; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 95%;">
                     ${itemSummary}
                 </div>
             </div>
 
             <div style="text-align: right; min-width: 90px; padding-left: 10px;">
-                <div style="font-size: 1.2rem; font-weight: bold; color: #333; margin-bottom: 5px;">¥${totalAmount.toLocaleString()}</div>
-                <button class="btn-toggle-detail" style="cursor: pointer; padding: 5px 10px; background-color: #dfe3e6; color: #111827; border: 1px solid #c5cdd5; border-radius: 4px; font-size: 0.85rem;">
-                    詳細 ▼
-                </button>
+                <div style="font-size: 1.2rem; font-weight: bold; color: #111827; margin-bottom: 5px;">¥${totalAmount.toLocaleString()}</div>
+                <button type="button" class="btn-toggle-detail">詳細を見る ▼</button>
             </div>
         </div>
     `;
@@ -318,36 +419,36 @@ function generateHistoryCardHTML(order) {
         dateDisplay += ` <span style="color:#dc3545; font-weight:bold; font-size:0.9em;">(※確約不可/出荷日のみ連絡)</span>`;
     }
 
-    const clientOrderHtml = info.clientOrderNumber 
-        ? `<div style="color: #007bff; font-weight: bold; margin-bottom: 5px;">[貴社発注No: ${info.clientOrderNumber}]</div>` : "";
+    const clientOrderHtml = info.clientOrderNumber
+        ? `<div style="color: #374151; font-weight: 600; margin-bottom: 6px;">[貴社発注No: ${info.clientOrderNumber}]</div>` : "";
 
     let shipperHtml = "";
     if (info.shipper && info.shipper.name) {
         shipperHtml = `
-            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc; font-size: 0.9rem;">
-                <span style="font-weight:bold; color: #555;">📦 荷主(依頼主):</span> ${info.shipper.name}<br>
-                <div style="margin-left: 10px; font-size: 0.85rem; color: #666;">
-                    ${info.shipper.address || ""} <span style="margin-left:5px;">(TEL: ${info.shipper.tel || "--"})</span>
+            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e5e7eb; font-size: 0.9rem;">
+                <span style="font-weight:700; color: #374151;">荷主(依頼主):</span> ${info.shipper.name}<br>
+                <div style="margin-left: 4px; font-size: 0.85rem; color: #6b7280;">
+                    ${info.shipper.address || ""} <span style="margin-left:6px;">(TEL: ${info.shipper.tel || "--"})</span>
                 </div>
             </div>
         `;
     }
 
     const estimateHtml = info.estimateMessage
-        ? `<div style="margin-top: 10px; padding: 10px; background-color: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px; font-size: 0.95rem;">
-            <span style="font-weight:bold;">📅 納期目安:</span> ${esc(info.estimateMessage)}
+        ? `<div style="margin-top: 12px; padding: 12px; background-color: #f9fafb; border: 1px solid #e5e7eb; border-left: 3px solid #D6E7F1; border-radius: 8px; font-size: 0.95rem; color: #374151;">
+            <span style="font-weight:700;">納期目安:</span> ${esc(info.estimateMessage)}
         </div>`
         : "";
 
     let deliveryHTML = `
-        <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
-            <h4 style="margin: 0 0 10px 0; font-size: 1rem; color: #555;">📍 お届け先・備考</h4>
-            <div style="font-size: 0.95rem; line-height: 1.6;">
+        <div style="background-color: #f9fafb; padding: 16px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e5e7eb;">
+            <h4 style="margin: 0 0 10px 0; font-size: 1rem; color: #374151; font-weight: 700;">お届け先・備考</h4>
+            <div style="font-size: 0.95rem; line-height: 1.6; color: #374151;">
                 ${clientOrderHtml}
-                <span style="font-weight:bold;">納品日:</span> ${dateDisplay}<br>
-                <span style="font-weight:bold;">納品先:</span> ${info.name || "（名称なし）"} 様<br>
-                <span style="font-weight:bold;">住所:</span> ${safeAddress}<br>
-                <span style="font-weight:bold;">備考:</span> ${info.note || "なし"}
+                <span style="font-weight:700;">納品日:</span> ${dateDisplay}<br>
+                <span style="font-weight:700;">納品先:</span> ${info.name || "（名称なし）"} 様<br>
+                <span style="font-weight:700;">住所:</span> ${safeAddress}<br>
+                <span style="font-weight:700;">備考:</span> ${info.note || "なし"}
                 ${shipperHtml}
                 ${estimateHtml}
             </div>
@@ -365,14 +466,14 @@ function generateHistoryCardHTML(order) {
             if(ship.deliveryDateUnknown) shipDeliveryDate += " (※日時確約不可)";
 
             historyItems += `
-                <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #c3e6cb;">
-                    <div style="font-weight:bold; color:#155724; margin-bottom:5px;">
-                        🚚 第${idx + 1}回出荷 (${shipDate})
+                <div style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #e5e7eb;">
+                    <div style="font-weight:700; color:#111827; margin-bottom:6px;">
+                        第${idx + 1}回出荷 (${shipDate})
                     </div>
-                    <div style="font-size:0.9rem; margin-left:10px;">
-                        配送業者: <b>${ship.deliveryCompany || "指定なし"}</b> / 伝票No: <b>${ship.trackingNumber || "反映待ち"}</b><br>
+                    <div style="font-size:0.9rem; margin-left:2px; color:#374151;">
+                        配送業者: <strong>${ship.deliveryCompany || "指定なし"}</strong> / 伝票No: <strong>${ship.trackingNumber || "反映待ち"}</strong><br>
                         納品予定: ${shipDeliveryDate}<br>
-                        <div style="margin-top:5px; padding:5px; background:rgba(255,255,255,0.6); border-radius:4px; font-size:0.85rem; color:#333;">
+                        <div style="margin-top:8px; padding:8px 10px; background:#fff; border-radius:6px; border:1px solid #e5e7eb; font-size:0.85rem; color:#374151;">
                             ${shipItemsStr}
                         </div>
                     </div>
@@ -380,8 +481,8 @@ function generateHistoryCardHTML(order) {
             `;
         });
         trackingHtml = `
-            <div style="background-color: #d4edda; color: #155724; padding: 15px; border-radius: 5px; border-left: 5px solid #28a745; margin-bottom: 15px;">
-                <h4 style="margin:0 0 10px 0; font-size:1rem;">📤 出荷・配送状況</h4>
+            <div style="background-color: #f9fafb; color: #374151; padding: 16px; border-radius: 8px; border: 1px solid #e5e7eb; border-left: 3px solid #9ca3af; margin-bottom: 15px;">
+                <h4 style="margin:0 0 12px 0; font-size:1rem; color:#111827; font-weight:700;">出荷・配送状況</h4>
                 ${historyItems}
             </div>
         `;
@@ -389,28 +490,28 @@ function generateHistoryCardHTML(order) {
         const company = order.deliveryCompany || "指定なし";
         const number = order.trackingNumber || "反映待ち";
         trackingHtml = `
-            <div style="background-color: #d4edda; color: #155724; padding: 10px; border-radius: 5px; border-left: 5px solid #28a745; margin-bottom: 15px;">
-                <strong>🚚 発送完了</strong><br>
-                配送業者: ${company} / 伝票番号: <strong style="font-size:1.1rem;">${number}</strong>
+            <div style="background-color: #f9fafb; color: #374151; padding: 14px; border-radius: 8px; border: 1px solid #e5e7eb; border-left: 3px solid #22c55e; margin-bottom: 15px;">
+                <strong style="color:#111827;">発送完了</strong><br>
+                配送業者: ${company} / 伝票番号: <strong style="font-size:1.05rem;">${number}</strong>
             </div>
         `;
     }
 
     // 商品テーブル
     let tableHTML = `
-        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-bottom: 15px;">
-            <thead style="background-color: #e9ecef;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-bottom: 15px; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+            <thead style="background-color: #f9fafb;">
                 <tr>
-                    <th style="padding: 8px; text-align: left;">商品名</th>
-                    <th style="padding: 8px; text-align: right; width: 60px;">単価</th>
-                    <th style="padding: 8px; text-align: center; width: 80px;">出荷状況</th>
-                    <th style="padding: 8px; text-align: right; width: 60px;">小計</th>
+                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #e5e7eb; color: #374151; font-weight: 700;">商品名</th>
+                    <th style="padding: 10px; text-align: right; width: 60px; border-bottom: 1px solid #e5e7eb; color: #374151; font-weight: 700;">単価</th>
+                    <th style="padding: 10px; text-align: center; width: 80px; border-bottom: 1px solid #e5e7eb; color: #374151; font-weight: 700;">出荷状況</th>
+                    <th style="padding: 10px; text-align: right; width: 60px; border-bottom: 1px solid #e5e7eb; color: #374151; font-weight: 700;">小計</th>
                 </tr>
             </thead>
             <tbody>
     `;
 
-    order.items.forEach(item => {
+    order.items.forEach((item, rowIdx) => {
         const price = item.price || 0;
         const subtotal = price * item.quantity;
         
@@ -425,42 +526,39 @@ function generateHistoryCardHTML(order) {
         
         let statusBadge = "";
         if (remaining === 0 && shippedCount > 0) {
-            statusBadge = `<div style="font-size:0.8rem; color:#28a745;">✅ 完了(${item.quantity})</div>`;
+            statusBadge = `<div style="font-size:0.8rem; color:#047857; font-weight:600;">完了(${item.quantity})</div>`;
         } else if (remaining > 0 && shippedCount > 0) {
             statusBadge = `
-                <div style="font-size:0.8rem;">済: ${shippedCount}</div>
-                <div style="font-weight:bold; color:#d63384; font-size:0.9rem; background:#fff0f6; border:1px solid #fcc2d7; border-radius:3px; padding:2px;">
+                <div style="font-size:0.8rem; color:#6b7280;">済: ${shippedCount}</div>
+                <div style="font-weight:600; color:#9a3412; font-size:0.8rem; background:#fffbeb; border:1px solid #fde68a; border-radius:6px; padding:3px 6px; margin-top:4px;">
                     残: ${remaining}
                 </div>`;
         } else if (shippedCount === 0) {
-            statusBadge = `<div style="font-size:0.8rem; color:#666;">注文数: ${item.quantity}</div>`;
+            statusBadge = `<div style="font-size:0.8rem; color:#6b7280;">注文数: ${item.quantity}</div>`;
         }
 
         tableHTML += `
-            <tr style="border-bottom: 1px solid #eee;">
-                <td style="padding: 8px;">
-                    <div style="font-weight: bold;">${item.name || "名称不明"}</div>
-                    <div style="font-size: 0.8rem; color: #888;">${item.code}</div>
+            <tr style="border-bottom: 1px solid #e5e7eb; background: ${rowIdx % 2 === 1 ? "#fafafa" : "#fff"};">
+                <td style="padding: 10px;">
+                    <div style="font-weight: 700; color:#111827;">${item.name || "名称不明"}</div>
+                    <div style="font-size: 0.8rem; color: #6b7280;">${item.code}</div>
                 </td>
-                <td style="padding: 8px; text-align: right;">¥${price.toLocaleString()}</td>
-                <td style="padding: 8px; text-align: center; vertical-align: middle;">
+                <td style="padding: 10px; text-align: right;">¥${price.toLocaleString()}</td>
+                <td style="padding: 10px; text-align: center; vertical-align: middle;">
                     ${statusBadge}
                 </td>
-                <td style="padding: 8px; text-align: right;">¥${subtotal.toLocaleString()}</td>
+                <td style="padding: 10px; text-align: right;">¥${subtotal.toLocaleString()}</td>
             </tr>
         `;
     });
     tableHTML += `</tbody></table>`;
 
     const actionHtml = `
-        <div style="margin-top: 15px; text-align: right; padding-top: 10px; border-top: 1px dashed #ddd; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-            <button class="btn-reorder" data-order-id="${order.orderId}" 
-                style="background: linear-gradient(135deg, #28a745, #20c997); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.95rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: transform 0.1s;">
-                🔄 この内容で再注文
+        <div style="margin-top: 15px; text-align: right; padding-top: 12px; border-top: 1px dashed #e5e7eb; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <button type="button" class="btn-reorder" data-order-id="${order.orderId}">
+                この内容で再注文
             </button>
-            <a href="support.html?orderId=${order.orderId}" style="text-decoration: none; color: #007bff; font-weight: bold; font-size: 0.95rem;">
-                💁‍♂️ この注文について問い合わせる
-            </a>
+            <a class="history-support-link" href="support.html?orderId=${order.orderId}">この注文について問い合わせる</a>
         </div>
     `;
 

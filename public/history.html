@@ -7,62 +7,168 @@
     <title>注文履歴 - WEB受注システム</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* 履歴画面特有のスタイル */
-        .history-card {
-            background: white;
-            border: 1px solid #ddd;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        /* 商品一覧ページと同系のニュートラル配色 */
+        body.history-page {
+            background-color: #eef1f5;
         }
 
-        /* 検索ボックスのデザイン */
-        .search-area {
-            background-color: #fff;
-            padding: 15px;
+        body.history-page .container {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        body.history-page .history-page-title {
+            margin: 0 0 4px 0;
+            color: #111827;
+            font-size: 1.35rem;
+        }
+
+        body.history-page .search-area {
+            background: #f9fafb;
+            padding: 12px 14px;
             border-radius: 8px;
-            border: 1px solid #eee;
+            border: 1px solid #e5e7eb;
             margin-bottom: 20px;
             display: flex;
-            gap: 10px;
+            gap: 8px;
+            align-items: stretch;
+            flex-wrap: nowrap;
+            min-width: 0;
         }
 
-        .search-area input {
-            flex-grow: 1;
-            padding: 10px;
-            font-size: 1rem;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        .search-area button {
-            width: 100px;
-            padding: 10px;
-            background-color: transparent;
+        body.history-page .search-area input {
+            flex: 1 1 0;
+            min-width: 0;
+            width: 0;
+            padding: 8px 10px;
+            font-size: clamp(0.8rem, 0.35vw + 0.78rem, 0.95rem);
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
             color: #111827;
-            border: 1px solid #9ca3af;
-            border-radius: 4px;
-            font-weight: bold;
+            box-sizing: border-box;
+            white-space: nowrap;
+            overflow-x: auto;
         }
 
-        .search-area button:hover {
-            background-color: #f3f4f6;
-            border-color: #6b7280;
+        body.history-page .search-area input:focus {
+            border-color: #9ca3af;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(55, 65, 81, 0.12);
         }
 
-        .order-header {
+        body.history-page .search-area button {
+            flex-shrink: 0;
+            width: auto;
+            min-width: 4.25rem;
+            padding: 8px 14px;
+            background: #fff;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: clamp(0.8rem, 0.35vw + 0.78rem, 0.95rem);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            align-self: stretch;
+        }
+
+        body.history-page .search-area button:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+
+        body.history-page .history-loading,
+        body.history-page .history-empty {
+            text-align: center;
+            color: #6b7280;
+            padding: 1rem;
+        }
+
+        body.history-page .history-card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        body.history-page .order-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        body.history-page .btn-toggle-detail {
+            cursor: pointer;
+            padding: 6px 12px;
+            background: #dfe3e6;
+            color: #111827;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        body.history-page .btn-toggle-detail:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+
+        body.history-page .btn-toggle-detail.is-open {
+            background: #fff;
+            color: #374151;
+            border-color: #d1d5db;
+        }
+
+        body.history-page .btn-reorder {
+            background: #fff;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            transition: background 0.15s, border-color 0.15s, transform 0.1s;
+        }
+
+        body.history-page .btn-reorder:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+
+        body.history-page .history-support-link {
+            text-decoration: none;
+            color: #374151;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border-bottom: 1px solid transparent;
+        }
+
+        body.history-page .history-support-link:hover {
+            color: #111827;
+            border-bottom-color: #d1d5db;
+        }
+
+        body.history-page .history-detail-panel {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #e5e7eb;
+        }
+
+        body.history-page .history-error {
+            color: #b91c1c;
+            text-align: center;
+            padding: 1rem;
         }
     </style>
 </head>
 
-<body>
+<body class="history-page">
     <nav class="global-nav">
         <a href="products.html" class="nav-logo">
             <span>WEB受注システム</span>
@@ -81,17 +187,19 @@
     </nav>
     <div class="container">
         <header style="margin-bottom: 20px;">
-            <h1 style="margin: 0;">注文履歴・配送状況</h1>
+            <h1 class="history-page-title">注文履歴・配送状況</h1>
         </header>
 
         <div class="search-area">
             <input type="text" id="history-search-input" placeholder="商品名、注文ID、備考などで検索...">
-            <button id="history-search-btn">検索</button>
+            <button type="button" id="history-search-btn">検索</button>
         </div>
 
         <div id="history-list-container">
-            <p style="text-align: center; color: #666;">履歴を読み込んでいます...</p>
+            <p class="history-loading">履歴を読み込んでいます...</p>
         </div>
+
+        <div id="pagination-container" class="pagination-area" aria-label="ページ送り"></div>
     </div>
 
     <script src="script.js"></script>

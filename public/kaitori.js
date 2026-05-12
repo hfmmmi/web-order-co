@@ -34,9 +34,130 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // データ保持用
     let fullMasterData = [];
-    let cart = {}; 
+    let cart = {};
 
-    // =========================================
+    const KAITORI_PRODUCTS_PER_PAGE = 15;
+    let kaitoriFilteredList = [];
+    let kaitoriProductPage = 1;
+
+    function clearKaitoriProductPagination() {
+        const el = document.getElementById("kaitori-pagination-container");
+        if (el) el.innerHTML = "";
+    }
+
+    function getKaitoriVisiblePageNumbers(current, total, maxSlots = 5) {
+        if (total <= maxSlots) {
+            return Array.from({ length: total }, (_, i) => i + 1);
+        }
+        const half = Math.floor(maxSlots / 2);
+        let start = Math.max(1, current - half);
+        let end = Math.min(total, start + maxSlots - 1);
+        if (end - start + 1 < maxSlots) {
+            start = Math.max(1, end - maxSlots + 1);
+        }
+        return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+    }
+
+    function createKaitoriPaginationNavButton(label, pageNum) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "product-pagination__nav";
+        btn.textContent = label;
+        btn.addEventListener("click", () => {
+            kaitoriProductPage = pageNum;
+            renderProductListPage();
+            const main = document.querySelector(".kaitori-main");
+            if (main) main.scrollIntoView({ behavior: "smooth", block: "start" });
+            else window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+        return btn;
+    }
+
+    function setupKaitoriProductPagination(totalPages, currentPage) {
+        const container = document.getElementById("kaitori-pagination-container");
+        if (!container) return;
+
+        container.innerHTML = "";
+
+        if (!totalPages || totalPages <= 1) return;
+
+        const current = Math.min(Math.max(1, currentPage), totalPages);
+        const total = totalPages;
+
+        if (current > 1) {
+            container.appendChild(createKaitoriPaginationNavButton("前へ", current - 1));
+        }
+
+        getKaitoriVisiblePageNumbers(current, total, 5).forEach((p) => {
+            if (p === current) {
+                const cur = document.createElement("span");
+                cur.className = "product-pagination__page is-current";
+                cur.textContent = String(p);
+                cur.setAttribute("aria-current", "page");
+                container.appendChild(cur);
+                return;
+            }
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "product-pagination__page";
+            btn.textContent = String(p);
+            btn.addEventListener("click", () => {
+                kaitoriProductPage = p;
+                renderProductListPage();
+                const main = document.querySelector(".kaitori-main");
+                if (main) main.scrollIntoView({ behavior: "smooth", block: "start" });
+                else window.scrollTo({ top: 0, behavior: "smooth" });
+            });
+            container.appendChild(btn);
+        });
+
+        if (current < total) {
+            container.appendChild(createKaitoriPaginationNavButton("次へ", current + 1));
+        }
+    }
+
+    function renderProductListPage() {
+        if (!productListContainer) return;
+
+        productListContainer.innerHTML = "";
+
+        if (kaitoriFilteredList.length === 0) {
+            clearKaitoriProductPagination();
+            productListContainer.innerHTML = "<p class=\"kaitori-intro-muted\">該当なし</p>";
+            return;
+        }
+
+        const totalPages = Math.max(1, Math.ceil(kaitoriFilteredList.length / KAITORI_PRODUCTS_PER_PAGE));
+        if (kaitoriProductPage > totalPages) kaitoriProductPage = totalPages;
+        if (kaitoriProductPage < 1) kaitoriProductPage = 1;
+
+        const start = (kaitoriProductPage - 1) * KAITORI_PRODUCTS_PER_PAGE;
+        const pageItems = kaitoriFilteredList.slice(start, start + KAITORI_PRODUCTS_PER_PAGE);
+
+        pageItems.forEach(item => {
+            const div = document.createElement("div");
+            div.className = "product-card";
+            let badgeHtml = item.destination === "兵庫"
+                ? `<span class="kaitori-dest-badge kaitori-dest-badge--hyogo">兵庫</span>`
+                : `<span class="kaitori-dest-badge kaitori-dest-badge--osaka">大阪</span>`;
+
+            div.innerHTML = `
+                <div>
+                    <div style="font-weight:700; color:#111827;">${item.maker} / ${item.name} ${badgeHtml}</div>
+                    <div class="price-text">空カートリッジ単価: ¥${item.price.toLocaleString()}</div>
+                </div>
+                <div><input type="number" min="0" class="qty-input" data-id="${item.id}" value="${cart[item.id]||0}" style="width:60px; text-align:right; padding:8px; border:1px solid #d1d5db; border-radius:6px;"> 個</div>`;
+
+            div.querySelector(".qty-input").addEventListener("change", function() {
+                const val = parseInt(this.value, 10);
+                if (val > 0) cart[item.id] = val; else delete cart[item.id];
+                updateCart();
+            });
+            productListContainer.appendChild(div);
+        });
+
+        setupKaitoriProductPagination(totalPages, kaitoriProductPage);
+    }
     // 2. タブ切り替え制御
     // =========================================
     tabItems.forEach(tab => {
@@ -78,7 +199,8 @@ document.addEventListener("DOMContentLoaded", function () {
             handleFilter(); 
         } catch (error) {
             console.error(error);
-            productListContainer.innerHTML = "<p>データ読込失敗</p>";
+            clearKaitoriProductPagination();
+            productListContainer.innerHTML = "<p class=\"kaitori-intro-muted\">データ読込失敗</p>";
         }
     }
 
@@ -103,7 +225,9 @@ document.addEventListener("DOMContentLoaded", function () {
             const normMaker = normalizeText(item.maker);
             return normName.includes(keyword) || normMaker.includes(keyword);
         });
-        renderList(filtered);
+        kaitoriFilteredList = filtered;
+        kaitoriProductPage = 1;
+        renderProductListPage();
     }
 
     // ★イベントリスナー設定（Enter対応・ボタン対応）
@@ -121,36 +245,9 @@ document.addEventListener("DOMContentLoaded", function () {
         btnSearch.addEventListener("click", handleFilter);
     }
 
-    // 商品リスト描画
-    function renderList(list) {
-        productListContainer.innerHTML = "";
-        if (list.length === 0) {
-            productListContainer.innerHTML = "<p>該当なし</p>"; return;
-        }
-        list.forEach(item => {
-            const div = document.createElement("div");
-            div.className = "product-card";
-            let badgeHtml = item.destination === "兵庫" 
-                ? `<span style="background:#28a745; color:#fff; font-size:0.7rem; padding:2px 6px; border-radius:4px; margin-left:5px;">🟢 兵庫</span>`
-                : `<span style="background:#17a2b8; color:#fff; font-size:0.7rem; padding:2px 6px; border-radius:4px; margin-left:5px;">🔵 大阪</span>`;
-
-            div.innerHTML = `
-                <div>
-                    <div style="font-weight:bold;">${item.maker} / ${item.name} ${badgeHtml}</div>
-                    <div class="price-text">空カートリッジ単価: ¥${item.price.toLocaleString()}</div>
-                </div>
-                <div><input type="number" min="0" class="qty-input" data-id="${item.id}" value="${cart[item.id]||0}" style="width:60px; text-align:right;"> 個</div>`;
-            
-            div.querySelector(".qty-input").addEventListener("change", function() {
-                const val = parseInt(this.value);
-                if (val > 0) cart[item.id] = val; else delete cart[item.id];
-                updateCart();
-            });
-            productListContainer.appendChild(div);
-        });
-    }
-
-    // カート更新
+    // =========================================
+    // 4. カート更新
+    // =========================================
     function updateCart() {
         let total = 0;
         const groups = { "兵庫": [], "大阪": [] };
@@ -166,38 +263,37 @@ document.addEventListener("DOMContentLoaded", function () {
 
         let html = "";
         if (groups["兵庫"].length > 0) {
-            html += `<div style="margin-bottom:15px; border-left:4px solid #28a745; padding-left:8px;">
-                        <div style="font-weight:bold; color:#28a745; font-size:0.9rem;">🟢 兵庫センター行</div>
-                        <ul style="padding-left:0; margin:5px 0; list-style:none;">`;
-            groups["兵庫"].forEach(g => html += `<li style="font-size:0.85rem;">${g.name} x ${g.qty}</li>`);
+            html += `<div style="margin-bottom:15px; border-left:3px solid #D6E7F1; padding-left:10px;">
+                        <div style="font-weight:700; color:#374151; font-size:0.9rem;">兵庫センター行</div>
+                        <ul style="padding-left:0; margin:6px 0; list-style:none;">`;
+            groups["兵庫"].forEach(g => html += `<li style="font-size:0.85rem; color:#374151;">${g.name} x ${g.qty}</li>`);
             html += `</ul></div>`;
         }
         if (groups["大阪"].length > 0) {
-            html += `<div style="margin-bottom:15px; border-left:4px solid #17a2b8; padding-left:8px;">
-                        <div style="font-weight:bold; color:#17a2b8; font-size:0.9rem;">🔵 大阪センター行</div>
-                        <ul style="padding-left:0; margin:5px 0; list-style:none;">`;
-            groups["大阪"].forEach(g => html += `<li style="font-size:0.85rem;">${g.name} x ${g.qty}</li>`);
+            html += `<div style="margin-bottom:15px; border-left:3px solid #9ca3af; padding-left:10px;">
+                        <div style="font-weight:700; color:#374151; font-size:0.9rem;">大阪センター行</div>
+                        <ul style="padding-left:0; margin:6px 0; list-style:none;">`;
+            groups["大阪"].forEach(g => html += `<li style="font-size:0.85rem; color:#374151;">${g.name} x ${g.qty}</li>`);
             html += `</ul></div>`;
         }
 
-        if (total === 0) html = "<p style='color:#666;'>商品を選択してください</p>";
+        if (total === 0) html = "<p class=\"kaitori-intro-muted\">商品を選択してください</p>";
         cartContainer.innerHTML = html;
         totalPriceDisplay.textContent = `合計: ¥${total.toLocaleString()}`;
         
         if(btnPreSubmit) {
             btnPreSubmit.disabled = (total === 0);
-            btnPreSubmit.style.opacity = (total === 0) ? "0.6" : "1.0";
         }
         return groups;
     }
 
     // =========================================
-    // 4. 履歴表示 (Secure View)
+    // 5. 履歴表示 (Secure View)
     // =========================================
 
     async function fetchHistory() {
         if (!historyContainer) return;
-        historyContainer.innerHTML = "<p>読み込み中...</p>";
+        historyContainer.innerHTML = "<p class=\"kaitori-intro-muted\">読み込み中...</p>";
         try {
             // ★修正: /api を削除 (/my-kaitori-history)
             const res = await fetch("/my-kaitori-history");
@@ -205,7 +301,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const list = await res.json();
 
             if (list.length === 0) {
-                historyContainer.innerHTML = "<p style='color:#666;'>履歴はありません。</p>";
+                historyContainer.innerHTML = "<p class=\"kaitori-intro-muted\">履歴はありません。</p>";
                 return;
             }
 
@@ -233,9 +329,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 let summary = "-";
                 if (item.items && item.items.length > 0) {
                     const first = item.items[0];
-                    summary = `<span style="font-weight:bold;">${first.name}</span>`;
+                    summary = `<span style="font-weight:700; color:#111827;">${first.name}</span>`;
                     if (item.items.length > 1) {
-                        summary += ` <span style="font-size:0.8rem; color:#666;">...他 ${item.items.length - 1}種</span>`;
+                        summary += ` <span style="font-size:0.8rem; color:#6b7280;">...他 ${item.items.length - 1}種</span>`;
                     }
                 }
 
@@ -244,17 +340,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 let logisticsHtml = "";
                 if (item.logistics) {
                     if (item.logistics.hyogo) {
-                        logisticsHtml += `<div><b>🟢 兵庫(回収):</b> 梱包 ${item.logistics.hyogo.boxCount}個</div>`;
+                        logisticsHtml += `<div><strong>兵庫(回収):</strong> 梱包 ${item.logistics.hyogo.boxCount}個</div>`;
                     }
                     if (item.logistics.osaka) {
                         const os = item.logistics.osaka;
-                        logisticsHtml += `<div style="margin-top:5px;"><b>🔵 大阪(発送):</b> 梱包 ${os.boxCount}個 / ${os.carrier || "-"} / No.${os.tracking || "-"}</div>`;
+                        logisticsHtml += `<div style="margin-top:6px;"><strong>大阪(発送):</strong> 梱包 ${os.boxCount}個 / ${os.carrier || "-"} / No.${os.tracking || "-"}</div>`;
                     }
                 }
                 
                 const noteHtml = item.customerNote 
-                    ? `<div style="color:#004085; margin-top:5px; background:#cce5ff; padding:8px; border-radius:4px; border:1px solid #b8daff;">
-                         <b>📩 事務局メッセージ:</b> ${item.customerNote}
+                    ? `<div style="color:#374151; margin-top:8px; background:#f9fafb; padding:10px 12px; border-radius:8px; border:1px solid #e5e7eb; border-left:3px solid #D6E7F1;">
+                         <strong>事務局メッセージ:</strong> ${item.customerNote}
                        </div>` 
                     : "";
 
@@ -276,10 +372,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     item.items.forEach(itm => {
                         const sub = itm.subtotal || (itm.price * itm.qty);
                         grandTotal += sub;
-                        const destIcon = itm.destination === "兵庫" ? "🟢" : "🔵";
+                        const destTag = itm.destination === "兵庫" ? '<span style="color:#6b7280; font-size:0.8rem; font-weight:600;">[兵庫]</span>' : '<span style="color:#6b7280; font-size:0.8rem; font-weight:600;">[大阪]</span>';
                         tableHtml += `<tr>
-                            <td>${destIcon} ${itm.name}</td>
-                            <td>@${itm.price.toLocaleString()}</td>
+                            <td>${destTag} ${itm.name}</td>
+                            <td>¥${itm.price.toLocaleString()}</td>
                             <td>${itm.qty}</td>
                             <td style="text-align:right;">¥${sub.toLocaleString()}</td>
                         </tr>`;
@@ -323,14 +419,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
         } catch (error) {
             console.error("History error", error);
-            historyContainer.innerHTML = "<p>読み込みエラー</p>";
+            historyContainer.innerHTML = "<p class=\"kaitori-intro-muted\">読み込みエラー</p>";
         }
     }
     if(btnRefreshHistory) btnRefreshHistory.addEventListener("click", fetchHistory);
 
 
     // =========================================
-    // 5. 申込モーダル制御
+    // 6. 申込モーダル制御
     // =========================================
 
     if(inputOsakaCarrier) {

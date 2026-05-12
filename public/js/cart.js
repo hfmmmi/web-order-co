@@ -88,7 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 <td>¥${item.price.toLocaleString()}</td>
                 <td>${item.quantity}</td>
                 <td>¥${sub.toLocaleString()}</td>
-                <td><button class="btn-remove" data-code="${displayCode}" style="color:red; cursor:pointer;">削除</button></td>
+                <td><button type="button" class="btn-remove" data-code="${displayCode}" style="background:#fff;color:#374151;border:1px solid #d1d5db;border-radius:6px;padding:6px 12px;cursor:pointer;font-weight:600;">削除</button></td>
             </tr>`;
         });
 
@@ -130,10 +130,10 @@ document.addEventListener("DOMContentLoaded", function () {
         if (hasReturn) {
             const warningDiv = document.createElement("div");
             warningDiv.id = "dynamic-cart-warning";
-            warningDiv.style.cssText = "background:#fff3cd; color:#856404; padding:15px; margin-bottom:20px; border:1px solid #ffeeba; border-radius:4px;";
+            warningDiv.style.cssText = "background:#f9fafb; color:#374151; padding:15px; margin-bottom:20px; border:1px solid #e5e7eb; border-radius:8px;";
             warningDiv.innerHTML = `
-                <h4 style="margin:0 0 10px 0;">⚠️ 回収（リターン）に関するお願い</h4>
-                <ul style="margin:0; padding-left:20px;">
+                <h4 style="margin:0 0 10px 0; color:#111827; font-size:1rem;">回収（リターン）に関するお願い</h4>
+                <ul style="margin:0; padding-left:20px; color:#374151;">
                     <li><strong>回収希望日</strong>をご指定ください。</li>
                     <li><strong>回収先が納品先と異なる場合</strong>は、その住所をご記入ください。</li>
                 </ul>
@@ -142,9 +142,9 @@ document.addEventListener("DOMContentLoaded", function () {
             if (table) table.parentNode.insertBefore(warningDiv, table);
 
             if (noteInput) {
-                noteInput.placeholder = "【記入例】回収希望日：〇月〇日、回収先：納品先と同じ（※異なる場合は住所・電話番号をご記入ください）";
+                noteInput.placeholder = "回収希望日・回収先（納品先と異なる場合は住所・電話番号）をご記入ください";
                 noteInput.style.backgroundColor = "#fff";
-                noteInput.style.border = "2px solid #ffc107";
+                noteInput.style.border = "1px solid #d1d5db";
             }
         } else {
             if (noteInput) {
@@ -307,7 +307,6 @@ document.addEventListener("DOMContentLoaded", function () {
         orderButton.addEventListener("click", async () => {
             const dateMode = document.querySelector("#delivery-date-mode").value;
             let dDate = (dateMode === "specify") ? document.querySelector("#delivery-date").value : "最短";
-            if (dateMode === "specify" && !dDate) { toastWarning("納品希望日を指定してください"); return; }
 
             const zip = document.querySelector("#zip-code").value;
             const tel = document.querySelector("#tel-number").value;

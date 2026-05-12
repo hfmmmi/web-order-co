@@ -7,6 +7,17 @@
     <title>カート確認 - WEB受注システム</title>
     <link rel="stylesheet" href="style.css">
     <style>
+        /* 商品一覧ページと同系のニュートラル配色 */
+        body.cart-page {
+            background-color: #eef1f5;
+        }
+
+        body.cart-page .container {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
         /* カート画面専用のスタイル */
         .cart-table {
             width: 100%;
@@ -17,13 +28,19 @@
 
         .cart-table th,
         .cart-table td {
-            border: 1px solid #ddd;
+            border: 1px solid #e5e7eb;
             padding: 10px;
             text-align: center;
         }
 
         .cart-table th {
-            background-color: #f8f9fa;
+            background-color: #f9fafb;
+            color: #374151;
+            font-weight: 700;
+        }
+
+        body.cart-page .cart-table tr:nth-child(even) {
+            background-color: #fafafa;
         }
 
         .total-area {
@@ -31,16 +48,31 @@
             font-size: 1.5rem;
             font-weight: bold;
             margin-bottom: 20px;
+            color: #111827;
         }
 
         /* 配送先入力フォームのデザイン */
         .delivery-form {
-            background-color: #fff;
+            background-color: #f9fafb;
             padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
             max-width: 1100px;
             margin: 0 auto;
+        }
+
+        .delivery-form h3 {
+            color: #111827;
+            border-bottom-color: #e5e7eb !important;
+        }
+
+        .cart-shipping-notice {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            color: #374151;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
         }
 
         .form-row {
@@ -64,9 +96,33 @@
         .form-group textarea {
             width: 100%;
             padding: 10px;
-            border: 1px solid #ccc;
+            border: 1px solid #d1d5db;
             border-radius: 4px;
             box-sizing: border-box;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .delivery-form select:focus {
+            border-color: #9ca3af;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(55, 65, 81, 0.12);
+        }
+
+        .delivery-form #zip-search-btn,
+        .delivery-form #shipper-zip-search-btn {
+            background: #fff;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-weight: 600;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .delivery-form #zip-search-btn:hover,
+        .delivery-form #shipper-zip-search-btn:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
         }
 
         /* 必須項目の赤マーク */
@@ -84,30 +140,47 @@
         }
 
         .btn-order {
-            background-color: #28a745;
-            color: white;
+            background-color: #D6E7F1;
+            color: #111827;
             font-size: 1.2rem;
             padding: 15px 40px;
-            border: none;
-            border-radius: 5px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
             cursor: pointer;
             width: 100%;
+            font-weight: 700;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
 
         .btn-order:hover {
-            background-color: #218838;
+            background-color: #c5dbe9;
+            border-color: #d1d5db;
+        }
+
+        .delivery-form .label-hint {
+            font-weight: normal;
+            color: #6b7280;
         }
 
         .btn-back {
-            background-color: #6c757d;
-            color: white;
+            background: #fff;
+            color: #374151;
+            border: 1px solid #d1d5db;
             padding: 15px 20px;
             text-decoration: none;
-            border-radius: 4px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
             white-space: nowrap;
+            font-weight: 600;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-back:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+            color: #111827;
         }
 
         /* 見積書発行ボタン */
@@ -119,41 +192,81 @@
         }
 
         .btn-estimate {
-            background-color: #17a2b8;
-            color: white;
+            background: #fff;
+            color: #374151;
             font-size: 1rem;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 0;
+            padding: 10px 18px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 5px;
+            font-weight: 600;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
 
         .btn-estimate:hover {
-            background-color: #138496;
+            background: #f9fafb;
+            border-color: #9ca3af;
         }
 
         /* 履歴検索ボタン */
         .btn-history-search {
-            background-color: #17a2b8;
-            color: white;
-            border: none;
+            background: #fff;
+            color: #374151;
+            border: 1px solid #d1d5db;
             padding: 8px 15px;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
             margin-bottom: 15px;
             font-size: 0.9rem;
+            font-weight: 600;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
 
         .btn-history-search:hover {
-            background-color: #138496;
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+
+        body.cart-page .modal-content {
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        body.cart-page .modal-header {
+            border-bottom-color: #e5e7eb;
+        }
+
+        body.cart-page .modal-body {
+            border-color: #e5e7eb;
+        }
+
+        body.cart-page .modal-close-btn {
+            background: #fff;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            font-weight: 600;
+            border-radius: 6px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        body.cart-page .modal-close-btn:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+
+        body.cart-page .history-item {
+            border-bottom-color: #e5e7eb;
+        }
+
+        body.cart-page .history-item:hover {
+            background-color: #f9fafb;
         }
     </style>
 </head>
 
-<body>
+<body class="cart-page">
 
     <nav class="global-nav">
         <a href="products.html" class="nav-logo">
@@ -175,8 +288,8 @@
     <div class="container">
 
         <div class="top-action-area">
-            <h1 style="margin:0;">🛒 カートの内容確認</h1>
-            <button id="estimate-btn" class="btn-estimate">📄 御見積書を発行</button>
+            <h1 style="margin:0;">カートの内容確認</h1>
+            <button type="button" id="estimate-btn" class="btn-estimate">御見積書を発行</button>
         </div>
 
         <table class="cart-table">
@@ -201,19 +314,19 @@
         <hr>
 
         <div class="delivery-form">
-            <h3 style="margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px;">
-                🚚 配送先・納品指示
+            <h3 style="margin-top: 0; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">
+                配送先
             </h3>
 
             <button type="button" id="open-history-modal-btn" class="btn-history-search">
-                🔍 過去の履歴から配送先をコピー
+                過去の履歴から配送先をコピー
             </button>
 
             <div class="form-group" style="margin-bottom: 15px;">
-                <label class="required">納品希望日</label>
+                <label for="delivery-date-mode">納品希望日</label>
                 <div style="display: flex; gap: 10px; align-items: center;">
                     <select id="delivery-date-mode"
-                        style="padding: 10px; border-radius: 4px; border: 1px solid #ccc; background-color: #fff;">
+                        style="padding: 10px; border-radius: 4px; border: 1px solid #d1d5db; background-color: #fff; color: #374151;">
                         <option value="shortest" selected>最短で発送</option>
                         <option value="specify">日付を指定する</option>
                     </select>
@@ -222,7 +335,7 @@
             </div>
 
             <div class="form-group" style="margin-bottom: 15px;">
-                <label for="zip-code" class="required">郵便番号 (ハイフンなし)</label>
+                <label for="zip-code" class="required">郵便番号</label>
                 <div style="display: flex; gap: 5px;">
                     <input type="text" id="zip-code" placeholder="1234567" maxlength="7" style="width: 120px;">
                     <button type="button" id="zip-search-btn" style="cursor: pointer; padding: 0 10px;">住所検索</button>
@@ -230,45 +343,43 @@
             </div>
 
             <div class="form-group" style="margin-bottom: 15px;">
-                <label for="address" class="required">配送先住所</label>
-                <input type="text" id="address" placeholder="都道府県 市区町村 番地 ビル名など">
+                <label for="address" class="required">住所</label>
+                <input type="text" id="address">
             </div>
 
             <div class="form-group" style="margin-bottom: 15px;">
-                <label for="recipient-name" class="required">宛名 (会社名・担当者名)</label>
-                <input type="text" id="recipient-name" placeholder="例: 株式会社〇〇 受付担当 様">
+                <label for="recipient-name" class="required">宛名 <span class="label-hint">(会社名・担当者名)</span></label>
+                <input type="text" id="recipient-name">
             </div>
 
             <div class="form-group" style="margin-bottom: 15px;">
                 <label for="tel-number" class="required">電話番号</label>
-                <input type="tel" id="tel-number" placeholder="03-1234-5678">
+                <input type="tel" id="tel-number">
             </div>
 
             <div class="form-group" style="margin-bottom: 15px;">
-                <label for="client-order-number">🔖 貴社発注番号 <span
-                        style="font-weight:normal; color:#666;">(納品書・請求書に記載されます)</span></label>
-                <input type="text" id="client-order-number" placeholder="例: A-1001, 123456 など">
+                <label for="client-order-number">貴社発注番号 <span class="label-hint">(納品書・請求書に記載されます)</span></label>
+                <input type="text" id="client-order-number">
             </div>
 
             <div class="form-group">
-                <label for="note">備考 (配送指示など)</label>
+                <label for="note">備考</label>
                 <textarea id="note" rows="2" placeholder="例: 午前中希望、不在時宅配ボックス可"></textarea>
             </div>
 
-            <hr style="margin: 25px 0; border: 0; border-top: 1px dashed #ccc;">
+            <hr style="margin: 25px 0; border: 0; border-top: 1px dashed #e5e7eb;">
 
-            <h3 style="margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px;">
-                🏭 荷主指定 <span style="font-size: 0.8rem; font-weight: normal; color: #666;">(※送り状の依頼主を変更する場合のみ入力)</span>
+            <h3 style="margin-top: 0; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">
+                荷主指定 <span class="label-hint" style="font-size: 0.8rem;">※変更する場合のみ入力</span>
             </h3>
 
-            <button type="button" id="open-shipper-history-modal-btn" class="btn-history-search"
-                style="background-color:#6f42c1;">
-                🔍 過去の荷主履歴からコピー
+            <button type="button" id="open-shipper-history-modal-btn" class="btn-history-search">
+                過去の荷主履歴からコピー
             </button>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="shipper-zip-code">荷主 郵便番号</label>
+                    <label for="shipper-zip-code">郵便番号</label>
                     <div style="display: flex; gap: 5px;">
                         <input type="text" id="shipper-zip-code" placeholder="1234567" maxlength="7"
                             style="width: 120px;">
@@ -277,30 +388,29 @@
                     </div>
                 </div>
                 <div class="form-group" style="flex: 2;">
-                    <label for="shipper-address">荷主 住所</label>
-                    <input type="text" id="shipper-address" placeholder="都道府県 市区町村...">
+                    <label for="shipper-address">住所</label>
+                    <input type="text" id="shipper-address">
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="shipper-name">荷主 依頼人名 (会社名・担当者)</label>
-                    <input type="text" id="shipper-name" placeholder="例: 株式会社〇〇">
+                    <label for="shipper-name">荷主名</label>
+                    <input type="text" id="shipper-name">
                 </div>
                 <div class="form-group">
-                    <label for="shipper-tel">荷主 電話番号</label>
-                    <input type="tel" id="shipper-tel" placeholder="03-0000-0000">
+                    <label for="shipper-tel">電話番号</label>
+                    <input type="tel" id="shipper-tel">
                 </div>
             </div>
         </div>
 
-        <div id="cart-shipping-notice-container" class="cart-shipping-notice"
-            style="background-color: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 15px; margin-top: 20px; border-radius: 5px;">
+        <div id="cart-shipping-notice-container" class="cart-shipping-notice" style="display: none;">
             <!-- システム設定の「送料・カートお知らせ」が cart.js で挿入されます。未設定時は非表示。 -->
         </div>
 
         <div class="action-buttons">
-            <a href="products.html" class="btn-back">← 買い物を続ける</a>
+            <a href="products.html" class="btn-back">買い物を続ける</a>
             <button id="place-order-btn" class="btn-order">注文を確定する</button>
         </div>
     </div>
@@ -308,7 +418,7 @@
     <div id="history-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 style="margin:0;">📍 配送先履歴から検索</h3>
+                <h3 style="margin:0;">配送先履歴から検索</h3>
                 <button id="close-modal-btn" class="modal-close-btn">閉じる</button>
             </div>
             <div style="margin-bottom: 10px;">
@@ -324,7 +434,7 @@
     <div id="shipper-history-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 style="margin:0;">🏭 荷主履歴から検索</h3>
+                <h3 style="margin:0;">荷主履歴から検索</h3>
                 <button id="close-shipper-modal-btn" class="modal-close-btn">閉じる</button>
             </div>
             <div style="margin-bottom: 10px;">
