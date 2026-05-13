@@ -225,7 +225,7 @@ function filterOrders(keyword) {
     // ★重要: 検索語句を正規化（全角英数→半角、半角カナ→全角、小文字化）
     const normalizedKey = keyword.normalize('NFKC').toLowerCase();
 
-    // 注文ID、商品名、備考、荷主名などで検索
+    // 注文ID、商品名、荷主名などで検索
     const filtered = allOrders.filter(order => {
         // 比較対象もすべて正規化してからチェックする
         
@@ -241,18 +241,13 @@ function filterOrders(keyword) {
         
         // 3. 配送情報・荷主情報
         const info = order.deliveryInfo || {};
-        const noteMatch = info.note && info.note.normalize('NFKC').toLowerCase().includes(normalizedKey);
-        
         const shipperName = (info.shipper && info.shipper.name) ? info.shipper.name.normalize('NFKC').toLowerCase() : "";
         const shipperMatch = shipperName.includes(normalizedKey);
-
-        const clientOrderNum = info.clientOrderNumber ? String(info.clientOrderNumber).normalize('NFKC').toLowerCase() : "";
-        const clientOrderMatch = clientOrderNum.includes(normalizedKey);
 
         const deliveryName = info.name ? info.name.normalize('NFKC').toLowerCase() : "";
         const deliveryNameMatch = deliveryName.includes(normalizedKey);
 
-        return idMatch || itemMatch || noteMatch || shipperMatch || clientOrderMatch || deliveryNameMatch;
+        return idMatch || itemMatch || shipperMatch || deliveryNameMatch;
     });
 
     renderHistoryList(filtered, container);
@@ -363,18 +358,8 @@ function generateHistoryCardHTML(order) {
 
     const info = order.deliveryInfo || {};
 
-    // 1. 商品サマリ
-    let itemSummary = "商品なし";
-    if (order.items && order.items.length > 0) {
-        const firstItem = order.items[0];
-        const firstName = firstItem.name || firstItem.code;
-        const extraCount = order.items.length - 1;
-        itemSummary = extraCount > 0 ? `${firstName} <span style="color:#6b7280; font-size:0.9em;">(+他${extraCount}点)</span>` : firstName;
-    }
-
-    // 2. 名義サマリ
+    // 1. 名義サマリ
     let headerInfoParts = [];
-    if (info.clientOrderNumber) headerInfoParts.push(`<span style="color:#6b7280; font-weight:600;">[No:${info.clientOrderNumber}]</span>`);
     const deliveryName = info.name || "（宛名なし）";
     headerInfoParts.push(`<span style="font-weight:700; color:#111827;">${deliveryName} 様</span>`);
     if (info.shipper && info.shipper.name) headerInfoParts.push(`<span style="color:#6b7280; font-size:0.9em;">(荷主: ${info.shipper.name})</span>`);
@@ -400,9 +385,6 @@ function generateHistoryCardHTML(order) {
                     ${headerInfoHTML}
                 </div>
                 ${estimateSummaryHtml}
-                <div style="font-size: 0.9rem; color: #6b7280; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 95%;">
-                    ${itemSummary}
-                </div>
             </div>
 
             <div style="text-align: right; min-width: 90px; padding-left: 10px;">
@@ -418,9 +400,6 @@ function generateHistoryCardHTML(order) {
     if(info.dateUnknown) {
         dateDisplay += ` <span style="color:#dc3545; font-weight:bold; font-size:0.9em;">(※確約不可/出荷日のみ連絡)</span>`;
     }
-
-    const clientOrderHtml = info.clientOrderNumber
-        ? `<div style="color: #374151; font-weight: 600; margin-bottom: 6px;">[貴社発注No: ${info.clientOrderNumber}]</div>` : "";
 
     let shipperHtml = "";
     if (info.shipper && info.shipper.name) {
@@ -442,13 +421,11 @@ function generateHistoryCardHTML(order) {
 
     let deliveryHTML = `
         <div style="background-color: #f9fafb; padding: 16px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e5e7eb;">
-            <h4 style="margin: 0 0 10px 0; font-size: 1rem; color: #374151; font-weight: 700;">お届け先・備考</h4>
+            <h4 style="margin: 0 0 10px 0; font-size: 1rem; color: #374151; font-weight: 700;">お届け先</h4>
             <div style="font-size: 0.95rem; line-height: 1.6; color: #374151;">
-                ${clientOrderHtml}
                 <span style="font-weight:700;">納品日:</span> ${dateDisplay}<br>
                 <span style="font-weight:700;">納品先:</span> ${info.name || "（名称なし）"} 様<br>
-                <span style="font-weight:700;">住所:</span> ${safeAddress}<br>
-                <span style="font-weight:700;">備考:</span> ${info.note || "なし"}
+                <span style="font-weight:700;">住所:</span> ${safeAddress}
                 ${shipperHtml}
                 ${estimateHtml}
             </div>

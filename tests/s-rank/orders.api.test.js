@@ -62,7 +62,7 @@ describe("Sランク: 注文確定API", () => {
 
         expect(res.statusCode).toBe(200);
         expect(res.body.success).toBe(true);
-        expect(typeof res.body.orderId).toBe("number");
+        expect(res.body.orderId).toMatch(/^\d{8}$/);
 
         const orders = await readJson("orders.json");
         expect(Array.isArray(orders)).toBe(true);

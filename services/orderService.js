@@ -29,6 +29,8 @@ const PRODUCTS_DB = dbPath("products.json");
 const PRICES_DB = dbPath("prices.json");
 const CUSTOMERS_DB = dbPath("customers.json");
 const RANK_PRICES_DB = dbPath("rank_prices.json");
+const ORDER_ID_WIDTH = 8;
+const MAX_SEQUENTIAL_ORDER_ID = 10 ** ORDER_ID_WIDTH - 1;
 
 // ヘルパー: 公開ID(W00...)から内部ID(数値)への変換 (FLAM用)
 const fromPublicId = (publicId) => {
@@ -67,12 +69,18 @@ class OrderService {
     }
 
     _generateNextOrderId(orders) {
-        const now = Date.now();
-        const maxNumericId = orders.reduce((max, row) => {
-            const id = Number(row && row.orderId);
+        const maxSequentialId = orders.reduce((max, row) => {
+            const rawId = row && row.orderId;
+            const idText = typeof rawId === "string" ? rawId : "";
+            if (!/^\d{8}$/.test(idText)) return max;
+            const id = Number(idText);
             return Number.isFinite(id) ? Math.max(max, id) : max;
         }, 0);
-        return Math.max(now, maxNumericId + 1);
+        const nextId = maxSequentialId + 1;
+        if (nextId > MAX_SEQUENTIAL_ORDER_ID) {
+            throw new Error("Order ID limit exceeded");
+        }
+        return String(nextId).padStart(ORDER_ID_WIDTH, "0");
     }
 
     // =========================================
@@ -449,7 +457,7 @@ class OrderService {
             const nowISO = new Date().toISOString();
 
             orderIds.forEach(id => {
-                const target = orders.find(o => o.orderId === id);
+                const target = orders.find(o => String(o.orderId) === String(id));
                 if (target) target.exported_at = nowISO;
             });
 
@@ -509,7 +517,7 @@ class OrderService {
                     if (match) {
                         const publicId = match[0];
                         const dbId = fromPublicId(publicId);
-                        const targetOrder = orders.find(o => o.orderId === dbId);
+                        const targetOrder = orders.find(o => Number(o.orderId) === dbId);
 
                         if (targetOrder) {
                             targetOrder.status = "発送済";
@@ -524,7 +532,7 @@ class OrderService {
                             stats.skipped++;
                         }
                     } else {
-                        const newId = orders.length > 0 ? Math.max(...orders.map(o => o.orderId)) + 1 : 1;
+                        const newId = this._generateNextOrderId(orders);
                         const newOrder = {
                             orderId: newId,
                             userId: "FAX_USER",

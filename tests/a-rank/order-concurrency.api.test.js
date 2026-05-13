@@ -70,8 +70,8 @@ describe("Aランク: 注文同時実行の整合性", () => {
         expect(resB.statusCode).toBe(200);
         expect(resA.body.success).toBe(true);
         expect(resB.body.success).toBe(true);
-        expect(typeof resA.body.orderId).toBe("number");
-        expect(typeof resB.body.orderId).toBe("number");
+        expect(resA.body.orderId).toMatch(/^\d{8}$/);
+        expect(resB.body.orderId).toMatch(/^\d{8}$/);
         expect(resA.body.orderId).not.toBe(resB.body.orderId);
 
         const orders = await readJson("orders.json");

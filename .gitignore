@@ -32,6 +32,7 @@ proxy_requests.json
 # ログ
 logs/*.json
 !logs/.gitkeep
+order-id-migration-backups/
 
 # カバレッジレポート（CI で生成するためコミットしない）
 # npm run coverage:baseline:save は coverage/baselines/ にスナップショットを置く（coverage/ 配下のため未コミット）

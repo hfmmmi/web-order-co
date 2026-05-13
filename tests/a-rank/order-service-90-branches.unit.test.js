@@ -278,7 +278,34 @@ describe("orderService 分岐90%向け（__testOnly・FLAM・placeOrder・補完
             { name: "n", tel: "t", address: "a" },
             "A"
         );
-        expect(typeof o.orderId).toBe("number");
-        expect(Number.isFinite(o.orderId)).toBe(true);
+        expect(o.orderId).toBe("00000001");
+    });
+
+    test("placeOrder: 8桁注文IDは既存の8桁IDから連番採番", async () => {
+        await writeJson("orders.json", [
+            {
+                orderId: 1762462949380,
+                customerId: "TEST001",
+                orderDate: "2025-01-01T00:00:00.000Z",
+                status: "未発送",
+                items: [],
+                deliveryInfo: {}
+            },
+            {
+                orderId: "00000002",
+                customerId: "TEST001",
+                orderDate: "2025-01-02T00:00:00.000Z",
+                status: "未発送",
+                items: [],
+                deliveryInfo: {}
+            }
+        ]);
+        const o = await orderService.placeOrder(
+            "TEST001",
+            [{ productCode: "P001", quantity: 1, price: 100 }],
+            { name: "n", tel: "t", address: "a" },
+            "A"
+        );
+        expect(o.orderId).toBe("00000003");
     });
 });

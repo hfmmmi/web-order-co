@@ -21,6 +21,7 @@
     "start": "node server.js",
     "dev": "node scripts/warn-integration-erp-key.js && nodemon --legacy-watch server.js",
     "seed:erp-dev": "node scripts/seed-empty-master-for-erp-dev.js",
+    "migrate:order-ids": "node scripts/migrate-order-ids-to-sequential.js",
     "test:flake": "node scripts/run-flake-check.js",
     "test:load": "node scripts/load-test.js"
   },
