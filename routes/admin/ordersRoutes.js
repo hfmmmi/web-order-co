@@ -33,6 +33,20 @@ router.get("/admin/orders", requireAdmin, async (req, res) => {
     }
 });
 
+router.get("/admin/order/:orderId", requireAdmin, async (req, res) => {
+    const rawId = req.params.orderId != null ? String(req.params.orderId).trim() : "";
+    if (!rawId) return res.status(400).json({ success: false, message: "注文IDが必要です" });
+    try {
+        const orders = await orderService.getAllOrders();
+        const order = orders.find(o => String(o.orderId) === String(rawId));
+        if (!order) return res.status(404).json({ success: false, message: "注文が見つかりません" });
+        res.json({ success: true, order });
+    } catch (e) {
+        console.error("admin order detail:", e);
+        res.status(500).json({ success: false, message: "注文データの取得に失敗しました" });
+    }
+});
+
 /** 管理画面から新規受注を登録（顧客ランクに基づき placeOrder で価格確定） */
 router.post("/admin/orders-create", requireAdmin, validateBody(adminCreateOrderSchema), async (req, res) => {
     try {

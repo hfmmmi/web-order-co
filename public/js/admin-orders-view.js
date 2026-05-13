@@ -78,8 +78,8 @@
         let statusFg;
         let statusBorder;
         if (order.status === "発送済") {
-            statusColor = "#ffffff";
-            statusFg = "inherit";
+            statusColor = "#f3f4f6";
+            statusFg = "#6b7280";
             statusBorder = "#e5e7eb";
         } else if (order.status === "一部発送" || !order.status || order.status === "未発送") {
             statusColor = "#d6e7f1";
@@ -137,13 +137,14 @@
                 </tr>
                 </tbody></table>`;
 
+        const orderIdPublic = order.orderId != null ? String(order.orderId) : "";
         const orderIdAttr = escapeAttr(order.orderId != null ? order.orderId : "");
         const summaryCellsHtml = `
             <td class="col-select">
                 <input type="checkbox" class="order-row-select" data-order-id="${orderIdAttr}" title="選択" aria-label="この注文を選択">
             </td>
+            <td class="col-id"><a class="order-id-link" href="admin-order-detail.html?orderId=${encodeURIComponent(orderIdPublic)}">${escapeHtml(orderIdPublic)}</a></td>
             <td class="col-date">${orderDateStr}</td>
-            <td class="col-id"><strong>${order.orderId}</strong></td>
             <td class="col-status">
                 <span style="background-color: ${statusColor}; color: ${statusFg}; border: 1px solid ${statusBorder}; padding: 5px 10px; border-radius: 3px; font-size: 0.8125rem; font-weight: 600; white-space: nowrap; line-height: 1.25;">
                     ${order.status || "未発送"}
@@ -154,7 +155,7 @@
             <td class="col-numeric"><strong>¥${totalAmount.toLocaleString()}</strong></td>
             <td class="col-export">${exportBadge}</td>
             <td class="col-action">
-                <button type="button" class="btn-toggle-detail" style="box-sizing: border-box; padding: 4px 10px; background: #dfe3e6; color: #111827; border: 1px solid #c5cdd5; border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-weight: 600; font-family: inherit; line-height: 1.25; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); display: inline-flex; align-items: center; justify-content: center;">
+                <button type="button" class="btn-toggle-detail" style="box-sizing: border-box; padding: 4px 10px; background: #dfe3e6; color: #111827; border: 1px solid #c5cdd5; border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-weight: 400; font-family: inherit; line-height: 1.25; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); display: inline-flex; align-items: center; justify-content: center;">
                     詳細 ▼
                 </button>
             </td>`;

@@ -165,7 +165,7 @@ function renderSidebar(features) {
             (currentPath === "admin-products.html" || currentPath === "admin-products-new.html");
         const isOrdersFamily =
             item.id === "orders" &&
-            (currentPath === "admin-orders.html" || currentPath === "admin-orders-new.html");
+            (currentPath === "admin-orders.html" || currentPath === "admin-orders-new.html" || currentPath === "admin-order-detail.html");
         const isActive = currentPath === item.link || isProductsFamily || isOrdersFamily ? "active" : "";
         const iconMarkup = adminIconHtml(item.iconKey);
         menuHtml += `

@@ -1380,8 +1380,8 @@ document.addEventListener("DOMContentLoaded", function () {
             '<th scope="col" class="col-select">' +
             '<input type="checkbox" class="order-select-all" title="このページを全選択" aria-label="このページの注文をすべて選択">' +
             "</th>" +
-            '<th scope="col">注文日</th>' +
             '<th scope="col">注文ID</th>' +
+            '<th scope="col">注文日</th>' +
             '<th scope="col">ステータス</th>' +
             '<th scope="col">得意先</th>' +
             '<th scope="col">納品先</th>' +
@@ -1442,6 +1442,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     return;
                 }
                 if (e.target.closest(".btn-toggle-detail")) {
+                    return;
+                }
+                if (e.target.closest("a.order-id-link")) {
                     return;
                 }
                 toggleOrderDetailRow(sumTr, detTr, toggleBtn);

@@ -21,5 +21,5 @@ test("顧客E2E: 注文確定後に履歴へ反映される", async ({ page }) =
     await expect(page).toHaveURL(/products\.html$/, { timeout: 15000 });
     await page.getByRole("link", { name: "注文履歴" }).click();
     await expect(page).toHaveURL(/history\.html$/);
-    await expect(page.locator(".history-card").first()).toBeVisible();
+    await expect(page.locator(".orders-list-table .order-summary-row").first()).toBeVisible();
 });

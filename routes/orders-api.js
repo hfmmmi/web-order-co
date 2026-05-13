@@ -77,6 +77,25 @@ router.get("/order-history", async (req, res) => {
     }
 });
 
+// 3b. 単一注文取得（顧客本人の注文のみ・注文詳細ページ用）
+router.get("/order/:orderId", async (req, res) => {
+    if (!req.session.customerId) return res.status(401).json({ success: false, message: "ログインが必要です" });
+    const rawId = req.params.orderId != null ? String(req.params.orderId).trim() : "";
+    if (!rawId) return res.status(400).json({ success: false, message: "注文IDが必要です" });
+    try {
+        const historyData = await orderService.searchOrders({
+            customerId: req.session.customerId,
+            isAdmin: false
+        });
+        const order = historyData.find(o => String(o.orderId) === String(rawId));
+        if (!order) return res.status(404).json({ success: false, message: "注文が見つかりません" });
+        res.json({ success: true, order });
+    } catch (error) {
+        console.error("注文詳細取得エラー", error);
+        res.status(500).json({ success: false, message: "読み込みエラー" });
+    }
+});
+
 // 4. 配送履歴API (顧客用)
 router.get("/delivery-history", async (req, res) => {
     if (!req.session.customerId) return res.json({ success: false, message: "ログインが必要です" });

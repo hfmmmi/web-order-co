@@ -425,6 +425,35 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             expect(res.statusCode).toBe(401);
         });
 
+        test("GET /order/:orderId は未ログインで401", async () => {
+            const res = await request(app).get("/order/00000001");
+            expect(res.statusCode).toBe(401);
+        });
+
+        test("GET /order/:orderId はログイン顧客が自注文を取得できる", async () => {
+            const agent = request.agent(app);
+            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            const place = await agent.post("/place-order").send({
+                cart: [{ code: "P001", quantity: 1 }],
+                deliveryInfo: { name: "テスト", address: "東京都", tel: "03-1111-2222", zip: "1000001" }
+            });
+            expect(place.body.success).toBe(true);
+            const oid = place.body.orderId;
+            const res = await agent.get("/order/" + encodeURIComponent(oid));
+            expect(res.statusCode).toBe(200);
+            expect(res.body.success).toBe(true);
+            expect(res.body.order).toBeDefined();
+            expect(String(res.body.order.orderId)).toBe(String(oid));
+        });
+
+        test("GET /order/:orderId は該当なしで404", async () => {
+            const agent = request.agent(app);
+            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            const res = await agent.get("/order/99999999");
+            expect(res.statusCode).toBe(404);
+            expect(res.body.success).toBe(false);
+        });
+
         test("GET /delivery-history は未ログインで success:false", async () => {
             const res = await request(app).get("/delivery-history");
             expect(res.statusCode).toBe(200);

@@ -48,7 +48,7 @@ test("顧客E2E: 複数商品のクイック再注文で数量合算と既存カ
 
     await page.getByRole("link", { name: "注文履歴" }).click();
     await expect(page).toHaveURL(/history\.html$/);
-    await expect(page.locator(".history-card").first()).toBeVisible();
+    await expect(page.locator(".orders-list-table .order-summary-row").first()).toBeVisible();
 
     await page.locator(".btn-toggle-detail").first().click();
     await page.locator(".btn-reorder").first().click();

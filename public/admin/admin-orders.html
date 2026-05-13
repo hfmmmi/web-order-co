@@ -386,6 +386,18 @@
             font-size: 0.9rem;
         }
 
+        .orders-list-table .order-id-link {
+            color: var(--orders-list-party-color, #111827);
+            text-decoration: underline;
+            text-underline-offset: 0.12em;
+            font-weight: 400;
+        }
+
+        .orders-list-table .order-id-link:hover {
+            color: var(--orders-list-party-color, #111827);
+            text-decoration: underline;
+        }
+
         /* 注文一覧テーブル */
         .orders-list-wrap {
             width: 100%;
@@ -402,6 +414,7 @@
             line-height: 1.35;
             --order-detail-bg: #dfe3e6;
             --order-detail-border: #c5cdd5;
+            --orders-list-party-color: #111827;
         }
 
         .orders-list-table thead th {
@@ -513,6 +526,10 @@
 
         .orders-list-table .col-party {
             max-width: 260px;
+        }
+
+        .orders-list-table tbody td.col-party {
+            color: var(--orders-list-party-color);
         }
 
         .orders-list-table .col-product {

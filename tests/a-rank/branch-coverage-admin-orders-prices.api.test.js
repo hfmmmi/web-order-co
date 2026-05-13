@@ -62,6 +62,42 @@ describe("Aランク: admin orders / prices 分岐カバレッジ", () => {
         expect(Array.isArray(res.body.orders)).toBe(true);
     });
 
+    test("GET /api/admin/order/:orderId は未ログインで401", async () => {
+        const res = await request(app).get("/api/admin/order/00000001");
+        expect(res.statusCode).toBe(401);
+    });
+
+    test("GET /api/admin/order/:orderId は管理者で1件取得できる", async () => {
+        const agent = request.agent(app);
+        await agent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        const created = await agent.post("/api/admin/orders-create").send({
+            customerId: "TEST001",
+            cart: [{ code: "P001", quantity: 1, price: 0 }],
+            deliveryInfo: {
+                name: "管理画面からの届先",
+                zip: "530-0001",
+                address: "大阪府",
+                tel: "06-0000-0000",
+                clientOrderNumber: "ADM-DETAIL-1"
+            }
+        });
+        expect(created.statusCode).toBe(200);
+        expect(created.body.success).toBe(true);
+        const oid = created.body.orderId;
+        const res = await agent.get("/api/admin/order/" + encodeURIComponent(oid));
+        expect(res.statusCode).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(String(res.body.order.orderId)).toBe(String(oid));
+    });
+
+    test("GET /api/admin/order/:orderId は存在しない注文で404", async () => {
+        const agent = request.agent(app);
+        await agent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        const res = await agent.get("/api/admin/order/99999999");
+        expect(res.statusCode).toBe(404);
+        expect(res.body.success).toBe(false);
+    });
+
     test("GET /api/admin/orders は getAllOrders 失敗時 500", async () => {
         jest.spyOn(orderService, "getAllOrders").mockRejectedValueOnce(new Error("db read"));
         const agent = request.agent(app);
