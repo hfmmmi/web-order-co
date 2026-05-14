@@ -81,7 +81,7 @@ async function main() {
             text: "このメールは「scripts/check-mail.js」の診断用送信です。\nパスワード再設定のメールではありません。\n届いていればSMTP設定は正常です。"
         });
         console.log("送信成功: 宛先", testTo);
-        console.log("※「パスワードをお忘れの方」で送るメールは件名「【WEB受注システム】パスワード再設定のご案内」です。");
+        console.log("※「パスワードをお忘れの方」で送るメールは件名「【発注システム】パスワード再設定のご案内」です。");
     } catch (err) {
         console.error("\n送信エラー（これが届かない原因です）:");
         console.error("  コード:", err.code || "(なし)");

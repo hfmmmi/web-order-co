@@ -220,7 +220,7 @@ router.post("/admin/proxy-login", requireAdmin, async (req, res) => {
         try {
             await require("../../utils/sessionAsync").saveSession(req);
             console.log(`代理ログイン: ${req.session.adminName} → 顧客 ${customer.customerId}`);
-            res.json({ success: true, redirectUrl: "/products.html" });
+            res.json({ success: true, redirectUrl: "/home.html" });
         } catch (err) {
             console.error("Session Save Error (proxy-login):", err);
             return res.status(500).json({ success: false, message: "セッション保存に失敗しました" });

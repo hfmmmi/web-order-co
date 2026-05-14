@@ -1,6 +1,6 @@
 const { test, expect } = require("@playwright/test");
 
-test("顧客E2E: ログイン -> 商品一覧 -> カート投入 -> カート確認", async ({ page }) => {
+test("顧客E2E: ログイン -> 注文 -> カート投入 -> カート確認", async ({ page }) => {
     await page.goto("/index.html");
 
     await page.fill("#username-input", "TEST001");

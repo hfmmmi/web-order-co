@@ -43,6 +43,11 @@ app.use(fileUpload({
     useTempFiles: false
 }));
 
+// 旧「お知らせ」専用ページはメイン（商品一覧）へ統合済み
+app.get(["/announcements.html", "/announcements"], (req, res) => {
+    res.redirect(302, "/home.html");
+});
+
 app.use(express.static(path.join(__dirname, "public")));
 app.use(createResponseTimeMiddleware());
 

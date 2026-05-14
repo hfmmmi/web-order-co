@@ -4282,9 +4282,32 @@
         "tel": "0268752815"
       }
     },
-    "status": "未発送",
-    "shipments": [],
+    "status": "発送済",
+    "shipments": [
+      {
+        "shipmentId": 1778722552839,
+        "shippedDate": "2026-05-14T01:35:52.839Z",
+        "deliveryCompany": "",
+        "trackingNumber": "",
+        "deliveryDate": "",
+        "deliveryDateUnknown": false,
+        "items": [
+          {
+            "code": "JSP8400",
+            "name": "RICOH SPﾄﾅｰ8400 【600652】",
+            "quantity": 1
+          },
+          {
+            "code": "JSP8400DR",
+            "name": "RICOH SPﾄﾞﾗﾑ8400 【513721】",
+            "quantity": 1
+          }
+        ]
+      }
+    ],
     "exported_at": null,
-    "stockSnapshot": null
+    "stockSnapshot": null,
+    "deliveryCompany": "",
+    "trackingNumber": ""
   }
 ]

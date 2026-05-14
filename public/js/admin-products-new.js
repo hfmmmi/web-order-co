@@ -28,8 +28,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const sessionAdded = [];
     let isEditMode = false;
 
-    const TITLE_NEW = "商品登録 - WEB受注システム";
-    const TITLE_EDIT = "商品登録（編集） - WEB受注システム";
+    const TITLE_NEW = "商品登録 - 発注システム";
+    const TITLE_EDIT = "商品登録（編集） - 発注システム";
 
     function setTabLabel(text) {
         if (tabLabel) tabLabel.textContent = text;

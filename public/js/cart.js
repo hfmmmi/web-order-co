@@ -370,7 +370,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     toastSuccess("注文が完了しました！", 2000);
                     sessionStorage.removeItem("cart");
                     // 少し待ってから遷移（トースト表示を確認できるように）
-                    setTimeout(() => { window.location.href = "products.html"; }, 1500);
+                    setTimeout(() => { window.location.href = "home.html"; }, 1500);
                 } else {
                     toastError("注文失敗: " + result.message);
                     orderButton.disabled = false;

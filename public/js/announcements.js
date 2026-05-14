@@ -1,24 +1,32 @@
 /**
  * announcements.js
- * お知らせページの表示
+ * ホーム（home.html）の一般お知らせ表示
  */
 
 document.addEventListener("DOMContentLoaded", function () {
     fetch("/api/settings/public")
         .then(function (r) {
-            if (!r.ok) return { announcements: [] };
+            if (!r.ok) return { announcements: [], features: {} };
             return r.json();
         })
         .then(function (data) {
+            const feats = (data && data.features) || {};
+            const block = document.getElementById("home-announcements-block");
+            const container = document.getElementById("announcements-list");
+            if (!container) return;
+
+            if (feats.announcements === false) {
+                if (block) block.style.display = "none";
+                return;
+            }
+            if (block) block.style.display = "";
+
             const all = (data && data.announcements) || [];
             const list = all.filter(function (a) {
                 const cat = a.category || "general";
                 return cat === "general";
             });
-            const container = document.getElementById("announcements-list");
-            if (!container) return;
 
-            // features.announcements が false の場合は非表示（通常はこのページ自体にアクセスできない想定）
             if (list.length === 0) {
                 container.innerHTML = '<div class="announcements-empty">現在、お知らせはありません。</div>';
                 return;

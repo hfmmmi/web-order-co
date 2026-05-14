@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ホーム - 発注システム</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body.customer-home-page {
+            background-color: #eef1f5;
+        }
+
+        body.customer-home-page .container {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .home-announcements-block {
+            margin-bottom: 20px;
+        }
+
+        .home-announcements-list .home-announcements-loading {
+            text-align: center;
+            padding: 24px 16px;
+            color: #999;
+            margin: 0;
+        }
+
+        .home-announcements-list .announcement-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 14px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #007bff;
+        }
+
+        .home-announcements-list .announcement-card.type-info { border-left-color: #17a2b8; }
+        .home-announcements-list .announcement-card.type-warning { border-left-color: #ffc107; }
+        .home-announcements-list .announcement-card.type-error { border-left-color: #dc3545; }
+        .home-announcements-list .announcement-card.type-success { border-left-color: #28a745; }
+
+        .home-announcements-list .announcement-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.15rem;
+        }
+
+        .home-announcements-list .announcement-card .body {
+            color: #333;
+            line-height: 1.7;
+            white-space: pre-wrap;
+        }
+
+        .home-announcements-list .announcement-card .meta {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 12px;
+        }
+
+        .home-announcements-list .announcement-card a {
+            color: #007bff;
+            text-decoration: underline;
+        }
+
+        .home-announcements-list .announcements-empty {
+            text-align: center;
+            padding: 32px 20px;
+            color: #666;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .home-hub {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+
+        .home-hub-tile {
+            flex: 0 0 158px;
+            width: 158px;
+            max-width: 158px;
+            min-width: 0;
+            text-decoration: none;
+            color: inherit;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .home-hub-tile:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
+        }
+
+        .home-hub-tile__top {
+            background: #ACCDE5;
+            height: 104px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .home-hub-tile__top::after {
+            content: "";
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 9px solid #ACCDE5;
+            z-index: 1;
+        }
+
+        .home-hub-tile__top svg {
+            width: 52px;
+            height: 52px;
+            color: #fff;
+            position: relative;
+            z-index: 2;
+        }
+
+        .home-hub-tile__bottom {
+            background: #DFE3E6;
+            color: #374151;
+            padding: 14px 6px 12px;
+            text-align: center;
+            font-size: 0.74rem;
+            font-weight: 700;
+            line-height: 1.25;
+            letter-spacing: 0.02em;
+        }
+
+    </style>
+</head>
+
+<body class="customer-home-page">
+    <nav class="global-nav">
+        <a href="home.html" class="nav-logo" aria-current="page">
+            <span>発注システム</span>
+        </a>
+        <div class="nav-links">
+            <a href="home.html" class="nav-item nav-home-link nav-item--current" aria-label="ホーム" title="ホーム"><svg class="nav-home-link__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="9 22 9 12 15 12 15 22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+            <a href="products.html" class="nav-item">注文</a>
+            <a href="cart.html" class="nav-item nav-cart" data-feature="cart">カート</a>
+            <a href="history.html" class="nav-item" data-feature="history">注文履歴</a>
+            <a href="kaitori.html" class="nav-item" data-feature="kaitori">空カートリッジ買取</a>
+            <a href="support.html" class="nav-item" data-feature="support">サポート</a>
+            <a href="https://www.e-kaisyu.jp/" target="_blank" class="nav-item" data-feature="collection">回収依頼</a>
+            <a href="account.html" class="nav-item">アカウント設定</a>
+            <a href="#" class="nav-item" id="logout-btn">ログアウト</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <section id="home-announcements-block" class="home-announcements-block" aria-label="お知らせ">
+            <div id="announcements-list" class="home-announcements-list">
+                <p class="home-announcements-loading">読み込み中...</p>
+            </div>
+        </section>
+
+        <nav class="home-hub" aria-label="主要メニュー">
+            <a href="products.html" class="home-hub-tile">
+                <div class="home-hub-tile__top" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                </div>
+                <div class="home-hub-tile__bottom">注文</div>
+            </a>
+            <a href="cart.html" class="home-hub-tile" data-feature="cart">
+                <div class="home-hub-tile__top" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                </div>
+                <div class="home-hub-tile__bottom">カート</div>
+            </a>
+            <a href="history.html" class="home-hub-tile" data-feature="history">
+                <div class="home-hub-tile__top" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+                </div>
+                <div class="home-hub-tile__bottom">注文履歴</div>
+            </a>
+            <a href="kaitori.html" class="home-hub-tile" data-feature="kaitori">
+                <div class="home-hub-tile__top" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                </div>
+                <div class="home-hub-tile__bottom">空カートリッジ買取</div>
+            </a>
+            <a href="support.html" class="home-hub-tile" data-feature="support">
+                <div class="home-hub-tile__top" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                </div>
+                <div class="home-hub-tile__bottom">サポート</div>
+            </a>
+            <a href="https://www.e-kaisyu.jp/" target="_blank" rel="noopener noreferrer" class="home-hub-tile" data-feature="collection">
+                <div class="home-hub-tile__top" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                </div>
+                <div class="home-hub-tile__bottom">回収依頼</div>
+            </a>
+            <a href="account.html" class="home-hub-tile">
+                <div class="home-hub-tile__top" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <div class="home-hub-tile__bottom">アカウント設定</div>
+            </a>
+        </nav>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="js/announcements.js"></script>
+</body>
+
+</html>

@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>システム設定 - WEB受注システム</title>
+    <title>システム設定 - 発注システム</title>
     <link rel="stylesheet" href="../style.css">
     <style>
         body {
@@ -620,7 +620,7 @@
                                 <div class="settings-flex-row">
                                     <div class="form-group">
                                         <label for="mailFromDisplayName">表示名（任意）</label>
-                                        <input type="text" id="mailFromDisplayName" class="form-control" placeholder="例: WEB受注システム">
+                                        <input type="text" id="mailFromDisplayName" class="form-control" placeholder="例: 発注システム">
                                     </div>
                                     <div class="form-group">
                                         <label for="mailFromAddress">メールアドレス</label>
@@ -685,7 +685,7 @@
                             <div class="settings-collapse-body">
                                 <div class="form-group">
                                     <label for="inviteSubject">初回招待の件名</label>
-                                    <input type="text" id="inviteSubject" class="form-control" placeholder="【WEB受注システム】初回ログインのご案内">
+                                    <input type="text" id="inviteSubject" class="form-control" placeholder="【発注システム】初回ログインのご案内">
                                 </div>
                                 <div class="form-group">
                                     <label for="inviteBody">初回招待の本文</label>
@@ -693,7 +693,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="passwordResetSubject">パスワード再設定の件名</label>
-                                    <input type="text" id="passwordResetSubject" class="form-control" placeholder="【WEB受注システム】パスワード再設定のご案内">
+                                    <input type="text" id="passwordResetSubject" class="form-control" placeholder="【発注システム】パスワード再設定のご案内">
                                 </div>
                                 <div class="form-group">
                                     <label for="passwordResetBody">パスワード再設定の本文</label>
@@ -701,7 +701,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="passwordChangedSubject">パスワード変更完了通知の件名</label>
-                                    <input type="text" id="passwordChangedSubject" class="form-control" placeholder="【WEB受注システム】パスワードが変更されました">
+                                    <input type="text" id="passwordChangedSubject" class="form-control" placeholder="【発注システム】パスワードが変更されました">
                                 </div>
                                 <div class="form-group">
                                     <label for="passwordChangedBody">パスワード変更完了通知の本文</label>
@@ -910,8 +910,8 @@
                             <button type="button" id="btn-add-announcement" class="btn-small settings-btn-with-icon settings-btn-announcement-add"><span class="settings-btn-icon" data-admin-icon="settingsBtnPlus" aria-hidden="true"></span>新規追加</button>
                         </div>
                         <p class="settings-muted-block settings-announce-intro">
-                            <strong>【注文に関するお知らせ】</strong>（バナー）: 配送遅延、休業前後の締め時間変更など、注文・発送に直接関係するお知らせのみ。商品一覧・注文履歴ページに表示されます。<br>
-                            <strong>【一般お知らせ】</strong>（お知らせページ）: その他の案内・ニュース。顧客画面の「お知らせ」ページに一覧表示されます。<br>
+                            <strong>【注文に関するお知らせ】</strong>（バナー）: 配送遅延、休業前後の締め時間変更など、注文・発送に直接関係するお知らせのみ。注文ページ・注文履歴ページに表示されます。<br>
+                            <strong>【一般お知らせ】</strong>: その他の案内・ニュース。顧客のホーム（<code>home.html</code>）上部に一覧表示されます。<br>
                             開始日時・終了日時を設定すると、自動的に表示・非表示が切り替わります。<br>
                             <strong class="settings-announce-warn">※お知らせを追加・編集したら、画面上部の「設定を保存」ボタンを押すと、顧客画面に反映されます。</strong>
                         </p>

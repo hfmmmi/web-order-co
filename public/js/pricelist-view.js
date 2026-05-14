@@ -28,7 +28,7 @@
                 window.close();
                 // スクリプトで閉じられないケース（手動で開いたタブ）向けフォールバック
                 setTimeout(function () {
-                    if (!window.closed) window.location.href = "products.html";
+                    if (!window.closed) window.location.href = "home.html";
                 }, 100);
             });
         }

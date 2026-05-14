@@ -154,7 +154,7 @@ function renderSidebar(features) {
         : allItems;
 
     let menuHtml = `
-        <div class="sidebar-brand">WEB受注 ADMIN 3.1</div>
+        <div class="sidebar-brand">受注システム</div>
         <ul class="sidebar-menu">
     `;
 

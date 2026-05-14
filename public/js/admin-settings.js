@@ -34,7 +34,7 @@ const FEATURE_DEFS = {
         { key: "cart", label: "カート" },
         { key: "history", label: "注文履歴" },
         { key: "collection", label: "回収依頼" },
-        { key: "announcements", label: "お知らせページ" }
+        { key: "announcements", label: "一般お知らせ（メイン）" }
     ],
     admin: [
         { key: "adminKaitori", label: "買取査定" },
@@ -446,7 +446,7 @@ function renderAnnouncements() {
         const startDate = ann.startDate ? new Date(ann.startDate).toLocaleString("ja-JP") : "即時表示";
         const endDate = ann.endDate ? new Date(ann.endDate).toLocaleString("ja-JP") : "無期限";
         const targetLabel = ann.target === "customer" ? "顧客向け" : ann.target === "admin" ? "管理画面向け" : "全員向け";
-        const categoryLabel = (ann.category || "general") === "order" ? "注文関連（バナー）" : "一般（お知らせページ）";
+        const categoryLabel = (ann.category || "general") === "order" ? "注文関連（バナー）" : "一般（ホーム）";
         
         return `
             <div class="announcement-item" data-index="${index}" style="border-left: 4px solid ${colors.border};">
@@ -494,8 +494,8 @@ function renderAnnouncementForm(ann, index) {
             <div class="form-group">
                 <label>カテゴリ</label>
                 <select class="form-control" id="ann-category-${index}">
-                    <option value="order" ${(ann.category || "general") === "order" ? "selected" : ""}>注文関連（商品一覧・注文履歴ページのバナーに表示）</option>
-                    <option value="general" ${(ann.category || "general") === "general" ? "selected" : ""}>一般（お知らせページに表示）</option>
+                    <option value="order" ${(ann.category || "general") === "order" ? "selected" : ""}>注文関連（注文ページ・注文履歴ページのバナーに表示）</option>
+                    <option value="general" ${(ann.category || "general") === "general" ? "selected" : ""}>一般（ホーム上部に表示）</option>
                 </select>
             </div>
             <div class="form-group">

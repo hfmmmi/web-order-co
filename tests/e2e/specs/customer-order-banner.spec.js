@@ -1,6 +1,6 @@
 const { test, expect } = require("@playwright/test");
 
-test("顧客E2E: 商品一覧に注文関連バナーが表示される", async ({ page }) => {
+test("顧客E2E: 注文ページに注文関連バナーが表示される", async ({ page }) => {
     await page.goto("/index.html");
     await page.fill("#username-input", "TEST001");
     await page.fill("#password-input", "CustPass123!");

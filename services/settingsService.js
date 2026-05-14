@@ -20,7 +20,7 @@ const DEFAULTS = {
             port: 587,
             secure: false
         },
-        from: "'WEB受注システム' <m.irikura@hifumim.com>",
+        from: "'発注システム' <m.irikura@hifumim.com>",
         orderNotifyTo: "irikura2@hifumi-m.com",
         supportNotifyTo: "irikura2@hifumi-m.com",
         templates: {
@@ -52,10 +52,10 @@ WEB発注NO: {{customerPoNumber}}
 添付ファイル: {{attachmentsList}}
 --------------------------------
 ※管理画面ダッシュボードをご確認ください。`,
-            inviteSubject: "【WEB受注システム】初回ログインのご案内",
+            inviteSubject: "【発注システム】初回ログインのご案内",
             inviteBody: `{{customerName}} 様
 
-WEB受注システムへようこそ。
+発注システムへようこそ。
 初回ログインのご案内です。
 
 以下のリンクをクリックし、新しいパスワードを設定してください。
@@ -66,7 +66,7 @@ WEB受注システムへようこそ。
 
 ※このリンクは1回のみ使用でき、24時間で有効期限が切れます。
 ※心当たりがない場合はこのメールを破棄してください。`,
-            passwordResetSubject: "【WEB受注システム】パスワード再設定のご案内",
+            passwordResetSubject: "【発注システム】パスワード再設定のご案内",
             passwordResetBody: `{{customerName}} 様
 
 パスワード再設定のご案内です。
@@ -79,24 +79,24 @@ WEB受注システムへようこそ。
 
 ※このリンクは1回のみ使用でき、24時間で有効期限が切れます。
 ※心当たりがない場合はこのメールを破棄してください。`,
-            passwordChangedSubject: "【WEB受注システム】パスワードが変更されました",
+            passwordChangedSubject: "【発注システム】パスワードが変更されました",
             passwordChangedBody: `{{customerName}} 様
 
-WEB受注システムのパスワードが変更されました。
+発注システムのパスワードが変更されました。
 
 変更日時: {{date}}
 
 心当たりがない場合は、至急管理者にお問い合わせください。`,
-            loginFailureAlertSubject: "【WEB受注システム】ログイン失敗が5回ありました",
+            loginFailureAlertSubject: "【発注システム】ログイン失敗が5回ありました",
             loginFailureAlertBody: `{{customerName}} 様
 
-WEB受注システムへのログイン試行が5回失敗しました。
+発注システムへのログイン試行が5回失敗しました。
 
 日時: {{date}}
 
 心当たりがない場合は、パスワードの変更をお勧めします。
 ログイン画面の「パスワードをお忘れの方」から再設定できます。`,
-            loginFailureAlertAdminSubject: "【WEB受注システム】管理者ログイン失敗が5回ありました",
+            loginFailureAlertAdminSubject: "【発注システム】管理者ログイン失敗が5回ありました",
             loginFailureAlertAdminBody: `管理者アカウント「{{adminId}}」（{{adminName}}）でログインが5回失敗しました。
 
 日時: {{date}}

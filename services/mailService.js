@@ -234,7 +234,7 @@ async function sendPasswordChangedNotification(customer) {
         const t = config.templates;
         const dateStr = new Date().toLocaleString("ja-JP");
 
-        const subject = settingsService.applyTemplate(t.passwordChangedSubject || "【WEB受注システム】パスワードが変更されました", {
+        const subject = settingsService.applyTemplate(t.passwordChangedSubject || "【発注システム】パスワードが変更されました", {
             customerName: customer.customerName,
             customerId: customer.customerId,
             date: dateStr
@@ -273,7 +273,7 @@ async function sendLoginFailureAlert(opts) {
 
         if (opts.type === "customer" && opts.customer) {
             if (!(opts.customer.email || "").trim()) return false;
-            const subject = settingsService.applyTemplate(t.loginFailureAlertSubject || "【WEB受注システム】ログイン失敗が5回ありました", {
+            const subject = settingsService.applyTemplate(t.loginFailureAlertSubject || "【発注システム】ログイン失敗が5回ありました", {
                 customerName: opts.customer.customerName || opts.customer.customerId,
                 date: dateStr,
                 count: opts.count || 5
@@ -295,7 +295,7 @@ async function sendLoginFailureAlert(opts) {
         }
 
         if (opts.type === "admin" && config.supportNotifyTo) {
-            const subject = settingsService.applyTemplate(t.loginFailureAlertAdminSubject || "【WEB受注システム】管理者ログイン失敗が5回ありました", {
+            const subject = settingsService.applyTemplate(t.loginFailureAlertAdminSubject || "【発注システム】管理者ログイン失敗が5回ありました", {
                 adminId: opts.adminId || "",
                 adminName: opts.adminName || "",
                 date: dateStr,

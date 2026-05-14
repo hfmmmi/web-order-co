@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         if (meta) {
             meta.textContent = "注文ID " + String(order.orderId) + " · " + dateStr + " · " + statusText;
         }
-        document.title = "注文詳細 " + String(order.orderId) + " - WEB受注システム";
+        document.title = "注文詳細 " + String(order.orderId) + " - 発注システム";
 
         if (main) {
             main.innerHTML = window.buildCustomerOrderDetailHtml(order);

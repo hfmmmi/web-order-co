@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             titleMeta.textContent =
                 "注文ID " + String(order.orderId) + " · " + dateStr + " · " + statusText + " · " + cust;
         }
-        document.title = "注文詳細 " + String(order.orderId) + " - WEB受注システム";
+        document.title = "注文詳細 " + String(order.orderId) + " - 発注システム";
 
         if (statusEl) statusEl.style.display = "none";
         if (bodyEl) {

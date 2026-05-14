@@ -100,7 +100,7 @@ router.post("/login", validateBody(loginSchema), async (req, res) => {
 
             try {
                 await require("../../utils/sessionAsync").saveSession(req);
-                res.json({ success: true, redirectUrl: "products.html" });
+                res.json({ success: true, redirectUrl: "home.html" });
             } catch (err) {
                 console.error("Session Save Error:", err);
                 return res.json({ success: false, message: "セッション保存失敗" });

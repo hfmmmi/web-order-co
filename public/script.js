@@ -279,7 +279,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 
                     // IDによって叩くAPIと行き先を変える
                     let targetApi = "/api/login";       // デフォルト: 顧客用
-                    let successUrl = "products.html";   // デフォルト: 商品一覧
+                    let successUrl = "home.html";   // デフォルト: ホーム（お知らせ・ショートカット）
 
                     // IDが "admin" の場合のみ、管理者ルートへ切り替え
                     if (id === "admin") {
@@ -405,11 +405,20 @@ document.addEventListener("DOMContentLoaded", async function() {
                     if (f[key] === false) el.style.display = "none";
                 });
             }
+            document.querySelectorAll(".home-hub [data-feature]").forEach(function (el) {
+                var key = el.dataset.feature;
+                if (f[key] === false) el.style.display = "none";
+            });
+            var homeAnnBlock = document.getElementById("home-announcements-block");
+            if (homeAnnBlock && f.announcements === false) {
+                homeAnnBlock.style.display = "none";
+            }
             // 注文に関するお知らせ（バナー）: 商品一覧・注文履歴ページのみに表示
             var path = window.location.pathname || "";
             var showBanner = path.endsWith("products.html") || path.endsWith("/products") || path === "/products"
                 || path.endsWith("history.html") || path.endsWith("/history") || path === "/history";
-            var list = (data && data.orderBanners) || (data && data.announcements) || [];
+            var ob = data && data.orderBanners;
+            var list = Array.isArray(ob) ? ob : [];
             if (list.length > 0 && nav && showBanner) {
                 renderAnnouncements(list);
             }

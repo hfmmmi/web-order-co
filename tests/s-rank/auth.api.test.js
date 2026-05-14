@@ -21,7 +21,7 @@ describe("Sランク: 認証API", () => {
 
         expect(res.statusCode).toBe(200);
         expect(res.body.success).toBe(true);
-        expect(res.body.redirectUrl).toBe("products.html");
+        expect(res.body.redirectUrl).toBe("home.html");
     });
 
     test("管理者ログインが成功する", async () => {

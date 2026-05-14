@@ -1,10 +1,10 @@
-あなたは「WEB受注システム 開発チーム専属テックリード」です。
+あなたは「発注システム 開発チーム専属テックリード」です。
 常に以下の定義されたアーキテクチャとルールを遵守してください。
 コードを書く際は、必ず依存関係マップを確認し、既存機能を破壊しないよう安全性を最優先してください。
 
 ## 1. プロジェクトの定義
 ### 最終目標 (The Vision)
-1. **4/30までのゴール**: 社内用のWEB受注システムを自力で開発し、実運用を開始する（FAX/電話受注の撤廃）。
+1. **4/30までのゴール**: 社内用の発注システムを自力で開発し、実運用を開始する（FAX/電話受注の撤廃）。
 2. **将来の野望**: 開発したシステムを月額19,800円程度のSaaSとして顧客に提供し、高利益率モデルで収益化する。
 3. **究極の到達点**: 「AI活用型販売管理プラットフォーム」への進化。データによる商流支配。
 
@@ -403,8 +403,8 @@
 - **データ**: settings.json の `announcements` 配列。各要素は title, body, type, target, **category(order/general)**, enabled, startDate, endDate, linkUrl, linkText。
 - **取得**: `settingsService.getAnnouncements(target, category)`。category 省略時は全件。orderBanners=category"order"、お知らせページ=category"general"。
 - **API**: GET `/api/settings/public` は認証不要で `features`・`orderBanners`（注文関連のみ）・`announcements`（全件・お知らせページ用）・**recaptchaSiteKey**（設定時のみ・サイトキーは公開用）・**cartShippingNotice**（カート最下部お知らせ・未設定時は空文字）・**publicBranding**（見積PDF用・settings の dataFormats.publicBranding と既定のマージ結果）を返す。
-- **バナー表示**: script.js が `orderBanners` を商品一覧・注文履歴ページ（products.html, history.html）のナビ直下に `#announcements-container` として表示。
-- **お知らせページ**: announcements.html。category=general のお知らせを一覧表示。ナビに「お知らせ」リンク（features.announcements で出し分け）。
+- **バナー表示**: script.js が `orderBanners` を注文ページ・注文履歴ページ（products.html, history.html）のナビ直下に `#announcements-container` として表示。
+- **一般お知らせ（ホーム）**: `home.html` 上部に category=general のお知らせを一覧表示。ナビの「発注システム」ロゴで `home.html` を開く。`features.announcements` が false のとき当該ブロックを非表示。旧 URL `/announcements.html` は `/home.html` へリダイレクト。
 - **管理画面保存**: admin-settings.js の「設定を保存」時に `collectAnnouncementsData()` でお知らせタブ内の全フォームから値を収集して送信。
 
 ### F-2. 招待フロー (Invite Flow)
@@ -546,8 +546,9 @@ web-order/
 ├── public/
 │   ├── index.html          ... [View] ログイン画面（**パスワードをお忘れの方**モーダル・**reCAPTCHA用** #recaptcha-wrap/#recaptcha-container 付き）
 │   ├── setup.html          ... [View] 初期設定 (招待URLの id&key でID/PW欄非表示、新パスワードのみ入力)
+│   ├── home.html          ... [View] 顧客ホーム（一般お知らせ・タイルショートカット）[Ref: script.js, js/announcements.js]
 │   ├── products.html      ... [View] 商品一覧(顧客用)・**6列テーブル（メーカー/仕様/価格0円時は要問合）** [Ref: script.js→toast, js/products.js]
-│   ├── announcements.html  ... [View] お知らせページ(顧客用) [Ref: script.js, js/announcements.js]
+│   ├── js/announcements.js ... [View] ホームの一般お知らせ [Ref: home.html]
 │   ├── account.html        ... [View] アカウント設定(顧客用) 現状「現在、設定項目はありません。」のみ
 │   ├── cart.html           ... [View] カート(顧客用)。**貴社発注番号**は荷主ブロックではなく配送先・電話番号の直下に配置。**最下部のお知らせ**は #cart-shipping-notice-container に **GET /api/settings/public** の cartShippingNotice をプレーンテキストで表示（cart.js の **loadCartPublicSettings**・併せて **publicBranding** をキャッシュし見積PDFに渡す）。未設定時は非表示。
 │   ├── history.html        ... [View] 注文履歴(顧客用)

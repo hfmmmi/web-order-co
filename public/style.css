@@ -429,6 +429,16 @@ input[type="text"], input[type="password"] {
     background-color: rgba(255, 107, 107, 0.15);
 }
 
+/* ナビ左端：ホーム（発注システムトップ）への家アイコン */
+.nav-item.nav-home-link {
+    padding: 6px 10px;
+}
+
+.nav-item.nav-home-link .nav-home-link__icon {
+    display: block;
+    vertical-align: middle;
+}
+
 /* スマホ対応 */
 @media (max-width: 600px) {
     .global-nav {
