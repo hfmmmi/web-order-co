@@ -5,7 +5,7 @@ let cart = [];
 // 現在表示中の商品リスト（カート追加時に詳細情報を参照するため保持）
 let currentProductList = [];
 // 現在のタブ状態
-let currentTab = "all"; // "all" | "frequent" | "favorites"
+let currentTab = "all"; // "all" | "frequent" | "favorites" | "estimate-order"
 // お気に入りリスト（ローカル管理用）
 let favoriteList = [];
 let stockUiConfig = {
@@ -16,9 +16,6 @@ let stockUiConfig = {
     allowOrderingWhenZero: true,
     highlightThresholdMinutes: 180
 };
-
-// ★追加: 外部サイトに頼らない、埋め込み型の「No Image」画像データ (SVG)
-const NO_IMAGE_DATA_URI = "data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2250%22%20height%3D%2250%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2050%2050%22%20preserveAspectRatio%3D%22none%22%3E%3Crect%20width%3D%2250%22%20height%3D%2250%22%20style%3D%22fill%3A%23cccccc%3B%22%2F%3E%3Ctext%20x%3D%2225%22%20y%3D%2230%22%20style%3D%22fill%3A%23666666%3Bfont-size%3A10px%3Btext-anchor%3Amiddle%3Bfont-family%3A%27Arial%27%2C%20sans-serif%3B%22%3ENo%20Img%3C%2Ftext%3E%3C%2Fsvg%3E";
 
 function esc(s) {
     if (typeof escapeHtml === "function") return escapeHtml(String(s == null ? "" : s));
@@ -47,11 +44,6 @@ document.addEventListener("DOMContentLoaded", function () {
     // 2. DOM要素の取得
     const searchBtn = document.querySelector("#search-btn");
     const searchInput = document.querySelector("#search-input");
-    
-    // 見積検索用要素
-    const estimateInput = document.querySelector("#estimate-input");
-    const estimateSearchBtn = document.querySelector("#estimate-search-btn");
-    const estimateBanner = document.querySelector("#estimate-mode-banner");
     const clearEstimateBtn = document.querySelector("#clear-estimate-btn");
 
     // 3. イベントリスナー設定
@@ -69,12 +61,14 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // B. 見積番号検索
-    if (estimateSearchBtn) {
-        estimateSearchBtn.addEventListener("click", executeEstimateSearch);
+    // B. 見積番号読込（見積りから注文タブ）
+    const estimateTabLoadBtn = document.querySelector("#estimate-tab-load-btn");
+    const estimateTabInput = document.querySelector("#estimate-tab-input");
+    if (estimateTabLoadBtn) {
+        estimateTabLoadBtn.addEventListener("click", executeEstimateSearch);
     }
-    if (estimateInput) {
-        estimateInput.addEventListener("keydown", (e) => {
+    if (estimateTabInput) {
+        estimateTabInput.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
                 e.preventDefault();
                 executeEstimateSearch();
@@ -107,6 +101,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // 4. 初回データロード (通常モード)
+    updateTabUI();
     fetchProducts(1);
 });
 
@@ -150,7 +145,7 @@ async function fetchProducts(page = 1) {
         // ★修正: 正規化処理を適用 (全角→半角、大文字→小文字)
         const keyword = normalizeString(rawKeyword);
         
-        const query = `?page=${page}&limit=10&keyword=${encodeURIComponent(keyword)}`;
+        const query = `?page=${page}&limit=25&keyword=${encodeURIComponent(keyword)}`;
         
         // ★APIパス修正: /products
         const response = await fetch(`/products${query}`);
@@ -184,10 +179,11 @@ async function fetchProducts(page = 1) {
     }
 }
 
-// 2. 見積番号による検索
+// 2. 見積番号による検索（見積りから注文タブの入力を使用）
 async function executeEstimateSearch() {
-    const estimateInput = document.querySelector("#estimate-input");
-    const estimateId = estimateInput.value.trim();
+    const tabInput = document.querySelector("#estimate-tab-input");
+    if (!tabInput) return;
+    const estimateId = tabInput.value.trim();
     const listBody = document.querySelector("#product-list-body");
     const estimateBanner = document.querySelector("#estimate-mode-banner");
     const currentEstimateIdSpan = document.querySelector("#current-estimate-id");
@@ -248,22 +244,27 @@ async function executeEstimateSearch() {
             }
         }
 
-        if (paginationContainer) paginationContainer.innerHTML = "";
         if (infoArea) infoArea.textContent = "";
+
+        currentTab = "estimate-order";
+        updateTabUI();
 
         renderProductList(data.items, true); 
 
     } catch (error) {
         console.error("Estimate Fetch Error:", error);
         toastError("通信エラーが発生しました");
-        listBody.innerHTML = "";
+        if (listBody) {
+            listBody.innerHTML =
+                '<tr><td colspan="6" style="text-align:center; padding:20px; color:#b91c1c;">通信エラーが発生しました。しばらくしてから再度お試しください。</td></tr>';
+        }
     }
 }
 
 // 3. 見積モード終了
 function exitEstimateMode() {
-    const estimateInput = document.querySelector("#estimate-input");
-    if (estimateInput) estimateInput.value = "";
+    const tabInput = document.querySelector("#estimate-tab-input");
+    if (tabInput) tabInput.value = "";
     currentTab = "all";
     updateTabUI();
     fetchProducts(1);
@@ -273,13 +274,18 @@ function exitEstimateMode() {
 // 🔄 タブ切り替えロジック (Tab Switching)
 // =========================================================
 function switchTab(tabName) {
+    if (tabName !== "estimate-order") {
+        const tabIn = document.querySelector("#estimate-tab-input");
+        if (tabIn) tabIn.value = "";
+    }
+
     currentTab = tabName;
     updateTabUI();
-    
+
     // 見積モードを解除
     const estimateBanner = document.querySelector("#estimate-mode-banner");
     if (estimateBanner) estimateBanner.style.display = "none";
-    
+
     // タブに応じてデータを取得
     if (tabName === "all") {
         fetchProducts(1);
@@ -287,7 +293,27 @@ function switchTab(tabName) {
         fetchFrequentProducts();
     } else if (tabName === "favorites") {
         fetchFavoriteProducts();
+    } else if (tabName === "estimate-order") {
+        const listBody = document.querySelector("#product-list-body");
+        const paginationContainer = document.querySelector("#pagination-container");
+        const infoArea = document.querySelector("#search-result-info");
+        if (listBody) {
+            listBody.innerHTML =
+                '<tr><td colspan="6" style="text-align:center; padding:28px; color:#6b7280;">見積書No.を入力し、「読み込む」を押してください。</td></tr>';
+        }
+        if (paginationContainer) paginationContainer.innerHTML = "";
+        if (infoArea) infoArea.textContent = "";
+        const tabIn = document.querySelector("#estimate-tab-input");
+        if (tabIn) requestAnimationFrame(() => tabIn.focus());
     }
+}
+
+function syncEstimateOrderPanel() {
+    const panel = document.getElementById("estimate-order-panel");
+    if (!panel) return;
+    const on = currentTab === "estimate-order";
+    panel.classList.toggle("is-active", on);
+    panel.setAttribute("aria-hidden", on ? "false" : "true");
 }
 
 function updateTabUI() {
@@ -295,6 +321,7 @@ function updateTabUI() {
     tabs.forEach(tab => {
         tab.classList.toggle("active", tab.dataset.tab === currentTab);
     });
+    syncEstimateOrderPanel();
 }
 
 // 4. よく注文する商品を取得
@@ -336,7 +363,7 @@ async function fetchFrequentProducts() {
         }
 
         if (infoArea) {
-            infoArea.innerHTML = `<strong>よく注文する商品</strong>（${data.items.length}件）— 注文回数の多い順`;
+            infoArea.innerHTML = `よく注文する商品（${data.items.length}件）— 注文回数の多い順`;
         }
 
         renderProductList(data.items, false, true); // isFrequentMode = true
@@ -384,7 +411,7 @@ async function fetchFavoriteProducts() {
         currentProductList = favoriteItems;
 
         if (infoArea) {
-            infoArea.innerHTML = `<strong>お気に入り商品</strong>（${favoriteItems.length}件）`;
+            infoArea.innerHTML = `お気に入り商品（${favoriteItems.length}件）`;
         }
 
         if (favoriteItems.length === 0) {
@@ -474,19 +501,14 @@ function renderProductList(items, isEstimateMode = false, isFrequentMode = false
     items.forEach(product => {
         const tr = document.createElement("tr");
 
-        // ★修正: 外部サイト(via.placeholder.com)を使わず、埋め込みDataURIを使用
-        const imgSrc = product.image && product.image !== "no_image.png" 
-            ? `/images/${product.image}` 
-            : NO_IMAGE_DATA_URI;
-
         let priceDisplay = "";
         let badgeDisplay = "";
 
         if (isEstimateMode) {
-            priceDisplay = `<span style="color:#111827; font-weight:bold; font-size:1.1rem;">¥${product.price.toLocaleString()}</span>`;
+            priceDisplay = `<span style="color:#111827; font-weight:normal; font-size:1.1rem;">¥${product.price.toLocaleString()}</span>`;
             badgeDisplay = `<span class="badge badge-warning" style="background:#f3f4f6; color:#374151; border:1px solid #e5e7eb;">見積特価</span>`;
         } else if (product.isSpecialPrice) {
-            priceDisplay = `<span style="color:#111827; font-weight:bold;">¥${product.price.toLocaleString()}</span>`;
+            priceDisplay = `<span style="color:#111827; font-weight:normal;">¥${product.price.toLocaleString()}</span>`;
             badgeDisplay = `<span class="badge badge-info" style="background:#f3f4f6; color:#374151; border:1px solid #e5e7eb;">特別価格</span>`;
         } else {
             priceDisplay = `¥${product.price.toLocaleString()}`;
@@ -515,7 +537,7 @@ function renderProductList(items, isEstimateMode = false, isFrequentMode = false
         const codeAttr = escAttr(product.productCode);
 
         const favButtonHtml = `<button type="button" class="btn-favorite" data-code="${codeAttr}"
-                        style="${favBtnStyle} border-radius:4px; font-size:1rem; font-weight:700; cursor:pointer; width:32px; height:32px; min-width:32px; padding:0; line-height:1; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; box-sizing:border-box;"
+                        style="${favBtnStyle} border-radius:4px; font-size:1rem; font-weight:normal; cursor:pointer; width:32px; height:32px; min-width:32px; padding:0; line-height:1; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; box-sizing:border-box;"
                         title="${isFavorite ? "お気に入りから削除" : "お気に入りに追加"}">${favStar}</button>`;
 
         let orderCellInner;
@@ -526,7 +548,7 @@ function renderProductList(items, isEstimateMode = false, isFrequentMode = false
                     <input type="number" min="1" value="1" id="qty-${product.productCode}"
                         style="width:40px; height:32px; flex-shrink:0; padding:0; border:1px solid #ddd; border-radius:4px; box-sizing:border-box; text-align:center;" disabled title="価格が0円の商品はお問い合わせください">
                     <button type="button" class="btn-quote-request" data-code="${codeAttr}"
-                        style="background:#fff; color:#374151; border:1px solid #d1d5db; padding:6px 10px; border-radius:4px; cursor:pointer; white-space:nowrap; font-weight:600; flex-shrink:0;" title="見積依頼（サポート）を別タブで開きます">
+                        style="background:#fff; color:#374151; border:1px solid #d1d5db; padding:6px 10px; border-radius:4px; cursor:pointer; white-space:nowrap; font-weight:normal; flex-shrink:0;" title="見積依頼（サポート）を別タブで開きます">
                         要問合
                     </button>
                 </div>`;
@@ -537,7 +559,7 @@ function renderProductList(items, isEstimateMode = false, isFrequentMode = false
                     <input type="number" min="1" value="1" id="qty-${product.productCode}"
                         style="width:40px; height:32px; flex-shrink:0; padding:0; border:1px solid #ddd; border-radius:4px; box-sizing:border-box; text-align:center;" ${disableOrder ? "disabled" : ""}>
                     <button type="button" class="btn-add-cart" data-code="${codeAttr}"
-                        style="background:${disableOrder ? "#e5e7eb" : "#B1BECB"}; color:${disableOrder ? "#9ca3af" : "#1f2937"}; border:1px solid ${disableOrder ? "#e5e7eb" : "#94a3b8"}; padding:6px 10px; border-radius:4px; cursor:${disableOrder ? "not-allowed" : "pointer"}; font-weight:600; white-space:nowrap; flex-shrink:0;" ${disableOrder ? "disabled" : ""}>
+                        style="background:${disableOrder ? "#e5e7eb" : "#B1BECB"}; color:${disableOrder ? "#9ca3af" : "#1f2937"}; border:1px solid ${disableOrder ? "#e5e7eb" : "#94a3b8"}; padding:6px 10px; border-radius:4px; cursor:${disableOrder ? "not-allowed" : "pointer"}; font-weight:normal; white-space:nowrap; flex-shrink:0;" ${disableOrder ? "disabled" : ""}>
                         ${disableOrder ? "在庫なし" : "カート"}
                     </button>
                 </div>`;
@@ -545,14 +567,11 @@ function renderProductList(items, isEstimateMode = false, isFrequentMode = false
 
         tr.innerHTML = `
             <td style="vertical-align:middle; width:110px; text-align:center;">
-                <div style="font-weight:bold; font-size:0.95rem; line-height:1.3; word-break:break-word;">${makerText}</div>
-                <div style="margin-top:8px;">
-                    <img src="${imgSrc}" alt="" style="width:50px; height:50px; object-fit:cover; border-radius:4px; border:1px solid #eee;">
-                </div>
+                <div style="font-weight:normal; font-size:0.95rem; line-height:1.3; word-break:break-word;">${makerText}</div>
             </td>
             <td style="vertical-align:middle; min-width:200px;">
                 <div style="min-width:0; overflow-wrap:break-word;">
-                    <div style="font-weight:bold; font-size:1rem; word-wrap:break-word; overflow-wrap:break-word;">${esc(product.name)}</div>
+                    <div style="font-weight:normal; font-size:1rem; word-wrap:break-word; overflow-wrap:break-word;">${esc(product.name)}</div>
                     <div style="font-size:0.85rem; color:#666; margin-top:2px;">
                         ${esc(product.productCode)} ${badgeDisplay} ${frequentBadge}
                     </div>

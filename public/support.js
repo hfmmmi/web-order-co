@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (Array.isArray(ticket.attachments) && ticket.attachments.length > 0) {
                 const tid = encodeURIComponent(ticket.ticketId || "");
                 attachHtml = `<div class="support-ticket-attach">
-                    <strong>添付:</strong>
+                    添付:
                     <ul style="margin:6px 0 0 18px; padding:0;">
                         ${ticket.attachments.map((a) => {
                             const sn = encodeURIComponent(a.storedName || "");
@@ -86,12 +86,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
             card.innerHTML = `
                 <div class="support-ticket-meta">
-                    <span><strong>${safeText(ticket.ticketId || "-")}</strong></span>
+                    <span>${safeText(ticket.ticketId || "-")}</span>
                     <span>${safeText(statusLabel(ticket.status))}</span>
                     <span>受付：${safeText(formatDate(ticket.timestamp))}</span>
                 </div>
                 <div class="support-ticket-line">
-                    申請項目：<strong>${safeText(ticket.type || "未設定")}</strong>
+                    申請項目：${safeText(ticket.type || "未設定")}
                 </div>
                 <div class="support-ticket-line support-ticket-line--muted">
                     注文ID：${safeText(ticket.orderId || "-")}

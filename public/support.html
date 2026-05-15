@@ -41,7 +41,7 @@
         .form-group label {
             display: block;
             margin-bottom: 5px;
-            font-weight: bold;
+            font-weight: normal;
         }
 
         .form-group input[type="text"],
@@ -62,7 +62,7 @@
             cursor: pointer;
             width: 100%;
             font-size: 1.05em;
-            font-weight: 600;
+            font-weight: normal;
             border-radius: 4px;
             transition: background-color 0.15s, border-color 0.15s, color 0.15s;
         }
@@ -93,7 +93,7 @@
             border-radius: 0;
             margin-bottom: -2px;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: normal;
             font-size: 0.95rem;
             transition: background 0.15s, color 0.15s, border-color 0.15s;
         }
@@ -247,7 +247,7 @@
             border: none;
             padding: 0;
             color: #374151;
-            font-weight: 600;
+            font-weight: normal;
             text-decoration: underline;
             cursor: pointer;
             font-size: inherit;
@@ -292,7 +292,7 @@
             color: #374151;
             border-radius: 4px;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: normal;
             font-size: 0.9rem;
             transition: background 0.15s, border-color 0.15s;
         }
@@ -300,10 +300,6 @@
         .support-refresh-btn:hover {
             background: #c4d9e8;
             border-color: #d1d5db;
-        }
-
-        .support-ticket-meta strong {
-            color: #111827;
         }
 
         .support-history-empty,
@@ -326,7 +322,7 @@
         .support-ticket-section-title {
             margin-top: 8px;
             font-size: 0.9rem;
-            font-weight: 600;
+            font-weight: normal;
             color: #111827;
         }
 
@@ -349,6 +345,18 @@
             padding: 8px;
             color: #6b7280;
             font-size: 0.88rem;
+        }
+
+        body.support-page .global-nav .nav-logo,
+        body.support-page .global-nav .nav-item {
+            font-weight: normal;
+        }
+
+        body.support-page h1,
+        body.support-page h2,
+        body.support-page h3,
+        body.support-page h4 {
+            font-weight: normal;
         }
     </style>
 </head>
@@ -428,7 +436,7 @@
 
                     <button type="submit" class="btn-submit">送信する</button>
                 </form>
-                <div id="status-message" style="margin-top: 15px; text-align: center; font-weight: bold;"></div>
+                <div id="status-message" style="margin-top: 15px; text-align: center; font-weight: normal;"></div>
             </div>
         </section>
 

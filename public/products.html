@@ -18,63 +18,6 @@
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
 
-        .estimate-section {
-            background: #D6E7F1;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border: 1px solid #e5e7eb;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .estimate-label {
-            font-weight: 700;
-            color: #374151;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .estimate-input-group {
-            display: flex;
-            gap: 5px;
-            flex-grow: 1;
-            max-width: 400px;
-        }
-
-        .estimate-input-group input[type="text"] {
-            padding: 8px 10px;
-            flex-grow: 1;
-            border: 1px solid #d1d5db;
-            border-radius: 0;
-            font-size: 0.95rem;
-        }
-
-        .estimate-call-btn {
-            background: #fff;
-            color: #374151;
-            border: 1px solid #d1d5db;
-            padding: 8px 15px;
-            border-radius: 0;
-            cursor: pointer;
-            font-weight: 600;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-        }
-
-        .estimate-call-btn:hover {
-            background: #f9fafb;
-            border-color: #9ca3af;
-        }
-
-        .estimate-hint {
-            font-size: 0.8rem;
-            color: #6b7280;
-        }
-
         .product-tabs {
             display: flex;
             gap: 0;
@@ -88,7 +31,7 @@
             border: 1px solid #d1d5db;
             background: #fff;
             color: #374151;
-            font-weight: 600;
+            font-weight: normal;
             cursor: pointer;
             border-radius: 0;
             transition: background 0.15s, color 0.15s, border-color 0.15s;
@@ -106,11 +49,74 @@
             border-color: #d1d5db;
         }
 
+        .estimate-order-panel {
+            display: none;
+            margin-bottom: 16px;
+            padding: 16px 18px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+
+        .estimate-order-panel.is-active {
+            display: block;
+        }
+
+        .estimate-order-panel__lead {
+            margin: 0 0 12px 0;
+            font-size: 0.95rem;
+            color: #374151;
+        }
+
+        .estimate-order-panel__row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .estimate-order-panel__row label {
+            font-size: 0.9rem;
+            color: #374151;
+        }
+
+        #estimate-tab-input {
+            flex: 1;
+            min-width: 160px;
+            max-width: 320px;
+            padding: 8px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        #estimate-tab-load-btn {
+            padding: 8px 18px;
+            background: #fff;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: normal;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        #estimate-tab-load-btn:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+
+        .estimate-order-panel__hint {
+            margin: 10px 0 0 0;
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
         .control-panel {
             display: flex;
             flex-wrap: wrap;
             gap: 15px;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
             margin-bottom: 20px;
             padding: 16px;
@@ -128,7 +134,7 @@
             background: #f3f4f6;
             color: #374151;
             border: 1px solid #e5e7eb;
-            font-weight: 600;
+            font-weight: normal;
         }
 
         /* 見積モード時のバナー */
@@ -146,8 +152,9 @@
             gap: 12px;
         }
 
-        .estimate-mode-banner strong {
+        .estimate-mode-banner__title {
             color: #111827;
+            font-weight: normal;
         }
 
         .estimate-banner-clear {
@@ -157,7 +164,7 @@
             padding: 8px 14px;
             border-radius: 6px;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: normal;
         }
 
         .estimate-banner-clear:hover {
@@ -172,6 +179,7 @@
             background-color: #f9fafb;
             color: #374151;
             border: 1px solid #e5e7eb;
+            font-weight: normal;
         }
 
         body.products-page .product-table td {
@@ -182,21 +190,24 @@
             background-color: #fafafa;
         }
 
-        /* 検索・読込ボタンが縦書きにならないよう明示 */
-        body.products-page .search-hero-box #search-btn {
-            white-space: nowrap;
-            writing-mode: horizontal-tb;
-            text-orientation: mixed;
-            flex-shrink: 0;
-            min-width: 4.5em;
+        body.products-page .global-nav .nav-logo,
+        body.products-page .global-nav .nav-item {
+            font-weight: normal;
         }
 
-        body.products-page .estimate-input-group #estimate-search-btn {
-            white-space: nowrap;
-            writing-mode: horizontal-tb;
-            text-orientation: mixed;
-            flex-shrink: 0;
-            min-width: 3.5em;
+        body.products-page .stock-qty {
+            font-weight: normal;
+        }
+
+        body.products-page .btn-download-hero {
+            font-weight: normal;
+        }
+
+        body.products-page .pagination-area .product-pagination__page,
+        body.products-page .pagination-area .product-pagination__page.is-current,
+        body.products-page .pagination-area .product-pagination__nav,
+        body.products-page .pagination-area .product-pagination__nav-icon {
+            font-weight: normal;
         }
     </style>
 </head>
@@ -221,48 +232,38 @@
 
     <div class="container">
 
-        <div class="estimate-section">
-            <div class="estimate-label">
-                <span>見積書をお持ちの方</span>
-            </div>
-            <div class="estimate-input-group">
-                <input type="text" id="estimate-input" placeholder="見積番号を入力 (例: 15936)">
-                <button type="button" id="estimate-search-btn" class="estimate-call-btn">読込</button>
-            </div>
-            <div class="estimate-hint">
-                ※有効期限内の見積のみ表示されます
-            </div>
-        </div>
-
         <div class="product-tabs">
             <button type="button" class="product-tab active" data-tab="all">全商品</button>
             <button type="button" class="product-tab" data-tab="frequent">よく注文する商品</button>
             <button type="button" class="product-tab" data-tab="favorites">お気に入り</button>
+            <button type="button" class="product-tab" data-tab="estimate-order">見積りから注文</button>
+        </div>
+
+        <div id="estimate-order-panel" class="estimate-order-panel" aria-hidden="true">
+            <p class="estimate-order-panel__lead">見積書の番号を入力して、該当する商品一覧を表示します。</p>
+            <div class="estimate-order-panel__row">
+                <label for="estimate-tab-input">見積No.</label>
+                <input type="text" id="estimate-tab-input" placeholder="例: 15936" autocomplete="off" maxlength="64">
+                <button type="button" id="estimate-tab-load-btn">読み込む</button>
+            </div>
+            <p class="estimate-order-panel__hint">※有効期限内の見積のみ表示されます</p>
         </div>
 
         <div class="control-panel">
-            <div class="search-hero-box">
-                <div class="input-with-clear" style="flex-grow: 1;">
-                    <input type="text" id="search-input" placeholder="商品名、型番、メーカーで検索..." autocomplete="off">
-                    <span class="clear-input-btn" onclick="document.getElementById('search-input').value=''; document.getElementById('search-input').focus();">×</span>
-                </div>
-                <button type="button" id="search-btn">検索</button>
-            </div>
-
             <a href="pricelist-view.html" target="_blank" rel="noopener noreferrer" class="btn-download-hero">価格表を開く</a>
         </div>
 
         <div id="estimate-mode-banner" class="estimate-mode-banner">
             <div style="flex-grow: 1;">
-                <strong>見積番号 <span id="current-estimate-id"></span> の内容を表示中</strong>
-                <span id="current-estimate-subject" style="margin-left: 15px; color: #4b5563; font-weight: bold;"></span><br>
+                <span class="estimate-mode-banner__title">見積番号 <span id="current-estimate-id"></span> の内容を表示中</span>
+                <span id="current-estimate-subject" style="margin-left: 15px; color: #4b5563; font-weight: normal;"></span><br>
                 <small style="color: #6b7280;">※ここに表示されている価格は、この見積限定の特別価格です。</small>
-                <small id="current-estimate-valid" style="margin-left: 15px; color: #b91c1c; font-weight: bold;"></small>
+                <small id="current-estimate-valid" style="margin-left: 15px; color: #b91c1c; font-weight: normal;"></small>
             </div>
             <button type="button" id="clear-estimate-btn" class="estimate-banner-clear">通常一覧に戻る</button>
         </div>
 
-        <div id="search-result-info" style="margin-bottom: 15px; font-weight: 700; font-size: 1rem; padding-left: 5px;">
+        <div id="search-result-info" style="margin-bottom: 15px; font-weight: normal; font-size: 1rem; padding-left: 5px;">
         </div>
 
         <div class="table-container">

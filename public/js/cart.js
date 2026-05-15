@@ -88,7 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 <td>¥${item.price.toLocaleString()}</td>
                 <td>${item.quantity}</td>
                 <td>¥${sub.toLocaleString()}</td>
-                <td><button type="button" class="btn-remove" data-code="${displayCode}" style="background:#fff;color:#374151;border:1px solid #d1d5db;border-radius:6px;padding:6px 12px;cursor:pointer;font-weight:600;">削除</button></td>
+                <td><button type="button" class="btn-remove" data-code="${displayCode}" style="background:#fff;color:#374151;border:1px solid #d1d5db;border-radius:6px;padding:6px 12px;cursor:pointer;font-weight:normal;">削除</button></td>
             </tr>`;
         });
 
@@ -132,10 +132,10 @@ document.addEventListener("DOMContentLoaded", function () {
             warningDiv.id = "dynamic-cart-warning";
             warningDiv.style.cssText = "background:#f9fafb; color:#374151; padding:15px; margin-bottom:20px; border:1px solid #e5e7eb; border-radius:8px;";
             warningDiv.innerHTML = `
-                <h4 style="margin:0 0 10px 0; color:#111827; font-size:1rem;">回収（リターン）に関するお願い</h4>
+                <h4 style="margin:0 0 10px 0; color:#111827; font-size:1rem; font-weight:normal;">回収（リターン）に関するお願い</h4>
                 <ul style="margin:0; padding-left:20px; color:#374151;">
-                    <li><strong>回収希望日</strong>をご指定ください。</li>
-                    <li><strong>回収先が納品先と異なる場合</strong>は、その住所をご記入ください。</li>
+                    <li>回収希望日をご指定ください。</li>
+                    <li>回収先が納品先と異なる場合は、その住所をご記入ください。</li>
                 </ul>
             `;
             const table = document.querySelector("table");
@@ -247,7 +247,7 @@ document.addEventListener("DOMContentLoaded", function () {
             list.forEach(item => {
                 const div = document.createElement("div");
                 div.className = "history-item";
-                const nameDisp = item.name ? `<span style="font-weight:bold;">${item.name}</span>` : "<span style='color:#ccc;'>(宛名なし)</span>";
+                const nameDisp = item.name ? `<span style="font-weight:normal;">${item.name}</span>` : "<span style='color:#ccc;'>(宛名なし)</span>";
                 div.innerHTML = `
                     <div style="font-size:0.95rem;">${item.zip ? "〒" + item.zip : ""} ${item.address}</div>
                     <div style="font-size:0.95rem; margin-top:4px;">${nameDisp}</div>

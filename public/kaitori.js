@@ -143,7 +143,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             div.innerHTML = `
                 <div>
-                    <div style="font-weight:700; color:#111827;">${item.maker} / ${item.name} ${badgeHtml}</div>
+                    <div style="font-weight:normal; color:#111827;">${item.maker} / ${item.name} ${badgeHtml}</div>
                     <div class="price-text">空カートリッジ単価: ¥${item.price.toLocaleString()}</div>
                 </div>
                 <div><input type="number" min="0" class="qty-input" data-id="${item.id}" value="${cart[item.id]||0}" style="width:60px; text-align:right; padding:8px; border:1px solid #d1d5db; border-radius:6px;"> 個</div>`;
@@ -264,14 +264,14 @@ document.addEventListener("DOMContentLoaded", function () {
         let html = "";
         if (groups["兵庫"].length > 0) {
             html += `<div style="margin-bottom:15px; border-left:3px solid #D6E7F1; padding-left:10px;">
-                        <div style="font-weight:700; color:#374151; font-size:0.9rem;">兵庫センター行</div>
+                        <div style="font-weight:normal; color:#374151; font-size:0.9rem;">兵庫センター行</div>
                         <ul style="padding-left:0; margin:6px 0; list-style:none;">`;
             groups["兵庫"].forEach(g => html += `<li style="font-size:0.85rem; color:#374151;">${g.name} x ${g.qty}</li>`);
             html += `</ul></div>`;
         }
         if (groups["大阪"].length > 0) {
             html += `<div style="margin-bottom:15px; border-left:3px solid #9ca3af; padding-left:10px;">
-                        <div style="font-weight:700; color:#374151; font-size:0.9rem;">大阪センター行</div>
+                        <div style="font-weight:normal; color:#374151; font-size:0.9rem;">大阪センター行</div>
                         <ul style="padding-left:0; margin:6px 0; list-style:none;">`;
             groups["大阪"].forEach(g => html += `<li style="font-size:0.85rem; color:#374151;">${g.name} x ${g.qty}</li>`);
             html += `</ul></div>`;
@@ -329,7 +329,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 let summary = "-";
                 if (item.items && item.items.length > 0) {
                     const first = item.items[0];
-                    summary = `<span style="font-weight:700; color:#111827;">${first.name}</span>`;
+                    summary = `<span style="font-weight:normal; color:#111827;">${first.name}</span>`;
                     if (item.items.length > 1) {
                         summary += ` <span style="font-size:0.8rem; color:#6b7280;">...他 ${item.items.length - 1}種</span>`;
                     }
@@ -340,23 +340,23 @@ document.addEventListener("DOMContentLoaded", function () {
                 let logisticsHtml = "";
                 if (item.logistics) {
                     if (item.logistics.hyogo) {
-                        logisticsHtml += `<div><strong>兵庫(回収):</strong> 梱包 ${item.logistics.hyogo.boxCount}個</div>`;
+                        logisticsHtml += `<div>兵庫(回収): 梱包 ${item.logistics.hyogo.boxCount}個</div>`;
                     }
                     if (item.logistics.osaka) {
                         const os = item.logistics.osaka;
-                        logisticsHtml += `<div style="margin-top:6px;"><strong>大阪(発送):</strong> 梱包 ${os.boxCount}個 / ${os.carrier || "-"} / No.${os.tracking || "-"}</div>`;
+                        logisticsHtml += `<div style="margin-top:6px;">大阪(発送): 梱包 ${os.boxCount}個 / ${os.carrier || "-"} / No.${os.tracking || "-"}</div>`;
                     }
                 }
                 
                 const noteHtml = item.customerNote 
                     ? `<div style="color:#374151; margin-top:8px; background:#f9fafb; padding:10px 12px; border-radius:8px; border:1px solid #e5e7eb; border-left:3px solid #D6E7F1;">
-                         <strong>事務局メッセージ:</strong> ${item.customerNote}
+                         事務局メッセージ: ${item.customerNote}
                        </div>` 
                     : "";
 
                 const metaHtml = `
                     <div style="margin-bottom:10px; font-size:0.9rem;">
-                        <div style="margin-bottom:5px;"><b>受付番号:</b> ${item.requestId}</div>
+                        <div style="margin-bottom:5px;">受付番号: ${item.requestId}</div>
                         ${logisticsHtml}
                         ${noteHtml}
                     </div>
@@ -372,7 +372,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     item.items.forEach(itm => {
                         const sub = itm.subtotal || (itm.price * itm.qty);
                         grandTotal += sub;
-                        const destTag = itm.destination === "兵庫" ? '<span style="color:#6b7280; font-size:0.8rem; font-weight:600;">[兵庫]</span>' : '<span style="color:#6b7280; font-size:0.8rem; font-weight:600;">[大阪]</span>';
+                        const destTag = itm.destination === "兵庫" ? '<span style="color:#6b7280; font-size:0.8rem; font-weight:normal;">[兵庫]</span>' : '<span style="color:#6b7280; font-size:0.8rem; font-weight:normal;">[大阪]</span>';
                         tableHtml += `<tr>
                             <td>${destTag} ${itm.name}</td>
                             <td>¥${itm.price.toLocaleString()}</td>
