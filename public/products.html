@@ -24,6 +24,14 @@
             margin-bottom: 15px;
             border-bottom: 2px solid #e5e7eb;
             flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .product-tabs__pricelist {
+            margin-left: auto;
+            margin-bottom: 4px;
+            padding: 10px 18px;
+            font-size: 0.95rem;
         }
 
         .product-tab {
@@ -60,12 +68,6 @@
 
         .estimate-order-panel.is-active {
             display: block;
-        }
-
-        .estimate-order-panel__lead {
-            margin: 0 0 12px 0;
-            font-size: 0.95rem;
-            color: #374151;
         }
 
         .estimate-order-panel__row {
@@ -110,19 +112,6 @@
             margin: 10px 0 0 0;
             font-size: 0.8rem;
             color: #6b7280;
-        }
-
-        .control-panel {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            justify-content: flex-end;
-            align-items: center;
-            margin-bottom: 20px;
-            padding: 16px;
-            background: #f9fafb;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
         }
 
         .product-frequent-count {
@@ -236,21 +225,17 @@
             <button type="button" class="product-tab active" data-tab="all">全商品</button>
             <button type="button" class="product-tab" data-tab="frequent">よく注文する商品</button>
             <button type="button" class="product-tab" data-tab="favorites">お気に入り</button>
-            <button type="button" class="product-tab" data-tab="estimate-order">見積りから注文</button>
+            <button type="button" class="product-tab" data-tab="estimate-order">見積書から注文</button>
+            <a href="pricelist-view.html" target="_blank" rel="noopener noreferrer" class="btn-download-hero product-tabs__pricelist">価格表を開く</a>
         </div>
 
         <div id="estimate-order-panel" class="estimate-order-panel" aria-hidden="true">
-            <p class="estimate-order-panel__lead">見積書の番号を入力して、該当する商品一覧を表示します。</p>
             <div class="estimate-order-panel__row">
                 <label for="estimate-tab-input">見積No.</label>
-                <input type="text" id="estimate-tab-input" placeholder="例: 15936" autocomplete="off" maxlength="64">
+                <input type="text" id="estimate-tab-input" autocomplete="off" maxlength="64">
                 <button type="button" id="estimate-tab-load-btn">読み込む</button>
             </div>
             <p class="estimate-order-panel__hint">※有効期限内の見積のみ表示されます</p>
-        </div>
-
-        <div class="control-panel">
-            <a href="pricelist-view.html" target="_blank" rel="noopener noreferrer" class="btn-download-hero">価格表を開く</a>
         </div>
 
         <div id="estimate-mode-banner" class="estimate-mode-banner">

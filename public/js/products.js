@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // B. 見積番号読込（見積りから注文タブ）
+    // B. 見積番号読込（見積書から注文タブ）
     const estimateTabLoadBtn = document.querySelector("#estimate-tab-load-btn");
     const estimateTabInput = document.querySelector("#estimate-tab-input");
     if (estimateTabLoadBtn) {
@@ -179,7 +179,7 @@ async function fetchProducts(page = 1) {
     }
 }
 
-// 2. 見積番号による検索（見積りから注文タブの入力を使用）
+// 2. 見積番号による検索（見積書から注文タブの入力を使用）
 async function executeEstimateSearch() {
     const tabInput = document.querySelector("#estimate-tab-input");
     if (!tabInput) return;
@@ -360,10 +360,6 @@ async function fetchFrequentProducts() {
                 </td></tr>
             `;
             return;
-        }
-
-        if (infoArea) {
-            infoArea.innerHTML = `よく注文する商品（${data.items.length}件）— 注文回数の多い順`;
         }
 
         renderProductList(data.items, false, true); // isFrequentMode = true

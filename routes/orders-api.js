@@ -121,6 +121,7 @@ router.get("/delivery-history", async (req, res) => {
                     zip: info.zip || "",
                     address: info.address,
                     name: info.name || "",
+                    contactName: info.contactName || "",
                     tel: info.tel || "",
                     note: info.note || ""
                 });

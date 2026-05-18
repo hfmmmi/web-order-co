@@ -185,10 +185,72 @@
 
         /* 見積書発行ボタン */
         .top-action-area {
+            position: relative;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             margin-bottom: 20px;
+            min-height: 2.5rem;
+        }
+
+        body.cart-page .top-action-area h1 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            text-align: center;
+            margin: 0;
+            width: 100%;
+        }
+
+        .top-action-area .btn-estimate {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .delivery-form__heading-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 0 0 15px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .delivery-form__heading-row h3,
+        .delivery-form__section-title {
+            font-weight: 700;
+        }
+
+        .delivery-form__heading-row h3 {
+            margin: 0;
+            color: #111827;
+        }
+
+        .delivery-form__heading-row .btn-history-search {
+            margin-bottom: 0;
+        }
+
+        .delivery-form__section-title--inline {
+            margin: 0;
+            border: none;
+            padding: 0;
+        }
+
+        .delivery-form__section-title--inline .label-hint {
+            font-size: 0.9rem;
+            font-weight: normal;
+        }
+
+        .cart-qty-input {
+            width: 64px;
+            padding: 6px 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            text-align: center;
+            box-sizing: border-box;
         }
 
         .btn-estimate {
@@ -300,7 +362,7 @@
     <div class="container">
 
         <div class="top-action-area">
-            <h1 style="margin:0;">カートの内容確認</h1>
+            <h1>カート内容確認</h1>
             <button type="button" id="estimate-btn" class="btn-estimate">御見積書を発行</button>
         </div>
 
@@ -326,13 +388,12 @@
         <hr>
 
         <div class="delivery-form">
-            <h3 style="margin-top: 0; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">
-                配送先
-            </h3>
-
-            <button type="button" id="open-history-modal-btn" class="btn-history-search">
-                過去の履歴から配送先をコピー
-            </button>
+            <div class="delivery-form__heading-row">
+                <h3>配送先</h3>
+                <button type="button" id="open-history-modal-btn" class="btn-history-search">
+                    過去の履歴から配送先をコピー
+                </button>
+            </div>
 
             <div class="form-group" style="margin-bottom: 15px;">
                 <label for="delivery-date-mode">納品希望日</label>
@@ -347,9 +408,9 @@
             </div>
 
             <div class="form-group" style="margin-bottom: 15px;">
-                <label for="zip-code" class="required">郵便番号</label>
+                <label for="zip-code" class="required">郵便番号<span class="label-hint">　※ハイフンなし</span></label>
                 <div style="display: flex; gap: 5px;">
-                    <input type="text" id="zip-code" placeholder="1234567" maxlength="7" style="width: 120px;">
+                    <input type="text" id="zip-code" maxlength="7" style="width: 120px;">
                     <button type="button" id="zip-search-btn" style="cursor: pointer; padding: 0 10px;">住所検索</button>
                 </div>
             </div>
@@ -359,19 +420,20 @@
                 <input type="text" id="address">
             </div>
 
-            <div class="form-group" style="margin-bottom: 15px;">
-                <label for="recipient-name" class="required">宛名 <span class="label-hint">(会社名・担当者名)</span></label>
-                <input type="text" id="recipient-name">
+            <div class="form-row" style="margin-bottom: 15px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="recipient-name" class="required">宛名</label>
+                    <input type="text" id="recipient-name">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="contact-name">担当者名</label>
+                    <input type="text" id="contact-name">
+                </div>
             </div>
 
             <div class="form-group" style="margin-bottom: 15px;">
                 <label for="tel-number" class="required">電話番号</label>
                 <input type="tel" id="tel-number">
-            </div>
-
-            <div class="form-group" style="margin-bottom: 15px;">
-                <label for="client-order-number">貴社発注番号 <span class="label-hint">(納品書・請求書に記載されます)</span></label>
-                <input type="text" id="client-order-number">
             </div>
 
             <div class="form-group">
@@ -381,28 +443,27 @@
 
             <hr style="margin: 25px 0; border: 0; border-top: 1px dashed #e5e7eb;">
 
-            <h3 style="margin-top: 0; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">
-                荷主指定 <span class="label-hint" style="font-size: 0.8rem;">※変更する場合のみ入力</span>
-            </h3>
+            <div class="delivery-form__heading-row">
+                <h3 class="delivery-form__section-title delivery-form__section-title--inline">
+                    荷主指定<span class="label-hint">　※指定する場合のみ入力</span>
+                </h3>
+                <button type="button" id="open-shipper-history-modal-btn" class="btn-history-search">
+                    過去の荷主履歴からコピー
+                </button>
+            </div>
 
-            <button type="button" id="open-shipper-history-modal-btn" class="btn-history-search">
-                過去の荷主履歴からコピー
-            </button>
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label for="shipper-zip-code">郵便番号<span class="label-hint">　※ハイフンなし</span></label>
+                <div style="display: flex; gap: 5px;">
+                    <input type="text" id="shipper-zip-code" maxlength="7" style="width: 120px;">
+                    <button type="button" id="shipper-zip-search-btn"
+                        style="cursor: pointer; padding: 0 10px;">住所検索</button>
+                </div>
+            </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="shipper-zip-code">郵便番号</label>
-                    <div style="display: flex; gap: 5px;">
-                        <input type="text" id="shipper-zip-code" placeholder="1234567" maxlength="7"
-                            style="width: 120px;">
-                        <button type="button" id="shipper-zip-search-btn"
-                            style="cursor: pointer; padding: 0 10px;">住所検索</button>
-                    </div>
-                </div>
-                <div class="form-group" style="flex: 2;">
-                    <label for="shipper-address">住所</label>
-                    <input type="text" id="shipper-address">
-                </div>
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label for="shipper-address">住所</label>
+                <input type="text" id="shipper-address">
             </div>
 
             <div class="form-row">

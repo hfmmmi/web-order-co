@@ -67,6 +67,33 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    function getItemProductCode(item) {
+        return item.code || item.productCode || "";
+    }
+
+    function syncCartQuantityToStorage(code, quantity) {
+        const cart = JSON.parse(sessionStorage.getItem("cart") || "[]");
+        const entry = cart.find(item => getItemProductCode(item) === code);
+        if (entry) {
+            entry.quantity = quantity;
+            sessionStorage.setItem("cart", JSON.stringify(cart));
+        }
+    }
+
+    function updateCartQuantity(code, newQty) {
+        const qty = Math.max(1, parseInt(newQty, 10) || 1);
+        loadedCartData.forEach(item => {
+            if (getItemProductCode(item) === code) {
+                item.quantity = qty;
+            }
+        });
+        syncCartQuantityToStorage(code, qty);
+        renderCartTable(loadedCartData);
+        if (typeof window.updateGlobalCartBadge === "function") {
+            window.updateGlobalCartBadge();
+        }
+    }
+
     function renderCartTable(details) {
         const tbody = document.querySelector("#cart-list-body");
         const totalSpan = document.querySelector("#cart-total-price");
@@ -78,31 +105,42 @@ document.addEventListener("DOMContentLoaded", function () {
         details.forEach(item => {
             const sub = item.price * item.quantity;
             total += sub;
-            // 表示用コード: item.code がなければ item.productCode を使用
-            const displayCode = item.code || item.productCode || "";
+            const displayCode = getItemProductCode(item);
+            const codeAttr = displayCode.replace(/"/g, "&quot;");
             
             html += `
             <tr>
                 <td>${displayCode}</td>
                 <td>${item.name}</td>
                 <td>¥${item.price.toLocaleString()}</td>
-                <td>${item.quantity}</td>
+                <td>
+                    <input type="number" min="1" class="cart-qty-input" data-code="${codeAttr}" value="${item.quantity}" aria-label="数量">
+                </td>
                 <td>¥${sub.toLocaleString()}</td>
-                <td><button type="button" class="btn-remove" data-code="${displayCode}" style="background:#fff;color:#374151;border:1px solid #d1d5db;border-radius:6px;padding:6px 12px;cursor:pointer;font-weight:normal;">削除</button></td>
+                <td><button type="button" class="btn-remove" data-code="${codeAttr}" style="background:#fff;color:#374151;border:1px solid #d1d5db;border-radius:6px;padding:6px 12px;cursor:pointer;font-weight:normal;">削除</button></td>
             </tr>`;
         });
 
         tbody.innerHTML = html;
         totalSpan.textContent = total.toLocaleString();
 
-        // 削除ボタンのイベント設定
+        tbody.querySelectorAll(".cart-qty-input").forEach(input => {
+            input.addEventListener("change", function () {
+                const code = this.dataset.code;
+                let val = parseInt(this.value, 10);
+                if (!val || val < 1) {
+                    val = 1;
+                }
+                updateCartQuantity(code, val);
+            });
+        });
+
         tbody.querySelectorAll(".btn-remove").forEach(btn => {
             btn.addEventListener("click", function() {
                 removeFromCart(this.dataset.code);
             });
         });
 
-        // 警告・備考欄調整ロジック
         updateCartWarnings(details);
     }
 
@@ -201,6 +239,8 @@ document.addEventListener("DOMContentLoaded", function () {
             document.querySelector("#zip-code").value = item.zip || "";
             document.querySelector("#address").value = item.address || "";
             document.querySelector("#recipient-name").value = item.name || "";
+            const contactInput = document.querySelector("#contact-name");
+            if (contactInput) contactInput.value = item.contactName || "";
             document.querySelector("#tel-number").value = item.tel || "";
         }
     );
@@ -312,14 +352,13 @@ document.addEventListener("DOMContentLoaded", function () {
             const tel = document.querySelector("#tel-number").value;
             const addr = document.querySelector("#address").value;
             const name = document.querySelector("#recipient-name").value;
+            const contactName = (document.querySelector("#contact-name")?.value || "").trim();
             const note = document.querySelector("#note").value;
 
             const shipperZip = document.querySelector("#shipper-zip-code").value;
             const shipperAddr = document.querySelector("#shipper-address").value;
             const shipperName = document.querySelector("#shipper-name").value;
             const shipperTel = document.querySelector("#shipper-tel").value;
-            const clientOrderNumber = document.querySelector("#client-order-number").value;
-
             if (!zip || !tel || !addr || !name) {
                 toastWarning("必須項目（郵便番号・電話・住所・宛名）をすべて入力してください");
                 return;
@@ -358,8 +397,8 @@ document.addEventListener("DOMContentLoaded", function () {
                         cart: payloadCart, // 詳細データを送信
                         deliveryInfo: {
                             date: dDate, zip: zip, tel: tel, address: addr, name: name,
+                            ...(contactName ? { contactName } : {}),
                             note: note + ` (宛名: ${name}, TEL: ${tel})`,
-                            clientOrderNumber: clientOrderNumber,
                             shipper: { zip: shipperZip, address: shipperAddr, name: shipperName, tel: shipperTel }
                         }
                     })

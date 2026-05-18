@@ -64,6 +64,7 @@ const deliveryInfoSchema = z
         tel: optionalTrimmedString(30),
         address: optionalTrimmedString(300),
         name: optionalTrimmedString(100),
+        contactName: optionalTrimmedString(100),
         note: optionalTrimmedString(1000),
         clientOrderNumber: optionalTrimmedString(100),
         shipper: shipperSchema.optional()
@@ -108,6 +109,7 @@ const adminOrderDetailsDeliverySchema = z
         tel: optionalTrimmedString(30),
         address: optionalTrimmedString(300),
         name: optionalTrimmedString(100),
+        contactName: optionalTrimmedString(100),
         note: optionalTrimmedString(1000),
         clientOrderNumber: optionalTrimmedString(100),
         shipper: shipperSchema.partial().optional()
