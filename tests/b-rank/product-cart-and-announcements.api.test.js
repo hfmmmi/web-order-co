@@ -58,6 +58,21 @@ describe("Bランク: 商品・カート・お知らせAPI", () => {
         expect(res.body.cartDetails[0].quantity).toBe(2);
     });
 
+    test("cart-details は code のみのカート行も解決する", async () => {
+        const agent = request.agent(app);
+        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+
+        const res = await agent
+            .post("/cart-details")
+            .send({ cart: [{ code: "P001", quantity: 3 }] });
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.cartDetails).toHaveLength(1);
+        expect(res.body.cartDetails[0].code).toBe("P001");
+        expect(res.body.cartDetails[0].quantity).toBe(3);
+    });
+
     test("settings/public は orderBanners と announcements を返す", async () => {
         const settingsService = require("../../services/settingsService");
         await settingsService.updateSettings({

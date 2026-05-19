@@ -408,6 +408,42 @@ class OrderService {
         });
     }
 
+    /**
+     * 管理者用: 指定商品コードの出荷記録をすべて取り消し、未出荷状態に戻す
+     */
+    async revertItemToUnshipped(orderId, itemCode) {
+        return await runWithJsonFileWriteLock(ORDERS_DB, async () => {
+            const orders = await this._loadJson(ORDERS_DB);
+            const targetIndex = orders.findIndex((o) => String(o.orderId) === String(orderId));
+            if (targetIndex === -1) throw new Error("Order not found");
+
+            const order = orders[targetIndex];
+            const code = String(itemCode);
+            if (order.shipments && order.shipments.length > 0) {
+                order.shipments.forEach((s) => {
+                    if (!Array.isArray(s.items)) return;
+                    s.items = s.items.filter((si) => String(si.code) !== code);
+                });
+                order.shipments = order.shipments.filter(
+                    (s) => Array.isArray(s.items) && s.items.length > 0
+                );
+            }
+
+            const lastShipment = order.shipments && order.shipments[order.shipments.length - 1];
+            if (lastShipment) {
+                order.deliveryCompany = lastShipment.deliveryCompany || "";
+                order.trackingNumber = lastShipment.trackingNumber || "";
+            } else {
+                order.deliveryCompany = "";
+                order.trackingNumber = "";
+            }
+
+            order.status = this._recalculateStatus(order);
+            await fs.writeFile(ORDERS_DB, JSON.stringify(orders, null, 2));
+            return order;
+        });
+    }
+
     // 出荷修正
     async updateShipment(orderId, shipmentId, updates) {
         return await runWithJsonFileWriteLock(ORDERS_DB, async () => {

@@ -274,7 +274,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // 一括出荷登録
-    async function registerShipmentBatch(orderId, shipmentsPayload) {
+    async function registerShipmentBatch(orderId, shipmentsPayload, options) {
+        const opts = options || {};
         try {
             const response = await fetch("/api/register-shipment-batch", {
                 method: "POST",
@@ -287,11 +288,47 @@ document.addEventListener("DOMContentLoaded", function () {
             const data = await response.json();
             if (data.success) {
                 toastSuccess(`更新しました（ステータス: ${data.newStatus}）`, 4000);
+                if (opts.keepEditorOpen) {
+                    await refreshOrderDetailsEditorFromServer(orderId);
+                }
                 fetchOrders();
             } else {
                 toastError("登録失敗: " + data.message);
             }
         } catch (error) { console.error(error); toastError("通信エラー"); }
+    }
+
+    async function revertOrderItemShipment(orderId, itemCode, options) {
+        const opts = options || {};
+        try {
+            const fetchFn = typeof window.adminApiFetch === "function" ? window.adminApiFetch : fetch;
+            const response = await fetchFn("/api/admin/revert-item-shipment", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ orderId: orderId, itemCode: itemCode })
+            });
+            const data = await response.json().catch(function () {
+                return {};
+            });
+            if (response.ok && data.success) {
+                toastSuccess("未出荷に戻しました");
+                if (opts.keepEditorOpen) {
+                    if (data.order) {
+                        applyOrderDetailsEditorOrder(data.order);
+                    } else {
+                        await refreshOrderDetailsEditorFromServer(orderId);
+                    }
+                }
+                fetchOrders();
+                return true;
+            }
+            toastError((data && data.message) || "未出荷への戻しに失敗しました");
+            return false;
+        } catch (error) {
+            console.error(error);
+            toastError("通信エラー");
+            return false;
+        }
     }
 
     // 出荷履歴修正
@@ -355,7 +392,7 @@ document.addEventListener("DOMContentLoaded", function () {
         wrap.style.cssText = "display:none;position:fixed;inset:0;z-index:9999;";
         wrap.innerHTML =
             '<div class="admin-order-edit-backdrop" style="position:absolute;inset:0;background:rgba(15,23,42,0.45);cursor:pointer;"></div>' +
-            '<div class="admin-order-edit-panel" style="position:relative;max-width:920px;margin:32px auto;background:#fff;border-radius:12px;max-height:calc(100vh - 64px);overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,0.18);">' +
+            '<div class="admin-order-edit-panel" style="position:relative;max-width:min(1040px,calc(100vw - 32px));margin:32px auto;background:#fff;border-radius:12px;max-height:calc(100vh - 64px);overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,0.18);">' +
             '<div style="padding:18px 22px;border-bottom:1px solid #e5e7eb;">' +
             '<h3 style="margin:0;font-size:1.1rem;color:#111827;">注文内容の編集</h3>' +
             '<div style="font-size:0.85rem;color:#64748b;margin-top:6px;">注文ID <span data-oe="order-id"></span></div></div>' +
@@ -412,33 +449,210 @@ document.addEventListener("DOMContentLoaded", function () {
         );
     }
 
-    function openOrderDetailsEditor(order) {
-        const ui = ensureOrderDetailsEditorModal();
-        const info = order.deliveryInfo || {};
-        const ship = info.shipper || {};
+    function getOrderItemShippedCount(order, itemCode) {
+        let shipped = 0;
+        const code = String(itemCode);
+        (order.shipments || []).forEach(function (s) {
+            (s.items || []).forEach(function (si) {
+                if (String(si.code) === code) shipped += si.quantity || 0;
+            });
+        });
+        return shipped;
+    }
+
+    const OE_ITEM_INPUT_STYLE =
+        "box-sizing:border-box;padding:4px 6px;border:1px solid #e5e7eb;border-radius:6px;font-size:0.8rem;font-family:inherit;";
+    const OE_BTN_STYLE =
+        "flex-shrink:0;padding:4px 8px;border-radius:6px;font-size:0.75rem;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;border:1px solid #d1d5db;background:#fff;color:#111827;";
+    const OE_SHIP_BTN_STYLE =
+        "flex-shrink:0;padding:4px 10px;border-radius:6px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;border:1px solid #b0cde5;background:#d6e7f1;color:#111827;";
+
+    function buildOrderDetailsEditorItemRowHtml(order, it) {
+        const code = it.code != null ? String(it.code) : "";
+        const shipped = getOrderItemShippedCount(order, code);
+        const qty = it.quantity != null ? it.quantity : 1;
+        const remaining = Math.max(0, qty - shipped);
+        const unshipBtn =
+            shipped > 0
+                ? '<button type="button" class="btn-oe-revert-ship" style="' +
+                  OE_BTN_STYLE +
+                  '">未出荷に戻す</button>'
+                : "";
+        const shipQtyInput =
+            remaining > 0
+                ? '<input type="number" class="oe-ship-qty" min="1" max="' +
+                  remaining +
+                  '" step="1" value="' +
+                  remaining +
+                  '" title="今回出荷" style="width:3rem;flex-shrink:0;' +
+                  OE_ITEM_INPUT_STYLE +
+                  'text-align:right;">'
+                : "";
+        const shipBtn =
+            remaining > 0
+                ? '<button type="button" class="btn-oe-ship-item" style="' +
+                  OE_SHIP_BTN_STYLE +
+                  '">出荷</button>'
+                : "";
+        const shippedHint =
+            shipped > 0
+                ? '<span class="oe-shipped-hint" style="flex-shrink:0;font-size:0.7rem;color:#6b7280;white-space:nowrap;">済' +
+                  shipped +
+                  "</span>"
+                : "";
+
+        return (
+            '<tr class="oe-item-row" data-item-code="' +
+            escAttrOrderEdit(code) +
+            '">' +
+            '<td style="padding:4px;">' +
+            '<div class="oe-item-line" style="display:flex;flex-wrap:nowrap;align-items:center;gap:6px;min-width:0;">' +
+            '<input type="text" class="oe-code" value="' +
+            escAttrOrderEdit(code) +
+            '" style="width:5.25rem;flex-shrink:0;' +
+            OE_ITEM_INPUT_STYLE +
+            '">' +
+            '<input type="text" class="oe-name" value="' +
+            escAttrOrderEdit(it.name) +
+            '" style="flex:1 1 5rem;min-width:4.5rem;' +
+            OE_ITEM_INPUT_STYLE +
+            '">' +
+            '<input type="number" class="oe-price" min="0" max="999999999" step="1" value="' +
+            escAttrOrderEdit(it.price != null ? it.price : 0) +
+            '" style="width:4.25rem;flex-shrink:0;text-align:right;' +
+            OE_ITEM_INPUT_STYLE +
+            '">' +
+            '<input type="number" class="oe-qty" min="1" max="9999" step="1" value="' +
+            escAttrOrderEdit(qty) +
+            '" style="width:3.25rem;flex-shrink:0;text-align:right;' +
+            OE_ITEM_INPUT_STYLE +
+            '">' +
+            shippedHint +
+            unshipBtn +
+            shipQtyInput +
+            shipBtn +
+            "</div></td></tr>"
+        );
+    }
+
+    function renderOrderDetailsEditorItemRows(order) {
+        const ui = orderDetailsEditorEls;
+        if (!ui) return;
+        const tbody = ui.formHost.querySelector(".oe-items-table tbody");
+        if (!tbody) return;
         const items =
             order.items && order.items.length
                 ? order.items
                 : [{ code: "", name: "", price: 0, quantity: 1 }];
+        tbody.innerHTML = items
+            .map(function (it) {
+                return buildOrderDetailsEditorItemRowHtml(order, it);
+            })
+            .join("");
+    }
+
+    function applyOrderDetailsEditorOrder(order) {
+        const ui = orderDetailsEditorEls;
+        if (!ui) return;
+        ui.currentOrder = order;
+        renderOrderDetailsEditorItemRows(order);
+    }
+
+    async function refreshOrderDetailsEditorFromServer(orderId) {
+        const ui = orderDetailsEditorEls;
+        if (!ui || ui.wrap.style.display !== "block") return;
+        const fetchFn = typeof window.adminApiFetch === "function" ? window.adminApiFetch : fetch;
+        try {
+            const response = await fetchFn("/api/admin/order/" + encodeURIComponent(orderId));
+            const data = await response.json().catch(function () {
+                return {};
+            });
+            if (response.ok && data.success && data.order) {
+                applyOrderDetailsEditorOrder(data.order);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    function bindOrderDetailsEditorItemActions() {
+        const ui = orderDetailsEditorEls;
+        if (!ui || ui.itemActionsBound) return;
+        ui.itemActionsBound = true;
+        ui.formHost.addEventListener("click", async function (ev) {
+            const revertBtn = ev.target.closest(".btn-oe-revert-ship");
+            const shipBtn = ev.target.closest(".btn-oe-ship-item");
+            if (!revertBtn && !shipBtn) return;
+            ev.preventDefault();
+            ev.stopPropagation();
+            const order = ui.currentOrder;
+            if (!order || order.orderId == null) return;
+            const row = ev.target.closest(".oe-item-row");
+            if (!row) return;
+            const itemCode = row.getAttribute("data-item-code") || row.querySelector(".oe-code").value.trim();
+            if (!itemCode) {
+                toastWarning("商品コードがありません");
+                return;
+            }
+
+            if (revertBtn) {
+                if (!confirm("この商品の出荷記録を取り消し、未出荷に戻しますか？")) return;
+                await revertOrderItemShipment(order.orderId, itemCode, { keepEditorOpen: true });
+                return;
+            }
+
+            const nameInput = row.querySelector(".oe-name");
+            const shipQtyInput = row.querySelector(".oe-ship-qty");
+            const qtyInput = row.querySelector(".oe-qty");
+            const orderQty = parseInt(qtyInput && qtyInput.value, 10) || 0;
+            const shipped = getOrderItemShippedCount(order, itemCode);
+            const remaining = Math.max(0, orderQty - shipped);
+            const shipQty = parseInt(shipQtyInput && shipQtyInput.value, 10);
+            if (!shipQty || shipQty < 1) {
+                toastWarning("出荷数量を入力してください");
+                return;
+            }
+            if (shipQty > remaining) {
+                toastWarning("出荷数量が残数を超えています");
+                return;
+            }
+            const info = order.deliveryInfo || {};
+            const formattedDate = info.date ? String(info.date).replace(/-/g, "/") : "";
+            if (!confirm("この商品を " + shipQty + " 点出荷登録しますか？")) return;
+            await registerShipmentBatch(
+                order.orderId,
+                [
+                    {
+                        deliveryCompany: order.deliveryCompany || "",
+                        trackingNumber: order.trackingNumber || "",
+                        deliveryDate: formattedDate,
+                        deliveryDateUnknown: !!info.dateUnknown,
+                        items: [
+                            {
+                                code: itemCode,
+                                name: nameInput ? nameInput.value.trim() : "",
+                                quantity: shipQty
+                            }
+                        ]
+                    }
+                ],
+                { keepEditorOpen: true }
+            );
+        });
+    }
+
+    function openOrderDetailsEditor(order) {
+        const ui = ensureOrderDetailsEditorModal();
+        const info = order.deliveryInfo || {};
+        const ship = info.shipper || {};
         ui.orderIdEl.textContent = order.orderId != null ? String(order.orderId) : "";
+        const items =
+            order.items && order.items.length
+                ? order.items
+                : [{ code: "", name: "", price: 0, quantity: 1 }];
         const rows = items
             .map(function (it) {
-                return (
-                    '<tr class="oe-item-row">' +
-                    '<td style="padding:4px;"><input type="text" class="oe-code" value="' +
-                    escAttrOrderEdit(it.code) +
-                    '" style="width:100%;min-width:6.5rem;box-sizing:border-box;padding:6px;border:1px solid #e5e7eb;border-radius:6px;font-size:0.85rem;"></td>' +
-                    '<td style="padding:4px;"><input type="text" class="oe-name" value="' +
-                    escAttrOrderEdit(it.name) +
-                    '" style="width:100%;min-width:9rem;box-sizing:border-box;padding:6px;border:1px solid #e5e7eb;border-radius:6px;font-size:0.85rem;"></td>' +
-                    '<td style="padding:4px;text-align:right;"><input type="number" class="oe-price" min="0" max="999999999" step="1" value="' +
-                    escAttrOrderEdit(it.price != null ? it.price : 0) +
-                    '" style="width:5.5rem;padding:6px;border:1px solid #e5e7eb;border-radius:6px;font-size:0.85rem;"></td>' +
-                    '<td style="padding:4px;text-align:right;"><input type="number" class="oe-qty" min="1" max="9999" step="1" value="' +
-                    escAttrOrderEdit(it.quantity != null ? it.quantity : 1) +
-                    '" style="width:4rem;padding:6px;border:1px solid #e5e7eb;border-radius:6px;font-size:0.85rem;"></td>' +
-                    "</tr>"
-                );
+                return buildOrderDetailsEditorItemRowHtml(order, it);
             })
             .join("");
         ui.formHost.innerHTML =
@@ -466,13 +680,13 @@ document.addEventListener("DOMContentLoaded", function () {
             oeShipField("電話", "tel", ship.tel || "") +
             "</div></fieldset>" +
             '<div style="font-weight:700;font-size:0.9rem;margin-bottom:8px;color:#111827;">商品明細</div>' +
-            '<table style="width:100%;border-collapse:collapse;font-size:0.85rem;"><thead><tr style="background:#f1f5f9;">' +
-            '<th style="text-align:left;padding:6px;">コード</th><th style="text-align:left;padding:6px;">品名</th>' +
-            '<th style="text-align:right;padding:6px;">単価</th><th style="text-align:right;padding:6px;">数量</th></tr></thead><tbody>' +
+            '<table class="oe-items-table" style="width:100%;border-collapse:collapse;font-size:0.85rem;"><thead><tr style="background:#f1f5f9;">' +
+            '<th style="text-align:left;padding:6px;font-size:0.75rem;font-weight:600;color:#6b7280;">コード · 品名 · 単価 · 数量 · 出荷操作</th></tr></thead><tbody>' +
             rows +
             "</tbody></table>";
         ui.wrap.style.display = "block";
         ui.currentOrder = order;
+        bindOrderDetailsEditorItemActions();
     }
 
     async function submitOrderDetailsEditor() {

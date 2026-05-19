@@ -13,7 +13,8 @@ const { validateBody } = require("../../middlewares/validate");
 const {
     adminCreateOrderSchema,
     adminDeleteOrderSchema,
-    adminUpdateOrderDetailsSchema
+    adminUpdateOrderDetailsSchema,
+    adminRevertItemShipmentSchema
 } = require("../../validators/requestSchemas");
 
 router.post("/update-order-status", (req, res, next) => {
@@ -79,6 +80,19 @@ router.post("/admin/orders-delete", requireAdmin, validateBody(adminDeleteOrderS
         }
         console.error("admin orders-delete:", e);
         return res.status(500).json({ success: false, message: "注文の削除に失敗しました" });
+    }
+});
+
+router.post("/admin/revert-item-shipment", requireAdmin, validateBody(adminRevertItemShipmentSchema), async (req, res) => {
+    try {
+        const order = await orderService.revertItemToUnshipped(req.body.orderId, req.body.itemCode);
+        return res.json({ success: true, order, newStatus: order.status });
+    } catch (e) {
+        if (e.message === "Order not found") {
+            return res.status(404).json({ success: false, message: "注文が見つかりません" });
+        }
+        console.error("admin revert-item-shipment:", e);
+        return res.status(500).json({ success: false, message: "未出荷への戻しに失敗しました" });
     }
 });
 

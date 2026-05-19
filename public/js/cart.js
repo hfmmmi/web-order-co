@@ -11,9 +11,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 1. 初期表示
     if (cartDataString) {
-        fetchCartDetails(JSON.parse(cartDataString));
+        const normalizedCart = normalizeCartForApi(JSON.parse(cartDataString));
+        sessionStorage.setItem("cart", JSON.stringify(normalizedCart));
+        if (typeof window.updateGlobalCartBadge === "function") {
+            window.updateGlobalCartBadge();
+        }
+        fetchCartDetails(normalizedCart);
     } else {
         document.querySelector("#cart-list-body").innerHTML = "<tr><td colspan='6'>カートに商品がありません</td></tr>";
+        updateClearCartButtonState([]);
+    }
+
+    const clearCartBtn = document.getElementById("clear-cart-btn");
+    if (clearCartBtn) {
+        clearCartBtn.addEventListener("click", clearCart);
     }
 
     // カート最下部のお知らせ・見積用ブランディング（システム設定）
@@ -41,6 +52,27 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    function normalizeCartForApi(rawCart) {
+        if (!Array.isArray(rawCart)) return [];
+        return rawCart
+            .map(function (item) {
+                const code = String(
+                    (item && item.productCode) ||
+                        (item && item.code) ||
+                        (item && item.id) ||
+                        ""
+                ).trim();
+                const qty = parseInt(item && item.quantity, 10);
+                return {
+                    productCode: code,
+                    quantity: Number.isFinite(qty) && qty >= 1 ? qty : 1
+                };
+            })
+            .filter(function (item) {
+                return item.productCode !== "";
+            });
+    }
+
     // 2. サーバーから詳細取得 & テーブル描画
     async function fetchCartDetails(cart) {
         try {
@@ -55,7 +87,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const data = await res.json();
             if (data.success) {
-                loadedCartData = data.cartDetails;
+                loadedCartData = Array.isArray(data.cartDetails) ? data.cartDetails : [];
+                if (loadedCartData.length === 0 && Array.isArray(cart) && cart.length > 0) {
+                    document.querySelector("#cart-list-body").innerHTML =
+                        "<tr><td colspan='6'>カート内の商品を表示できませんでした（取扱終了・コード不一致の可能性があります）</td></tr>";
+                    const totalSpan = document.querySelector("#cart-total-price");
+                    if (totalSpan) totalSpan.textContent = "0";
+                    updateClearCartButtonState([]);
+                    return;
+                }
                 renderCartTable(loadedCartData);
             } else {
                 console.error("データ取得エラー:", data.message);
@@ -68,7 +108,35 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function getItemProductCode(item) {
-        return item.code || item.productCode || "";
+        if (!item) return "";
+        return String(item.productCode || item.code || item.id || "").trim();
+    }
+
+    function updateClearCartButtonState(details) {
+        const clearBtn = document.getElementById("clear-cart-btn");
+        if (!clearBtn) return;
+        let sessionCount = 0;
+        try {
+            const raw = JSON.parse(sessionStorage.getItem("cart") || "[]");
+            sessionCount = Array.isArray(raw) ? raw.length : 0;
+        } catch (_e) {
+            sessionCount = 0;
+        }
+        const displayCount = Array.isArray(details) ? details.length : 0;
+        clearBtn.disabled = sessionCount === 0 && displayCount === 0;
+    }
+
+    function clearCart() {
+        const clearBtn = document.getElementById("clear-cart-btn");
+        if (clearBtn && clearBtn.disabled) return;
+        if (!confirm("カート内の商品をすべて削除しますか？")) return;
+
+        sessionStorage.setItem("cart", JSON.stringify([]));
+        loadedCartData = [];
+        renderCartTable([]);
+        if (typeof window.updateGlobalCartBadge === "function") {
+            window.updateGlobalCartBadge();
+        }
     }
 
     function syncCartQuantityToStorage(code, quantity) {
@@ -98,6 +166,14 @@ document.addEventListener("DOMContentLoaded", function () {
         const tbody = document.querySelector("#cart-list-body");
         const totalSpan = document.querySelector("#cart-total-price");
         if (!tbody || !totalSpan) return;
+
+        if (!details || details.length === 0) {
+            tbody.innerHTML = "<tr><td colspan='6'>カートに商品がありません</td></tr>";
+            totalSpan.textContent = "0";
+            updateClearCartButtonState(details);
+            updateCartWarnings([]);
+            return;
+        }
 
         let html = "";
         let total = 0;
@@ -142,6 +218,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         updateCartWarnings(details);
+        updateClearCartButtonState(details);
     }
 
     function removeFromCart(code) {

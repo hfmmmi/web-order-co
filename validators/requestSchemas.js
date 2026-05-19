@@ -131,6 +131,19 @@ const adminUpdateOrderDetailsItemSchema = z
     })
     .strict();
 
+const adminRevertItemShipmentSchema = z
+    .object({
+        orderId: z.preprocess(
+            (v) => (v === undefined || v === null ? v : String(v).trim()),
+            z.string().min(1).max(40)
+        ),
+        itemCode: z.preprocess(
+            (v) => (typeof v === "string" ? v.trim() : v),
+            z.string().min(1).max(120)
+        )
+    })
+    .strict();
+
 const adminUpdateOrderDetailsSchema = z
     .object({
         orderId: z.preprocess(
@@ -309,6 +322,7 @@ module.exports = {
     adminCreateOrderSchema,
     adminDeleteOrderSchema,
     adminUpdateOrderDetailsSchema,
+    adminRevertItemShipmentSchema,
     addCustomerSchema,
     updateCustomerSchema,
     adminAccountUpdateSchema,

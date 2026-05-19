@@ -486,8 +486,11 @@
                 }
                 const gNumber = operationArea.querySelector(".input-number").value;
                 finalPayload.push({
-                    deliveryCompany: gCompany, trackingNumber: gNumber,
-                    deliveryDate: formattedDate, deliveryDateUnknown: du,
+                    deliveryCompany: gCompany,
+                    trackingNumber: gNumber,
+                    deliveryDate: formattedDate,
+                    deliveryDateUnknown: du,
+                    deliveryMode: "bulk",
                     items: shipItems.map(i => ({ code: i.code, name: i.name, quantity: i.quantity }))
                 });
             } else {
@@ -499,8 +502,12 @@
                 });
                 Object.values(groups).forEach(g => {
                     finalPayload.push({
-                        deliveryCompany: g.company, trackingNumber: g.number,
-                        deliveryDate: formattedDate, deliveryDateUnknown: du, items: g.items
+                        deliveryCompany: g.company,
+                        trackingNumber: g.number,
+                        deliveryDate: formattedDate,
+                        deliveryDateUnknown: du,
+                        deliveryMode: "individual",
+                        items: g.items
                     });
                 });
             }

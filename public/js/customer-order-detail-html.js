@@ -9,6 +9,94 @@
             .replace(/"/g, "&quot;");
     }
 
+    function formatDetailDateYmdSlash(dateVal) {
+        if (dateVal == null || dateVal === "") return "—";
+        const raw = String(dateVal).trim();
+        const slashMatch = raw.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+        if (slashMatch) {
+            const y = slashMatch[1];
+            const m = String(slashMatch[2]).padStart(2, "0");
+            const day = String(slashMatch[3]).padStart(2, "0");
+            return `${y}/${m}/${day}`;
+        }
+        const d = new Date(dateVal);
+        if (Number.isNaN(d.getTime())) return esc(raw);
+        const jstMs = d.getTime() + 9 * 60 * 60 * 1000;
+        const x = new Date(jstMs);
+        const y = x.getUTCFullYear();
+        const m = String(x.getUTCMonth() + 1).padStart(2, "0");
+        const day = String(x.getUTCDate()).padStart(2, "0");
+        return `${y}/${m}/${day}`;
+    }
+
+    const DETAIL_BLOCK_STYLE =
+        "background:#fff; border:1px solid #e5e7eb; border-radius:8px; padding:12px; margin-bottom:10px; font-size:0.875rem; line-height:1.55; color:#374151;";
+
+    function detailLabelLine(label, valueHtml) {
+        return `<div><span style="color:#6b7280;">${label}：</span>${valueHtml}</div>`;
+    }
+
+    function formatShipItemsInline(items) {
+        return (items || [])
+            .map((i) => {
+                const nm = esc(i.name || "");
+                const qty = i.quantity != null ? i.quantity : "";
+                return nm ? `${nm}×${qty}` : "";
+            })
+            .filter(Boolean)
+            .join("、");
+    }
+
+    function formatShipItemsWithLineNumbers(items, itemIndexByCode) {
+        return (items || [])
+            .map((i) => {
+                const nm = esc(i.name || "");
+                const qty = i.quantity != null ? i.quantity : "";
+                const lineNo = itemIndexByCode && i.code != null ? itemIndexByCode[i.code] : null;
+                if (!nm) return "";
+                const prefix = lineNo != null ? `<span style="font-weight:600;">${lineNo}.</span> ` : "";
+                return `${prefix}${nm}×${qty}`;
+            })
+            .filter(Boolean)
+            .join("、");
+    }
+
+    function shipmentIndexLabel(n) {
+        const circled = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳";
+        if (n >= 1 && n <= circled.length) return circled[n - 1];
+        return `(${n})`;
+    }
+
+    /** 個別配送または複数出荷で、配送ごとに商品を示す必要があるか */
+    function needsSplitDeliveryItemLabels(order) {
+        const shipments = order.shipments || [];
+        if (shipments.length > 1) return true;
+        return shipments.some((s) => s.deliveryMode === "individual");
+    }
+
+    function buildItemIndexByCode(order) {
+        const map = {};
+        (order.items || []).forEach((item, idx) => {
+            if (item.code != null) map[item.code] = idx + 1;
+        });
+        return map;
+    }
+
+    function buildItemShipStatus(item, order) {
+        let shippedCount = 0;
+        if (order.shipments) {
+            order.shipments.forEach((s) => {
+                const found = (s.items || []).find((si) => si.code === item.code);
+                if (found) shippedCount += found.quantity;
+            });
+        }
+        const total = item.quantity || 0;
+        const remaining = total - shippedCount;
+        if (remaining === 0 && shippedCount > 0) return "発送済";
+        if (shippedCount > 0) return `一部（残${remaining}）`;
+        return "未発送";
+    }
+
     /**
      * @param {object} order
      * @returns {string}
@@ -17,159 +105,129 @@
         const statusText = order.status || "未発送";
         const info = order.deliveryInfo || {};
         const safeAddress = esc(info.address || info.adress || "登録住所通り");
-        let dateDisplay = esc(info.date || "指定なし");
-        if (info.dateUnknown) {
-            dateDisplay += ` <span style="color:#dc3545; font-weight:bold; font-size:0.9em;">(※確約不可/出荷日のみ連絡)</span>`;
-        }
 
         let shipperHtml = "";
         if (info.shipper && info.shipper.name) {
-            const sn = esc(info.shipper.name);
-            const sa = esc(info.shipper.address || "");
-            const st = esc(info.shipper.tel || "--");
-            shipperHtml = `
-            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e5e7eb; font-size: 0.9rem;">
-                <span style="font-weight:700; color: #374151;">荷主(依頼主):</span> ${sn}<br>
-                <div style="margin-left: 4px; font-size: 0.85rem; color: #6b7280;">
-                    ${sa} <span style="margin-left:6px;">(TEL: ${st})</span>
-                </div>
-            </div>
-        `;
+            shipperHtml = detailLabelLine("荷主", esc(info.shipper.name));
         }
 
         const estimateHtml = info.estimateMessage
-            ? `<div style="margin-top: 12px; padding: 12px; background-color: #f9fafb; border: 1px solid #e5e7eb; border-left: 3px solid #D6E7F1; border-radius: 8px; font-size: 0.95rem; color: #374151;">
-            <span style="font-weight:700;">納期目安:</span> ${esc(info.estimateMessage)}
-        </div>`
+            ? detailLabelLine("納期目安", esc(info.estimateMessage))
             : "";
 
         const recipientName = esc(info.name || "（名称なし）");
 
         let deliveryHTML = `
-        <div style="background-color: #f9fafb; padding: 16px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e5e7eb;">
-            <h4 style="margin: 0 0 10px 0; font-size: 1rem; color: #374151; font-weight: 700;">お届け先</h4>
-            <div style="font-size: 0.95rem; line-height: 1.6; color: #374151;">
-                <span style="font-weight:700;">納品日:</span> ${dateDisplay}<br>
-                <span style="font-weight:700;">納品先:</span> ${recipientName} 様<br>
-                <span style="font-weight:700;">住所:</span> ${safeAddress}
-                ${shipperHtml}
-                ${estimateHtml}
-            </div>
+        <div style="${DETAIL_BLOCK_STYLE}">
+            ${detailLabelLine("納品先", `${recipientName} 様 / ${safeAddress}`)}
+            ${shipperHtml}
+            ${estimateHtml}
         </div>
     `;
+
+        const splitDeliveryLabels = needsSplitDeliveryItemLabels(order);
+        const itemIndexByCode = splitDeliveryLabels ? buildItemIndexByCode(order) : {};
+        const shipmentCount = (order.shipments && order.shipments.length) || 0;
 
         let trackingHtml = "";
         if (order.shipments && order.shipments.length > 0) {
             let historyItems = "";
-            order.shipments.forEach((ship, idx) => {
-                const shipDate = new Date(ship.shippedDate).toLocaleDateString("ja-JP");
-                const shipItemsStr = (ship.items || []).map(i => {
-                    const nm = esc(i.name || "");
-                    return `・${nm} (x${i.quantity})`;
-                }).join("<br>");
-                let shipDeliveryDate = esc(ship.deliveryDate || "指定なし");
-                if (ship.deliveryDateUnknown) shipDeliveryDate += " (※日時確約不可)";
+            order.shipments.forEach((ship, shipIdx) => {
+                const shipDate = formatDetailDateYmdSlash(ship.shippedDate);
+                let deliveryDateText = ship.deliveryDate
+                    ? formatDetailDateYmdSlash(ship.deliveryDate)
+                    : "指定なし";
+                if (ship.deliveryDateUnknown) deliveryDateText += "（日時未定）";
 
-                const dc = esc(ship.deliveryCompany || "指定なし");
+                const dc = esc(ship.deliveryCompany || "—");
                 const tn = esc(ship.trackingNumber || "反映待ち");
 
+                const showItemsForShip =
+                    splitDeliveryLabels &&
+                    (shipmentCount > 1 ||
+                        ship.deliveryMode === "individual" ||
+                        (ship.items && ship.items.length > 0));
+                const itemsStr = showItemsForShip
+                    ? formatShipItemsWithLineNumbers(ship.items, itemIndexByCode)
+                    : "";
+                const packageLabel =
+                    shipmentCount > 1
+                        ? `<span style="font-weight:700;margin-right:4px;">${shipmentIndexLabel(shipIdx + 1)}</span>`
+                        : "";
+                const itemsLine = itemsStr
+                    ? `<div style="color:#6b7280;font-size:0.8125rem;margin-top:3px;padding-left:${shipmentCount > 1 ? "1.15em" : "0"};">${itemsStr}</div>`
+                    : "";
+
                 historyItems += `
-                <div style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #e5e7eb;">
-                    <div style="font-weight:700; color:#111827; margin-bottom:6px;">
-                        第${idx + 1}回出荷 (${shipDate})
-                    </div>
-                    <div style="font-size:0.9rem; margin-left:2px; color:#374151;">
-                        配送業者: <strong>${dc}</strong> / 伝票No: <strong>${tn}</strong><br>
-                        納品予定: ${shipDeliveryDate}<br>
-                        <div style="margin-top:8px; padding:8px 10px; background:#fff; border-radius:6px; border:1px solid #e5e7eb; font-size:0.85rem; color:#374151;">
-                            ${shipItemsStr}
-                        </div>
-                    </div>
+                <div style="margin-bottom:${shipIdx < shipmentCount - 1 ? "10px" : "8px"}; color:#111827;">
+                    ${packageLabel}出荷：${shipDate} → 納品予定日：${deliveryDateText}　 ${dc} ${tn}
+                    ${itemsLine}
                 </div>
             `;
             });
+            const deliveryIntro =
+                shipmentCount > 1
+                    ? `<div style="font-size:0.8125rem;color:#6b7280;margin-bottom:8px;">お届けは ${shipmentCount} 件に分かれています。</div>`
+                    : splitDeliveryLabels
+                      ? '<div style="font-size:0.8125rem;color:#6b7280;margin-bottom:8px;">商品ごとに配送業者・伝票が異なる場合があります</div>'
+                      : "";
             trackingHtml = `
-            <div style="background-color: #f9fafb; color: #374151; padding: 16px; border-radius: 8px; border: 1px solid #e5e7eb; border-left: 3px solid #9ca3af; margin-bottom: 15px;">
-                <h4 style="margin:0 0 12px 0; font-size:1rem; color:#111827; font-weight:700;">出荷・配送状況</h4>
+            <div style="${DETAIL_BLOCK_STYLE}">
+                <div style="margin-bottom:6px;"><span style="color:#6b7280; font-weight:600;">配送：</span></div>
+                ${deliveryIntro}
                 ${historyItems}
             </div>
         `;
         } else if (statusText === "発送済") {
-            const company = esc(order.deliveryCompany || "指定なし");
+            const company = esc(order.deliveryCompany || "—");
             const number = esc(order.trackingNumber || "反映待ち");
             trackingHtml = `
-            <div style="background-color: #f9fafb; color: #374151; padding: 14px; border-radius: 8px; border: 1px solid #e5e7eb; border-left: 3px solid #22c55e; margin-bottom: 15px;">
-                <strong style="color:#111827;">発送完了</strong><br>
-                配送業者: ${company} / 伝票番号: <strong style="font-size:1.05rem;">${number}</strong>
+            <div style="${DETAIL_BLOCK_STYLE}">
+                ${detailLabelLine("配送", `${company} ${number}`)}
             </div>
         `;
         }
 
         let tableHTML = `
-        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-bottom: 15px; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
-            <thead style="background-color: #f9fafb;">
-                <tr>
-                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #e5e7eb; color: #374151; font-weight: 700;">商品名</th>
-                    <th style="padding: 10px; text-align: right; width: 60px; border-bottom: 1px solid #e5e7eb; color: #374151; font-weight: 700;">単価</th>
-                    <th style="padding: 10px; text-align: center; width: 80px; border-bottom: 1px solid #e5e7eb; color: #374151; font-weight: 700;">出荷状況</th>
-                    <th style="padding: 10px; text-align: right; width: 60px; border-bottom: 1px solid #e5e7eb; color: #374151; font-weight: 700;">小計</th>
+        <div style="${DETAIL_BLOCK_STYLE} padding:0; overflow:hidden;">
+        <table style="width:100%; border-collapse:collapse; font-size:0.875rem;">
+            <thead>
+                <tr style="border-bottom:1px solid #d1d5db; color:#6b7280; font-size:0.8125rem;">
+                    ${splitDeliveryLabels ? '<th style="padding:8px 6px;text-align:center;width:2rem;font-weight:600;">No.</th>' : ""}
+                    <th style="padding:8px 10px; text-align:left; font-weight:600;">商品：</th>
+                    <th style="padding:8px 10px; text-align:center; width:72px; font-weight:600;">状況：</th>
+                    <th style="padding:8px 10px; text-align:right; width:72px; font-weight:600;">小計：</th>
                 </tr>
             </thead>
             <tbody>
     `;
 
-        (order.items || []).forEach((item, rowIdx) => {
+        (order.items || []).forEach((item, itemIdx) => {
             const price = item.price || 0;
             const subtotal = price * item.quantity;
-
-            let shippedCount = 0;
-            if (order.shipments) {
-                order.shipments.forEach(s => {
-                    const found = (s.items || []).find(si => si.code === item.code);
-                    if (found) shippedCount += found.quantity;
-                });
-            }
-            const remaining = item.quantity - shippedCount;
-
-            let statusBadge = "";
-            if (remaining === 0 && shippedCount > 0) {
-                statusBadge = `<div style="font-size:0.8rem; color:#047857; font-weight:600;">完了(${item.quantity})</div>`;
-            } else if (remaining > 0 && shippedCount > 0) {
-                statusBadge = `
-                <div style="font-size:0.8rem; color:#6b7280;">済: ${shippedCount}</div>
-                <div style="font-weight:600; color:#9a3412; font-size:0.8rem; background:#fffbeb; border:1px solid #fde68a; border-radius:6px; padding:3px 6px; margin-top:4px;">
-                    残: ${remaining}
-                </div>`;
-            } else if (shippedCount === 0) {
-                statusBadge = `<div style="font-size:0.8rem; color:#6b7280;">注文数: ${item.quantity}</div>`;
-            }
-
             const itemName = esc(item.name || "名称不明");
-            const itemCode = esc(item.code || "");
+            const statusLabel = esc(buildItemShipStatus(item, order));
+            const qtyNote = item.quantity > 1 ? ` <span style="color:#6b7280;">×${item.quantity}</span>` : "";
+            const noCell = splitDeliveryLabels
+                ? `<td style="padding:8px 6px;text-align:center;color:#6b7280;font-weight:600;font-size:0.8125rem;">${itemIdx + 1}</td>`
+                : "";
 
             tableHTML += `
-            <tr style="border-bottom: 1px solid #e5e7eb; background: ${rowIdx % 2 === 1 ? "#fafafa" : "#fff"};">
-                <td style="padding: 10px;">
-                    <div style="font-weight: 700; color:#111827;">${itemName}</div>
-                    <div style="font-size: 0.8rem; color: #6b7280;">${itemCode}</div>
-                </td>
-                <td style="padding: 10px; text-align: right;">¥${price.toLocaleString()}</td>
-                <td style="padding: 10px; text-align: center; vertical-align: middle;">
-                    ${statusBadge}
-                </td>
-                <td style="padding: 10px; text-align: right;">¥${subtotal.toLocaleString()}</td>
+            <tr style="border-bottom:1px solid #e5e7eb;">
+                ${noCell}
+                <td style="padding:8px;">${itemName}${qtyNote}</td>
+                <td style="padding:8px; text-align:center; color:#6b7280; font-size:0.8125rem;">${statusLabel}</td>
+                <td style="padding:8px; text-align:right;">¥${subtotal.toLocaleString()}</td>
             </tr>
         `;
         });
-        tableHTML += `</tbody></table>`;
+        tableHTML += `</tbody></table></div>`;
 
-        const oidAttr = encodeURIComponent(String(order.orderId != null ? order.orderId : ""));
         const actionHtml = `
-        <div style="margin-top: 15px; text-align: right; padding-top: 12px; border-top: 1px dashed #e5e7eb; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div style="margin-top:4px; text-align:right;">
             <button type="button" class="btn-reorder" data-order-id="${esc(String(order.orderId != null ? order.orderId : ""))}">
                 この内容で再注文
             </button>
-            <a class="history-support-link" href="support.html?orderId=${oidAttr}">この注文について問い合わせる</a>
         </div>
     `;
 

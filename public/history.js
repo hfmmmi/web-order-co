@@ -129,11 +129,22 @@ function computeFilteredHistoryOrders() {
     });
 }
 
-function execHistoryClientSearch() {
+function execHistoryClientSearch(options) {
     const container = document.querySelector("#history-list-container");
     if (!container) return;
     const filtered = computeFilteredHistoryOrders();
-    renderHistoryList(filtered, container);
+    const keepPage = options && options.keepPage;
+    historyListContainerEl = container;
+    historyViewOrders = filtered;
+    if (keepPage) {
+        const totalPages = Math.max(1, Math.ceil(historyViewOrders.length / HISTORY_PER_PAGE));
+        if (historyCurrentPage > totalPages) historyCurrentPage = totalPages;
+        if (historyCurrentPage < 1) historyCurrentPage = 1;
+        renderHistoryPage();
+    } else {
+        historyCurrentPage = 1;
+        renderHistoryPage();
+    }
 }
 
 /** 受注管理（admin-orders-view）と同じく注文日を YYYY/MM/DD（JST 日付）で表示 */
@@ -255,22 +266,59 @@ function syncHistorySummaryRowDimming(tbody) {
     });
 }
 
-function toggleHistoryDetailRow(sumTr, detTr, toggleBtn) {
+function setHistoryDetailRowOpen(sumTr, detTr, toggleBtn, open) {
     if (!detTr) return;
-    const isHidden = detTr.style.display === "none";
-    detTr.style.display = isHidden ? "table-row" : "none";
+    detTr.style.display = open ? "table-row" : "none";
     if (toggleBtn) {
-        toggleBtn.textContent = isHidden ? "閉じる ▲" : "詳細 ▼";
+        toggleBtn.textContent = open ? "閉じる ▲" : "詳細 ▼";
         toggleBtn.style.backgroundColor = "#dfe3e6";
         toggleBtn.style.borderColor = "#c5cdd5";
-        toggleBtn.setAttribute("aria-expanded", isHidden ? "true" : "false");
+        toggleBtn.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+    const orderId = getHistoryOrderIdFromSummaryRow(sumTr);
+    if (orderId) {
+        if (open) openHistoryDetailOrderIds.add(orderId);
+        else openHistoryDetailOrderIds.delete(orderId);
     }
     const tbody = sumTr && sumTr.closest("tbody");
     if (tbody) syncHistorySummaryRowDimming(tbody);
 }
 
+function toggleHistoryDetailRow(sumTr, detTr, toggleBtn) {
+    if (!detTr) return;
+    setHistoryDetailRowOpen(sumTr, detTr, toggleBtn, detTr.style.display === "none");
+}
+
+function restoreHistoryOpenDetails(tbody) {
+    if (!tbody || openHistoryDetailOrderIds.size === 0) return;
+    tbody.querySelectorAll(".order-summary-row").forEach(function (sumTr) {
+        const orderId = getHistoryOrderIdFromSummaryRow(sumTr);
+        if (!orderId || !openHistoryDetailOrderIds.has(orderId)) return;
+        const detTr = sumTr.nextElementSibling;
+        if (!detTr || !detTr.classList.contains("order-detail-row")) return;
+        const toggleBtn = sumTr.querySelector(".btn-toggle-detail");
+        if (detTr.style.display === "none") {
+            setHistoryDetailRowOpen(sumTr, detTr, toggleBtn, true);
+        }
+    });
+}
+
 /** 一覧で選択中の注文ID（ページをまたいで保持） */
 const selectedHistoryOrderIds = new Set();
+/** 詳細パネルを開いている注文ID（再描画・タブ復帰後も保持） */
+const openHistoryDetailOrderIds = new Set();
+
+function getHistoryOrderIdFromSummaryRow(sumTr) {
+    if (!sumTr) return "";
+    const ch = sumTr.querySelector(".order-row-select");
+    if (ch) {
+        const id = ch.getAttribute("data-order-id");
+        if (id != null && id !== "") return String(id);
+    }
+    const link = sumTr.querySelector("a.order-id-link");
+    if (link && link.textContent) return String(link.textContent).trim();
+    return "";
+}
 
 function orderHistorySelectionKeyFromCheckbox(ch) {
     const id = ch.getAttribute("data-order-id");
@@ -364,16 +412,16 @@ document.addEventListener("DOMContentLoaded", function () {
     if (statusSelect) statusSelect.addEventListener("change", execHistoryClientSearch);
     if (searchBtn) searchBtn.addEventListener("click", execHistoryClientSearch);
 
-    // タブに戻った際に最新データを再取得（管理画面で納期目安更新後など）
+    // タブに戻った際に最新データを再取得（詳細の開閉・ページは維持）
     document.addEventListener("visibilitychange", function () {
         if (document.visibilityState === "visible") {
-            fetchHistory();
+            fetchHistory({ keepPage: true });
         }
     });
 });
 
 // サーバーから履歴データをとってくる
-async function fetchHistory() {
+async function fetchHistory(options) {
     const container = document.querySelector("#history-list-container");
     if (!container) return;
 
@@ -400,7 +448,7 @@ async function fetchHistory() {
 
         // データを保存し、ツールバー条件で一覧を再描画
         allOrders = data.history;
-        execHistoryClientSearch();
+        execHistoryClientSearch(options);
     } catch (error) {
         console.error("履歴取得エラー", error);
         clearHistoryPagination();
@@ -541,6 +589,8 @@ function renderHistoryPage() {
     container.appendChild(tableWrap);
 
     attachHistoryRowSelectionHandlers(table, resultInfo);
+
+    restoreHistoryOpenDetails(tbody);
 
     setupHistoryPagination(totalPages, historyCurrentPage);
 }

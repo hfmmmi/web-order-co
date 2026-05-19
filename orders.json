@@ -989,7 +989,7 @@
       "tel": "22233645",
       "address": "長野県上田市保野1039-13",
       "name": "株式会社hfm",
-      "note": " (宛名: 株式会社hfm, TEL: 22233645)",
+      "note": "(宛名: 株式会社hfm, TEL: 22233645)",
       "clientOrderNumber": "8521",
       "shipper": {
         "zip": "386",
@@ -1017,68 +1017,40 @@
         ]
       },
       {
-        "shipmentId": 1768338730539,
-        "shippedDate": "2026-01-13T21:12:10.539Z",
-        "deliveryCompany": "佐川",
-        "trackingNumber": "987654321",
-        "deliveryDate": "2026/01/15",
-        "deliveryDateUnknown": false,
+        "shipmentId": 1779169299733,
+        "shippedDate": "2026-05-19T05:41:39.733Z",
+        "deliveryCompany": "ヤマト運輸",
+        "trackingNumber": "00990099",
+        "deliveryDate": "",
+        "deliveryDateUnknown": true,
+        "deliveryMode": "individual",
         "items": [
           {
             "code": "319167",
             "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ ｶｰﾄﾘｯｼﾞ ﾀｲﾌﾟV 5000 319167 3251638 (純正)",
-            "quantity": 2
+            "quantity": 5
           }
         ]
       },
       {
-        "shipmentId": 1768338783109,
-        "shippedDate": "2026-01-13T21:13:03.109Z",
-        "deliveryCompany": "メーカー便",
-        "trackingNumber": "メーカー便のため送り状番号無し",
-        "deliveryDate": "2026/01/16",
-        "deliveryDateUnknown": false,
+        "shipmentId": 1779169299734,
+        "shippedDate": "2026-05-19T05:41:39.733Z",
+        "deliveryCompany": "西濃運輸",
+        "trackingNumber": "11221122",
+        "deliveryDate": "",
+        "deliveryDateUnknown": true,
+        "deliveryMode": "individual",
         "items": [
           {
             "code": "J4500S",
-            "name": "RICOH SPトナー4500S（２本入り） (純正)",
-            "quantity": 2
-          }
-        ]
-      },
-      {
-        "shipmentId": 1768339193460,
-        "shippedDate": "2026-01-13T21:19:53.460Z",
-        "deliveryCompany": "ヤマト",
-        "trackingNumber": "123456",
-        "deliveryDate": "",
-        "deliveryDateUnknown": false,
-        "items": [
-          {
-            "code": "319167",
-            "name": "RICOH  PPCｽﾃｰﾌﾟﾗｰ ｶｰﾄﾘｯｼﾞ ﾀｲﾌﾟV 5000 319167 3251638 (純正)",
+            "name": "RICOH SPトナー4500S（２本入り）",
             "quantity": 3
-          }
-        ]
-      },
-      {
-        "shipmentId": 1768339193462,
-        "shippedDate": "2026-01-13T21:19:53.461Z",
-        "deliveryCompany": "佐川",
-        "trackingNumber": "654321",
-        "deliveryDate": "",
-        "deliveryDateUnknown": false,
-        "items": [
-          {
-            "code": "J4500S",
-            "name": "RICOH SPトナー4500S（２本入り） (純正)",
-            "quantity": 1
           }
         ]
       }
     ],
-    "deliveryCompany": "佐川",
-    "trackingNumber": "654321",
+    "deliveryCompany": "西濃運輸",
+    "trackingNumber": "11221122",
     "exported_at": "2026-01-22T19:23:42.314Z"
   },
   {

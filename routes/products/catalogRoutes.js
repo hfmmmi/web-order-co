@@ -202,7 +202,20 @@ router.post("/cart-details", async (req, res) => {
         const rankPriceMap = JSON.parse(rankData);
 
         const details = cartItems.map(item => {
-            const product = productMaster.find(p => p.productCode === item.productCode);
+            const cartCode = String(
+                item.productCode != null && item.productCode !== ""
+                    ? item.productCode
+                    : item.code != null && item.code !== ""
+                      ? item.code
+                      : item.id != null
+                        ? item.id
+                        : ""
+            ).trim();
+            if (!cartCode) return null;
+
+            const product = productMaster.find(
+                (p) => String(p.productCode) === cartCode
+            );
             if (!product) return null;
 
             const specialPriceEntry = priceList.find(p => p.customerId === customerId && p.productCode === product.productCode);
