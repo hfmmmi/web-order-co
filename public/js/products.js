@@ -507,7 +507,7 @@ function renderProductList(items, isEstimateMode = false, isFrequentMode = false
             priceDisplay = `<span style="color:#111827; font-weight:normal;">¥${product.price.toLocaleString()}</span>`;
             badgeDisplay = `<span class="badge badge-info" style="background:#f3f4f6; color:#374151; border:1px solid #e5e7eb;">特別価格</span>`;
         } else {
-            priceDisplay = `¥${product.price.toLocaleString()}`;
+            priceDisplay = `<span style="font-weight:normal;">¥${product.price.toLocaleString()}</span>`;
         }
 
         // お気に入り（発注欄で ☆ / ★ を表示）
@@ -567,7 +567,7 @@ function renderProductList(items, isEstimateMode = false, isFrequentMode = false
             </td>
             <td style="vertical-align:middle; min-width:200px;">
                 <div style="min-width:0; overflow-wrap:break-word;">
-                    <div style="font-weight:normal; font-size:1rem; word-wrap:break-word; overflow-wrap:break-word;">${esc(product.name)}</div>
+                    <div class="product-name-cell__title" style="font-size:1rem; word-wrap:break-word; overflow-wrap:break-word;">${esc(product.name)}</div>
                     <div style="font-size:0.85rem; color:#666; margin-top:2px;">
                         ${esc(product.productCode)} ${badgeDisplay} ${frequentBadge}
                     </div>

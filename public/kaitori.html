@@ -218,7 +218,32 @@
             font-size: 0.9rem;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            gap: 8px;
             color: #374151;
+        }
+
+        .cart-list .cart-item-name {
+            flex: 1;
+            min-width: 0;
+            font-size: 0.85rem;
+        }
+
+        .cart-list .cart-qty-input {
+            width: 52px;
+            text-align: right;
+            padding: 6px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .cart-list .cart-qty-wrap {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+            font-size: 0.85rem;
         }
 
         .kaitori-total-line {
@@ -377,16 +402,10 @@
             box-shadow: 0 0 0 2px rgba(55, 65, 81, 0.1);
         }
 
-        .required-badge {
-            background: #fef2f2;
-            color: #991b1b;
-            font-size: 0.65rem;
-            font-weight: normal;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-left: 6px;
-            vertical-align: middle;
-            border: 1px solid #fecaca;
+        /* 必須項目の赤マーク */
+        .form-group label.required::after {
+            content: " *";
+            color: red;
         }
 
         .modal-actions {
@@ -439,6 +458,10 @@
             border-bottom: 1px solid #e5e7eb;
             text-align: left;
             font-size: 0.9rem;
+        }
+
+        .history-table .history-date-cell {
+            color: #6b7280;
         }
 
         .history-table th {
@@ -506,6 +529,32 @@
             background: #ecfdf5;
             color: #065f46;
             border-color: #a7f3d0;
+        }
+
+        .st-hold {
+            background: #fff;
+            color: #111827;
+            border-color: #e5e7eb;
+            font-weight: bold;
+        }
+
+        .st-established {
+            background: #F1F3F4;
+            color: #111827;
+            border-color: #e5e7eb;
+        }
+
+        .st-assessing {
+            background: #D6E7F1;
+            color: #111827;
+            border-color: #D6E7F1;
+            font-weight: bold;
+        }
+
+        .st-cancel {
+            background: #F1F3F4;
+            color: #111827;
+            border-color: #e5e7eb;
         }
 
         .st-red {
@@ -586,7 +635,7 @@
             <a href="cart.html" class="nav-item nav-cart" data-feature="cart">カート</a>
             <a href="history.html" class="nav-item" data-feature="history">注文履歴</a>
             <a href="kaitori.html" class="nav-item nav-item--current" data-feature="kaitori">空カートリッジ買取</a>
-            <a href="support.html" class="nav-item" data-feature="support">サポート</a>
+            <a href="support.html" class="nav-item" data-feature="support">お問合わせ</a>
             <a href="https://www.e-kaisyu.jp/" target="_blank" class="nav-item" data-feature="collection">回収依頼</a>
             <a href="account.html" class="nav-item">アカウント設定</a>
             <a href="#" class="nav-item" id="logout-btn">ログアウト</a>
@@ -596,12 +645,11 @@
     <div class="container">
         <div class="tab-menu">
             <div class="tab-item active" data-target="view-new">空カートリッジ査定依頼</div>
-            <div class="tab-item" data-target="view-history">申請履歴・状況</div>
+            <div class="tab-item" data-target="view-history">申請履歴</div>
         </div>
 
         <div id="view-new" class="view-section active">
             <div style="margin-bottom: 20px;">
-                <h2 class="kaitori-page-heading">使用済み空カートリッジ買取 (査定依頼)</h2>
                 <p class="kaitori-intro-muted">
                     使用済みの空カートリッジを検索して追加してください。<br>
                     <span class="kaitori-warning">※未使用品・新品のインク/トナーの買取は営業担当までご連絡ください。</span>
@@ -611,7 +659,7 @@
             <div class="kaitori-wrapper">
                 <div class="kaitori-main">
                     <div class="filter-area">
-                        <input type="text" id="search-input" class="kaitori-search-input" placeholder="型番、商品名、メーカーで検索...">
+                        <input type="text" id="search-input" class="kaitori-search-input" placeholder="">
                         <button type="button" id="btn-search" class="kaitori-search-btn">検索</button>
                     </div>
                     <div id="product-list-container">
@@ -632,14 +680,7 @@
         </div>
 
         <div id="view-history" class="view-section">
-            <h2 class="kaitori-page-heading" style="margin:0 0 10px 0;">申請履歴・ステータス状況</h2>
             <div class="kaitori-history-panel">
-                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-                    <p class="kaitori-intro-muted" style="margin:0;">
-                        ※ 行をクリックすると、詳細（アイテム内訳や発送情報）が開閉します。
-                    </p>
-                    <button type="button" id="btn-refresh-history" class="btn-kaitori-refresh">更新</button>
-                </div>
                 <div id="history-container">
                     <p class="kaitori-intro-muted">読み込み中...</p>
                 </div>
@@ -651,21 +692,20 @@
     <div id="modal-logistics" class="modal-overlay">
         <div class="modal-content">
             <h3>発送・回収情報の入力</h3>
-            <p class="kaitori-intro-muted">お荷物の個数や発送状況を入力してください。</p>
 
             <div id="section-hyogo" class="logistics-section hyogo-style" style="display:none;">
-                <h4>兵庫 (回収便依頼)</h4>
+                <h4>兵庫 / 回収便依頼</h4>
                 <div class="form-group">
-                    <label>梱包個数 <span class="required-badge">必須</span></label>
+                    <label class="required">梱包個数</label>
                     <input type="number" id="hyogo-box-count" min="1">
                 </div>
                 <p class="kaitori-intro-muted" style="font-size:0.85rem;">
-                    ※ご申請後、弊社にて回収便を手配し、回収予定日をご連絡いたします。
+                    ※申請依頼後に弊社にて回収便を手配し、回収予定日をご連絡いたします。
                 </p>
             </div>
 
             <div id="section-osaka" class="logistics-section osaka-style" style="display:none;">
-                <h4>大阪 (元払い発送)</h4>
+                <h4>大阪 / 元払い発送</h4>
 
                 <div class="address-box">
                     <span class="address-title">送り先住所</span>
@@ -676,15 +716,15 @@
                 </div>
 
                 <div class="form-group">
-                    <label>梱包個数 <span class="required-badge">必須</span></label>
+                    <label class="required">梱包個数</label>
                     <input type="number" id="osaka-box-count" min="1">
                 </div>
                 <hr style="border:0; border-top:1px dashed #e5e7eb; margin:12px 0;">
-                <p class="kaitori-intro-muted" style="font-size:0.85rem; margin-bottom:10px;">発送済みの方は以下もご記入ください</p>
+                <p class="kaitori-intro-muted" style="font-size:0.85rem; margin-bottom:10px;">発送済みの方はご記入ください。</p>
                 <div class="form-group">
-                    <label>運送業者 <span class="required-badge">必須</span></label>
+                    <label>運送業者</label>
                     <select id="osaka-carrier">
-                        <option value="">(選択してください)</option>
+                        <option value=""></option>
                         <option value="ヤマト運輸">ヤマト運輸</option>
                         <option value="佐川急便">佐川急便</option>
                         <option value="日本郵便">日本郵便</option>
@@ -696,11 +736,11 @@
                         style="display:none; margin-top:5px;">
                 </div>
                 <div class="form-group">
-                    <label>送り状番号 <span class="required-badge">必須</span></label>
+                    <label>送り状番号</label>
                     <input type="text" id="osaka-tracking">
                 </div>
                 <div class="form-group">
-                    <label>出荷日 <span class="required-badge">必須</span></label>
+                    <label>出荷日</label>
                     <input type="date" id="osaka-ship-date">
                 </div>
             </div>

@@ -555,6 +555,7 @@ function generateHistorySummaryCellsHtml(order) {
     let statusFg;
     let statusBorder;
     const statusText = order.status || "未発送";
+    const statusFontWeight = (statusText === "未発送" || statusText === "一部発送") ? "600" : "400";
     if (statusText === "発送済") {
         statusColor = "#f3f4f6";
         statusFg = "#6b7280";
@@ -586,7 +587,7 @@ function generateHistorySummaryCellsHtml(order) {
             <td class="col-id"><a class="order-id-link" href="order-detail.html?orderId=${oidQ}">${orderIdEsc}</a></td>
             <td class="col-date">${orderDateStr}</td>
             <td class="col-status">
-                <span style="background-color: ${statusColor}; color: ${statusFg}; border: 1px solid ${statusBorder}; padding: 5px 10px; border-radius: 3px; font-size: 0.8125rem; font-weight: 600; white-space: nowrap; line-height: 1.25;">
+                <span style="background-color: ${statusColor}; color: ${statusFg}; border: 1px solid ${statusBorder}; padding: 5px 10px; border-radius: 3px; font-size: 0.8125rem; font-weight: ${statusFontWeight}; white-space: nowrap; line-height: 1.25;">
                     ${statusEsc}
                 </span>
             </td>

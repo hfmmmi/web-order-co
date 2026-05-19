@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>サポート申請 - 発注システム</title>
+    <title>お問合わせ - 発注システム</title>
     <link rel="stylesheet" href="style.css">
     <style>
         /* 商品一覧ページと同系の背景・コンテナ（ニュートラル配色） */
@@ -122,74 +122,115 @@
             border-radius: 8px;
             border: 1px solid #e5e7eb;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-            max-width: 600px;
+            max-width: 640px;
             margin: 20px auto 40px;
         }
 
-        .support-ticket-card {
-            border: 1px solid #e5e7eb;
-            border-left: 4px solid #cbd5e1;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 12px;
-            background: #fff;
+        .support-history-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
         }
 
-        /* 申請フォームと同系（#D6E7F1 / グレー階調。強い赤黄緑は使わない） */
-        .support-ticket-card.status-open {
-            border-left-color: #7eb0c9;
-            background: #f0f7fb;
+        .support-history-item {
+            padding: 16px 0;
+            border-bottom: 1px solid #e5e7eb;
         }
 
-        .support-ticket-card.status-verifying {
-            border-left-color: #94a3b8;
-            background: #f9fafb;
+        .support-history-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
         }
 
-        .support-ticket-card.status-resolved {
-            border-left-color: #9ca3af;
-            background: #f3f4f6;
+        .support-history-item:first-child {
+            padding-top: 0;
         }
 
-        .support-ticket-meta {
+        .support-history-item__head {
             display: flex;
             justify-content: space-between;
-            gap: 10px;
-            font-size: 0.85rem;
-            color: #6b7280;
+            align-items: center;
+            gap: 12px;
             margin-bottom: 8px;
             flex-wrap: wrap;
         }
 
-        .support-ticket-detail {
-            white-space: pre-wrap;
-            background: #f9fafb;
-            border: 1px solid #e5e7eb;
+        .support-history-item__date {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        .support-history-item__status {
+            font-size: 0.8rem;
+            padding: 3px 10px;
             border-radius: 4px;
-            padding: 8px;
-            margin-top: 6px;
-            font-size: 0.95rem;
+            border: 1px solid #e5e7eb;
+            background: #f9fafb;
             color: #374151;
         }
 
-        .history-list {
-            margin-top: 8px;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            background: #f9fafb;
-            max-height: 160px;
-            overflow-y: auto;
+        .support-history-item__status.is-open {
+            background: #f0f7fb;
+            border-color: #d6e7f1;
+            color: #111827;
         }
 
-        .history-row {
-            padding: 8px;
-            border-bottom: 1px solid #e5e7eb;
+        .support-history-item__status.is-verifying {
+            background: #f9fafb;
+            border-color: #d1d5db;
+        }
+
+        .support-history-item__status.is-resolved {
+            background: #f3f4f6;
+            border-color: #e5e7eb;
+            color: #6b7280;
+        }
+
+        .support-history-item__type {
+            margin: 0 0 6px;
+            font-size: 1rem;
+            color: #111827;
+        }
+
+        .support-history-item__sub {
+            margin: 0 0 8px;
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        .support-history-item__sub a {
+            color: #374151;
+        }
+
+        .support-history-item__detail {
+            margin: 0;
+            white-space: pre-wrap;
             font-size: 0.9rem;
             color: #374151;
+            line-height: 1.5;
         }
 
-        .history-row:last-child {
-            border-bottom: none;
+        .support-history-item__log {
+            list-style: none;
+            margin: 10px 0 0;
+            padding: 10px 0 0;
+            border-top: 1px dashed #e5e7eb;
+        }
+
+        .support-history-item__log li {
+            font-size: 0.85rem;
+            color: #374151;
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        .support-history-item__log li:last-child {
+            margin-bottom: 0;
+        }
+
+        .support-history-item__log-date {
+            color: #6b7280;
+            margin-right: 4px;
         }
 
         /* 添付: クリック選択 + ドラッグ＆ドロップ */
@@ -373,27 +414,20 @@
             <a href="cart.html" class="nav-item nav-cart" data-feature="cart">カート</a>
             <a href="history.html" class="nav-item" data-feature="history">注文履歴</a>
             <a href="kaitori.html" class="nav-item" data-feature="kaitori">空カートリッジ買取</a>
-            <a href="support.html" class="nav-item nav-item--current" data-feature="support">サポート</a>
+            <a href="support.html" class="nav-item nav-item--current" data-feature="support">お問合わせ</a>
             <a href="https://www.e-kaisyu.jp/" target="_blank" class="nav-item" data-feature="collection">回収依頼</a>
             <a href="account.html" class="nav-item">アカウント設定</a>
             <a href="#" class="nav-item" id="logout-btn">ログアウト</a>
         </div>
     </nav>
     <div class="container">
-        <h1 style="text-align: center; color: #111827;">サポート・不具合申請</h1>
-
         <div class="support-tabs">
             <button type="button" class="support-tab-btn active" data-tab="support-form-panel">申請フォーム</button>
-            <button type="button" class="support-tab-btn" data-tab="support-history-panel">問い合わせ履歴</button>
+            <button type="button" class="support-tab-btn" data-tab="support-history-panel">履歴</button>
         </div>
 
         <section id="support-form-panel" class="support-tab-panel active">
             <div class="support-form-container">
-                <p style="margin-bottom: 20px; color: #6b7280;">
-                    システムや商品に関する不具合はこちらからご報告ください。<br>
-                    管理者に直接通知が届きます。
-                </p>
-
                 <form id="support-form">
                     <div class="form-group">
                         <label for="support-type">申請項目 <span style="color:red">*</span></label>
@@ -404,7 +438,7 @@
                             <option value="見積依頼">見積依頼</option>
                             <option value="操作方法の質問">操作方法がわからない</option>
                             <option value="システムエラー">システムのエラー・不具合</option>
-                            <option value="その他">その他のお問い合わせ</option>
+                            <option value="その他">その他</option>
                         </select>
                     </div>
 

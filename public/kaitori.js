@@ -12,8 +12,6 @@ document.addEventListener("DOMContentLoaded", function () {
     // タブ関連
     const tabItems = document.querySelectorAll(".tab-item");
     const viewSections = document.querySelectorAll(".view-section");
-    const btnRefreshHistory = document.getElementById("btn-refresh-history");
-
     // 履歴関連
     const historyContainer = document.getElementById("history-container");
 
@@ -214,6 +212,40 @@ document.addEventListener("DOMContentLoaded", function () {
         return str.normalize("NFKC").toLowerCase();
     }
 
+    function formatKaitoriRequestDate(dateValue) {
+        const d = new Date(dateValue);
+        if (Number.isNaN(d.getTime())) return "-";
+        const y = d.getFullYear();
+        const mo = String(d.getMonth() + 1).padStart(2, "0");
+        const da = String(d.getDate()).padStart(2, "0");
+        const h = String(d.getHours()).padStart(2, "0");
+        const mi = String(d.getMinutes()).padStart(2, "0");
+        return `${y}/${mo}/${da} ${h}:${mi}`;
+    }
+
+    function resolveHistoryStatus(status) {
+        const s = status || "";
+        if (s === "キャンセル(返却)" || s === "キャンセル(廃棄)") {
+            return { label: "キャンセル", badgeClass: "st-cancel" };
+        }
+        if (s.includes("キャンセル")) {
+            return { label: s, badgeClass: "st-cancel" };
+        }
+        if (s.includes("成立")) {
+            return { label: s, badgeClass: "st-established" };
+        }
+        if (s.includes("査定中")) {
+            return { label: s, badgeClass: "st-assessing" };
+        }
+        if (s.includes("保留")) {
+            return { label: s, badgeClass: "st-hold" };
+        }
+        let badgeClass = "st-blue";
+        if (s.includes("完了") || s.includes("済")) badgeClass = "st-green";
+        if (s.includes("却下") || s.includes("不備")) badgeClass = "st-red";
+        return { label: s, badgeClass };
+    }
+
     // 検索
     function handleFilter() {
         const rawKeyword = searchInput ? searchInput.value : "";
@@ -248,16 +280,36 @@ document.addEventListener("DOMContentLoaded", function () {
     // =========================================
     // 4. カート更新
     // =========================================
+    function syncProductListQuantities() {
+        if (!productListContainer) return;
+        productListContainer.querySelectorAll(".qty-input").forEach(input => {
+            const id = input.dataset.id;
+            input.value = cart[id] || 0;
+        });
+    }
+
+    function renderCartItemRow(entry) {
+        const idAttr = String(entry.id).replace(/"/g, "&quot;");
+        return `<li>
+            <span class="cart-item-name">${entry.name}</span>
+            <span class="cart-qty-wrap">
+                <input type="number" min="0" class="cart-qty-input" data-id="${idAttr}" value="${entry.qty}" aria-label="数量">
+                個
+            </span>
+        </li>`;
+    }
+
     function updateCart() {
         let total = 0;
         const groups = { "兵庫": [], "大阪": [] };
         Object.keys(cart).forEach(id => {
             const item = fullMasterData.find(d => d.id === id);
-            if(item){
-                const sub = item.price * cart[id];
+            if (item) {
+                const qty = cart[id];
+                const sub = item.price * qty;
                 total += sub;
                 const dest = groups[item.destination] ? item.destination : "大阪";
-                groups[dest].push({ name: item.name, qty: cart[id], sub: sub });
+                groups[dest].push({ id, name: item.name, qty, sub });
             }
         });
 
@@ -266,22 +318,34 @@ document.addEventListener("DOMContentLoaded", function () {
             html += `<div style="margin-bottom:15px; border-left:3px solid #D6E7F1; padding-left:10px;">
                         <div style="font-weight:normal; color:#374151; font-size:0.9rem;">兵庫センター行</div>
                         <ul style="padding-left:0; margin:6px 0; list-style:none;">`;
-            groups["兵庫"].forEach(g => html += `<li style="font-size:0.85rem; color:#374151;">${g.name} x ${g.qty}</li>`);
+            groups["兵庫"].forEach(g => { html += renderCartItemRow(g); });
             html += `</ul></div>`;
         }
         if (groups["大阪"].length > 0) {
             html += `<div style="margin-bottom:15px; border-left:3px solid #9ca3af; padding-left:10px;">
                         <div style="font-weight:normal; color:#374151; font-size:0.9rem;">大阪センター行</div>
                         <ul style="padding-left:0; margin:6px 0; list-style:none;">`;
-            groups["大阪"].forEach(g => html += `<li style="font-size:0.85rem; color:#374151;">${g.name} x ${g.qty}</li>`);
+            groups["大阪"].forEach(g => { html += renderCartItemRow(g); });
             html += `</ul></div>`;
         }
 
         if (total === 0) html = "<p class=\"kaitori-intro-muted\">商品を選択してください</p>";
         cartContainer.innerHTML = html;
+
+        cartContainer.querySelectorAll(".cart-qty-input").forEach(input => {
+            input.addEventListener("change", function () {
+                const id = this.dataset.id;
+                const val = parseInt(this.value, 10);
+                if (val > 0) cart[id] = val;
+                else delete cart[id];
+                syncProductListQuantities();
+                updateCart();
+            });
+        });
+
         totalPriceDisplay.textContent = `合計: ¥${total.toLocaleString()}`;
-        
-        if(btnPreSubmit) {
+
+        if (btnPreSubmit) {
             btnPreSubmit.disabled = (total === 0);
         }
         return groups;
@@ -319,10 +383,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 <tbody>`;
             
             list.forEach((item) => {
-                const dateStr = new Date(item.requestDate).toLocaleString("ja-JP");
-                let badgeClass = "st-blue";
-                if (item.status.includes("完了") || item.status.includes("済") || item.status.includes("成立")) badgeClass = "st-green";
-                if (item.status.includes("却下") || item.status.includes("不備") || item.status.includes("キャンセル")) badgeClass = "st-red";
+                const dateStr = formatKaitoriRequestDate(item.requestDate);
+                const { label: statusLabel, badgeClass } = resolveHistoryStatus(item.status);
                 const totalQty = item.items ? item.items.reduce((sum, i) => sum + (i.qty || 0), 0) : 0;
 
                 // 頭出しの作成
@@ -340,23 +402,23 @@ document.addEventListener("DOMContentLoaded", function () {
                 let logisticsHtml = "";
                 if (item.logistics) {
                     if (item.logistics.hyogo) {
-                        logisticsHtml += `<div>兵庫(回収): 梱包 ${item.logistics.hyogo.boxCount}個</div>`;
+                        logisticsHtml += `<div>兵庫 / 回収： 梱包 ${item.logistics.hyogo.boxCount}個</div>`;
                     }
                     if (item.logistics.osaka) {
                         const os = item.logistics.osaka;
-                        logisticsHtml += `<div style="margin-top:6px;">大阪(発送): 梱包 ${os.boxCount}個 / ${os.carrier || "-"} / No.${os.tracking || "-"}</div>`;
+                        logisticsHtml += `<div style="margin-top:6px;">大阪 / 発送： 梱包 ${os.boxCount}個 / ${os.carrier || "-"} / No.${os.tracking || "-"}</div>`;
                     }
                 }
                 
                 const noteHtml = item.customerNote 
                     ? `<div style="color:#374151; margin-top:8px; background:#f9fafb; padding:10px 12px; border-radius:8px; border:1px solid #e5e7eb; border-left:3px solid #D6E7F1;">
-                         事務局メッセージ: ${item.customerNote}
+                         事務局メッセージ： ${item.customerNote}
                        </div>` 
                     : "";
 
                 const metaHtml = `
                     <div style="margin-bottom:10px; font-size:0.9rem;">
-                        <div style="margin-bottom:5px;">受付番号: ${item.requestId}</div>
+                        <div style="margin-bottom:5px;">受付番号： ${item.requestId}</div>
                         ${logisticsHtml}
                         ${noteHtml}
                     </div>
@@ -382,14 +444,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     });
                 }
                 tableHtml += `</tbody></table>
-                    <div class="detail-total">合計査定額: ¥${grandTotal.toLocaleString()}</div>`;
+                    <div class="detail-total">合計査定額： ¥${grandTotal.toLocaleString()}</div>`;
 
 
                 // === 行セットの追加 (親行 + 子行) ===
                 html += `<tr class="history-main-row" data-id="${item.requestId}">
-                    <td>${dateStr}</td>
+                    <td class="history-date-cell">${dateStr}</td>
                     <td>${summary}</td>
-                    <td><span class="status-badge ${badgeClass}">${item.status}</span></td>
+                    <td><span class="status-badge ${badgeClass}">${statusLabel}</span></td>
                     <td>${totalQty}点</td>
                     <td style="text-align:center;"><span class="toggle-icon">▼</span></td>
                 </tr>`;
@@ -422,9 +484,6 @@ document.addEventListener("DOMContentLoaded", function () {
             historyContainer.innerHTML = "<p class=\"kaitori-intro-muted\">読み込みエラー</p>";
         }
     }
-    if(btnRefreshHistory) btnRefreshHistory.addEventListener("click", fetchHistory);
-
-
     // =========================================
     // 6. 申込モーダル制御
     // =========================================
@@ -464,20 +523,14 @@ document.addEventListener("DOMContentLoaded", function () {
             if(groups["兵庫"].length > 0) {
                 if(!inputHyogoBox.value) { toastWarning("兵庫行きの梱包個数を入力してください"); return; }
             }
-            if(groups["大阪"].length > 0) {
-                if(!inputOsakaBox.value) { toastWarning("大阪行きの梱包個数を入力してください"); return; }
-                if(!inputOsakaCarrier.value) { toastWarning("大阪行き：運送業者を選択してください"); return; }
-                if(inputOsakaCarrier.value === "その他" && !inputOsakaCarrierOther.value.trim()) {
-                    toastWarning("大阪行き：運送業者名を入力してください"); return;
-                }
-                if(!inputOsakaTracking.value.trim()) { toastWarning("大阪行き：送り状番号を入力してください"); return; }
-                if(!inputOsakaDate.value) { toastWarning("大阪行き：出荷日を入力してください"); return; }
+            if (groups["大阪"].length > 0) {
+                if (!inputOsakaBox.value) { toastWarning("大阪行きの梱包個数を入力してください"); return; }
             }
 
-            if(!confirm("この内容で確定しますか？")) return;
+            if (!confirm("この内容で確定しますか？")) return;
 
             let carrierName = inputOsakaCarrier.value;
-            if(carrierName === "その他") carrierName = inputOsakaCarrierOther.value.trim();
+            if (carrierName === "その他") carrierName = inputOsakaCarrierOther.value.trim();
 
             const itemsToSend = Object.keys(cart).map(id => {
                 const item = fullMasterData.find(d => d.id === id);

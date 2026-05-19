@@ -39,7 +39,12 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!value) return "-";
         const d = new Date(value);
         if (isNaN(d.getTime())) return "-";
-        return d.toLocaleString("ja-JP");
+        const y = d.getFullYear();
+        const mo = String(d.getMonth() + 1).padStart(2, "0");
+        const da = String(d.getDate()).padStart(2, "0");
+        const h = String(d.getHours()).padStart(2, "0");
+        const mi = String(d.getMinutes()).padStart(2, "0");
+        return `${y}/${mo}/${da} ${h}:${mi}`;
     }
 
     function renderMyTickets(tickets) {
@@ -47,70 +52,50 @@ document.addEventListener("DOMContentLoaded", function () {
         myTicketsContainer.innerHTML = "";
 
         if (!Array.isArray(tickets) || tickets.length === 0) {
-            myTicketsContainer.innerHTML = "<p class=\"support-history-empty\">まだ問い合わせ履歴はありません。</p>";
+            myTicketsContainer.innerHTML = "<p class=\"support-history-empty\">履歴はありません。</p>";
             return;
         }
 
-        tickets.forEach((ticket) => {
-            const card = document.createElement("div");
-            const statusClass = ticket.status ? `status-${ticket.status}` : "status-open";
-            card.className = `support-ticket-card ${statusClass}`;
+        const listEl = document.createElement("ul");
+        listEl.className = "support-history-list";
 
-            let historyHtml = "<div class=\"history-row-empty\">対応履歴はまだありません。</div>";
+        tickets.forEach((ticket) => {
+            const item = document.createElement("li");
+            item.className = "support-history-item";
+            const statusClass = ticket.status ? `is-${ticket.status}` : "is-open";
+            const orderLine = ticket.orderId
+                ? `<p class="support-history-item__sub">注文ID：${safeText(ticket.orderId)}</p>`
+                : "";
+
+            let historyBlock = "";
             if (Array.isArray(ticket.history) && ticket.history.length > 0) {
-                historyHtml = ticket.history
+                historyBlock = `<ul class="support-history-item__log">${ticket.history
                     .map((h) => {
                         const byText = h.by ? `（${safeText(h.by)}）` : "";
-                        return `<div class="history-row">
-                            <div class="history-row-date">${safeText(formatDate(h.date))}</div>
-                            <div>${safeText(h.action)} ${byText}</div>
-                        </div>`;
+                        return `<li><span class="support-history-item__log-date">${safeText(formatDate(h.date))}</span> ${safeText(h.action)}${byText}</li>`;
                     })
-                    .join("");
+                    .join("")}</ul>`;
             }
 
-            let attachHtml = "";
-            if (Array.isArray(ticket.attachments) && ticket.attachments.length > 0) {
-                const tid = encodeURIComponent(ticket.ticketId || "");
-                attachHtml = `<div class="support-ticket-attach">
-                    添付:
-                    <ul style="margin:6px 0 0 18px; padding:0;">
-                        ${ticket.attachments.map((a) => {
-                            const sn = encodeURIComponent(a.storedName || "");
-                            const href = `/support/attachment/${tid}/${sn}`;
-                            return `<li><a href="${href}" target="_blank" rel="noopener">${safeText(a.originalName || a.storedName || "ファイル")}</a></li>`;
-                        }).join("")}
-                    </ul>
-                </div>`;
-            }
-
-            card.innerHTML = `
-                <div class="support-ticket-meta">
-                    <span>${safeText(ticket.ticketId || "-")}</span>
-                    <span>${safeText(statusLabel(ticket.status))}</span>
-                    <span>受付：${safeText(formatDate(ticket.timestamp))}</span>
+            item.innerHTML = `
+                <div class="support-history-item__head">
+                    <span class="support-history-item__date">${safeText(formatDate(ticket.timestamp))}</span>
+                    <span class="support-history-item__status ${statusClass}">${safeText(statusLabel(ticket.status))}</span>
                 </div>
-                <div class="support-ticket-line">
-                    申請項目：${safeText(ticket.type || "未設定")}
-                </div>
-                <div class="support-ticket-line support-ticket-line--muted">
-                    注文ID：${safeText(ticket.orderId || "-")}
-                </div>
-                <div class="support-ticket-detail">${safeText(ticket.detail || "")}</div>
-                ${attachHtml}
-                <div class="support-ticket-line support-ticket-line--muted">
-                    希望対応：${safeText(ticket.desiredAction || "-")} / 回収指定日：${safeText(ticket.collectionDate || "-")}
-                </div>
-                <div class="support-ticket-section-title">対応履歴</div>
-                <div class="history-list">${historyHtml}</div>
+                <p class="support-history-item__type">${safeText(ticket.type || "未設定")}</p>
+                ${orderLine}
+                <p class="support-history-item__detail">${safeText(ticket.detail || "")}</p>
+                ${historyBlock}
             `;
-            myTicketsContainer.appendChild(card);
+            listEl.appendChild(item);
         });
+
+        myTicketsContainer.appendChild(listEl);
     }
 
     async function loadMyTickets() {
         if (!myTicketsContainer) return;
-        myTicketsContainer.innerHTML = "<p class=\"support-history-loading\">問い合わせ履歴を読み込み中...</p>";
+        myTicketsContainer.innerHTML = "<p class=\"support-history-loading\">読み込み中...</p>";
         try {
             const response = await fetch("/support/my-tickets");
             const result = await response.json();

@@ -352,6 +352,9 @@ input[type="text"], input[type="password"] {
 
 /* --- Global Navigation (SaaS Header) --- */
 .global-nav {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
     background-color: #343a40;
     color: white;
     padding: 10px 20px;
