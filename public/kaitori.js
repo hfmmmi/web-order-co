@@ -169,11 +169,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 : `<span class="kaitori-dest-badge kaitori-dest-badge--osaka">大阪</span>`;
 
             div.innerHTML = `
-                <div>
-                    <div style="font-weight:normal; color:#111827;">${item.maker} / ${item.name} ${badgeHtml}</div>
-                    <div class="price-text">空カートリッジ単価: ¥${item.price.toLocaleString()}</div>
+                <div class="product-card__info">
+                    ${badgeHtml}
+                    <div class="product-card__name">${item.maker} / ${item.name}</div>
                 </div>
-                <div><input type="number" min="0" class="qty-input" data-id="${item.id}" value="${cart[item.id]||0}" style="width:60px; text-align:right; padding:8px; border:1px solid #d1d5db; border-radius:6px;"> 個</div>`;
+                <div class="product-card__qty-row">
+                    <span class="product-card__unit-price">単価：¥${item.price.toLocaleString()}</span>
+                    <input type="number" min="0" class="qty-input" data-id="${item.id}" value="${cart[item.id]||0}">
+                    <span class="product-card__qty-unit">個</span>
+                </div>`;
 
             div.querySelector(".qty-input").addEventListener("change", function() {
                 const val = parseInt(this.value, 10);
@@ -450,12 +454,13 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    function buildKaitoriHistoryPrintHtml(items) {
-        const toolbar =
-            '<div class="no-print" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px;padding:12px 16px;background:#1f2937;color:#fff;margin:-12px -16px 20px;position:sticky;top:0;z-index:10;">' +
-            '<button type="button" onclick="window.print()" style="padding:8px 18px;font-weight:700;border:none;background:#3b82f6;color:#fff;cursor:pointer;">この内容を印刷</button>' +
-            '<span style="font-size:0.82rem;opacity:0.9;">ブラウザの印刷ダイアログでプリンタを選べます</span>' +
-            "</div>";
+    function buildKaitoriHistoryPrintHtml(items, includeToolbar) {
+        const toolbar = includeToolbar !== false
+            ? '<div class="no-print" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px;padding:12px 16px;background:#1f2937;color:#fff;margin:-12px -16px 20px;position:sticky;top:0;z-index:10;">' +
+              '<button type="button" onclick="window.print()" style="padding:8px 18px;font-weight:700;border:none;background:#3b82f6;color:#fff;cursor:pointer;">この内容を印刷</button>' +
+              '<span style="font-size:0.82rem;opacity:0.9;">ブラウザの印刷ダイアログでプリンタを選べます</span>' +
+              "</div>"
+            : "";
         const style =
             "<style>*{box-sizing:border-box;}body{font-family:'Noto Sans JP',system-ui,sans-serif;margin:0;padding:12px 16px 24px;font-size:12px;color:#111;}" +
             ".kaitori-print-block{border:2px solid #111;padding:14px 16px;margin:0 0 20px;}" +
@@ -485,8 +490,24 @@ document.addEventListener("DOMContentLoaded", function () {
         );
     }
 
+    function openKaitoriHistorySaveWindow(items, options) {
+        options = options || {};
+        const format = options.format === "png" ? "png" : "pdf";
+        const preview = options.preview !== false;
+        const html = buildKaitoriHistoryPrintHtml(items, false);
+        if (!window.PrintDocumentSave) {
+            if (window.toastError) window.toastError("保存機能の読み込みに失敗しました");
+            return;
+        }
+        window.PrintDocumentSave.openSavePreview(html, {
+            filePrefix: "kaitori-history",
+            format: format,
+            preview: preview
+        });
+    }
+
     function openKaitoriHistoryPrintWindow(items) {
-        const html = buildKaitoriHistoryPrintHtml(items);
+        const html = buildKaitoriHistoryPrintHtml(items, true);
         let blobUrl = null;
         try {
             const blob = new Blob([html], { type: "text/html;charset=utf-8" });
@@ -585,13 +606,24 @@ document.addEventListener("DOMContentLoaded", function () {
         const btnMore = document.getElementById("kaitori-btn-more");
         const moreMenu = document.getElementById("kaitori-more-menu");
         const btnPrint = document.getElementById("kaitori-btn-print-selected");
+        const btnSave = document.getElementById("kaitori-btn-save-selected");
         const btnCloseAll = document.getElementById("kaitori-btn-close-all-details");
+        const saveModal = document.getElementById("kaitori-save-slip-modal");
+        const saveBackdrop = document.getElementById("kaitori-save-slip-modal-backdrop");
+        const saveCancel = document.getElementById("kaitori-save-slip-modal-cancel");
+        const saveSubmit = document.getElementById("kaitori-save-slip-modal-submit");
 
         function setKaitoriMoreMenuOpen(open) {
             if (!moreMenu || !btnMore) return;
             moreMenu.classList.toggle("is-open", open);
             moreMenu.setAttribute("aria-hidden", open ? "false" : "true");
             btnMore.setAttribute("aria-expanded", open ? "true" : "false");
+        }
+
+        function setKaitoriSaveModalOpen(open) {
+            if (!saveModal) return;
+            saveModal.classList.toggle("is-open", open);
+            saveModal.setAttribute("aria-hidden", open ? "false" : "true");
         }
 
         if (btnMore && moreMenu) {
@@ -626,6 +658,51 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
                 setKaitoriMoreMenuOpen(false);
                 openKaitoriHistoryPrintWindow(selected);
+            });
+        }
+
+        if (btnSave) {
+            btnSave.addEventListener("click", function (e) {
+                e.stopPropagation();
+                if (selectedKaitoriRequestIds.size === 0) {
+                    if (window.toastWarning) window.toastWarning("チェックした申請がありません");
+                    else alert("チェックした申請がありません");
+                    return;
+                }
+                setKaitoriMoreMenuOpen(false);
+                setKaitoriSaveModalOpen(true);
+            });
+        }
+
+        if (saveBackdrop) {
+            saveBackdrop.addEventListener("click", function () {
+                setKaitoriSaveModalOpen(false);
+            });
+        }
+        if (saveCancel) {
+            saveCancel.addEventListener("click", function () {
+                setKaitoriSaveModalOpen(false);
+            });
+        }
+        if (saveSubmit && saveModal) {
+            saveSubmit.addEventListener("click", function (e) {
+                e.stopPropagation();
+                const selected = collectSelectedKaitoriHistory();
+                if (selected.length === 0) {
+                    if (window.toastWarning) window.toastWarning("選択した申請が見つかりません。一覧を再読み込みしてください。");
+                    return;
+                }
+                const formatInput = saveModal.querySelector('input[name="kaitori-save-slip-format"]:checked');
+                const previewInput = saveModal.querySelector('input[name="kaitori-save-slip-preview"]:checked');
+                const format = formatInput && formatInput.value === "png" ? "png" : "pdf";
+                const preview = !previewInput || previewInput.value === "preview";
+                setKaitoriSaveModalOpen(false);
+                openKaitoriHistorySaveWindow(selected, { format: format, preview: preview });
+            });
+        }
+        if (saveModal) {
+            saveModal.querySelector(".kaitori-print-modal__dialog")?.addEventListener("click", function (e) {
+                e.stopPropagation();
             });
         }
 

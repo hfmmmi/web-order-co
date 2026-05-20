@@ -108,7 +108,7 @@
 
         let shipperHtml = "";
         if (info.shipper && info.shipper.name) {
-            shipperHtml = detailLabelLine("荷主", esc(info.shipper.name));
+            shipperHtml = detailLabelLine("荷送人", esc(info.shipper.name));
         }
 
         const estimateHtml = info.estimateMessage
@@ -223,16 +223,64 @@
         });
         tableHTML += `</tbody></table></div>`;
 
-        const actionHtml = `
-        <div class="order-detail-actions">
-            <div class="order-detail-actions__start"></div>
-            <button type="button" class="btn-reorder" data-order-id="${esc(String(order.orderId != null ? order.orderId : ""))}">
-                この内容で再注文
-            </button>
-        </div>
-    `;
+        const orderIdRaw = order.orderId != null ? String(order.orderId) : "";
+        const orderIdAttr = esc(orderIdRaw);
+        const orderIdQuery = encodeURIComponent(orderIdRaw);
+        const actionHtml = [
+            '<div class="order-detail-actions">',
+            '<div class="order-detail-actions__start"></div>',
+            '<div class="order-detail-actions__end">',
+            '<button type="button" class="btn-reorder" data-order-id="' + orderIdAttr + '">',
+            "この内容で再注文",
+            "</button>",
+            '<a href="support.html?orderId=' + orderIdQuery + '" class="btn-order-inquiry">問い合わせる</a>',
+            "</div>",
+            "</div>"
+        ].join("");
 
         return deliveryHTML + trackingHtml + tableHTML + actionHtml;
+    }
+
+    /**
+     * 再注文時にカート画面へ渡す配送先・荷送人の下書き
+     * @param {object} order
+     * @returns {object}
+     */
+    function buildCartDeliveryDraftFromOrder(order) {
+        const info = order && order.deliveryInfo ? order.deliveryInfo : {};
+        const rawDate = info.date != null ? String(info.date).trim() : "";
+        const isShortest = !rawDate || rawDate === "最短";
+        let deliveryDate = "";
+        if (!isShortest) {
+            const normalized = formatDetailDateYmdSlash(rawDate);
+            if (normalized && normalized !== "—") {
+                deliveryDate = normalized.replace(/\//g, "-");
+            }
+        }
+        const name = info.name != null ? String(info.name) : "";
+        const tel = info.tel != null ? String(info.tel) : "";
+        let note = info.note != null ? String(info.note) : "";
+        const suffix = ` (宛名: ${name}, TEL: ${tel})`;
+        if (name && tel && note.endsWith(suffix)) {
+            note = note.slice(0, -suffix.length);
+        }
+        const shipper = info.shipper && typeof info.shipper === "object" ? info.shipper : {};
+        return {
+            dateMode: isShortest ? "shortest" : "specify",
+            deliveryDate,
+            zip: info.zip != null ? String(info.zip) : "",
+            address: info.address != null ? String(info.address) : info.adress != null ? String(info.adress) : "",
+            name,
+            contactName: info.contactName != null ? String(info.contactName) : "",
+            tel,
+            note,
+            shipper: {
+                zip: shipper.zip != null ? String(shipper.zip) : "",
+                address: shipper.address != null ? String(shipper.address) : "",
+                name: shipper.name != null ? String(shipper.name) : "",
+                tel: shipper.tel != null ? String(shipper.tel) : ""
+            }
+        };
     }
 
     function customerOrderQuickReorder(order) {
@@ -244,7 +292,7 @@
         const itemNames = order.items.slice(0, 3).map(i => i.name || i.code).join("、");
         const moreText = order.items.length > 3 ? `...他${order.items.length - 3}点` : "";
 
-        if (!confirm(`以下の商品をカートに追加します：\n\n${itemNames}${moreText}\n\nよろしいですか？`)) {
+        if (!confirm(`以下の商品をカートに追加し、配送先・荷送人を反映します：\n\n${itemNames}${moreText}\n\nよろしいですか？`)) {
             return;
         }
 
@@ -278,9 +326,10 @@
         });
 
         sessionStorage.setItem("cart", JSON.stringify(cart));
+        sessionStorage.setItem("cartDeliveryDraft", JSON.stringify(buildCartDeliveryDraftFromOrder(order)));
 
         if (typeof toastSuccess === "function") {
-            toastSuccess(`${order.items.length}点の商品をカートに追加しました！`, 1500);
+            toastSuccess(`${order.items.length}点の商品と配送情報をカートに反映しました`, 1500);
         }
 
         setTimeout(() => {
@@ -289,5 +338,6 @@
     }
 
     global.buildCustomerOrderDetailHtml = buildCustomerOrderDetailHtml;
+    global.buildCartDeliveryDraftFromOrder = buildCartDeliveryDraftFromOrder;
     global.customerOrderQuickReorder = customerOrderQuickReorder;
 })(typeof window !== "undefined" ? window : global);

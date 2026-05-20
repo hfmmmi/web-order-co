@@ -325,17 +325,6 @@ function orderHistorySelectionKeyFromCheckbox(ch) {
     return id != null ? String(id) : "";
 }
 
-function updateHistorySelectionCountLabel(resultInfoEl) {
-    const span = resultInfoEl && resultInfoEl.querySelector(".orders-selection-count");
-    if (!span) return;
-    const n = selectedHistoryOrderIds.size;
-    if (n === 0) {
-        span.textContent = "";
-    } else {
-        span.textContent = `· 選択中 ${n}件`;
-    }
-}
-
 function syncHistorySelectAllCheckbox(table) {
     const selectAll = table.querySelector(".order-select-all");
     if (!selectAll) return;
@@ -348,7 +337,7 @@ function syncHistorySelectAllCheckbox(table) {
     selectAll.indeterminate = checked > 0 && checked < n;
 }
 
-function attachHistoryRowSelectionHandlers(table, resultInfoEl) {
+function attachHistoryRowSelectionHandlers(table) {
     const selectAll = table.querySelector(".order-select-all");
     table.querySelectorAll("tbody .order-row-select").forEach(function (ch) {
         const key = orderHistorySelectionKeyFromCheckbox(ch);
@@ -367,7 +356,6 @@ function attachHistoryRowSelectionHandlers(table, resultInfoEl) {
                 else selectedHistoryOrderIds.delete(key);
             });
             selectAll.indeterminate = false;
-            updateHistorySelectionCountLabel(resultInfoEl);
         });
     }
 
@@ -378,7 +366,6 @@ function attachHistoryRowSelectionHandlers(table, resultInfoEl) {
             if (ch.checked) selectedHistoryOrderIds.add(key);
             else selectedHistoryOrderIds.delete(key);
             syncHistorySelectAllCheckbox(table);
-            updateHistorySelectionCountLabel(resultInfoEl);
         });
     });
 }
@@ -458,6 +445,23 @@ function buildHistoryOrderSlipsPrintHtml(orders, preview) {
     );
 }
 
+function openHistoryOrderSlipsSaveWindow(orders, options) {
+    options = options || {};
+    const format = options.format === "png" ? "png" : "pdf";
+    const preview = options.preview !== false;
+    const html = buildHistoryOrderSlipsPrintHtml(orders, false);
+    if (!window.PrintDocumentSave) {
+        if (window.toastError) window.toastError("保存機能の読み込みに失敗しました");
+        else alert("保存機能の読み込みに失敗しました");
+        return;
+    }
+    window.PrintDocumentSave.openSavePreview(html, {
+        filePrefix: "order-history",
+        format: format,
+        preview: preview
+    });
+}
+
 function openHistoryOrderSlipsPrintWindow(orders, preview) {
     const html = buildHistoryOrderSlipsPrintHtml(orders, preview);
     let blobUrl = null;
@@ -533,12 +537,17 @@ function setupHistoryMoreMenu() {
     const btnMore = document.getElementById("history-btn-more");
     const moreMenu = document.getElementById("history-more-menu");
     const btnPrint = document.getElementById("history-btn-print-selected");
+    const btnSave = document.getElementById("history-btn-save-selected");
     const btnDelete = document.getElementById("history-btn-delete-selected");
     const btnCloseAll = document.getElementById("history-btn-close-all-details");
     const printModal = document.getElementById("history-print-slip-modal");
     const printBackdrop = document.getElementById("history-print-slip-modal-backdrop");
     const printCancel = document.getElementById("history-print-slip-modal-cancel");
     const printSubmit = document.getElementById("history-print-slip-modal-submit");
+    const saveModal = document.getElementById("history-save-slip-modal");
+    const saveBackdrop = document.getElementById("history-save-slip-modal-backdrop");
+    const saveCancel = document.getElementById("history-save-slip-modal-cancel");
+    const saveSubmit = document.getElementById("history-save-slip-modal-submit");
 
     function setHistoryMoreMenuOpen(open) {
         if (!moreMenu || !btnMore) return;
@@ -551,6 +560,12 @@ function setupHistoryMoreMenu() {
         if (!printModal) return;
         printModal.classList.toggle("is-open", open);
         printModal.setAttribute("aria-hidden", open ? "false" : "true");
+    }
+
+    function setHistorySaveModalOpen(open) {
+        if (!saveModal) return;
+        saveModal.classList.toggle("is-open", open);
+        saveModal.setAttribute("aria-hidden", open ? "false" : "true");
     }
 
     if (btnMore && moreMenu) {
@@ -584,6 +599,19 @@ function setupHistoryMoreMenu() {
         });
     }
 
+    if (btnSave) {
+        btnSave.addEventListener("click", function (e) {
+            e.stopPropagation();
+            if (selectedHistoryOrderIds.size === 0) {
+                if (window.toastWarning) window.toastWarning("一覧でチェックした伝票がありません");
+                else alert("一覧でチェックした伝票がありません");
+                return;
+            }
+            setHistoryMoreMenuOpen(false);
+            setHistorySaveModalOpen(true);
+        });
+    }
+
     if (printBackdrop) {
         printBackdrop.addEventListener("click", function () {
             setHistoryPrintModalOpen(false);
@@ -610,6 +638,38 @@ function setupHistoryMoreMenu() {
     }
     if (printModal) {
         printModal.querySelector(".history-print-modal__dialog")?.addEventListener("click", function (e) {
+            e.stopPropagation();
+        });
+    }
+
+    if (saveBackdrop) {
+        saveBackdrop.addEventListener("click", function () {
+            setHistorySaveModalOpen(false);
+        });
+    }
+    if (saveCancel) {
+        saveCancel.addEventListener("click", function () {
+            setHistorySaveModalOpen(false);
+        });
+    }
+    if (saveSubmit) {
+        saveSubmit.addEventListener("click", function (e) {
+            e.stopPropagation();
+            const selected = collectSelectedHistoryOrders();
+            if (selected.length === 0) {
+                if (window.toastWarning) window.toastWarning("一覧でチェックした伝票がありません");
+                return;
+            }
+            const formatInput = saveModal.querySelector('input[name="history-save-slip-format"]:checked');
+            const previewInput = saveModal.querySelector('input[name="history-save-slip-preview"]:checked');
+            const format = formatInput && formatInput.value === "png" ? "png" : "pdf";
+            const preview = !previewInput || previewInput.value === "preview";
+            setHistorySaveModalOpen(false);
+            openHistoryOrderSlipsSaveWindow(selected, { format: format, preview: preview });
+        });
+    }
+    if (saveModal) {
+        saveModal.querySelector(".history-print-modal__dialog")?.addEventListener("click", function (e) {
             e.stopPropagation();
         });
     }
@@ -800,15 +860,11 @@ function renderHistoryPage() {
     resultInfo.className = "history-result-info";
     if (totalPages > 1) {
         resultInfo.innerHTML =
-            `該当: <strong>${totalCount}</strong> 件 · <strong>${fromN}</strong>〜<strong>${toN}</strong> 件を表示` +
-            ' <span class="orders-selection-count" style="margin-left:12px;color:#2563eb;font-weight:600;"></span>';
+            `該当: <strong>${totalCount}</strong> 件 · <strong>${fromN}</strong>〜<strong>${toN}</strong> 件を表示`;
     } else {
-        resultInfo.innerHTML =
-            `該当: <strong>${totalCount}</strong> 件` +
-            ' <span class="orders-selection-count" style="margin-left:12px;color:#2563eb;font-weight:600;"></span>';
+        resultInfo.innerHTML = `該当: <strong>${totalCount}</strong> 件`;
     }
     container.appendChild(resultInfo);
-    updateHistorySelectionCountLabel(resultInfo);
 
     const tableWrap = document.createElement("div");
     tableWrap.className = "orders-list-wrap";
@@ -891,6 +947,13 @@ function renderHistoryPage() {
             });
         }
 
+        const inquiryLink = detailInner.querySelector(".btn-order-inquiry");
+        if (inquiryLink) {
+            inquiryLink.addEventListener("click", function (e) {
+                e.stopPropagation();
+            });
+        }
+
         tbody.appendChild(sumTr);
         tbody.appendChild(detTr);
     });
@@ -898,7 +961,7 @@ function renderHistoryPage() {
     tableWrap.appendChild(table);
     container.appendChild(tableWrap);
 
-    attachHistoryRowSelectionHandlers(table, resultInfo);
+    attachHistoryRowSelectionHandlers(table);
 
     restoreHistoryOpenDetails(tbody);
 

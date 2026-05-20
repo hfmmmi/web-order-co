@@ -55,7 +55,7 @@
             box-sizing: border-box;
             padding: 8px 14px;
             border: 1px solid #d1d5db;
-            border-radius: 8px;
+            border-radius: 0;
             background: #fff;
             color: #374151;
             font-weight: 400;
@@ -463,35 +463,54 @@
             border-color: #9ca3af;
         }
 
-        body.history-page .btn-reorder {
+        body.history-page .order-detail-actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        body.history-page .order-detail-actions__end {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            margin-left: auto;
+        }
+
+        body.history-page .btn-reorder,
+        body.history-page .btn-order-inquiry {
             background: #fff;
             color: #374151;
             border: 1px solid #d1d5db;
             padding: 10px 18px;
             border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
             font-size: 0.95rem;
+            font-weight: 400;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        body.history-page .btn-reorder {
+            cursor: pointer;
             transition: background 0.15s, border-color 0.15s, transform 0.1s;
         }
 
-        body.history-page .btn-reorder:hover {
+        body.history-page .btn-reorder:hover,
+        body.history-page .btn-order-inquiry:hover {
             background: #f9fafb;
             border-color: #9ca3af;
-        }
-
-        body.history-page .history-support-link {
-            text-decoration: none;
-            color: #374151;
-            font-weight: 600;
-            font-size: 0.95rem;
-            border-bottom: 1px solid transparent;
-        }
-
-        body.history-page .history-support-link:hover {
             color: #111827;
-            border-bottom-color: #d1d5db;
+        }
+
+        body.history-page .btn-order-inquiry {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
         }
 
         body.history-page .orders-list-table .col-select,
@@ -561,6 +580,7 @@
                     </button>
                     <div id="history-more-menu" class="history-more-menu" role="menu" aria-hidden="true">
                         <button type="button" role="menuitem" id="history-btn-print-selected">選択した注文を印刷</button>
+                        <button type="button" role="menuitem" id="history-btn-save-selected">選択した注文を保存</button>
                         <button type="button" role="menuitem" id="history-btn-delete-selected">選択した注文を削除</button>
                         <button type="button" role="menuitem" id="history-btn-close-all-details">詳細を一括で閉じる</button>
                     </div>
@@ -612,7 +632,25 @@
         </div>
     </div>
 
+    <div id="history-save-slip-modal" class="history-print-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="history-save-slip-modal-title">
+        <div class="history-print-modal__backdrop" id="history-save-slip-modal-backdrop" aria-hidden="true"></div>
+        <div class="history-print-modal__dialog">
+            <h2 id="history-save-slip-modal-title" class="history-print-modal__title">選択した注文を保存</h2>
+            <div class="history-print-modal__modes">
+                <label><input type="radio" name="history-save-slip-format" value="pdf" checked> PDFで保存</label>
+                <label><input type="radio" name="history-save-slip-format" value="png"> 画像（PNG）で保存</label>
+                <label><input type="radio" name="history-save-slip-preview" value="preview" checked> プレビューで確認してから保存</label>
+                <label><input type="radio" name="history-save-slip-preview" value="direct"> プレビューなしで保存</label>
+            </div>
+            <div class="history-print-modal__actions">
+                <button type="button" class="history-print-modal__btn history-print-modal__btn-cancel" id="history-save-slip-modal-cancel">キャンセル</button>
+                <button type="button" class="history-print-modal__btn history-print-modal__btn-submit" id="history-save-slip-modal-submit">保存する</button>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
+    <script src="js/utils/printDocumentSave.js"></script>
     <script src="js/customer-order-detail-html.js"></script>
     <script src="history.js"></script>
 </body>

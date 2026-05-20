@@ -165,22 +165,26 @@
         /* アクションボタン群 */
         .action-buttons {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
+            align-items: center;
             margin-top: 30px;
             gap: 10px;
+            flex-wrap: wrap;
         }
 
         .btn-order {
             background-color: #D6E7F1;
             color: #111827;
-            font-size: 1.2rem;
-            padding: 15px 40px;
+            font-size: 0.95rem;
+            padding: 8px 20px;
             border: 1px solid #e5e7eb;
             border-radius: 6px;
             cursor: pointer;
-            width: 100%;
-            font-weight: normal;
+            width: auto;
+            font-weight: 700;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .btn-order:hover {
@@ -197,15 +201,17 @@
             background: #fff;
             color: #374151;
             border: 1px solid #d1d5db;
-            padding: 15px 20px;
+            padding: 8px 16px;
             text-decoration: none;
             border-radius: 6px;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
+            font-size: 0.95rem;
             white-space: nowrap;
             font-weight: normal;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            flex-shrink: 0;
         }
 
         .btn-back:hover {
@@ -287,10 +293,10 @@
         .btn-estimate {
             background: #fff;
             color: #374151;
-            font-size: 1rem;
-            padding: 10px 18px;
+            font-size: 0.875rem;
+            padding: 7px 14px;
             border: 1px solid #d1d5db;
-            border-radius: 6px;
+            border-radius: 0;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -394,7 +400,7 @@
 
         <div class="top-action-area">
             <h1>カート内容確認</h1>
-            <button type="button" id="estimate-btn" class="btn-estimate">御見積書を発行</button>
+            <button type="button" id="estimate-btn" class="btn-estimate">見積書発行</button>
         </div>
 
         <table class="cart-table">
@@ -479,7 +485,7 @@
 
             <div class="delivery-form__heading-row">
                 <h3 class="delivery-form__section-title delivery-form__section-title--inline">
-                    荷主指定<span class="label-hint">　※指定する場合のみ入力</span>
+                    荷送人<span class="label-hint">　※指定する場合のみ入力</span>
                 </h3>
                 <button type="button" id="open-shipper-history-modal-btn" class="btn-history-search">
                     履歴から選択
@@ -502,7 +508,7 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="shipper-name">荷主名</label>
+                    <label for="shipper-name">荷送人名</label>
                     <input type="text" id="shipper-name">
                 </div>
                 <div class="form-group">
@@ -541,11 +547,11 @@
     <div id="shipper-history-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 style="margin:0;">荷主履歴から検索</h3>
+                <h3 style="margin:0;">荷送人履歴から検索</h3>
                 <button id="close-shipper-modal-btn" class="modal-close-btn">閉じる</button>
             </div>
             <div style="margin-bottom: 10px;">
-                <input type="text" id="shipper-history-search-input" placeholder="荷主名、住所で検索..."
+                <input type="text" id="shipper-history-search-input" placeholder="荷送人名、住所で検索..."
                     style="width: 100%; padding: 10px; box-sizing: border-box;">
             </div>
             <div id="shipper-history-list-container" class="modal-body">

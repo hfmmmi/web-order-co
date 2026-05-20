@@ -1,0 +1,63 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - link "発注システム" [ref=e3] [cursor=pointer]:
+      - /url: home.html
+      - generic [ref=e4]: 発注システム
+    - generic [ref=e5]:
+      - link "ホーム" [ref=e6] [cursor=pointer]:
+        - /url: home.html
+        - img [ref=e7]
+      - link "注文" [ref=e10] [cursor=pointer]:
+        - /url: products.html
+      - link "カート" [ref=e11] [cursor=pointer]:
+        - /url: cart.html
+      - link "注文履歴" [ref=e12] [cursor=pointer]:
+        - /url: history.html
+      - link "空カートリッジ買取" [ref=e13] [cursor=pointer]:
+        - /url: kaitori.html
+      - link "お問合わせ" [ref=e14] [cursor=pointer]:
+        - /url: support.html
+      - link "回収依頼" [ref=e15] [cursor=pointer]:
+        - /url: https://www.e-kaisyu.jp/
+      - link "アカウント設定" [ref=e16] [cursor=pointer]:
+        - /url: account.html
+      - link "ログアウト" [ref=e17] [cursor=pointer]:
+        - /url: "#"
+  - generic [ref=e18]:
+    - region "お知らせ" [ref=e19]:
+      - generic [ref=e21]:
+        - heading "E2E一般お知らせ" [level=3] [ref=e22]
+        - generic [ref=e23]: これはE2E検証用の一般お知らせです。
+    - navigation "主要メニュー" [ref=e24]:
+      - link "注文" [ref=e25] [cursor=pointer]:
+        - /url: products.html
+        - img [ref=e27]
+        - generic [ref=e30]: 注文
+      - link "カート" [ref=e31] [cursor=pointer]:
+        - /url: cart.html
+        - img [ref=e33]
+        - generic [ref=e37]: カート
+      - link "注文履歴" [ref=e38] [cursor=pointer]:
+        - /url: history.html
+        - img [ref=e40]
+        - generic [ref=e43]: 注文履歴
+      - link "空カートリッジ買取" [ref=e44] [cursor=pointer]:
+        - /url: kaitori.html
+        - img [ref=e46]
+        - generic [ref=e50]: 空カートリッジ買取
+      - link "お問合わせ" [ref=e51] [cursor=pointer]:
+        - /url: support.html
+        - img [ref=e53]
+        - generic [ref=e55]: お問合わせ
+      - link "回収依頼" [ref=e56] [cursor=pointer]:
+        - /url: https://www.e-kaisyu.jp/
+        - img [ref=e58]
+        - generic [ref=e63]: 回収依頼
+      - link "アカウント設定" [ref=e64] [cursor=pointer]:
+        - /url: account.html
+        - img [ref=e66]
+        - generic [ref=e69]: アカウント設定
+```

@@ -309,6 +309,53 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    applyCartDeliveryDraftFromSession();
+
+    function applyCartDeliveryDraftFromSession() {
+        const raw = sessionStorage.getItem("cartDeliveryDraft");
+        if (!raw) return;
+        let draft;
+        try {
+            draft = JSON.parse(raw);
+        } catch (e) {
+            sessionStorage.removeItem("cartDeliveryDraft");
+            return;
+        }
+        sessionStorage.removeItem("cartDeliveryDraft");
+
+        function setField(selector, value) {
+            const el = document.querySelector(selector);
+            if (el) el.value = value != null ? String(value) : "";
+        }
+
+        setField("#zip-code", draft.zip);
+        setField("#address", draft.address);
+        setField("#recipient-name", draft.name);
+        setField("#contact-name", draft.contactName);
+        setField("#tel-number", draft.tel);
+        setField("#note", draft.note);
+
+        const shipper = draft.shipper && typeof draft.shipper === "object" ? draft.shipper : {};
+        setField("#shipper-zip-code", shipper.zip);
+        setField("#shipper-address", shipper.address);
+        setField("#shipper-name", shipper.name);
+        setField("#shipper-tel", shipper.tel);
+
+        if (dateModeSelect) {
+            const mode = draft.dateMode === "specify" ? "specify" : "shortest";
+            dateModeSelect.value = mode;
+            if (dateInput) {
+                if (mode === "specify" && draft.deliveryDate) {
+                    dateInput.style.display = "block";
+                    dateInput.value = draft.deliveryDate;
+                } else {
+                    dateInput.style.display = "none";
+                    dateInput.value = "";
+                }
+            }
+        }
+    }
+
     // 5. 履歴検索モーダル (共通処理化)
     setupHistoryModal("#open-history-modal-btn", "#history-modal", "#close-modal-btn", 
         "#history-list-container", "#history-search-input", "/delivery-history", 
@@ -485,6 +532,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (result.success) {
                     toastSuccess("注文が完了しました！", 2000);
                     sessionStorage.removeItem("cart");
+                    sessionStorage.removeItem("cartDeliveryDraft");
                     // 少し待ってから遷移（トースト表示を確認できるように）
                     setTimeout(() => { window.location.href = "home.html"; }, 1500);
                 } else {

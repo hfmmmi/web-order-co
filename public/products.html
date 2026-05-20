@@ -38,6 +38,7 @@
             margin-bottom: 4px;
             padding: 10px 18px;
             font-size: 0.95rem;
+            border-radius: 0;
         }
 
         .product-tab:not(.active) {
@@ -92,25 +93,42 @@
             color: #374151;
         }
 
+        #estimate-tab-input,
+        #estimate-tab-load-btn {
+            box-sizing: border-box;
+            height: 38px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-family: inherit;
+        }
+
         #estimate-tab-input {
             flex: 1;
             min-width: 160px;
             max-width: 320px;
-            padding: 8px 10px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            box-sizing: border-box;
+            padding: 0 10px;
+            color: #111827;
+            background: #fff;
+        }
+
+        #estimate-tab-input:focus {
+            border-color: #9ca3af;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(55, 65, 81, 0.12);
         }
 
         #estimate-tab-load-btn {
-            padding: 8px 18px;
+            flex-shrink: 0;
+            padding: 0 18px;
             background: #fff;
             color: #374151;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
             cursor: pointer;
             font-weight: normal;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         #estimate-tab-load-btn:hover {
@@ -175,9 +193,11 @@
         }
 
         .estimate-order-panel__hint {
-            margin: 10px 0 0 0;
+            margin: 0;
             font-size: 0.8rem;
             color: #6b7280;
+            flex-shrink: 0;
+            white-space: nowrap;
         }
 
         .product-frequent-count {
@@ -261,6 +281,7 @@
 
         body.products-page .btn-download-hero {
             font-weight: normal;
+            border-radius: 0;
         }
 
         body.products-page .pagination-area .product-pagination__page,
@@ -309,9 +330,9 @@
             <div class="estimate-order-panel__row">
                 <label for="estimate-tab-input">見積No.</label>
                 <input type="text" id="estimate-tab-input" autocomplete="off" maxlength="64">
-                <button type="button" id="estimate-tab-load-btn">読み込む</button>
+                <button type="button" id="estimate-tab-load-btn">読込</button>
+                <span class="estimate-order-panel__hint">　※有効期限内の見積書のみ</span>
             </div>
-            <p class="estimate-order-panel__hint">※有効期限内の見積のみ表示されます</p>
         </div>
 
         <div id="estimate-mode-banner" class="estimate-mode-banner">
@@ -334,9 +355,9 @@
                         <th style="width: 110px;">メーカー</th>
                         <th style="min-width: 200px;">商品名</th>
                         <th style="width: 100px;">商品コード</th>
-                        <th style="width: 72px;">仕様</th>
-                        <th style="width: 90px;">価格</th>
-                        <th style="width: 110px;">在庫</th>
+                        <th style="width: 58px;">仕様</th>
+                        <th style="width: 76px;">価格</th>
+                        <th style="width: 88px;">在庫</th>
                         <th style="width: 178px; min-width: 178px;">発注</th>
                     </tr>
                 </thead>

@@ -308,7 +308,7 @@ function switchTab(tabName) {
         const infoArea = document.querySelector("#search-result-info");
         if (listBody) {
             listBody.innerHTML =
-                '<tr><td colspan="7" style="text-align:center; padding:28px; color:#6b7280;">見積書No.を入力し、「読み込む」を押してください。</td></tr>';
+                '<tr><td colspan="7" style="text-align:center; padding:28px; color:#6b7280;">見積書No.を入力し、「読込」を押してください。</td></tr>';
         }
         if (paginationContainer) paginationContainer.innerHTML = "";
         if (infoArea) infoArea.textContent = "";
@@ -400,7 +400,7 @@ async function fetchFavoriteProducts() {
         listBody.innerHTML = `
             <tr><td colspan="7" style="text-align:center; padding:40px;">
                 <div style="font-size: 1.2rem; color: #374151; margin-bottom: 10px;">お気に入りがまだありません</div>
-                <div style="font-size: 0.9rem; color: #6b7280;">発注欄の「☆」（数量の左）からお気に入りに追加できます</div>
+                <div style="font-size: 0.9rem; color: #6b7280;">発注欄の「☆」から追加できます。</div>
             </td></tr>
         `;
         if (infoArea) infoArea.textContent = "";
@@ -604,13 +604,13 @@ ${(badgeDisplay || frequentBadge) ? `<div style="font-size:0.85rem; color:#666; 
             <td style="vertical-align:middle; width:100px; font-size:0.9rem; word-break:break-all; color:#374151;">
                 ${esc(product.productCode)}
             </td>
-            <td style="vertical-align:middle; width:72px; font-size:0.9rem; word-break:break-word; color:#333;">
+            <td style="vertical-align:middle; width:58px; font-size:0.9rem; word-break:break-word; color:#333;">
                 ${specText}
             </td>
-            <td style="font-family:'Arial',sans-serif; width:100px; text-align:right; vertical-align:middle;">
+            <td style="font-family:'Arial',sans-serif; width:76px; text-align:right; vertical-align:middle;">
                 ${priceDisplay}
             </td>
-            <td style="width:110px; vertical-align:middle;">
+            <td style="width:88px; vertical-align:middle;">
                 ${stockHtml}
             </td>
             <td style="width:178px; min-width:178px; max-width:178px; vertical-align:middle; white-space:nowrap;">
@@ -687,7 +687,7 @@ function toggleFavorite(productCode, buttonElement) {
                 listBody.innerHTML = `
                     <tr><td colspan="7" style="text-align:center; padding:40px;">
                         <div style="font-size: 1.2rem; color: #374151; margin-bottom: 10px;">お気に入りがまだありません</div>
-                        <div style="font-size: 0.9rem; color: #6b7280;">発注欄の「☆」（数量の左）からお気に入りに追加できます</div>
+                        <div style="font-size: 0.9rem; color: #6b7280;">発注欄の「☆」から追加できます。</div>
                     </td></tr>
                 `;
             }
