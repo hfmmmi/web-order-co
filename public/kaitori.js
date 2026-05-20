@@ -1,4 +1,13 @@
+function syncKaitoriGlobalNavOffset() {
+    const nav = document.querySelector(".global-nav");
+    if (!nav) return;
+    document.body.style.setProperty("--kaitori-global-nav-offset", nav.offsetHeight + "px");
+}
+
 document.addEventListener("DOMContentLoaded", function () {
+    syncKaitoriGlobalNavOffset();
+    window.addEventListener("resize", syncKaitoriGlobalNavOffset);
+
     // =========================================
     // 1. DOM要素の取得
     // =========================================
@@ -33,6 +42,26 @@ document.addEventListener("DOMContentLoaded", function () {
     // データ保持用
     let fullMasterData = [];
     let cart = {};
+    let kaitoriHistoryList = [];
+    const selectedKaitoriRequestIds = new Set();
+
+    function kaitoriAttrEsc(s) {
+        return String(s == null ? "" : s)
+            .replace(/&/g, "&amp;")
+            .replace(/"/g, "&quot;")
+            .replace(/</g, "&lt;");
+    }
+
+    function kaitoriPrintEsc(s) {
+        if (typeof escapeHtml === "function") {
+            return escapeHtml(String(s == null ? "" : s));
+        }
+        return String(s == null ? "" : s)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+    }
 
     const KAITORI_PRODUCTS_PER_PAGE = 15;
     let kaitoriFilteredList = [];
@@ -351,6 +380,264 @@ document.addEventListener("DOMContentLoaded", function () {
         return groups;
     }
 
+    function buildKaitoriHistoryDetailInnerHtml(item) {
+        let logisticsHtml = "";
+        if (item.logistics) {
+            if (item.logistics.hyogo) {
+                logisticsHtml += "<div>兵庫 / 回収： 梱包 " + kaitoriPrintEsc(item.logistics.hyogo.boxCount) + "個</div>";
+            }
+            if (item.logistics.osaka) {
+                const os = item.logistics.osaka;
+                logisticsHtml +=
+                    '<div style="margin-top:6px;">大阪 / 発送： 梱包 ' +
+                    kaitoriPrintEsc(os.boxCount) +
+                    "個 / " +
+                    kaitoriPrintEsc(os.carrier || "-") +
+                    " / No." +
+                    kaitoriPrintEsc(os.tracking || "-") +
+                    "</div>";
+            }
+        }
+        const noteHtml = item.customerNote
+            ? '<div style="margin-top:8px;">事務局メッセージ： ' + kaitoriPrintEsc(item.customerNote) + "</div>"
+            : "";
+        const metaHtml =
+            '<div style="margin-bottom:10px;font-size:0.9rem;">' +
+            "<div>受付番号： " +
+            kaitoriPrintEsc(item.requestId) +
+            "</div>" +
+            logisticsHtml +
+            noteHtml +
+            "</div>";
+
+        let tableHtml =
+            '<table style="width:100%;border-collapse:collapse;font-size:0.85rem;">' +
+            "<thead><tr><th style=\"border:1px solid #ccc;padding:6px;\">商品名</th>" +
+            "<th style=\"border:1px solid #ccc;padding:6px;\">単価</th>" +
+            "<th style=\"border:1px solid #ccc;padding:6px;\">個数</th>" +
+            "<th style=\"border:1px solid #ccc;padding:6px;text-align:right;\">小計</th></tr></thead><tbody>";
+        let grandTotal = 0;
+        if (item.items && Array.isArray(item.items)) {
+            item.items.forEach(function (itm) {
+                const sub = itm.subtotal || itm.price * itm.qty;
+                grandTotal += sub;
+                const destTag = itm.destination === "兵庫" ? "[兵庫] " : "[大阪] ";
+                tableHtml +=
+                    "<tr><td style=\"border:1px solid #ccc;padding:6px;\">" +
+                    kaitoriPrintEsc(destTag + (itm.name || "")) +
+                    "</td><td style=\"border:1px solid #ccc;padding:6px;\">¥" +
+                    (itm.price || 0).toLocaleString() +
+                    "</td><td style=\"border:1px solid #ccc;padding:6px;\">" +
+                    kaitoriPrintEsc(itm.qty) +
+                    '</td><td style="border:1px solid #ccc;padding:6px;text-align:right;">¥' +
+                    sub.toLocaleString() +
+                    "</td></tr>";
+            });
+        }
+        tableHtml +=
+            "</tbody></table>" +
+            '<div style="text-align:right;font-weight:700;margin-top:8px;">合計査定額： ¥' +
+            grandTotal.toLocaleString() +
+            "</div>";
+        return metaHtml + tableHtml;
+    }
+
+    function collectSelectedKaitoriHistory() {
+        if (selectedKaitoriRequestIds.size === 0) return [];
+        const idSet = selectedKaitoriRequestIds;
+        return kaitoriHistoryList.filter(function (item) {
+            return idSet.has(String(item.requestId != null ? item.requestId : ""));
+        });
+    }
+
+    function buildKaitoriHistoryPrintHtml(items) {
+        const toolbar =
+            '<div class="no-print" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px;padding:12px 16px;background:#1f2937;color:#fff;margin:-12px -16px 20px;position:sticky;top:0;z-index:10;">' +
+            '<button type="button" onclick="window.print()" style="padding:8px 18px;font-weight:700;border:none;background:#3b82f6;color:#fff;cursor:pointer;">この内容を印刷</button>' +
+            '<span style="font-size:0.82rem;opacity:0.9;">ブラウザの印刷ダイアログでプリンタを選べます</span>' +
+            "</div>";
+        const style =
+            "<style>*{box-sizing:border-box;}body{font-family:'Noto Sans JP',system-ui,sans-serif;margin:0;padding:12px 16px 24px;font-size:12px;color:#111;}" +
+            ".kaitori-print-block{border:2px solid #111;padding:14px 16px;margin:0 0 20px;}" +
+            ".kaitori-print-block h1{margin:0 0 12px;font-size:1.2rem;border-bottom:2px solid #111;padding-bottom:6px;}" +
+            "@media print{.no-print{display:none!important;}.kaitori-print-block{page-break-after:always;}.kaitori-print-block:last-of-type{page-break-after:auto;}}</style>";
+        const blocks = items.map(function (item) {
+            const dateStr = formatKaitoriRequestDate(item.requestDate);
+            const statusInfo = resolveHistoryStatus(item.status);
+            return (
+                '<article class="kaitori-print-block"><h1>空カートリッジ買取 申請内容</h1>' +
+                "<p><strong>申請日時：</strong> " +
+                kaitoriPrintEsc(dateStr) +
+                " · <strong>ステータス：</strong> " +
+                kaitoriPrintEsc(statusInfo.label) +
+                "</p>" +
+                buildKaitoriHistoryDetailInnerHtml(item) +
+                "</article>"
+            );
+        });
+        return (
+            "<!DOCTYPE html><html lang=\"ja\"><head><meta charset=\"UTF-8\"><title>申請内容印刷</title>" +
+            style +
+            "</head><body>" +
+            toolbar +
+            blocks.join("") +
+            "</body></html>"
+        );
+    }
+
+    function openKaitoriHistoryPrintWindow(items) {
+        const html = buildKaitoriHistoryPrintHtml(items);
+        let blobUrl = null;
+        try {
+            const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+            blobUrl = URL.createObjectURL(blob);
+        } catch (err) {
+            console.error(err);
+            if (window.toastError) window.toastError("印刷用ページの生成に失敗しました");
+            return;
+        }
+        const newTab = window.open(blobUrl, "_blank", "noopener,noreferrer");
+        if (!newTab) {
+            URL.revokeObjectURL(blobUrl);
+            if (window.toastError) window.toastError("新しいタブで開けませんでした（ポップアップを許可してください）");
+            return;
+        }
+        setTimeout(function () {
+            try {
+                URL.revokeObjectURL(blobUrl);
+            } catch (e) { /* noop */ }
+        }, 300000);
+    }
+
+    function syncKaitoriHistorySelectAll(table) {
+        const selectAll = table.querySelector(".kaitori-history-select-all");
+        if (!selectAll) return;
+        const boxes = Array.from(table.querySelectorAll(".kaitori-history-row-select"));
+        const n = boxes.length;
+        const checked = boxes.filter(function (b) {
+            return b.checked;
+        }).length;
+        selectAll.checked = n > 0 && checked === n;
+        selectAll.indeterminate = checked > 0 && checked < n;
+    }
+
+    function attachKaitoriHistorySelectionHandlers() {
+        if (!historyContainer) return;
+        const table = historyContainer.querySelector(".history-table");
+        if (!table) return;
+
+        table.querySelectorAll(".kaitori-history-row-select").forEach(function (ch) {
+            const id = ch.getAttribute("data-request-id");
+            ch.checked = id !== "" && selectedKaitoriRequestIds.has(String(id));
+            ch.addEventListener("click", function (e) {
+                e.stopPropagation();
+            });
+            ch.addEventListener("change", function (e) {
+                e.stopPropagation();
+                const key = ch.getAttribute("data-request-id");
+                if (!key) return;
+                if (ch.checked) selectedKaitoriRequestIds.add(String(key));
+                else selectedKaitoriRequestIds.delete(String(key));
+                syncKaitoriHistorySelectAll(table);
+            });
+        });
+
+        const selectAll = table.querySelector(".kaitori-history-select-all");
+        if (selectAll) {
+            selectAll.addEventListener("change", function () {
+                const on = selectAll.checked;
+                table.querySelectorAll(".kaitori-history-row-select").forEach(function (ch) {
+                    const key = ch.getAttribute("data-request-id");
+                    if (!key) return;
+                    ch.checked = on;
+                    if (on) selectedKaitoriRequestIds.add(String(key));
+                    else selectedKaitoriRequestIds.delete(String(key));
+                });
+                selectAll.indeterminate = false;
+            });
+            syncKaitoriHistorySelectAll(table);
+        }
+    }
+
+    function attachKaitoriHistoryRowToggleHandlers() {
+        document.querySelectorAll(".history-main-row").forEach(function (row) {
+            row.addEventListener("click", function (e) {
+                if (e.target.closest(".col-select")) return;
+                const reqId = this.dataset.id;
+                const detailRow = document.getElementById("detail-" + reqId);
+                if (!detailRow) return;
+                this.classList.toggle("active");
+                detailRow.classList.toggle("open");
+            });
+        });
+    }
+
+    function closeAllKaitoriHistoryDetails() {
+        document.querySelectorAll(".history-detail-row.open").forEach(function (row) {
+            row.classList.remove("open");
+        });
+        document.querySelectorAll(".history-main-row.active").forEach(function (row) {
+            row.classList.remove("active");
+        });
+    }
+
+    function setupKaitoriMoreMenu() {
+        const btnMore = document.getElementById("kaitori-btn-more");
+        const moreMenu = document.getElementById("kaitori-more-menu");
+        const btnPrint = document.getElementById("kaitori-btn-print-selected");
+        const btnCloseAll = document.getElementById("kaitori-btn-close-all-details");
+
+        function setKaitoriMoreMenuOpen(open) {
+            if (!moreMenu || !btnMore) return;
+            moreMenu.classList.toggle("is-open", open);
+            moreMenu.setAttribute("aria-hidden", open ? "false" : "true");
+            btnMore.setAttribute("aria-expanded", open ? "true" : "false");
+        }
+
+        if (btnMore && moreMenu) {
+            btnMore.addEventListener("click", function (e) {
+                e.stopPropagation();
+                setKaitoriMoreMenuOpen(!moreMenu.classList.contains("is-open"));
+            });
+        }
+
+        document.addEventListener("click", function () {
+            setKaitoriMoreMenuOpen(false);
+        });
+
+        if (moreMenu) {
+            moreMenu.addEventListener("click", function (e) {
+                e.stopPropagation();
+            });
+        }
+
+        if (btnPrint) {
+            btnPrint.addEventListener("click", function (e) {
+                e.stopPropagation();
+                if (selectedKaitoriRequestIds.size === 0) {
+                    if (window.toastWarning) window.toastWarning("チェックした申請がありません");
+                    else alert("チェックした申請がありません");
+                    return;
+                }
+                const selected = collectSelectedKaitoriHistory();
+                if (selected.length === 0) {
+                    if (window.toastWarning) window.toastWarning("選択した申請が見つかりません。一覧を再読み込みしてください。");
+                    return;
+                }
+                setKaitoriMoreMenuOpen(false);
+                openKaitoriHistoryPrintWindow(selected);
+            });
+        }
+
+        if (btnCloseAll) {
+            btnCloseAll.addEventListener("click", function (e) {
+                e.stopPropagation();
+                setKaitoriMoreMenuOpen(false);
+                closeAllKaitoriHistoryDetails();
+            });
+        }
+    }
+
     // =========================================
     // 5. 履歴表示 (Secure View)
     // =========================================
@@ -363,8 +650,9 @@ document.addEventListener("DOMContentLoaded", function () {
             const res = await fetch("/my-kaitori-history");
             if (!res.ok) return;
             const list = await res.json();
+            kaitoriHistoryList = Array.isArray(list) ? list : [];
 
-            if (list.length === 0) {
+            if (kaitoriHistoryList.length === 0) {
                 historyContainer.innerHTML = "<p class=\"kaitori-intro-muted\">履歴はありません。</p>";
                 return;
             }
@@ -373,6 +661,9 @@ document.addEventListener("DOMContentLoaded", function () {
             let html = `<table class="history-table">
                 <thead>
                     <tr>
+                        <th scope="col" class="col-select">
+                            <input type="checkbox" class="kaitori-history-select-all" aria-label="すべて選択">
+                        </th>
                         <th style="width:140px;">申請日時</th>
                         <th>申請内容</th>
                         <th style="width:100px;">ステータス</th>
@@ -382,7 +673,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 </thead>
                 <tbody>`;
             
-            list.forEach((item) => {
+            kaitoriHistoryList.forEach((item) => {
                 const dateStr = formatKaitoriRequestDate(item.requestDate);
                 const { label: statusLabel, badgeClass } = resolveHistoryStatus(item.status);
                 const totalQty = item.items ? item.items.reduce((sum, i) => sum + (i.qty || 0), 0) : 0;
@@ -447,8 +738,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     <div class="detail-total">合計査定額： ¥${grandTotal.toLocaleString()}</div>`;
 
 
+                const reqIdEsc = kaitoriAttrEsc(String(item.requestId != null ? item.requestId : ""));
+
                 // === 行セットの追加 (親行 + 子行) ===
                 html += `<tr class="history-main-row" data-id="${item.requestId}">
+                    <td class="col-select">
+                        <input type="checkbox" class="kaitori-history-row-select" data-request-id="${reqIdEsc}" aria-label="この申請を選択">
+                    </td>
                     <td class="history-date-cell">${dateStr}</td>
                     <td>${summary}</td>
                     <td><span class="status-badge ${badgeClass}">${statusLabel}</span></td>
@@ -457,7 +753,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 </tr>`;
                 
                 html += `<tr class="history-detail-row" id="detail-${item.requestId}">
-                    <td colspan="5" style="padding:0; border:none;">
+                    <td colspan="6" style="padding:0; border:none;">
                         <div class="detail-content-wrapper">
                             ${metaHtml}
                             ${tableHtml}
@@ -469,15 +765,8 @@ document.addEventListener("DOMContentLoaded", function () {
             html += `</tbody></table>`;
             historyContainer.innerHTML = html;
 
-            // === クリックイベントの付与 ===
-            document.querySelectorAll(".history-main-row").forEach(row => {
-                row.addEventListener("click", function() {
-                    const reqId = this.dataset.id;
-                    const detailRow = document.getElementById(`detail-${reqId}`);
-                    this.classList.toggle("active");
-                    detailRow.classList.toggle("open");
-                });
-            });
+            attachKaitoriHistorySelectionHandlers();
+            attachKaitoriHistoryRowToggleHandlers();
 
         } catch (error) {
             console.error("History error", error);
@@ -603,6 +892,8 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
+
+    setupKaitoriMoreMenu();
 
     // 初期化
     fetchMaster();

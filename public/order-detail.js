@@ -57,6 +57,15 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         if (main) {
             main.innerHTML = window.buildCustomerOrderDetailHtml(order);
+
+            const backLink = document.querySelector(".order-detail-back-link");
+            const actionsStart = main.querySelector(".order-detail-actions__start");
+            if (backLink && actionsStart) {
+                actionsStart.appendChild(backLink);
+            }
+            const footer = document.querySelector(".order-detail-footer");
+            if (footer) footer.remove();
+
             const reorderBtn = main.querySelector(".btn-reorder");
             if (reorderBtn && typeof window.customerOrderQuickReorder === "function") {
                 reorderBtn.addEventListener("click", function (e) {

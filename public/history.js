@@ -383,7 +383,317 @@ function attachHistoryRowSelectionHandlers(table, resultInfoEl) {
     });
 }
 
+function collectSelectedHistoryOrders() {
+    if (selectedHistoryOrderIds.size === 0) return [];
+    const idSet = selectedHistoryOrderIds;
+    return allOrders.filter(function (o) {
+        return idSet.has(String(o.orderId != null ? o.orderId : ""));
+    });
+}
+
+function historySlipEscHtml(str) {
+    if (typeof escapeHtml !== "undefined") {
+        return escapeHtml(String(str == null ? "" : str));
+    }
+    return escapeHistoryHtml(str);
+}
+
+function buildHistoryOrderSlipsPrintHtml(orders, preview) {
+    const toolbar = preview
+        ? '<div class="print-preview-toolbar no-print">' +
+          '<button type="button" onclick="window.print()">この内容を印刷</button>' +
+          '<span class="print-preview-hint">ブラウザの印刷ダイアログでプリンタを選べます</span>' +
+          "</div>"
+        : "";
+    const style =
+        "<style>" +
+        "*{box-sizing:border-box;}" +
+        "body{font-family:'Noto Sans JP',system-ui,sans-serif;margin:0;padding:12px 16px 24px;color:#111;background:#fff;font-size:12px;}" +
+        ".print-preview-toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px;padding:12px 16px;background:#1f2937;color:#fff;margin:-12px -16px 20px;position:sticky;top:0;z-index:10;}" +
+        ".print-preview-toolbar button{padding:8px 18px;font-weight:700;border:none;border-radius:0;background:#3b82f6;color:#fff;cursor:pointer;font-size:0.95rem;}" +
+        ".order-slip{border:2px solid #111;padding:14px 16px;margin:0 0 20px;}" +
+        ".order-slip-title{margin:0 0 12px;font-size:1.25rem;border-bottom:2px solid #111;padding-bottom:6px;}" +
+        ".order-slip-meta,.order-slip-items{width:100%;border-collapse:collapse;}" +
+        ".order-slip-meta td,.order-slip-meta th,.order-slip-items td,.order-slip-items th{border:1px solid #ccc;padding:6px 8px;}" +
+        ".order-slip-meta th{width:7.5em;background:#f3f4f6;text-align:left;}" +
+        ".order-slip-items th{background:#e5e7eb;}" +
+        ".order-slip-total{text-align:right;font-weight:700;margin-top:8px;font-size:1.05rem;}" +
+        "@media print{.no-print{display:none!important;}.order-slip{page-break-after:always;}.order-slip:last-of-type{page-break-after:auto;}}" +
+        "</style>";
+
+    const blocks = orders.map(function (order) {
+        const info = order.deliveryInfo || {};
+        const dateStr = formatHistoryOrderDateYmdSlash(order.orderDate);
+        const delivDate = info.dateUnknown ? "確約不可" : historySlipEscHtml(info.date || "—");
+        let rows = "";
+        let sum = 0;
+        (order.items || []).forEach(function (item) {
+            const qty = Number(item.quantity) || 0;
+            const price = Number(item.price) || 0;
+            const sub = qty * price;
+            sum += sub;
+            rows +=
+                "<tr><td>" + historySlipEscHtml(item.code) + "</td><td>" + historySlipEscHtml(item.name) +
+                "</td><td style='text-align:right'>" + qty + "</td><td style='text-align:right'>¥" +
+                price.toLocaleString() + "</td><td style='text-align:right'>¥" + sub.toLocaleString() + "</td></tr>";
+        });
+        const totalShown = order.totalAmount != null ? Number(order.totalAmount) : sum;
+        return (
+            '<article class="order-slip"><h1 class="order-slip-title">注文伝票</h1>' +
+            '<table class="order-slip-meta"><tr><th>注文ID</th><td>' + historySlipEscHtml(order.orderId) +
+            "</td><th>注文日</th><td>" + historySlipEscHtml(dateStr) + "</td></tr>" +
+            "<tr><th>ステータス</th><td colspan=\"3\">" + historySlipEscHtml(order.status || "未発送") + "</td></tr>" +
+            "<tr><th>納品先</th><td colspan=\"3\">" + historySlipEscHtml(info.name || "") + " 様</td></tr>" +
+            "<tr><th>住所</th><td colspan=\"3\">" + historySlipEscHtml(info.address || "") + "</td></tr>" +
+            "</table>" +
+            '<table class="order-slip-items"><thead><tr><th>商品コード</th><th>商品名</th><th>数量</th><th>単価</th><th>金額</th></tr></thead><tbody>' +
+            rows + "</tbody></table>" +
+            '<div class="order-slip-total">合計 ¥' + totalShown.toLocaleString() + "</div></article>"
+        );
+    });
+
+    return (
+        "<!DOCTYPE html><html lang=\"ja\"><head><meta charset=\"UTF-8\"><title>伝票印刷</title>" +
+        style + "</head><body>" + toolbar + blocks.join("") + "</body></html>"
+    );
+}
+
+function openHistoryOrderSlipsPrintWindow(orders, preview) {
+    const html = buildHistoryOrderSlipsPrintHtml(orders, preview);
+    let blobUrl = null;
+    try {
+        const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+        blobUrl = URL.createObjectURL(blob);
+    } catch (err) {
+        console.error(err);
+        if (window.toastError) window.toastError("印刷用ページの生成に失敗しました");
+        else alert("印刷用ページの生成に失敗しました");
+        return;
+    }
+    const newTab = window.open(blobUrl, "_blank", "noopener,noreferrer");
+    if (!newTab) {
+        URL.revokeObjectURL(blobUrl);
+        if (window.toastError) window.toastError("新しいタブで開けませんでした（ポップアップを許可してください）");
+        else alert("新しいタブで開けませんでした");
+        return;
+    }
+    if (!preview) {
+        setTimeout(function () {
+            try {
+                newTab.focus();
+                newTab.print();
+            } catch (err) {
+                console.error(err);
+            }
+        }, 450);
+    }
+    setTimeout(function () {
+        try {
+            URL.revokeObjectURL(blobUrl);
+        } catch (e) { /* noop */ }
+    }, 300000);
+}
+
+function closeAllHistoryOrderDetails() {
+    openHistoryDetailOrderIds.clear();
+    const container = historyListContainerEl || document.querySelector("#history-list-container");
+    if (!container) return;
+    container.querySelectorAll(".order-detail-row").forEach(function (row) {
+        row.style.display = "none";
+    });
+    container.querySelectorAll(".btn-toggle-detail").forEach(function (btn) {
+        btn.textContent = "詳細 ▼";
+        btn.style.backgroundColor = "#dfe3e6";
+        btn.style.borderColor = "#c5cdd5";
+        btn.setAttribute("aria-expanded", "false");
+    });
+    container.querySelectorAll(".orders-list-table tbody").forEach(syncHistorySummaryRowDimming);
+}
+
+async function postCustomerDeleteOrderRequest(orderId) {
+    const response = await fetch("/order-delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ orderId: orderId })
+    });
+    if (response.status === 401) {
+        return { ok: false, message: "セッションが切れました" };
+    }
+    let data = {};
+    try {
+        data = await response.json();
+    } catch (e) {
+        return { ok: false, message: "サーバー応答の解析に失敗しました" };
+    }
+    return { ok: !!data.success, message: data.message || "" };
+}
+
+function setupHistoryMoreMenu() {
+    const btnMore = document.getElementById("history-btn-more");
+    const moreMenu = document.getElementById("history-more-menu");
+    const btnPrint = document.getElementById("history-btn-print-selected");
+    const btnDelete = document.getElementById("history-btn-delete-selected");
+    const btnCloseAll = document.getElementById("history-btn-close-all-details");
+    const printModal = document.getElementById("history-print-slip-modal");
+    const printBackdrop = document.getElementById("history-print-slip-modal-backdrop");
+    const printCancel = document.getElementById("history-print-slip-modal-cancel");
+    const printSubmit = document.getElementById("history-print-slip-modal-submit");
+
+    function setHistoryMoreMenuOpen(open) {
+        if (!moreMenu || !btnMore) return;
+        moreMenu.classList.toggle("is-open", open);
+        moreMenu.setAttribute("aria-hidden", open ? "false" : "true");
+        btnMore.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+
+    function setHistoryPrintModalOpen(open) {
+        if (!printModal) return;
+        printModal.classList.toggle("is-open", open);
+        printModal.setAttribute("aria-hidden", open ? "false" : "true");
+    }
+
+    if (btnMore && moreMenu) {
+        btnMore.addEventListener("click", function (e) {
+            e.stopPropagation();
+            const opening = !moreMenu.classList.contains("is-open");
+            setHistoryMoreMenuOpen(opening);
+        });
+    }
+
+    document.addEventListener("click", function () {
+        setHistoryMoreMenuOpen(false);
+    });
+
+    if (moreMenu) {
+        moreMenu.addEventListener("click", function (e) {
+            e.stopPropagation();
+        });
+    }
+
+    if (btnPrint) {
+        btnPrint.addEventListener("click", function (e) {
+            e.stopPropagation();
+            if (selectedHistoryOrderIds.size === 0) {
+                if (window.toastWarning) window.toastWarning("一覧でチェックした伝票がありません");
+                else alert("一覧でチェックした伝票がありません");
+                return;
+            }
+            setHistoryMoreMenuOpen(false);
+            setHistoryPrintModalOpen(true);
+        });
+    }
+
+    if (printBackdrop) {
+        printBackdrop.addEventListener("click", function () {
+            setHistoryPrintModalOpen(false);
+        });
+    }
+    if (printCancel) {
+        printCancel.addEventListener("click", function () {
+            setHistoryPrintModalOpen(false);
+        });
+    }
+    if (printSubmit && printModal) {
+        printSubmit.addEventListener("click", function (e) {
+            e.stopPropagation();
+            const modeInput = printModal.querySelector('input[name="history-print-slip-mode"]:checked');
+            const preview = !modeInput || modeInput.value === "preview";
+            const selected = collectSelectedHistoryOrders();
+            if (selected.length === 0) {
+                if (window.toastWarning) window.toastWarning("一覧でチェックした伝票がありません");
+                return;
+            }
+            setHistoryPrintModalOpen(false);
+            openHistoryOrderSlipsPrintWindow(selected, preview);
+        });
+    }
+    if (printModal) {
+        printModal.querySelector(".history-print-modal__dialog")?.addEventListener("click", function (e) {
+            e.stopPropagation();
+        });
+    }
+
+    if (btnDelete) {
+        btnDelete.addEventListener("click", async function (e) {
+            e.stopPropagation();
+            if (selectedHistoryOrderIds.size === 0) {
+                if (window.toastWarning) window.toastWarning("チェックした注文がありません");
+                return;
+            }
+            const selected = collectSelectedHistoryOrders();
+            if (selected.length === 0) {
+                if (window.toastWarning) window.toastWarning("選択した注文が見つかりません。一覧を再読み込みしてください。");
+                return;
+            }
+            const lines = selected.slice(0, 8).map(function (o) {
+                const id = o.orderId != null ? String(o.orderId) : "";
+                const nm = o.customerName ? String(o.customerName) : "";
+                return nm ? id + "（" + nm + "）" : id;
+            });
+            const extra = selected.length > 8 ? "\n… ほか " + (selected.length - 8) + " 件" : "";
+            const confirmMsg =
+                "【重要】チェックした " + selected.length +
+                " 件の注文をデータから完全に削除します。\n取り消せません。よろしいですか？\n\n" +
+                lines.join("\n") + extra;
+            if (!confirm(confirmMsg)) return;
+            setHistoryMoreMenuOpen(false);
+            let ok = 0;
+            let fail = 0;
+            const failedIds = [];
+            for (let i = 0; i < selected.length; i++) {
+                const o = selected[i];
+                const oid = o.orderId;
+                try {
+                    const { ok: success, message } = await postCustomerDeleteOrderRequest(oid);
+                    if (success) {
+                        ok++;
+                        selectedHistoryOrderIds.delete(String(oid != null ? oid : ""));
+                    } else {
+                        fail++;
+                        failedIds.push(String(oid) + (message ? ": " + message : ""));
+                    }
+                } catch (err) {
+                    console.error(err);
+                    fail++;
+                    failedIds.push(String(oid));
+                }
+            }
+            if (ok > 0) {
+                if (window.toastSuccess) {
+                    window.toastSuccess(ok + " 件の注文を削除しました" + (fail > 0 ? "（" + fail + " 件は失敗）" : ""));
+                }
+                fetchHistory({ keepPage: true });
+            }
+            if (fail > 0 && ok === 0) {
+                if (window.toastError) window.toastError("削除に失敗しました。\n" + failedIds.slice(0, 5).join("\n"));
+                else alert("削除に失敗しました");
+            } else if (fail > 0 && ok > 0 && window.toastWarning) {
+                window.toastWarning(fail + " 件の削除に失敗しました");
+            }
+        });
+    }
+
+    if (btnCloseAll) {
+        btnCloseAll.addEventListener("click", function (e) {
+            e.stopPropagation();
+            setHistoryMoreMenuOpen(false);
+            closeAllHistoryOrderDetails();
+        });
+    }
+}
+
+function syncHistoryGlobalNavOffset() {
+    const nav = document.querySelector(".global-nav");
+    if (!nav) return;
+    document.body.style.setProperty("--history-global-nav-offset", nav.offsetHeight + "px");
+}
+
 document.addEventListener("DOMContentLoaded", function () {
+    syncHistoryGlobalNavOffset();
+    window.addEventListener("resize", syncHistoryGlobalNavOffset);
+
+    setupHistoryMoreMenu();
     fetchHistory();
 
     const dateStartInput = document.querySelector("#history-filter-date-start");

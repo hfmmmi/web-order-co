@@ -24,6 +24,177 @@
             font-size: 1.35rem;
         }
 
+        body.history-page .history-page-header {
+            position: sticky;
+            top: var(--history-global-nav-offset, 72px);
+            z-index: 900;
+            margin: 0 0 20px 0;
+            padding: 4px 0 12px;
+            background: #fff;
+            box-shadow: 0 1px 0 rgba(15, 23, 42, 0.06);
+        }
+
+        body.history-page .history-page-header__row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        body.history-page .history-page-header__row .history-page-title {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        body.history-page .history-more-wrap {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        body.history-page .history-more-btn {
+            box-sizing: border-box;
+            padding: 8px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: #fff;
+            color: #374151;
+            font-weight: 400;
+            font-size: 0.9rem;
+            font-family: inherit;
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            white-space: nowrap;
+        }
+
+        body.history-page .history-more-btn:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+
+        body.history-page .history-more-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 4px;
+            min-width: 220px;
+            padding: 4px;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 950;
+        }
+
+        body.history-page .history-more-menu.is-open {
+            display: block;
+        }
+
+        body.history-page .history-more-menu button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 8px 12px;
+            border: none;
+            background: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #374151;
+            font-weight: 500;
+            font-family: inherit;
+        }
+
+        body.history-page .history-more-menu button:hover {
+            background: #f3f4f6;
+        }
+
+        body.history-page .history-print-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1200;
+        }
+
+        body.history-page .history-print-modal.is-open {
+            display: block;
+        }
+
+        body.history-page .history-print-modal__backdrop {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            background: rgba(17, 24, 39, 0.45);
+            cursor: pointer;
+        }
+
+        body.history-page .history-print-modal__dialog {
+            position: absolute;
+            z-index: 1;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: calc(100% - 32px);
+            max-width: 420px;
+            box-sizing: border-box;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+            padding: 20px 22px 18px;
+        }
+
+        body.history-page .history-print-modal__title {
+            margin: 0 0 16px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        body.history-page .history-print-modal__modes {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        body.history-page .history-print-modal__modes label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #374151;
+            cursor: pointer;
+        }
+
+        body.history-page .history-print-modal__actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        body.history-page .history-print-modal__btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        body.history-page .history-print-modal__btn-cancel {
+            background: #fff;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        body.history-page .history-print-modal__btn-submit {
+            background: #2563eb;
+            color: #fff;
+            border: 1px solid #1d4ed8;
+        }
+
         /* 受注管理（admin-orders）と同型の検索ツールバー */
         body.history-page .history-search-box {
             margin-bottom: 20px;
@@ -122,7 +293,7 @@
             border-radius: 8px;
             background: #fff;
             color: #374151;
-            font-weight: 600;
+            font-weight: 400;
             cursor: pointer;
             font-family: inherit;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -381,8 +552,20 @@
         </div>
     </nav>
     <div class="container">
-        <header style="margin-bottom: 20px;">
-            <h1 class="history-page-title">注文履歴・配送状況</h1>
+        <header class="history-page-header">
+            <div class="history-page-header__row">
+                <h1 class="history-page-title">注文履歴・配送状況</h1>
+                <div class="history-more-wrap">
+                    <button type="button" id="history-btn-more" class="history-more-btn" aria-haspopup="menu" aria-controls="history-more-menu" aria-expanded="false">
+                        その他
+                    </button>
+                    <div id="history-more-menu" class="history-more-menu" role="menu" aria-hidden="true">
+                        <button type="button" role="menuitem" id="history-btn-print-selected">選択した注文を印刷</button>
+                        <button type="button" role="menuitem" id="history-btn-delete-selected">選択した注文を削除</button>
+                        <button type="button" role="menuitem" id="history-btn-close-all-details">詳細を一括で閉じる</button>
+                    </div>
+                </div>
+            </div>
         </header>
 
         <div class="history-search-box">
@@ -412,6 +595,21 @@
         </div>
 
         <div id="pagination-container" class="pagination-area" aria-label="ページ送り"></div>
+    </div>
+
+    <div id="history-print-slip-modal" class="history-print-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="history-print-slip-modal-title">
+        <div class="history-print-modal__backdrop" id="history-print-slip-modal-backdrop" aria-hidden="true"></div>
+        <div class="history-print-modal__dialog">
+            <h2 id="history-print-slip-modal-title" class="history-print-modal__title">選択した伝票を印刷</h2>
+            <div class="history-print-modal__modes">
+                <label><input type="radio" name="history-print-slip-mode" value="preview" checked> プレビューで確認してから印刷</label>
+                <label><input type="radio" name="history-print-slip-mode" value="direct"> プレビューなしで印刷</label>
+            </div>
+            <div class="history-print-modal__actions">
+                <button type="button" class="history-print-modal__btn history-print-modal__btn-cancel" id="history-print-slip-modal-cancel">キャンセル</button>
+                <button type="button" class="history-print-modal__btn history-print-modal__btn-submit" id="history-print-slip-modal-submit">印刷する</button>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>

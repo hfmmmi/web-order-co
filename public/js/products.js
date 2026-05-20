@@ -33,7 +33,16 @@ function escAttr(s) {
 // =========================================================
 // 🚀 初期化処理 (Initialization)
 // =========================================================
+function syncProductsGlobalNavOffset() {
+    const nav = document.querySelector(".global-nav");
+    if (!nav) return;
+    document.body.style.setProperty("--products-global-nav-offset", nav.offsetHeight + "px");
+}
+
 document.addEventListener("DOMContentLoaded", function () {
+    syncProductsGlobalNavOffset();
+    window.addEventListener("resize", syncProductsGlobalNavOffset);
+
     // 1. セッションからカートを復元
     const savedCart = sessionStorage.getItem("cart");
     if (savedCart) {
@@ -138,7 +147,7 @@ async function fetchProducts(page = 1) {
     if (infoArea) infoArea.textContent = "";
 
     // ローディング表示
-    listBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">データを読み込んでいます...</td></tr>';
+    listBody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px;">データを読み込んでいます...</td></tr>';
 
     try {
         const rawKeyword = searchInput ? searchInput.value : "";
@@ -175,7 +184,7 @@ async function fetchProducts(page = 1) {
 
     } catch (error) {
         console.error("Fetch Error:", error);
-        listBody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">データの読み込みに失敗しました</td></tr>';
+        listBody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:red;">データの読み込みに失敗しました</td></tr>';
     }
 }
 
@@ -198,7 +207,7 @@ async function executeEstimateSearch() {
     }
 
     // ローディング
-    listBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">見積データを照会中...</td></tr>';
+    listBody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px;">見積データを照会中...</td></tr>';
     
     try {
         // APIパス修正: /products/estimate
@@ -215,7 +224,7 @@ async function executeEstimateSearch() {
 
         if (data.items.length === 0) {
             toastInfo(data.message || "該当する見積が見つかりません");
-            listBody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#666;">該当する見積明細はありません。<br>番号、有効期限、顧客IDをご確認ください。</td></tr>';
+            listBody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#666;">該当する見積明細はありません。<br>番号、有効期限、顧客IDをご確認ください。</td></tr>';
             if (estimateBanner) estimateBanner.style.display = "none";
             return;
         }
@@ -256,7 +265,7 @@ async function executeEstimateSearch() {
         toastError("通信エラーが発生しました");
         if (listBody) {
             listBody.innerHTML =
-                '<tr><td colspan="6" style="text-align:center; padding:20px; color:#b91c1c;">通信エラーが発生しました。しばらくしてから再度お試しください。</td></tr>';
+                '<tr><td colspan="7" style="text-align:center; padding:20px; color:#b91c1c;">通信エラーが発生しました。しばらくしてから再度お試しください。</td></tr>';
         }
     }
 }
@@ -299,7 +308,7 @@ function switchTab(tabName) {
         const infoArea = document.querySelector("#search-result-info");
         if (listBody) {
             listBody.innerHTML =
-                '<tr><td colspan="6" style="text-align:center; padding:28px; color:#6b7280;">見積書No.を入力し、「読み込む」を押してください。</td></tr>';
+                '<tr><td colspan="7" style="text-align:center; padding:28px; color:#6b7280;">見積書No.を入力し、「読み込む」を押してください。</td></tr>';
         }
         if (paginationContainer) paginationContainer.innerHTML = "";
         if (infoArea) infoArea.textContent = "";
@@ -316,12 +325,21 @@ function syncEstimateOrderPanel() {
     panel.setAttribute("aria-hidden", on ? "false" : "true");
 }
 
+function syncProductsAllSearchBar() {
+    const bar = document.getElementById("products-all-search-bar");
+    if (!bar) return;
+    const visible = currentTab === "all";
+    bar.classList.toggle("is-visible", visible);
+    bar.setAttribute("aria-hidden", visible ? "false" : "true");
+}
+
 function updateTabUI() {
     const tabs = document.querySelectorAll(".product-tab");
     tabs.forEach(tab => {
         tab.classList.toggle("active", tab.dataset.tab === currentTab);
     });
     syncEstimateOrderPanel();
+    syncProductsAllSearchBar();
 }
 
 // 4. よく注文する商品を取得
@@ -330,7 +348,7 @@ async function fetchFrequentProducts() {
     const paginationContainer = document.querySelector("#pagination-container");
     const infoArea = document.querySelector("#search-result-info");
 
-    listBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">よく注文する商品を読み込んでいます...</td></tr>';
+    listBody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px;">よく注文する商品を読み込んでいます...</td></tr>';
     if (paginationContainer) paginationContainer.innerHTML = "";
     if (infoArea) infoArea.textContent = "";
 
@@ -354,7 +372,7 @@ async function fetchFrequentProducts() {
 
         if (data.items.length === 0) {
             listBody.innerHTML = `
-                <tr><td colspan="6" style="text-align:center; padding:40px;">
+                <tr><td colspan="7" style="text-align:center; padding:40px;">
                     <div style="font-size: 1.2rem; color: #374151; margin-bottom: 10px;">まだ注文履歴がありません</div>
                     <div style="font-size: 0.9rem; color: #6b7280;">商品を注文すると、ここによく注文する商品が表示されます</div>
                 </td></tr>
@@ -366,7 +384,7 @@ async function fetchFrequentProducts() {
 
     } catch (error) {
         console.error("Frequent Products Error:", error);
-        listBody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">データの読み込みに失敗しました</td></tr>';
+        listBody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:red;">データの読み込みに失敗しました</td></tr>';
     }
 }
 
@@ -380,7 +398,7 @@ async function fetchFavoriteProducts() {
 
     if (favoriteList.length === 0) {
         listBody.innerHTML = `
-            <tr><td colspan="6" style="text-align:center; padding:40px;">
+            <tr><td colspan="7" style="text-align:center; padding:40px;">
                 <div style="font-size: 1.2rem; color: #374151; margin-bottom: 10px;">お気に入りがまだありません</div>
                 <div style="font-size: 0.9rem; color: #6b7280;">発注欄の「☆」（数量の左）からお気に入りに追加できます</div>
             </td></tr>
@@ -389,7 +407,7 @@ async function fetchFavoriteProducts() {
         return;
     }
 
-    listBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">お気に入り商品を読み込んでいます...</td></tr>';
+    listBody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px;">お気に入り商品を読み込んでいます...</td></tr>';
 
     try {
         // お気に入り商品を取得するために通常検索を利用（各商品を個別に取得）
@@ -412,7 +430,7 @@ async function fetchFavoriteProducts() {
 
         if (favoriteItems.length === 0) {
             listBody.innerHTML = `
-                <tr><td colspan="6" style="text-align:center; padding:40px;">
+                <tr><td colspan="7" style="text-align:center; padding:40px;">
                     <div style="font-size: 1.2rem; color: #666;">お気に入りの商品が見つかりませんでした</div>
                 </td></tr>
             `;
@@ -423,7 +441,7 @@ async function fetchFavoriteProducts() {
 
     } catch (error) {
         console.error("Favorite Products Error:", error);
-        listBody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">データの読み込みに失敗しました</td></tr>';
+        listBody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:red;">データの読み込みに失敗しました</td></tr>';
     }
 }
 
@@ -434,16 +452,27 @@ function formatStockTimestamp(timestamp) {
     return dt.toLocaleString("ja-JP");
 }
 
+/** 注文ページ：在庫非公開時は「在庫情報は非公開です」を「非公開」に統一 */
+function formatProductsStockHiddenText(message) {
+    const t = String(message || "").trim();
+    if (!t || t === "在庫情報は非公開です") return "非公開";
+    return t;
+}
+
 function renderStockCell(product) {
     if (!stockUiConfig.enabled) {
-        const label = stockUiConfig.hiddenMessage || "";
+        const label = formatProductsStockHiddenText(stockUiConfig.hiddenMessage);
         return `<div class="stock-hidden-cell">${label}</div>`;
     }
     const info = product.stockInfo || {};
     if (!info.visible) {
-        const message = info.message || (stockUiConfig.showStocklessLabel ? stockUiConfig.stocklessLabel : stockUiConfig.hiddenMessage) || "";
+        const rawMessage =
+            info.message ||
+            (stockUiConfig.showStocklessLabel ? stockUiConfig.stocklessLabel : stockUiConfig.hiddenMessage) ||
+            "";
+        const message = formatProductsStockHiddenText(rawMessage);
         const lockBadge = info.manualLock ? `<span class="stock-lock">LOCK</span>` : "";
-        return `<div class="stock-hidden-cell">${message || "-"} ${lockBadge}</div>`;
+        return `<div class="stock-hidden-cell">${message || "非公開"} ${lockBadge}</div>`;
     }
     const available = Number(info.availableQty) || 0;
     const total = Number(info.totalQty) || 0;
@@ -490,7 +519,7 @@ function renderProductList(items, isEstimateMode = false, isFrequentMode = false
     listBody.innerHTML = "";
 
     if (!items || items.length === 0) {
-        listBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">商品が見つかりません</td></tr>';
+        listBody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px;">商品が見つかりません</td></tr>';
         return;
     }
 
@@ -555,7 +584,7 @@ function renderProductList(items, isEstimateMode = false, isFrequentMode = false
                     <input type="number" min="1" value="1" id="qty-${product.productCode}"
                         style="width:40px; height:32px; flex-shrink:0; padding:0; border:1px solid #ddd; border-radius:4px; box-sizing:border-box; text-align:center;" ${disableOrder ? "disabled" : ""}>
                     <button type="button" class="btn-add-cart" data-code="${codeAttr}"
-                        style="background:${disableOrder ? "#e5e7eb" : "#B1BECB"}; color:${disableOrder ? "#9ca3af" : "#1f2937"}; border:1px solid ${disableOrder ? "#e5e7eb" : "#94a3b8"}; padding:6px 10px; border-radius:4px; cursor:${disableOrder ? "not-allowed" : "pointer"}; font-weight:normal; white-space:nowrap; flex-shrink:0;" ${disableOrder ? "disabled" : ""}>
+                        style="background:${disableOrder ? "#e5e7eb" : "#DFE3E6"}; color:${disableOrder ? "#9ca3af" : "#1f2937"}; border:1px solid ${disableOrder ? "#e5e7eb" : "#c5cdd5"}; padding:6px 10px; border-radius:4px; cursor:${disableOrder ? "not-allowed" : "pointer"}; font-weight:normal; white-space:nowrap; flex-shrink:0;" ${disableOrder ? "disabled" : ""}>
                         ${disableOrder ? "在庫なし" : "カート"}
                     </button>
                 </div>`;
@@ -568,19 +597,20 @@ function renderProductList(items, isEstimateMode = false, isFrequentMode = false
             <td style="vertical-align:middle; min-width:200px;">
                 <div style="min-width:0; overflow-wrap:break-word;">
                     <div class="product-name-cell__title" style="font-size:1rem; word-wrap:break-word; overflow-wrap:break-word;">${esc(product.name)}</div>
-                    <div style="font-size:0.85rem; color:#666; margin-top:2px;">
-                        ${esc(product.productCode)} ${badgeDisplay} ${frequentBadge}
-                    </div>
+${(badgeDisplay || frequentBadge) ? `<div style="font-size:0.85rem; color:#666; margin-top:2px;">${badgeDisplay} ${frequentBadge}</div>` : ""}
                     ${isEstimateMode ? `<div style="font-size:0.8rem; color:#6b7280;">有効期限: ${product.validUntil || "不明"}</div>` : ""}
                 </div>
             </td>
-            <td style="vertical-align:middle; width:100px; font-size:0.9rem; word-break:break-word; color:#333;">
+            <td style="vertical-align:middle; width:100px; font-size:0.9rem; word-break:break-all; color:#374151;">
+                ${esc(product.productCode)}
+            </td>
+            <td style="vertical-align:middle; width:72px; font-size:0.9rem; word-break:break-word; color:#333;">
                 ${specText}
             </td>
             <td style="font-family:'Arial',sans-serif; width:100px; text-align:right; vertical-align:middle;">
                 ${priceDisplay}
             </td>
-            <td style="width:140px; vertical-align:middle;">
+            <td style="width:110px; vertical-align:middle;">
                 ${stockHtml}
             </td>
             <td style="width:178px; min-width:178px; max-width:178px; vertical-align:middle; white-space:nowrap;">
@@ -655,7 +685,7 @@ function toggleFavorite(productCode, buttonElement) {
             const listBody = document.querySelector("#product-list-body");
             if (listBody.children.length === 0) {
                 listBody.innerHTML = `
-                    <tr><td colspan="6" style="text-align:center; padding:40px;">
+                    <tr><td colspan="7" style="text-align:center; padding:40px;">
                         <div style="font-size: 1.2rem; color: #374151; margin-bottom: 10px;">お気に入りがまだありません</div>
                         <div style="font-size: 0.9rem; color: #6b7280;">発注欄の「☆」（数量の左）からお気に入りに追加できます</div>
                     </td></tr>

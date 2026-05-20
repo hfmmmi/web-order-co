@@ -224,7 +224,8 @@
         tableHTML += `</tbody></table></div>`;
 
         const actionHtml = `
-        <div style="margin-top:4px; text-align:right;">
+        <div class="order-detail-actions">
+            <div class="order-detail-actions__start"></div>
             <button type="button" class="btn-reorder" data-order-id="${esc(String(order.orderId != null ? order.orderId : ""))}">
                 この内容で再注文
             </button>

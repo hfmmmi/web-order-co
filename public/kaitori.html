@@ -33,20 +33,102 @@
             font-weight: normal;
         }
 
-        /* タブ（商品一覧の product-tabs に寄せる） */
-        .tab-menu {
+        /* タブ（商品一覧の product-tabs に寄せる・スクロール時固定） */
+        body.kaitori-page .tab-menu {
             display: flex;
             gap: 0;
             margin-bottom: 15px;
             border-bottom: 2px solid #e5e7eb;
             flex-wrap: wrap;
+            align-items: flex-end;
+            position: sticky;
+            top: var(--kaitori-global-nav-offset, 72px);
+            z-index: 900;
+            padding: 4px 0 0;
+            background: #fff;
+            box-shadow: 0 1px 0 rgba(15, 23, 42, 0.06);
+        }
+
+        body.kaitori-page .tab-menu__tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0;
+        }
+
+        body.kaitori-page .kaitori-more-wrap {
+            position: relative;
+            flex-shrink: 0;
+            margin-left: auto;
+            margin-bottom: 4px;
+        }
+
+        body.kaitori-page .kaitori-more-btn {
+            box-sizing: border-box;
+            padding: 8px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: #fff;
+            color: #374151;
+            font-weight: 400;
+            font-size: 0.9rem;
+            font-family: inherit;
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            white-space: nowrap;
+        }
+
+        body.kaitori-page .kaitori-more-btn:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+
+        body.kaitori-page .kaitori-more-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 4px;
+            min-width: 200px;
+            padding: 4px;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 950;
+        }
+
+        body.kaitori-page .kaitori-more-menu.is-open {
+            display: block;
+        }
+
+        body.kaitori-page .kaitori-more-menu button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 8px 12px;
+            border: none;
+            background: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #374151;
+            font-weight: 500;
+            font-family: inherit;
+        }
+
+        body.kaitori-page .kaitori-more-menu button:hover {
+            background: #f3f4f6;
+        }
+
+        body.kaitori-page .tab-item:not(.active) {
+            color: #9ca3af;
         }
 
         .tab-item {
             padding: 12px 20px;
             cursor: pointer;
             font-weight: normal;
-            color: #374151;
+            color: #111827;
             border-radius: 0;
             background: #fff;
             border: 1px solid #d1d5db;
@@ -470,6 +552,24 @@
             color: #374151;
         }
 
+        body.kaitori-page .history-table .col-select {
+            width: 2.25rem;
+            text-align: center;
+            vertical-align: middle;
+            padding: 8px 6px;
+        }
+
+        body.kaitori-page .history-table .col-select input[type="checkbox"] {
+            width: 1.05rem;
+            height: 1.05rem;
+            cursor: pointer;
+            vertical-align: middle;
+        }
+
+        body.kaitori-page .history-main-row .col-select {
+            cursor: default;
+        }
+
         .history-main-row {
             cursor: pointer;
             transition: background 0.15s;
@@ -644,8 +744,17 @@
 
     <div class="container">
         <div class="tab-menu">
-            <div class="tab-item active" data-target="view-new">空カートリッジ査定依頼</div>
-            <div class="tab-item" data-target="view-history">申請履歴</div>
+            <div class="tab-menu__tabs">
+                <div class="tab-item active" data-target="view-new">空カートリッジ査定依頼</div>
+                <div class="tab-item" data-target="view-history">申請履歴</div>
+            </div>
+            <div class="kaitori-more-wrap">
+                <button type="button" id="kaitori-btn-more" class="kaitori-more-btn" aria-haspopup="menu" aria-controls="kaitori-more-menu" aria-expanded="false">その他</button>
+                <div id="kaitori-more-menu" class="kaitori-more-menu" role="menu" aria-hidden="true">
+                    <button type="button" role="menuitem" id="kaitori-btn-print-selected">選択した内容を印刷</button>
+                    <button type="button" role="menuitem" id="kaitori-btn-close-all-details">詳細を一括で閉じる</button>
+                </div>
+            </div>
         </div>
 
         <div id="view-new" class="view-section active">

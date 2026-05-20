@@ -11,7 +11,7 @@ const mailService = require("../services/mailService");
 const csvService = require("../services/csvService");
 const settingsService = require("../services/settingsService");
 const { validateBody } = require("../middlewares/validate");
-const { placeOrderSchema } = require("../validators/requestSchemas");
+const { placeOrderSchema, adminDeleteOrderSchema } = require("../validators/requestSchemas");
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -93,6 +93,29 @@ router.get("/order/:orderId", async (req, res) => {
     } catch (error) {
         console.error("注文詳細取得エラー", error);
         res.status(500).json({ success: false, message: "読み込みエラー" });
+    }
+});
+
+// 3c. 注文削除（顧客本人の注文のみ）
+router.post("/order-delete", validateBody(adminDeleteOrderSchema), async (req, res) => {
+    if (!req.session.customerId) {
+        return res.status(401).json({ success: false, message: "ログインが必要です" });
+    }
+    const orderId = req.body.orderId;
+    try {
+        const historyData = await orderService.searchOrders({
+            customerId: req.session.customerId,
+            isAdmin: false
+        });
+        const order = historyData.find((o) => String(o.orderId) === String(orderId));
+        if (!order) {
+            return res.json({ success: false, message: "注文が見つかりません" });
+        }
+        await orderService.deleteOrder(orderId);
+        res.json({ success: true });
+    } catch (error) {
+        console.error("order-delete:", error);
+        res.json({ success: false, message: error.message || "削除に失敗しました" });
     }
 });
 
