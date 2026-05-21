@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>価格表一覧 - 発注システム</title>
+    <title>価格表 - 発注システム</title>
     <link rel="stylesheet" href="style.css">
     <style>
         body.pricelist-view-page {
@@ -24,42 +24,35 @@
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
 
-        body.pricelist-view-page h1 {
-            font-size: 1.35rem;
-            font-weight: 700;
-            color: #374151;
-            margin: 0;
-        }
-
         body.pricelist-view-page .pricelist-meta {
             font-size: 0.9rem;
+            font-weight: 400;
             color: #6b7280;
             margin: 0;
         }
 
-        body.pricelist-view-page .pricelist-header-row {
+        body.pricelist-view-page .pricelist-toolbar {
             display: flex;
-            align-items: baseline;
-            justify-content: flex-end;
-            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px 12px;
             margin-bottom: 16px;
         }
 
-        body.pricelist-view-page .pricelist-header-row h1 {
-            margin-right: auto;
+        body.pricelist-view-page .pricelist-toolbar .pricelist-meta {
+            margin-left: auto;
         }
 
         body.pricelist-view-page .pricelist-actions {
             display: flex;
             gap: 8px;
-            margin-bottom: 16px;
             flex-wrap: wrap;
         }
 
         body.pricelist-view-page .pricelist-action-btn {
             display: inline-block;
             font-size: 0.9rem;
-            font-weight: 600;
+            font-weight: 400;
             color: #374151;
             text-decoration: none;
             border: 1px solid #d1d5db;
@@ -76,6 +69,7 @@
         body.pricelist-view-page #pricelist-status {
             padding: 24px;
             text-align: center;
+            font-weight: 400;
             color: #6b7280;
         }
 
@@ -91,6 +85,10 @@
             padding: 10px 12px;
             text-align: left;
             vertical-align: top;
+        }
+
+        body.pricelist-view-page #pricelist-table td {
+            font-weight: 400;
         }
 
         body.pricelist-view-page #pricelist-table th {
@@ -118,12 +116,11 @@
 
 <body class="pricelist-view-page">
     <div class="container">
-        <div class="pricelist-actions">
-            <button type="button" id="close-tab-btn" class="pricelist-action-btn">タブを閉じる</button>
-            <a id="download-pricelist-btn" class="pricelist-action-btn" href="/download-my-pricelist-excel">価格表をDL</a>
-        </div>
-        <div class="pricelist-header-row">
-            <h1>価格表一覧</h1>
+        <div class="pricelist-toolbar">
+            <div class="pricelist-actions">
+                <button type="button" id="close-tab-btn" class="pricelist-action-btn">閉じる</button>
+                <a id="download-pricelist-btn" class="pricelist-action-btn" href="/download-my-pricelist-excel">価格表をDL</a>
+            </div>
             <p class="pricelist-meta">（<span id="pricelist-count">0</span> 件）</p>
         </div>
 

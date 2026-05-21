@@ -316,6 +316,16 @@ const adminSettingsUpdateSchema = z
     })
     .strict();
 
+/** 顧客本人: 既定納品先の更新 */
+const updateAccountDeliverySchema = z
+    .object({
+        deliveryName: optionalTrimmedString(100),
+        deliveryZip: optionalTrimmedString(20),
+        deliveryAddress: optionalTrimmedString(300),
+        deliveryTel: optionalTrimmedString(30)
+    })
+    .strict();
+
 module.exports = {
     loginSchema,
     placeOrderSchema,
@@ -325,6 +335,7 @@ module.exports = {
     adminRevertItemShipmentSchema,
     addCustomerSchema,
     updateCustomerSchema,
+    updateAccountDeliverySchema,
     adminAccountUpdateSchema,
     adminSettingsUpdateSchema
 };

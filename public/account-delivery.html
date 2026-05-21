@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>納品先編集 - 発注システム</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .account-delivery-page {
+            max-width: 720px;
+            margin: 0 auto;
+        }
+        .account-delivery-breadcrumb {
+            margin: 0 0 16px;
+            font-size: 0.9rem;
+        }
+        .account-delivery-breadcrumb a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+        .account-delivery-breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        .account-page-title {
+            margin: 0 0 8px 0;
+            color: #111827;
+            font-size: 1.35rem;
+            font-weight: normal;
+        }
+        .account-delivery-lead {
+            margin: 0 0 20px;
+            font-size: 0.88rem;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+        .delivery-form-panel {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 28px;
+        }
+        .delivery-form-panel h2 {
+            margin: 0 0 16px;
+            font-size: 1.05rem;
+            font-weight: normal;
+            color: #111827;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        .delivery-form-panel .form-group {
+            margin-bottom: 15px;
+        }
+        .delivery-form-panel label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            font-weight: normal;
+        }
+        .delivery-form-panel .label-hint {
+            font-size: 0.82rem;
+            color: #6b7280;
+        }
+        .delivery-form-panel input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .delivery-form-panel .zip-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .delivery-form-panel .zip-row input {
+            width: 120px;
+            flex: 0 0 auto;
+        }
+        .delivery-form-panel #delivery-zip-search-btn {
+            flex: 0 0 auto;
+            padding: 0 12px;
+            height: 38px;
+            cursor: pointer;
+            background: #fff;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-weight: normal;
+        }
+        .delivery-form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .btn-delivery-save {
+            padding: 10px 22px;
+            background: #374151;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: normal;
+        }
+        .btn-delivery-save:hover {
+            background: #1f2937;
+        }
+        .btn-delivery-save:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+        .delivery-history-panel h2 {
+            margin: 0 0 12px;
+            font-size: 1.05rem;
+            font-weight: normal;
+            color: #111827;
+        }
+        .delivery-history-panel .hint {
+            margin: 0 0 12px;
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+        #delivery-history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .delivery-history-item {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 12px 14px;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+        .delivery-history-item__body {
+            flex: 1;
+            min-width: 0;
+            font-size: 0.9rem;
+            color: #374151;
+            line-height: 1.45;
+        }
+        .delivery-history-item__name {
+            font-weight: normal;
+            color: #111827;
+        }
+        .btn-apply-history {
+            flex: 0 0 auto;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            background: #fff;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: normal;
+        }
+        .btn-apply-history:hover {
+            background: #f9fafb;
+        }
+        .delivery-history-empty {
+            padding: 16px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.9rem;
+            background: #f9fafb;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        #delivery-load-status {
+            text-align: center;
+            color: #6b7280;
+            padding: 24px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="global-nav">
+        <a href="home.html" class="nav-logo"><span>発注システム</span></a>
+        <div class="nav-links">
+            <a href="home.html" class="nav-item nav-home-link" aria-label="ホーム" title="ホーム"><svg class="nav-home-link__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="9 22 9 12 15 12 15 22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+            <a href="products.html" class="nav-item">注文</a>
+            <a href="cart.html" class="nav-item nav-cart" data-feature="cart">カート</a>
+            <a href="history.html" class="nav-item" data-feature="history">注文履歴</a>
+            <a href="kaitori.html" class="nav-item" data-feature="kaitori">空カートリッジ買取</a>
+            <a href="support.html" class="nav-item" data-feature="support">お問合わせ</a>
+            <a href="https://www.e-kaisyu.jp/" target="_blank" class="nav-item" data-feature="collection">回収依頼</a>
+            <a href="account.html" class="nav-item nav-item--current">設定</a>
+            <a href="#" class="nav-item" id="logout-btn">ログアウト</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="account-delivery-page">
+            <p class="account-delivery-breadcrumb"><a href="account.html">設定</a> &gt; 納品先編集</p>
+            <h1 class="account-page-title">納品先編集</h1>
+            <p class="account-delivery-lead">既定の納品先を登録・変更できます。保存した内容は、カートの配送先入力や管理者による新規受注の反映に使われます。</p>
+
+            <div id="delivery-load-status">読み込み中…</div>
+
+            <div id="delivery-main" style="display: none;">
+                <section class="delivery-form-panel" aria-labelledby="delivery-default-heading">
+                    <h2 id="delivery-default-heading">既定の納品先</h2>
+                    <form id="delivery-form" novalidate>
+                        <div class="form-group">
+                            <label for="delivery-name">納品先名（宛名）</label>
+                            <input type="text" id="delivery-name" maxlength="100" autocomplete="organization">
+                        </div>
+                        <div class="form-group">
+                            <label for="delivery-zip">郵便番号<span class="label-hint">　※ハイフンなし</span></label>
+                            <div class="zip-row">
+                                <input type="text" id="delivery-zip" maxlength="7" inputmode="numeric" autocomplete="postal-code">
+                                <button type="button" id="delivery-zip-search-btn">住所検索</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="delivery-address">住所</label>
+                            <input type="text" id="delivery-address" maxlength="300" autocomplete="street-address">
+                        </div>
+                        <div class="form-group">
+                            <label for="delivery-tel">電話番号</label>
+                            <input type="tel" id="delivery-tel" maxlength="30" autocomplete="tel">
+                        </div>
+                        <div class="delivery-form-actions">
+                            <button type="submit" id="delivery-save-btn" class="btn-delivery-save">保存</button>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="delivery-history-panel" aria-labelledby="delivery-history-heading">
+                    <h2 id="delivery-history-heading">過去の注文で使った配送先</h2>
+                    <p class="hint">一覧から選ぶと、上のフォームに反映できます。内容を確認して「保存」してください。</p>
+                    <div id="delivery-history-list"></div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="js/account-delivery.js"></script>
+</body>
+</html>

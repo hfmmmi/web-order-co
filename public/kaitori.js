@@ -580,6 +580,28 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    /**
+     * いずれかの詳細が開いているとき、詳細が閉じている申請の要約行だけ薄くする（注文履歴と同様）。
+     */
+    function syncKaitoriHistorySummaryRowDimming(tbody) {
+        if (!tbody) return;
+        let anyOpen = false;
+        tbody.querySelectorAll(".history-detail-row").forEach(function (detTr) {
+            if (detTr.classList.contains("open")) {
+                anyOpen = true;
+            }
+        });
+        tbody.querySelectorAll(".history-main-row").forEach(function (mainTr) {
+            const detTr = mainTr.nextElementSibling;
+            const pairOpen =
+                detTr &&
+                detTr.classList.contains("history-detail-row") &&
+                detTr.classList.contains("open");
+            mainTr.classList.toggle("history-main-row--dimmed", anyOpen && !pairOpen);
+            mainTr.classList.toggle("history-main-row--detail-open", pairOpen);
+        });
+    }
+
     function attachKaitoriHistoryRowToggleHandlers() {
         document.querySelectorAll(".history-main-row").forEach(function (row) {
             row.addEventListener("click", function (e) {
@@ -589,6 +611,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (!detailRow) return;
                 this.classList.toggle("active");
                 detailRow.classList.toggle("open");
+                const tbody = this.closest("tbody");
+                if (tbody) syncKaitoriHistorySummaryRowDimming(tbody);
             });
         });
     }
@@ -600,6 +624,9 @@ document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll(".history-main-row.active").forEach(function (row) {
             row.classList.remove("active");
         });
+        if (historyContainer) {
+            historyContainer.querySelectorAll(".history-table tbody").forEach(syncKaitoriHistorySummaryRowDimming);
+        }
     }
 
     function setupKaitoriMoreMenu() {

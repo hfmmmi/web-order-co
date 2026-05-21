@@ -356,6 +356,36 @@ class CustomerService {
         return { customers, count: customers.length };
     }
 
+    /** 顧客本人: 既定納品先の取得 */
+    async getCustomerDeliveryById(customerId) {
+        const list = await this._loadAll();
+        const c = list.find((x) => x.customerId === customerId);
+        if (!c) return null;
+        return {
+            deliveryName: c.deliveryName || "",
+            deliveryZip: c.deliveryZip || "",
+            deliveryAddress: c.deliveryAddress || "",
+            deliveryTel: c.deliveryTel || ""
+        };
+    }
+
+    /** 顧客本人: 既定納品先の更新（顧客マスタ・新規受注の反映先） */
+    async updateCustomerDelivery(customerId, { deliveryName, deliveryZip, deliveryAddress, deliveryTel }) {
+        return runWithJsonFileWriteLock(CUSTOMERS_DB_PATH, async () => {
+            const list = await this._loadAll();
+            const index = list.findIndex((c) => c.customerId === customerId);
+            if (index === -1) {
+                return { success: false, message: "顧客が見つかりません" };
+            }
+            list[index].deliveryName = deliveryName != null ? String(deliveryName).trim() : "";
+            list[index].deliveryZip = deliveryZip != null ? String(deliveryZip).trim() : "";
+            list[index].deliveryAddress = deliveryAddress != null ? String(deliveryAddress).trim() : "";
+            list[index].deliveryTel = deliveryTel != null ? String(deliveryTel).trim() : "";
+            await fs.writeFile(CUSTOMERS_DB_PATH, JSON.stringify(list, null, 2));
+            return { success: true, message: "納品先を保存しました" };
+        });
+    }
+
     // 9. 顧客本人による「管理者の代理ログインを許可」の更新（アカウント設定用）
     async updateCustomerAllowProxy(customerId, allowProxyLogin) {
         return runWithJsonFileWriteLock(CUSTOMERS_DB_PATH, async () => {

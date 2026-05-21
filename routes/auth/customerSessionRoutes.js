@@ -20,7 +20,7 @@ const {
     ADMINS_DB_PATH
 } = require("../../services/authTokenStore");
 const { validateBody } = require("../../middlewares/validate");
-const { loginSchema } = require("../../validators/requestSchemas");
+const { loginSchema, updateAccountDeliverySchema } = require("../../validators/requestSchemas");
 const {
     LOGIN_LOCK_MESSAGE,
     LOGIN_CAPTCHA_REQUIRED_MESSAGE,
@@ -228,6 +228,42 @@ router.put("/account/settings", (req, res) => {
         .catch(err => {
             console.error("Account settings update error:", err);
             res.status(500).json({ message: "設定の保存に失敗しました" });
+        });
+});
+
+router.get("/account/delivery", (req, res) => {
+    if (!req.session.customerId) {
+        return res.status(401).json({ message: "ログインが必要です" });
+    }
+    customerService.getCustomerDeliveryById(req.session.customerId)
+        .then((data) => {
+            if (!data) return res.status(404).json({ message: "顧客が見つかりません" });
+            res.json({ success: true, delivery: data });
+        })
+        .catch((err) => {
+            console.error("Account delivery get error:", err);
+            res.status(500).json({ message: "納品先の取得に失敗しました" });
+        });
+});
+
+router.put("/account/delivery", validateBody(updateAccountDeliverySchema), (req, res) => {
+    if (!req.session.customerId) {
+        return res.status(401).json({ message: "ログインが必要です" });
+    }
+    const body = req.body || {};
+    customerService.updateCustomerDelivery(req.session.customerId, {
+        deliveryName: body.deliveryName ?? "",
+        deliveryZip: body.deliveryZip ?? "",
+        deliveryAddress: body.deliveryAddress ?? "",
+        deliveryTel: body.deliveryTel ?? ""
+    })
+        .then((result) => {
+            if (!result.success) return res.status(400).json(result);
+            res.json({ success: true, message: result.message });
+        })
+        .catch((err) => {
+            console.error("Account delivery update error:", err);
+            res.status(500).json({ message: "納品先の保存に失敗しました" });
         });
 });
 

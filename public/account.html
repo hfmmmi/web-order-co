@@ -3,24 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>アカウント設定 - 発注システム</title>
+    <title>設定 - 発注システム</title>
     <link rel="stylesheet" href="style.css">
     <style>
         .account-settings-page {
             max-width: none;
             margin: 0;
         }
-        .account-settings-empty {
-            text-align: center;
-            padding: 40px 20px;
-            color: #666;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
         .account-page-title {
-            margin: 0 0 4px 0;
+            margin: 0 0 20px 0;
             color: #111827;
             font-size: 1.35rem;
+            font-weight: normal;
+        }
+        .account-settings-links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 420px;
+        }
+        .account-settings-link {
+            display: block;
+            padding: 14px 18px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            color: #111827;
+            text-decoration: none;
+            font-size: 1rem;
+        }
+        .account-settings-link:hover {
+            background: #f3f4f6;
+            border-color: #d1d5db;
         }
     </style>
 </head>
@@ -35,18 +49,20 @@
             <a href="kaitori.html" class="nav-item" data-feature="kaitori">空カートリッジ買取</a>
             <a href="support.html" class="nav-item" data-feature="support">お問合わせ</a>
             <a href="https://www.e-kaisyu.jp/" target="_blank" class="nav-item" data-feature="collection">回収依頼</a>
-            <a href="account.html" class="nav-item nav-item--current">アカウント設定</a>
+            <a href="account.html" class="nav-item nav-item--current">設定</a>
             <a href="#" class="nav-item" id="logout-btn">ログアウト</a>
         </div>
     </nav>
 
     <div class="container">
         <div class="account-settings-page">
-            <header style="margin-bottom: 24px;">
-                <h1 class="account-page-title">アカウント設定</h1>
+            <header>
+                <h1 class="account-page-title">設定</h1>
             </header>
 
-            <div class="account-settings-empty">現在、設定項目はありません。</div>
+            <nav class="account-settings-links" aria-label="設定メニュー">
+                <a href="account-delivery.html" class="account-settings-link">納品先編集</a>
+            </nav>
         </div>
     </div>
 

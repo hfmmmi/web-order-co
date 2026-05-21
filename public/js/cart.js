@@ -238,7 +238,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (oldWarning) oldWarning.remove();
 
         const noteInput = document.querySelector("#note");
-        if (noteInput) noteInput.placeholder = "その他、ご要望などございましたらご記入ください";
 
         const hasReturn = details.some(item => item.stockStatus && (item.stockStatus.includes("リターン") || item.stockStatus.includes("セミ")));
 
@@ -257,7 +256,6 @@ document.addEventListener("DOMContentLoaded", function () {
             if (table) table.parentNode.insertBefore(warningDiv, table);
 
             if (noteInput) {
-                noteInput.placeholder = "回収希望日・回収先（納品先と異なる場合は住所・電話番号）をご記入ください";
                 noteInput.style.backgroundColor = "#fff";
                 noteInput.style.border = "1px solid #d1d5db";
             }

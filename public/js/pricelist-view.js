@@ -1,4 +1,4 @@
-// 価格表一覧（/my-pricelist-data）を別タブで表形式表示
+// 価格表（/my-pricelist-data）を別タブで表形式表示
 (function () {
     function esc(s) {
         return String(s == null ? "" : s)

@@ -134,6 +134,41 @@ describe("Aランク: auth-api カバレッジ", () => {
         expect(res.body).toHaveProperty("allowProxyLogin");
     });
 
+    test("GET /api/account/delivery 未ログインは 401", async () => {
+        const res = await request(app).get("/api/account/delivery");
+        expect(res.statusCode).toBe(401);
+    });
+
+    test("GET /api/account/delivery ログイン済みなら納品先を返す", async () => {
+        const agent = request.agent(app);
+        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        const res = await agent.get("/api/account/delivery");
+        expect(res.statusCode).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.delivery).toMatchObject({
+            deliveryName: expect.any(String),
+            deliveryZip: expect.any(String),
+            deliveryAddress: expect.any(String),
+            deliveryTel: expect.any(String)
+        });
+    });
+
+    test("PUT /api/account/delivery で既定納品先を保存できる", async () => {
+        const agent = request.agent(app);
+        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        const res = await agent.put("/api/account/delivery").send({
+            deliveryName: "テスト納品先",
+            deliveryZip: "1000001",
+            deliveryAddress: "東京都千代田区1-1",
+            deliveryTel: "0312345678"
+        });
+        expect(res.statusCode).toBe(200);
+        expect(res.body.success).toBe(true);
+        const getRes = await agent.get("/api/account/delivery");
+        expect(getRes.body.delivery.deliveryName).toBe("テスト納品先");
+        expect(getRes.body.delivery.deliveryZip).toBe("1000001");
+    });
+
     test("admins.json が不正JSONのとき管理者ログインは「管理者DBエラー」", async () => {
         await fs.writeFile(path.join(DATA_ROOT, "admins.json"), "{ invalid json }", "utf-8");
         const res = await request(app)

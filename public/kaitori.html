@@ -694,11 +694,28 @@
 
         .history-main-row {
             cursor: pointer;
-            transition: background 0.15s;
+            transition: background 0.15s ease, opacity 0.2s ease;
         }
 
-        .history-main-row:hover {
-            background: #f9fafb;
+        body.kaitori-page .history-table tbody tr.history-main-row:not(.history-main-row--detail-open):hover td {
+            background: #f1f5f9;
+        }
+
+        body.kaitori-page .history-table .history-main-row.history-main-row--dimmed {
+            opacity: 0.24;
+        }
+
+        body.kaitori-page .history-table .history-main-row.history-main-row--dimmed:hover td {
+            background: #f3f4f6;
+        }
+
+        body.kaitori-page .history-table .history-main-row.history-main-row--detail-open td {
+            background-color: #f0f7fc;
+            border-bottom-color: #d6e7f1;
+        }
+
+        body.kaitori-page .history-table .history-main-row.history-main-row--detail-open:hover td {
+            background-color: #f0f7fc;
         }
 
         .history-detail-row {
@@ -859,7 +876,7 @@
             <a href="kaitori.html" class="nav-item nav-item--current" data-feature="kaitori">空カートリッジ買取</a>
             <a href="support.html" class="nav-item" data-feature="support">お問合わせ</a>
             <a href="https://www.e-kaisyu.jp/" target="_blank" class="nav-item" data-feature="collection">回収依頼</a>
-            <a href="account.html" class="nav-item">アカウント設定</a>
+            <a href="account.html" class="nav-item">設定</a>
             <a href="#" class="nav-item" id="logout-btn">ログアウト</a>
         </div>
     </nav>
