@@ -10,28 +10,42 @@
             max-width: 720px;
             margin: 0 auto;
         }
-        .account-delivery-breadcrumb {
-            margin: 0 0 16px;
-            font-size: 0.9rem;
+        .account-delivery-header {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
         }
-        .account-delivery-breadcrumb a {
-            color: #2563eb;
-            text-decoration: none;
-        }
-        .account-delivery-breadcrumb a:hover {
-            text-decoration: underline;
-        }
-        .account-page-title {
-            margin: 0 0 8px 0;
+        .account-delivery-header .account-page-title {
+            grid-column: 2;
+            justify-self: center;
+            margin: 0;
             color: #111827;
             font-size: 1.35rem;
             font-weight: normal;
+            text-align: center;
         }
-        .account-delivery-lead {
-            margin: 0 0 20px;
-            font-size: 0.88rem;
-            color: #6b7280;
-            line-height: 1.5;
+        .account-delivery-back {
+            grid-column: 3;
+            justify-self: end;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: #fff;
+            color: #374151;
+            font-size: 0.95rem;
+            font-weight: normal;
+            text-decoration: none;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+        .account-delivery-back:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+            color: #111827;
         }
         .delivery-form-panel {
             background: #f9fafb;
@@ -96,31 +110,71 @@
         }
         .btn-delivery-save {
             padding: 10px 22px;
-            background: #374151;
-            color: #fff;
-            border: none;
+            background: #DFE3E6;
+            color: #374151;
+            border: 1px solid #d1d5db;
             border-radius: 6px;
             cursor: pointer;
             font-size: 0.95rem;
             font-weight: normal;
         }
         .btn-delivery-save:hover {
-            background: #1f2937;
+            background: #d1d5db;
+            border-color: #9ca3af;
         }
         .btn-delivery-save:disabled {
             opacity: 0.55;
             cursor: not-allowed;
         }
-        .delivery-history-panel h2 {
-            margin: 0 0 12px;
-            font-size: 1.05rem;
-            font-weight: normal;
-            color: #111827;
-        }
-        .delivery-history-panel .hint {
-            margin: 0 0 12px;
-            font-size: 0.85rem;
+        .delivery-history-result-info {
+            margin: 0 0 8px;
+            font-size: 0.9rem;
             color: #6b7280;
+        }
+        .delivery-history-result-info:empty {
+            display: none;
+        }
+        .delivery-history-search-box {
+            margin-bottom: 12px;
+        }
+        .account-delivery-page .orders-search-toolbar {
+            display: flex;
+            flex-wrap: nowrap;
+            align-items: center;
+            gap: 10px;
+        }
+        .account-delivery-page .orders-search-toolbar__keyword {
+            box-sizing: border-box;
+            flex: 1 1 200px;
+            min-width: 160px;
+            height: 40px;
+            padding: 0 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background-color: #fff;
+        }
+        .account-delivery-page .orders-search-toolbar .order-search-btn {
+            box-sizing: border-box;
+            flex: 0 0 auto;
+            height: 40px;
+            padding: 0 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: #fff;
+            color: #374151;
+            font-weight: normal;
+            cursor: pointer;
+            font-family: inherit;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+        .account-delivery-page .orders-search-toolbar .order-search-btn:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
         }
         #delivery-history-list {
             display: flex;
@@ -130,7 +184,7 @@
         .delivery-history-item {
             display: flex;
             flex-wrap: wrap;
-            align-items: flex-start;
+            align-items: center;
             justify-content: space-between;
             gap: 10px;
             padding: 12px 14px;
@@ -138,18 +192,14 @@
             border: 1px solid #e5e7eb;
             border-radius: 8px;
         }
-        .delivery-history-item__body {
+        .delivery-history-item__name {
             flex: 1;
             min-width: 0;
-            font-size: 0.9rem;
-            color: #374151;
-            line-height: 1.45;
-        }
-        .delivery-history-item__name {
+            font-size: 0.95rem;
             font-weight: normal;
             color: #111827;
         }
-        .btn-apply-history {
+        .btn-edit-history {
             flex: 0 0 auto;
             padding: 6px 12px;
             font-size: 0.85rem;
@@ -160,7 +210,7 @@
             cursor: pointer;
             font-weight: normal;
         }
-        .btn-apply-history:hover {
+        .btn-edit-history:hover {
             background: #f9fafb;
         }
         .delivery-history-empty {
@@ -197,18 +247,19 @@
 
     <div class="container">
         <div class="account-delivery-page">
-            <p class="account-delivery-breadcrumb"><a href="account.html">設定</a> &gt; 納品先編集</p>
-            <h1 class="account-page-title">納品先編集</h1>
-            <p class="account-delivery-lead">既定の納品先を登録・変更できます。保存した内容は、カートの配送先入力や管理者による新規受注の反映に使われます。</p>
+            <header class="account-delivery-header">
+                <h1 class="account-page-title">納品先編集</h1>
+                <a href="account.html" class="account-delivery-back">戻る</a>
+            </header>
 
             <div id="delivery-load-status">読み込み中…</div>
 
             <div id="delivery-main" style="display: none;">
                 <section class="delivery-form-panel" aria-labelledby="delivery-default-heading">
-                    <h2 id="delivery-default-heading">既定の納品先</h2>
+                    <h2 id="delivery-default-heading">納品先登録</h2>
                     <form id="delivery-form" novalidate>
                         <div class="form-group">
-                            <label for="delivery-name">納品先名（宛名）</label>
+                            <label for="delivery-name">納品先名</label>
                             <input type="text" id="delivery-name" maxlength="100" autocomplete="organization">
                         </div>
                         <div class="form-group">
@@ -232,10 +283,17 @@
                     </form>
                 </section>
 
-                <section class="delivery-history-panel" aria-labelledby="delivery-history-heading">
-                    <h2 id="delivery-history-heading">過去の注文で使った配送先</h2>
-                    <p class="hint">一覧から選ぶと、上のフォームに反映できます。内容を確認して「保存」してください。</p>
+                <section class="delivery-history-panel" aria-label="過去の注文で使った納品先">
+                    <div id="delivery-history-result-info" class="delivery-history-result-info" role="status"></div>
+                    <div id="delivery-history-search-box" class="delivery-history-search-box" hidden>
+                        <div class="orders-search-toolbar">
+                            <input type="text" id="delivery-history-search-input" class="orders-search-toolbar__field orders-search-toolbar__keyword"
+                                aria-label="納品先を検索">
+                            <button type="button" id="delivery-history-search-btn" class="order-search-btn">検索</button>
+                        </div>
+                    </div>
                     <div id="delivery-history-list"></div>
+                    <div id="delivery-history-pagination" class="pagination-area" aria-label="ページ送り"></div>
                 </section>
             </div>
         </div>

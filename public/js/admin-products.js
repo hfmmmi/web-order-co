@@ -338,9 +338,9 @@ document.addEventListener("DOMContentLoaded", function () {
         resultInfo.style.color = "#6b7280";
         resultInfo.style.padding = "8px 12px 0";
         if (totalPages > 1) {
-            resultInfo.innerHTML = `該当: <strong>${products.length}</strong> 件 · <strong>${fromN}</strong>〜<strong>${toN}</strong> 件を表示`;
+            resultInfo.innerHTML = `該当：<strong>${products.length}</strong> 件 · <strong>${fromN}</strong>〜<strong>${toN}</strong> 件を表示`;
         } else {
-            resultInfo.innerHTML = `該当: <strong>${products.length}</strong> 件`;
+            resultInfo.innerHTML = `該当：<strong>${products.length}</strong> 件`;
         }
         productListContainer.appendChild(resultInfo);
 

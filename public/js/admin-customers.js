@@ -223,16 +223,16 @@ document.addEventListener("DOMContentLoaded", function () {
         const page = Math.max(1, parseInt(String(currentPageNum), 10) || 1);
         const tp = Math.max(1, parseInt(String(totalPagesNum), 10) || 1);
         if (tc === 0) {
-            custResultInfo.innerHTML = "該当: <strong>0</strong> 件";
+            custResultInfo.innerHTML = "該当：<strong>0</strong> 件";
             return;
         }
         if (tp > 1 && rowCount > 0) {
             const fromN = (page - 1) * ps + 1;
             const toN = fromN + rowCount - 1;
             custResultInfo.innerHTML =
-                `該当: <strong>${tc}</strong> 件 · <strong>${fromN}</strong>〜<strong>${toN}</strong> 件を表示`;
+                `該当：<strong>${tc}</strong> 件 · <strong>${fromN}</strong>〜<strong>${toN}</strong> 件を表示`;
         } else {
-            custResultInfo.innerHTML = `該当: <strong>${tc}</strong> 件`;
+            custResultInfo.innerHTML = `該当：<strong>${tc}</strong> 件`;
         }
     }
 

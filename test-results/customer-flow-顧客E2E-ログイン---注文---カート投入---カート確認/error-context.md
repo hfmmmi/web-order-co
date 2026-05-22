@@ -22,7 +22,7 @@
         - /url: support.html
       - link "回収依頼" [ref=e15] [cursor=pointer]:
         - /url: https://www.e-kaisyu.jp/
-      - link "アカウント設定" [ref=e16] [cursor=pointer]:
+      - link "設定" [ref=e16] [cursor=pointer]:
         - /url: account.html
       - link "ログアウト" [ref=e17] [cursor=pointer]:
         - /url: "#"
@@ -56,8 +56,8 @@
         - /url: https://www.e-kaisyu.jp/
         - img [ref=e58]
         - generic [ref=e63]: 回収依頼
-      - link "アカウント設定" [ref=e64] [cursor=pointer]:
+      - link "設定" [ref=e64] [cursor=pointer]:
         - /url: account.html
         - img [ref=e66]
-        - generic [ref=e69]: アカウント設定
+        - generic [ref=e69]: 設定
 ```

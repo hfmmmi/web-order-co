@@ -1573,11 +1573,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (totalPages > 1) {
             resultInfo.innerHTML =
-                `該当: <strong>${orders.length}</strong> 件 · <strong>${fromN}</strong>〜<strong>${toN}</strong> 件を表示` +
+                `該当：<strong>${orders.length}</strong> 件 · <strong>${fromN}</strong>〜<strong>${toN}</strong> 件を表示` +
                 ' <span class="orders-selection-count" style="margin-left:12px;color:#2563eb;font-weight:600;"></span>';
         } else {
             resultInfo.innerHTML =
-                `該当: <strong>${orders.length}</strong> 件` +
+                `該当：<strong>${orders.length}</strong> 件` +
                 ' <span class="orders-selection-count" style="margin-left:12px;color:#2563eb;font-weight:600;"></span>';
         }
         orderListContainer.appendChild(resultInfo);

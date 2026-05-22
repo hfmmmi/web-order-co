@@ -401,9 +401,9 @@ document.addEventListener("DOMContentLoaded", function () {
         if (masterResultInfoEl) {
             if (totalPages > 1) {
                 masterResultInfoEl.innerHTML =
-                    `該当: <strong>${filtered.length}</strong> 件 · <strong>${fromN}</strong>〜<strong>${toN}</strong> 件を表示`;
+                    `該当：<strong>${filtered.length}</strong> 件 · <strong>${fromN}</strong>〜<strong>${toN}</strong> 件を表示`;
             } else {
-                masterResultInfoEl.innerHTML = `該当: <strong>${filtered.length}</strong> 件`;
+                masterResultInfoEl.innerHTML = `該当：<strong>${filtered.length}</strong> 件`;
             }
         }
 

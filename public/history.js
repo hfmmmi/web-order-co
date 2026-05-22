@@ -860,9 +860,9 @@ function renderHistoryPage() {
     resultInfo.className = "history-result-info";
     if (totalPages > 1) {
         resultInfo.innerHTML =
-            `該当: <strong>${totalCount}</strong> 件 · <strong>${fromN}</strong>〜<strong>${toN}</strong> 件を表示`;
+            `該当：<strong>${totalCount}</strong> 件 · <strong>${fromN}</strong>〜<strong>${toN}</strong> 件を表示`;
     } else {
-        resultInfo.innerHTML = `該当: <strong>${totalCount}</strong> 件`;
+        resultInfo.innerHTML = `該当：<strong>${totalCount}</strong> 件`;
     }
     container.appendChild(resultInfo);
 
