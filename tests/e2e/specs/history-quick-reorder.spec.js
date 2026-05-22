@@ -1,4 +1,5 @@
 const { test, expect } = require("@playwright/test");
+const { loginAsCustomer, openProductsPage, openHistoryPage } = require("../helpers/customerAuth");
 
 async function fillOrderForm(page, suffix) {
     await page.fill("#zip-code", "1000001");
@@ -13,7 +14,7 @@ async function expectCartQty(page, code, expectedQty) {
         has: page.locator(`td:text-is("${code}")`)
     }).first();
     await expect(row).toBeVisible();
-    await expect(row.locator("td").nth(3)).toHaveText(String(expectedQty));
+    await expect(row.locator(".cart-qty-input")).toHaveValue(String(expectedQty));
 }
 
 test("顧客E2E: 複数商品のクイック再注文で数量合算と既存カートマージが正しい", async ({ page }) => {
@@ -21,11 +22,8 @@ test("顧客E2E: 複数商品のクイック再注文で数量合算と既存カ
         await dialog.accept();
     });
 
-    await page.goto("/index.html");
-    await page.fill("#username-input", "TEST001");
-    await page.fill("#password-input", "CustPass123!");
-    await page.getByRole("button", { name: "ログイン" }).click();
-    await expect(page).toHaveURL(/products\.html$/);
+    await loginAsCustomer(page);
+    await openProductsPage(page);
 
     // 初回注文: P001 x2, P002 x3
     await page.fill("#qty-P001", "2");
@@ -40,14 +38,14 @@ test("顧客E2E: 複数商品のクイック再注文で数量合算と既存カ
 
     await fillOrderForm(page, "初回");
     await page.click("#place-order-btn");
-    await expect(page).toHaveURL(/products\.html$/, { timeout: 15000 });
+    await expect(page).toHaveURL(/home\.html$/, { timeout: 15000 });
 
     // 既存カートを作成: P001 x4
+    await openProductsPage(page);
     await page.fill("#qty-P001", "4");
     await page.locator(".btn-add-cart[data-code='P001']").click();
 
-    await page.getByRole("link", { name: "注文履歴" }).click();
-    await expect(page).toHaveURL(/history\.html$/);
+    await openHistoryPage(page);
     await expect(page.locator(".orders-list-table .order-summary-row").first()).toBeVisible();
 
     await page.locator(".btn-toggle-detail").first().click();
@@ -61,5 +59,5 @@ test("顧客E2E: 複数商品のクイック再注文で数量合算と既存カ
 
     await fillOrderForm(page, "再注文");
     await page.click("#place-order-btn");
-    await expect(page).toHaveURL(/products\.html$/, { timeout: 15000 });
+    await expect(page).toHaveURL(/home\.html$/, { timeout: 15000 });
 });

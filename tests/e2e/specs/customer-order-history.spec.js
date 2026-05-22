@@ -1,11 +1,9 @@
 const { test, expect } = require("@playwright/test");
+const { loginAsCustomer, openProductsPage, openHistoryPage } = require("../helpers/customerAuth");
 
 test("顧客E2E: 注文確定後に履歴へ反映される", async ({ page }) => {
-    await page.goto("/index.html");
-    await page.fill("#username-input", "TEST001");
-    await page.fill("#password-input", "CustPass123!");
-    await page.getByRole("button", { name: "ログイン" }).click();
-    await expect(page).toHaveURL(/products\.html$/);
+    await loginAsCustomer(page);
+    await openProductsPage(page);
 
     await page.locator(".btn-add-cart").first().click();
     await page.locator("a.nav-cart").click();
@@ -18,8 +16,7 @@ test("顧客E2E: 注文確定後に履歴へ反映される", async ({ page }) =
     await page.fill("#note", "E2E注文履歴テスト");
     await page.click("#place-order-btn");
 
-    await expect(page).toHaveURL(/products\.html$/, { timeout: 15000 });
-    await page.getByRole("link", { name: "注文履歴" }).click();
-    await expect(page).toHaveURL(/history\.html$/);
+    await expect(page).toHaveURL(/home\.html$/, { timeout: 15000 });
+    await openHistoryPage(page);
     await expect(page.locator(".orders-list-table .order-summary-row").first()).toBeVisible();
 });

@@ -1,13 +1,9 @@
 const { test, expect } = require("@playwright/test");
+const { loginAsCustomer, openProductsPage } = require("../helpers/customerAuth");
 
 test("顧客E2E: ログイン -> 注文 -> カート投入 -> カート確認", async ({ page }) => {
-    await page.goto("/index.html");
-
-    await page.fill("#username-input", "TEST001");
-    await page.fill("#password-input", "CustPass123!");
-    await page.getByRole("button", { name: "ログイン" }).click();
-
-    await expect(page).toHaveURL(/products\.html$/);
+    await loginAsCustomer(page);
+    await openProductsPage(page);
 
     const addCartButton = page.locator(".btn-add-cart").first();
     await expect(addCartButton).toBeVisible();

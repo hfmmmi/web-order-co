@@ -48,6 +48,10 @@ tests/_sandbox_data/
 tests/e2e/.e2e_data/
 tests/e2e/.tmp/
 
+# Playwright 実行成果物（失敗時の trace / screenshot 等）
+test-results/
+playwright-report/
+
 # OS
 .DS_Store
 Thumbs.db

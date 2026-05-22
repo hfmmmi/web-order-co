@@ -30,7 +30,7 @@ test("代理ログイン: 申請→顧客許可→実行で顧客画面に遷移
         await customerPage.fill("#username-input", "TEST001");
         await customerPage.fill("#password-input", "CustPass123!");
         await Promise.all([
-            customerPage.waitForURL(/products\.html$/, { timeout: 15000 }),
+            customerPage.waitForURL(/home\.html$/, { timeout: 15000 }),
             customerPage.getByRole("button", { name: "ログイン" }).click()
         ]);
 
@@ -42,8 +42,8 @@ test("代理ログイン: 申請→顧客許可→実行で顧客画面に遷移
         await expect(adminPage.locator("#proxy-execute-btn")).toBeEnabled({ timeout: 10000 });
         await adminPage.locator("#proxy-execute-btn").click();
 
-        await expect(adminPage).toHaveURL(/products\.html$/, { timeout: 10000 });
-        await expect(adminPage.locator("body")).toContainText(/商品|カート|発注/);
+        await expect(adminPage).toHaveURL(/home\.html$/, { timeout: 10000 });
+        await expect(adminPage.locator("body")).toContainText(/商品|カート|発注|お知らせ/);
     } finally {
         await adminContext.close();
         await customerContext.close();
