@@ -9,6 +9,11 @@ const fs = require("fs").promises;
 const mailService = require("../services/mailService");
 const { dbPath, DATA_ROOT } = require("../dbPaths");
 const { runWithJsonFileWriteLock } = require("../utils/jsonWriteQueue");
+const {
+    nextPrefixedSequentialId,
+    attachPrefixedDisplayIds,
+    buildPrefixedDisplayIdMap
+} = require("../utils/sequentialPrefixedId");
 
 const SUPPORT_DB_PATH = dbPath("support_tickets.json");
 const ATTACH_DIR_NAME = "support_attachments";
@@ -26,8 +31,16 @@ function normalizeUploadFiles(field) {
     return Array.isArray(field) ? field : [field];
 }
 
+const SUPPORT_ID_PREFIX = "SP";
+const SUPPORT_DISPLAY_OPTS = {
+    prefix: SUPPORT_ID_PREFIX,
+    dateField: "timestamp",
+    idField: "ticketId"
+};
+
 function ticketIdParamOk(id) {
-    return typeof id === "string" && /^T-[0-9A-Z]+$/i.test(id);
+    if (typeof id !== "string") return false;
+    return /^SP-\d+$/i.test(id) || /^T-[0-9A-Z]+$/i.test(id);
 }
 
 function storedNameOk(name) {
@@ -128,28 +141,39 @@ router.post("/request-support", async (req, res) => {
 
     const newRequest = req.body && typeof req.body === "object" ? req.body : {};
     try {
-        const ticketId = "T-" + Date.now().toString(36).toUpperCase();
-
-        let attachmentRecords = [];
-        try {
-            if (req.files && req.files.attachments) {
-                attachmentRecords = await saveTicketAttachments(ticketId, req.files.attachments);
-            }
-        } catch (e) {
-            if (e && e.code === "FILE_TOO_LARGE") {
-                return res.status(400).json({
-                    success: false,
-                    message: "添付ファイルが大きすぎます（1ファイルあたり最大10MB、拡張子はPDF・画像・Office・zip等に限ります）"
-                });
-            }
-            throw e;
-        }
+        let ticketId;
 
         const rawCat = newRequest.category != null ? String(newRequest.category).trim() : "";
         const allowedCategories = new Set(["product", "system", "other", "support", "bug"]);
         const normalizedCategory = allowedCategories.has(rawCat) ? rawCat : "product";
 
-        const ticketData = {
+        await runWithJsonFileWriteLock(SUPPORT_DB_PATH, async () => {
+            let tickets = [];
+            try {
+                const data = await fs.readFile(SUPPORT_DB_PATH, "utf-8");
+                tickets = JSON.parse(data);
+                if (!Array.isArray(tickets)) tickets = [];
+            } catch (e) {
+                tickets = [];
+            }
+
+            ticketId = nextPrefixedSequentialId(tickets, SUPPORT_DISPLAY_OPTS);
+
+            let attachmentRecords = [];
+            try {
+                if (req.files && req.files.attachments) {
+                    attachmentRecords = await saveTicketAttachments(ticketId, req.files.attachments);
+                }
+            } catch (e) {
+                if (e && e.code === "FILE_TOO_LARGE") {
+                    const err = new Error("FILE_TOO_LARGE");
+                    err.code = "FILE_TOO_LARGE";
+                    throw err;
+                }
+                throw e;
+            }
+
+            const ticketData = {
             ticketId: ticketId,
             status: "open",
             category: normalizedCategory,
@@ -169,27 +193,29 @@ router.post("/request-support", async (req, res) => {
             ticketId: ticketId,
             customerId: req.session.customerId,
             customerName: req.session.customerName
-        };
+            };
 
-        await runWithJsonFileWriteLock(SUPPORT_DB_PATH, async () => {
-            let tickets = [];
-            try {
-                const data = await fs.readFile(SUPPORT_DB_PATH, "utf-8");
-                tickets = JSON.parse(data);
-                if (!Array.isArray(tickets)) tickets = [];
-            } catch (e) {
-                tickets = [];
-            }
             tickets.push(ticketData);
             await fs.writeFile(SUPPORT_DB_PATH, JSON.stringify(tickets, null, 2));
+
+            mailService.sendSupportNotification(ticketData).catch((e) => {
+                console.error("メール送信失敗:", e);
+            });
         });
 
-        mailService.sendSupportNotification(ticketData).catch((e) => {
-            console.error("メール送信失敗:", e);
+        res.json({
+            success: true,
+            message: "申請を受け付けました",
+            ticketId,
+            displayId: ticketId
         });
-
-        res.json({ success: true, message: "申請を受け付けました" });
     } catch (error) {
+        if (error && error.code === "FILE_TOO_LARGE") {
+            return res.status(400).json({
+                success: false,
+                message: "添付ファイルが大きすぎます（1ファイルあたり最大10MB、拡張子はPDF・画像・Office・zip等に限ります）"
+            });
+        }
         console.error("サポート申請エラー", error);
         res.status(500).json({ success: false, message: "サーバーエラー" });
     }
@@ -208,11 +234,14 @@ router.get("/support/my-tickets", async (req, res) => {
 
         if (!Array.isArray(tickets)) tickets = [];
 
+        const displayMap = buildPrefixedDisplayIdMap(tickets, SUPPORT_DISPLAY_OPTS);
+
         const mine = tickets
             .filter((t) => t && t.customerId === req.session.customerId)
             .sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime())
             .map((t) => ({
                 ticketId: t.ticketId || "",
+                displayId: displayMap[String(t.ticketId)] || t.ticketId || "",
                 status: t.status || "open",
                 category: t.category || "product",
                 type: t.type || "",
@@ -252,7 +281,11 @@ router.get("/admin/support-tickets", async (req, res) => {
     try {
         const data = await fs.readFile(SUPPORT_DB_PATH, "utf-8");
         const tickets = JSON.parse(data);
-        res.json(tickets.reverse());
+        if (!Array.isArray(tickets)) {
+            res.json([]);
+            return;
+        }
+        res.json(attachPrefixedDisplayIds(tickets, SUPPORT_DISPLAY_OPTS).reverse());
     } catch (error) {
         res.json([]);
     }

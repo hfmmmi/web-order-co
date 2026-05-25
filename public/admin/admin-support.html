@@ -33,7 +33,7 @@
             display: flex;
             align-items: center;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 0;
         }
 
         .page-header-leading h2 {
@@ -51,6 +51,7 @@
             align-items: center;
             gap: 8px;
             flex: 0 0 auto;
+            margin-left: 4ch;
         }
 
         .page-header-toolbar-btn {
@@ -87,53 +88,324 @@
             font-weight: 600;
         }
 
-        .support-tickets-csv-input-hidden {
-            position: fixed;
-            left: -9999px;
-            top: 0;
-            width: 1px;
-            height: 1px;
-            opacity: 0;
+        .admin-section {
+            background: #fff;
+            padding: 22px 24px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            margin-bottom: 20px;
         }
 
-        .admin-section { background: white; padding: 20px; border-radius: 5px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); margin-bottom: 20px; }
+        .admin-section h3 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #374151;
+        }
 
-        /* チケット管理：見出し＋ステータスタブ（同一行） */
-        .ticket-section-heading-row {
+        .support-toolbar-row {
             display: flex;
-            flex-wrap: wrap;
+            justify-content: space-between;
             align-items: center;
-            gap: 10px 12px;
             margin-bottom: 15px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #dee2e6;
+            flex-wrap: nowrap;
         }
-        .ticket-section-heading-row .section-title {
+
+        .support-section-title-accent {
             margin: 0;
-            color: #111827;
-            font-size: 1.25rem;
-            font-weight: 700;
+            border-left: 5px solid #dfe3e6;
+            padding-left: 10px;
         }
+
+        .support-filter-area {
+            margin-bottom: 10px;
+        }
+
         .support-status-tabs {
             display: flex;
             flex-wrap: wrap;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
-        .sub-tab-btn {
-            padding: 8px 15px;
-            border: 1px solid #dee2e6;
-            background: #f8f9fa;
+
+        .support-status-tabs .sub-tab-btn {
+            padding: 8px 10px;
+            border: 1px solid #d1d5db;
+            background: #fff;
             cursor: pointer;
-            border-radius: 4px;
-            font-weight: bold;
-            color: #495057;
+            border-radius: 0;
+            font-weight: 400;
+            font-size: 0.9rem;
+            color: #9ca3af;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            font-family: inherit;
         }
-        /* 買取ページ「査定依頼リスト」等の .sub-tab-btn.active と同じ選択中の見た目 */
-        .sub-tab-btn.support-tab.active {
+
+        .support-status-tabs .sub-tab-btn.support-tab.active {
             background: #dfe3e6;
             color: #111827;
             border-color: #c5cdd5;
+        }
+
+        #support-status-tab-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 0;
+        }
+
+        #support-status-tab-container button {
+            flex: 1;
+            font-size: 0.875rem;
+            font-weight: 600;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-family: inherit;
+            box-sizing: border-box;
+        }
+
+        .support-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .support-data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .support-data-table thead th {
+            text-align: left;
+            padding: 10px 12px;
+            background: #f3f4f6;
+            color: #374151;
+            font-weight: 600;
+            border-bottom: 1px solid #e5e7eb;
+            white-space: nowrap;
+        }
+
+        .support-data-table tbody td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: middle;
+            color: #111827;
+        }
+
+        .support-data-table tbody tr.support-row {
+            cursor: pointer;
+        }
+
+        .support-data-table tbody tr.support-row:hover td {
+            background: #f9fafb;
+        }
+
+        .support-data-table .support-col-id {
+            font-size: 0.875rem;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+
+        .support-data-table .support-id-link {
+            color: #111827;
+            text-decoration: underline;
+            text-underline-offset: 0.12em;
+            font-weight: 400;
+        }
+
+        .support-data-table .support-id-link:hover {
+            color: #111827;
+        }
+
+        .support-data-table .support-status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            white-space: nowrap;
+            line-height: 1.25;
+            border: 1px solid transparent;
+        }
+
+        .support-data-table .support-status-badge--open {
+            background: #fee2e2;
+            color: #991b1b;
+            border-color: #fecaca;
+        }
+
+        .support-data-table .support-status-badge--verifying {
+            background: #d6e7f1;
+            color: #111827;
+            border-color: #b0cde5;
+        }
+
+        .support-data-table .support-status-badge--resolved {
+            background: #f3f4f6;
+            color: #4b5563;
+            border-color: #e5e7eb;
+        }
+
+        .support-data-table tbody td.support-table-empty {
+            text-align: center;
+            padding: 20px 12px;
+            color: #6b7280;
+        }
+
+        .support-data-table tbody td.support-table-empty--error {
+            color: #dc3545;
+        }
+
+        #support-ticket-modal .modal-content {
+            max-width: 720px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #support-ticket-modal .modal-body {
+            overflow-y: auto;
+        }
+
+        .support-modal-meta-surface {
+            background: #f8f9fa;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .support-modal-panel-label {
+            display: block;
+            margin: 0 0 8px 0;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .support-modal-field {
+            margin-bottom: 12px;
+        }
+
+        .support-modal-field label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .support-modal-field input[type="text"],
+        .support-modal-field input[type="date"],
+        .support-modal-field select,
+        .support-modal-field textarea {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 8px 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-family: inherit;
+        }
+
+        .support-modal-field input[readonly] {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+
+        .support-modal-detail-box {
+            background: #fff;
+            padding: 8px 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .support-modal-history-box {
+            background: #f9fafb;
+            padding: 8px 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            max-height: 120px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+        }
+
+        .support-modal-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .support-modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        #btn-support-update {
+            padding: 8px 14px;
+            background: #dfe3e6;
+            color: #111827;
+            border: 1px solid #c5cdd5;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.875rem;
+            font-family: inherit;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            width: 90%;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            padding: 15px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #374151;
+        }
+
+        .modal-body {
+            padding: 20px;
+            font-size: 0.9rem;
+            color: #111827;
+        }
+
+        .close-btn {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+            line-height: 1;
         }
     </style>
 </head>
@@ -145,40 +417,128 @@
         <main class="admin-main-content">
             <div class="page-header">
                 <div class="page-header-leading">
-                    <h2><span class="admin-page-icon" data-admin-icon="support" aria-hidden="true"></span>サポート申請・不具合報告</h2>
+                    <h2><span class="admin-page-icon" data-admin-icon="support" aria-hidden="true"></span>サポート</h2>
                     <div class="page-header-inline-actions">
                         <a href="../support.html" id="btn-support-new-add" class="page-header-toolbar-btn" target="_blank" rel="noopener noreferrer">新規追加</a>
-                        <button type="button" id="btn-support-csv-excel" class="page-header-toolbar-btn">↑ UL</button>
-                        <button type="button" class="page-header-toolbar-btn js-support-template-dl">テンプレートDL</button>
-                        <button type="button" class="page-header-toolbar-btn js-support-export-dl">全件DL</button>
                     </div>
                 </div>
             </div>
-
-            <input type="file" id="support-tickets-csv-input" class="support-tickets-csv-input-hidden" accept=".csv" tabindex="-1" aria-label="サポートチケット CSV 取込">
 
             <div class="admin-main-scroll">
-            <div class="admin-section">
-                <div class="ticket-section-heading-row">
-                    <h2 class="section-title">チケット管理</h2>
-                    <div class="support-status-tabs" role="tablist" aria-label="チケット表示切替">
-                        <button type="button" class="sub-tab-btn support-tab" onclick="filterSupport('all', this)">全て</button>
-                        <button type="button" class="sub-tab-btn support-tab active" onclick="filterSupport('open', this)">未対応</button>
-                        <button type="button" class="sub-tab-btn support-tab" onclick="filterSupport('verifying', this)">検証中</button>
-                        <button type="button" class="sub-tab-btn support-tab" onclick="filterSupport('resolved', this)">対応完了</button>
-                    </div>
+            <section class="admin-section">
+                <div class="support-toolbar-row">
+                    <h3 class="support-section-title-accent">チケット管理</h3>
                 </div>
 
-                <div id="support-ticket-list">
-                    <p>読み込み中...</p>
+                <div class="support-filter-area" id="support-filter-area"></div>
+
+                <div class="support-table-wrap">
+                    <table class="support-data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>申請日時</th>
+                                <th>顧客名</th>
+                                <th>状態</th>
+                            </tr>
+                        </thead>
+                        <tbody id="support-ticket-list-body">
+                            <tr><td colspan="4" class="support-table-empty">読み込み中...</td></tr>
+                        </tbody>
+                    </table>
                 </div>
-            </div>
+            </section>
             </div>
         </main>
     </div>
 
+    <div id="support-ticket-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="support-ticket-modal-title">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="support-ticket-modal-title">チケット詳細</h3>
+                <span class="close-btn" id="support-ticket-modal-close" role="button" tabindex="0" aria-label="閉じる">×</span>
+            </div>
+            <div class="modal-body">
+                <div class="support-modal-meta-surface" style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                    <div>
+                        <strong>チケットID:</strong> <span id="support-m-ticket-id">---</span><br>
+                        <strong>顧客:</strong> <span id="support-m-customer">---</span>
+                    </div>
+                    <div style="text-align:right;">
+                        <strong>申請日時:</strong> <span id="support-m-date">---</span>
+                    </div>
+                </div>
+
+                <div class="support-modal-grid-2">
+                    <div class="support-modal-field">
+                        <label for="support-m-order-id">WEB注文ID (自動)</label>
+                        <input type="text" id="support-m-order-id" readonly>
+                    </div>
+                    <div class="support-modal-field">
+                        <label for="support-m-customer-po">WEB発注NO. (顧客入力)</label>
+                        <input type="text" id="support-m-customer-po" readonly>
+                    </div>
+                    <div class="support-modal-field">
+                        <label for="support-m-internal-order">社内受注NO. (基幹)</label>
+                        <input type="text" id="support-m-internal-order" placeholder="未入力">
+                    </div>
+                    <div class="support-modal-field">
+                        <label for="support-m-internal-po">社内発注NO. (基幹)</label>
+                        <input type="text" id="support-m-internal-po" placeholder="未入力">
+                    </div>
+                </div>
+
+                <div class="support-modal-field">
+                    <span class="support-modal-panel-label">顧客の申告内容</span>
+                    <div id="support-m-detail" class="support-modal-detail-box"></div>
+                </div>
+
+                <div class="support-modal-field" id="support-m-attachments-wrap" style="display:none;">
+                    <span class="support-modal-panel-label">添付ファイル</span>
+                    <ul id="support-m-attachments" style="margin:0; padding-left:18px; font-size:0.9rem;"></ul>
+                </div>
+
+                <div class="support-modal-grid-2">
+                    <div class="support-modal-field">
+                        <label for="support-m-desired-action">希望対応</label>
+                        <input type="text" id="support-m-desired-action" list="support-action-list">
+                        <datalist id="support-action-list">
+                            <option value="代替品発送">
+                            <option value="赤伝処理">
+                            <option value="部品送付">
+                        </datalist>
+                    </div>
+                    <div class="support-modal-field">
+                        <label for="support-m-collection-date">回収指定日</label>
+                        <input type="date" id="support-m-collection-date">
+                    </div>
+                </div>
+
+                <div class="support-modal-field">
+                    <span class="support-modal-panel-label">対応履歴 (Log)</span>
+                    <div id="support-m-history" class="support-modal-history-box"></div>
+                </div>
+
+                <div class="support-modal-field">
+                    <span class="support-modal-panel-label">ステータス更新 &amp; メモ</span>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <select id="support-m-status" style="padding:8px 10px; border-radius:8px; border:1px solid #e5e7eb; font-family:inherit;">
+                            <option value="open">未対応</option>
+                            <option value="verifying">検証中</option>
+                            <option value="resolved">対応完了</option>
+                        </select>
+                        <input type="text" id="support-m-history-log" placeholder="例: 電話で謝罪、代替品手配済み..." style="flex:1; min-width:160px; padding:8px 10px; border:1px solid #e5e7eb; border-radius:8px; box-sizing:border-box; font-family:inherit;">
+                    </div>
+                    <div class="support-modal-actions">
+                        <button type="button" id="btn-support-update">更新・履歴追加</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="../js/admin-icons.js"></script>
     <script src="../js/admin-common.js"></script>
-    <script src="../js/admin-support.js?v=7.4"></script>
+    <script src="../js/admin-support.js?v=8.0"></script>
 </body>
 </html>

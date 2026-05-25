@@ -47,6 +47,13 @@ document.addEventListener("DOMContentLoaded", function () {
         return `${y}/${mo}/${da} ${h}:${mi}`;
     }
 
+    function ticketDisplayId(ticket) {
+        if (ticket.displayId != null && String(ticket.displayId).trim() !== "") {
+            return String(ticket.displayId);
+        }
+        return ticket.ticketId != null ? String(ticket.ticketId) : "";
+    }
+
     function renderMyTickets(tickets) {
         if (!myTicketsContainer) return;
         myTicketsContainer.innerHTML = "";
@@ -77,11 +84,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     .join("")}</ul>`;
             }
 
+            const idShown = ticketDisplayId(ticket);
             item.innerHTML = `
                 <div class="support-history-item__head">
                     <span class="support-history-item__date">${safeText(formatDate(ticket.timestamp))}</span>
                     <span class="support-history-item__status ${statusClass}">${safeText(statusLabel(ticket.status))}</span>
                 </div>
+                <p class="support-history-item__id">受付番号：${safeText(idShown)}</p>
                 <p class="support-history-item__type">${safeText(ticket.type || "未設定")}</p>
                 ${orderLine}
                 <p class="support-history-item__detail">${safeText(ticket.detail || "")}</p>
@@ -289,7 +298,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 if (result.success) {
                     msgDiv.style.color = "green";
-                    msgDiv.textContent = "申請を受け付けました。管理者が確認次第ご連絡します。";
+                    const acceptedId = result.displayId || result.ticketId || "";
+                    msgDiv.textContent = acceptedId
+                        ? `申請を受け付けました（受付番号: ${acceptedId}）。管理者が確認次第ご連絡します。`
+                        : "申請を受け付けました。管理者が確認次第ご連絡します。";
                     form.reset();
                     if (fileInput) fileInput.value = "";
                     const namesEp = document.getElementById("support-attachment-names");

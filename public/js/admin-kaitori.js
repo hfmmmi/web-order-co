@@ -21,6 +21,19 @@ document.addEventListener("DOMContentLoaded", function () {
     // イベント委譲（Event Delegation）
     if (view.listBody) {
         view.listBody.addEventListener("click", (e) => {
+            const idLink = e.target.closest(".kaitori-id-link");
+            if (idLink && idLink.dataset.id) {
+                e.preventDefault();
+                e.stopPropagation();
+                const req = allKaitoriRequests.find((r) => String(r.requestId) === idLink.dataset.id);
+                if (req) {
+                    openRequestModal(req);
+                } else {
+                    console.error("Data not found for ID:", idLink.dataset.id);
+                }
+                return;
+            }
+
             const row = e.target.closest(".kaitori-row");
             if (!row || !row.dataset.id) return;
 
@@ -106,8 +119,8 @@ document.addEventListener("DOMContentLoaded", function () {
         container.id = "status-tab-container";
         container.style.cssText = "display:flex; gap:10px; margin-bottom:10px;";
 
-        const btnActive = createTabBtn("未完了アクション", "btn-warning");
-        const btnClosed = createTabBtn("完了・履歴", "btn-secondary");
+        const btnActive = createTabBtn("未完了", "btn-warning");
+        const btnClosed = createTabBtn("履歴", "btn-secondary");
 
         btnActive.onclick = () => {
             currentFilterType = "active";

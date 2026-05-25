@@ -42,7 +42,7 @@ const FEATURE_DEFS = {
         { key: "adminProducts", label: "商品マスタ管理" },
         { key: "adminCustomers", label: "顧客管理" },
         { key: "adminPrices", label: "価格・掛率設定" },
-        { key: "adminSupport", label: "サポート・不具合" }
+        { key: "adminSupport", label: "サポート" }
     ]
 };
 

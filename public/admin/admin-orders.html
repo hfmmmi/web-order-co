@@ -44,7 +44,7 @@
             display: flex;
             align-items: center;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 0;
         }
 
         .page-header-leading h2 {
@@ -62,6 +62,7 @@
             align-items: center;
             gap: 8px;
             flex: 0 0 auto;
+            margin-left: 4ch;
         }
 
         .page-header-toolbar-btn {
@@ -75,7 +76,7 @@
             color: #374151;
             border: 1px solid #d1d5db;
             border-radius: 0;
-            font-weight: 600;
+            font-weight: 400;
             font-size: inherit;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
@@ -105,7 +106,7 @@
         }
 
         #orders-more-menu {
-            min-width: 220px;
+            min-width: 300px;
         }
 
         /* ↓ DL：条件指定モーダル */
@@ -374,7 +375,7 @@
             color: #111827;
             border: 1px solid #e5e7eb;
             border-radius: 8px;
-            font-weight: 600;
+            font-weight: 400;
             font-size: inherit;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
         }
@@ -712,20 +713,14 @@
                             新規追加
                         </a>
                         <input type="file" id="file-input" style="display: none;" accept=".csv,.xlsx,.xls">
-                        <button type="button" id="btn-csv-excel-import" class="page-header-toolbar-btn">
-                            ↑ UL
-                        </button>
                         <div class="orders-download-wrap">
-                            <button type="button" id="btn-orders-download" class="page-header-toolbar-btn" aria-haspopup="dialog" aria-controls="orders-download-modal">
-                                ↓ DL
-                            </button>
-                        </div>
-                        <div class="orders-download-wrap">
-                            <button type="button" id="btn-orders-more" class="page-header-toolbar-btn">
+                            <button type="button" id="btn-orders-more" class="page-header-toolbar-btn" aria-haspopup="menu" aria-controls="orders-more-menu" aria-expanded="false">
                                 その他
                             </button>
                             <div id="orders-more-menu" class="orders-download-menu" role="menu" aria-hidden="true">
-                                <button type="button" role="menuitem" id="btn-print-selected-slips">選択した伝票を印刷する</button>
+                                <button type="button" role="menuitem" id="btn-csv-excel-import">注文データをアップロードする</button>
+                                <button type="button" role="menuitem" id="btn-orders-download" aria-haspopup="dialog" aria-controls="orders-download-modal">選択した注文をダウンロードする</button>
+                                <button type="button" role="menuitem" id="btn-print-selected-slips">選択した注文を印刷する</button>
                                 <button type="button" role="menuitem" id="btn-delete-selected-orders">選択した注文を削除する</button>
                                 <button type="button" role="menuitem" id="btn-csv-unexported">未連携データ出力</button>
                                 <button type="button" role="menuitem" id="btn-close-all-order-details">詳細ボタンを一括で閉じる</button>
@@ -814,7 +809,7 @@
     <div id="orders-print-slip-modal" class="orders-download-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="orders-print-slip-modal-title">
         <div class="orders-download-modal__backdrop" id="orders-print-slip-modal-backdrop" aria-hidden="true"></div>
         <div class="orders-download-modal__dialog">
-            <h3 id="orders-print-slip-modal-title" class="orders-download-modal__title">選択した伝票を印刷</h3>
+            <h3 id="orders-print-slip-modal-title" class="orders-download-modal__title">選択した注文を印刷</h3>
             <div class="orders-download-modal__field">
                 <span style="display:block;font-size:0.8rem;font-weight:600;color:#374151;margin-bottom:8px;">印刷方法</span>
                 <div class="orders-download-modal__formats orders-print-slip-modal__modes">

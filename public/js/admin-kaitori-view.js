@@ -2,6 +2,20 @@
 // 買取査定画面の「表示（View）」を担当するクラス
 // ※ DOM操作はすべてここに集約し、ロジックから分離する
 
+function kaitoriDisplayId(req) {
+    if (req.displayId != null && String(req.displayId).trim() !== "") {
+        return String(req.displayId);
+    }
+    return req.requestId != null ? String(req.requestId) : "";
+}
+
+function escapeKaitoriAttr(str) {
+    return String(str == null ? "" : str)
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;");
+}
+
 /** 申請日時: YYYY/MM/DD HH:mm（秒なし・ローカル） */
 function formatKaitoriRequestDateTime(value) {
     const d = new Date(value);
@@ -90,8 +104,13 @@ class KaitoriView {
                 statusCellHtml = `<td><span class="badge ${badgeClass}" style="${badgeStyle}">${status}</span></td>`;
             }
 
+            const idInternal = req.requestId != null ? String(req.requestId) : "";
+            const idDisplay = kaitoriDisplayId(req);
+            const idText =
+                typeof escapeHtml !== "undefined" ? escapeHtml(idDisplay) : idDisplay;
+
             tr.innerHTML = `
-                <td>${req.requestId}</td>
+                <td class="kaitori-col-id"><a href="#" class="kaitori-id-link" data-id="${escapeKaitoriAttr(idInternal)}">${idText}</a></td>
                 <td>${dateStr}</td>
                 <td>${req.customerName || "不明"}</td>
                 ${statusCellHtml}
@@ -110,7 +129,7 @@ class KaitoriView {
     // 2. 詳細モーダル操作
     // =========================================
     openRequestModal(req, onCalculate, onDeleteItem) {
-        this.mReqId.textContent = req.requestId;
+        this.mReqId.textContent = kaitoriDisplayId(req);
         this.mCustName.textContent = req.customerName;
         this.mDate.textContent = formatKaitoriRequestDateTime(req.requestDate);
         

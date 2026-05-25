@@ -408,7 +408,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const metaHtml =
             '<div style="margin-bottom:10px;font-size:0.9rem;">' +
             "<div>受付番号： " +
-            kaitoriPrintEsc(item.requestId) +
+            kaitoriPrintEsc(item.displayId || item.requestId) +
             "</div>" +
             logisticsHtml +
             noteHtml +
@@ -768,6 +768,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         <th scope="col" class="col-select">
                             <input type="checkbox" class="kaitori-history-select-all" aria-label="すべて選択">
                         </th>
+                        <th style="width:100px;">受付番号</th>
                         <th style="width:140px;">申請日時</th>
                         <th>申請内容</th>
                         <th style="width:100px;">ステータス</th>
@@ -813,7 +814,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 const metaHtml = `
                     <div style="margin-bottom:10px; font-size:0.9rem;">
-                        <div style="margin-bottom:5px;">受付番号： ${item.requestId}</div>
+                        <div style="margin-bottom:5px;">受付番号： ${kaitoriPrintEsc(item.displayId || item.requestId)}</div>
                         ${logisticsHtml}
                         ${noteHtml}
                     </div>
@@ -843,12 +844,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
                 const reqIdEsc = kaitoriAttrEsc(String(item.requestId != null ? item.requestId : ""));
+                const idShown = kaitoriPrintEsc(item.displayId || item.requestId || "");
 
                 // === 行セットの追加 (親行 + 子行) ===
                 html += `<tr class="history-main-row" data-id="${item.requestId}">
                     <td class="col-select">
                         <input type="checkbox" class="kaitori-history-row-select" data-request-id="${reqIdEsc}" aria-label="この申請を選択">
                     </td>
+                    <td class="kaitori-history-id-cell"><span class="kaitori-history-id-text">${idShown}</span></td>
                     <td class="history-date-cell">${dateStr}</td>
                     <td>${summary}</td>
                     <td><span class="status-badge ${badgeClass}">${statusLabel}</span></td>
@@ -857,7 +860,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 </tr>`;
                 
                 html += `<tr class="history-detail-row" id="detail-${item.requestId}">
-                    <td colspan="6" style="padding:0; border:none;">
+                    <td colspan="7" style="padding:0; border:none;">
                         <div class="detail-content-wrapper">
                             ${metaHtml}
                             ${tableHtml}
@@ -966,7 +969,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 const result = await res.json();
 
                 if (result.success) {
-                    toastSuccess(`申請完了！ 受付番号: ${result.requestId}`, 4000);
+                    const newId = result.displayId || result.requestId || "";
+                    toastSuccess(
+                        newId ? `申請完了！ 受付番号: ${newId}` : "申請が完了しました",
+                        4000
+                    );
                     // リセット処理
                     cart = {}; 
                     updateCart(); 

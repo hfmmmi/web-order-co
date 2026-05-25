@@ -3,15 +3,29 @@
 const express = require("express");
 const router = express.Router();
 const fs = require("fs").promises;
-const { randomBytes } = require("crypto");
 const { dbPath } = require("../dbPaths");
 const { runWithJsonFileWriteLock } = require("../utils/jsonWriteQueue");
+const {
+    nextPrefixedSequentialId,
+    attachPrefixedDisplayIds
+} = require("../utils/sequentialPrefixedId");
 
 const KAITORI_DB_PATH = dbPath("kaitori_requests.json");
 const KAITORI_MASTER_PATH = dbPath("kaitori_master.json");
+const KAITORI_ID_PREFIX = "KS";
 
-function newKaitoriRequestId() {
-    return `KR-${Date.now()}-${randomBytes(4).toString("hex")}`;
+const KAITORI_DISPLAY_OPTS = {
+    prefix: KAITORI_ID_PREFIX,
+    dateField: "requestDate",
+    idField: "requestId"
+};
+
+function nextKaitoriRequestId(requests) {
+    return nextPrefixedSequentialId(requests, KAITORI_DISPLAY_OPTS);
+}
+
+function attachKaitoriDisplayIds(requests) {
+    return attachPrefixedDisplayIds(requests, KAITORI_DISPLAY_OPTS);
 }
 
 // ==========================================
@@ -26,7 +40,7 @@ router.post("/kaitori-request", async (req, res) => {
     const customerName = req.session.customerName;
 
     try {
-        const requestId = newKaitoriRequestId();
+        let requestId;
         await runWithJsonFileWriteLock(KAITORI_DB_PATH, async () => {
             let requests = [];
             try {
@@ -36,6 +50,8 @@ router.post("/kaitori-request", async (req, res) => {
             } catch (e) {
                 requests = [];
             }
+
+            requestId = nextKaitoriRequestId(requests);
 
             const newRequest = {
                 requestId,
@@ -54,7 +70,7 @@ router.post("/kaitori-request", async (req, res) => {
             await fs.writeFile(KAITORI_DB_PATH, JSON.stringify(requests, null, 2));
         });
 
-        res.json({ success: true, requestId });
+        res.json({ success: true, requestId, displayId: requestId });
     } catch (error) {
         console.error("買取処理エラー", error);
         res.status(500).json({ success: false, message: "サーバーエラー" });
@@ -67,7 +83,11 @@ router.get("/admin/kaitori-list", async (req, res) => {
     try {
         const data = await fs.readFile(KAITORI_DB_PATH, "utf-8");
         const list = JSON.parse(data);
-        res.json(list.reverse());
+        if (!Array.isArray(list)) {
+            res.json([]);
+            return;
+        }
+        res.json(attachKaitoriDisplayIds(list).reverse());
     } catch (error) {
         res.json([]);
     }
@@ -269,7 +289,8 @@ router.get("/my-kaitori-history", async (req, res) => {
         const data = await fs.readFile(KAITORI_DB_PATH, "utf-8");
         const allRequests = JSON.parse(data);
         if (!Array.isArray(allRequests)) return res.json([]);
-        const myRequests = allRequests.filter((r) => r.customerId === myId).reverse();
+        const withDisplay = attachKaitoriDisplayIds(allRequests);
+        const myRequests = withDisplay.filter((r) => r.customerId === myId).reverse();
         res.json(myRequests);
     } catch (error) {
         console.error("履歴取得エラー", error);

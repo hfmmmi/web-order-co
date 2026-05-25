@@ -23,60 +23,83 @@
         }
 
         .dashboard-header-block {
+            margin-bottom: 0;
+        }
+
+        .dashboard-announcements {
+            margin-top: 20px;
             margin-bottom: 28px;
         }
 
-        .dashboard-header-block h2 {
+        .dashboard-announcements-panel {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            padding: 16px 20px;
+        }
+
+        .dashboard-announcements-list .dashboard-announcements-loading,
+        .dashboard-announcements-list .dashboard-announcements-empty {
+            margin: 0;
+            text-align: center;
+            padding: 20px 12px;
+            color: #6b7280;
+            font-size: 0.9375rem;
+        }
+
+        .dashboard-announcements-list .dashboard-announcement-item {
+            padding: 14px 0;
+            border-bottom: 1px solid #eef1f5;
+        }
+
+        .dashboard-announcements-list .dashboard-announcement-item:last-child {
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .dashboard-announcements-list .dashboard-announcement-item:first-child {
+            padding-top: 0;
+        }
+
+        .dashboard-announcements-list .dashboard-announcement-item h4 {
             margin: 0 0 8px 0;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #111827;
+            border-left: 4px solid #ACCDE5;
+            padding-left: 10px;
+        }
+
+        .dashboard-announcements-list .dashboard-announcement-item.type-info h4 { border-left-color: #17a2b8; }
+        .dashboard-announcements-list .dashboard-announcement-item.type-warning h4 { border-left-color: #ffc107; }
+        .dashboard-announcements-list .dashboard-announcement-item.type-error h4 { border-left-color: #dc3545; }
+        .dashboard-announcements-list .dashboard-announcement-item.type-success h4 { border-left-color: #28a745; }
+
+        .dashboard-announcements-list .dashboard-announcement-item .body {
+            margin: 0;
+            color: #4b5563;
+            font-size: 0.9375rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .dashboard-announcements-list .dashboard-announcement-item .meta {
+            margin: 10px 0 0 0;
+            font-size: 0.85rem;
+        }
+
+        .dashboard-announcements-list .dashboard-announcement-item .meta a {
+            color: #2563eb;
+            text-decoration: underline;
+        }
+
+        .dashboard-header-block h2 {
+            margin: 0;
             font-size: 1.65rem;
             font-weight: 700;
             color: #374151;
             letter-spacing: 0.02em;
-        }
-
-        .dashboard-header-block .dashboard-today {
-            margin: 0;
-            font-size: 0.95rem;
-            color: #6b7280;
-            font-weight: 400;
-        }
-
-        .dashboard-analytics {
-            background: #fff;
-            padding: 22px 24px;
-            border-radius: 12px;
-            margin-bottom: 28px;
-            text-align: center;
-            border: 1px solid #e5e7eb;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-            color: #6b7280;
-        }
-
-        .dashboard-analytics h3 {
-            margin: 0 0 8px 0;
-            font-size: 1.05rem;
-            font-weight: 600;
-            color: #374151;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .dashboard-analytics h3 .admin-page-icon {
-            margin-right: 0;
-            flex-shrink: 0;
-            color: #6b7280;
-        }
-
-        .dashboard-analytics h3 .admin-page-icon svg {
-            width: 18px;
-            height: 18px;
-        }
-
-        .dashboard-analytics p {
-            margin: 0;
-            font-size: 0.9rem;
         }
 
         .dashboard-grid {
@@ -113,7 +136,7 @@
             bottom: 0;
             width: 5px;
             border-radius: 12px 0 0 12px;
-            background: #dfe3e6;
+            background: #ACCDE5;
         }
 
         .dash-card-inner {
@@ -142,26 +165,11 @@
         }
 
         .dash-card-body h3 {
-            margin: 0 0 7px 0;
+            margin: 0;
             font-size: 1.125rem;
             font-weight: 700;
             color: #111827;
             line-height: 1.35;
-        }
-
-        .dash-card-body p {
-            margin: 0 0 8px 0;
-            color: #6b7280;
-            font-size: 0.9375rem;
-            line-height: 1.45;
-        }
-
-        .dash-card .stat-value {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #4b5563;
-            display: block;
-            margin-top: 0;
         }
 
         .dash-card-chevron {
@@ -183,13 +191,15 @@
         <main class="admin-main-content dashboard-surface">
             <header class="dashboard-header-block">
                 <h2><span class="admin-page-icon" data-admin-icon="dashboard" aria-hidden="true"></span>ダッシュボード</h2>
-                <p id="dashboard-today-line" class="dashboard-today"></p>
             </header>
 
             <div class="admin-main-scroll">
-            <section class="dashboard-analytics" aria-label="アナリティクス予定エリア">
-                <h3><span class="admin-page-icon" data-admin-icon="analyticsChart" aria-hidden="true"></span>Analytics Area</h3>
-                <p>売上推移・利益率分析グラフ (Coming Soon in Phase 4)</p>
+            <section class="dashboard-announcements" aria-label="案内">
+                <div class="dashboard-announcements-panel">
+                    <div id="dashboard-announcements-list" class="dashboard-announcements-list">
+                        <p class="dashboard-announcements-loading">読み込み中...</p>
+                    </div>
+                </div>
             </section>
 
             <div class="dashboard-grid" id="dashboard-cards">
@@ -198,9 +208,7 @@
                     <div class="dash-card-inner">
                         <span class="dash-card-icon" data-admin-icon="orders" aria-hidden="true"></span>
                         <div class="dash-card-body">
-                            <h3>受注・出荷</h3>
-                            <p>本日の未発送注文</p>
-                            <span class="stat-value">確認する &rarr;</span>
+                            <h3>受注管理</h3>
                         </div>
                         <span class="dash-card-chevron" aria-hidden="true">›</span>
                     </div>
@@ -211,8 +219,6 @@
                         <span class="dash-card-icon" data-admin-icon="kaitori" aria-hidden="true"></span>
                         <div class="dash-card-body">
                             <h3>買取査定</h3>
-                            <p>待機中の査定依頼</p>
-                            <span class="stat-value">確認する &rarr;</span>
                         </div>
                         <span class="dash-card-chevron" aria-hidden="true">›</span>
                     </div>
@@ -222,21 +228,57 @@
                     <div class="dash-card-inner">
                         <span class="dash-card-icon" data-admin-icon="support" aria-hidden="true"></span>
                         <div class="dash-card-body">
-                            <h3>サポート/不具合</h3>
-                            <p>未対応のチケット</p>
-                            <span class="stat-value" style="color:#dc3545;">要確認 &rarr;</span>
+                            <h3>サポート</h3>
                         </div>
                         <span class="dash-card-chevron" aria-hidden="true">›</span>
                     </div>
                 </div>
-                <div class="dash-card card-system" data-feature="adminProducts" onclick="location.href='admin-products.html'" role="link" tabindex="0" onkeydown="if(event.key==='Enter')location.href='admin-products.html'">
+                <div class="dash-card card-products" data-feature="adminProducts" onclick="location.href='admin-products.html'" role="link" tabindex="0" onkeydown="if(event.key==='Enter')location.href='admin-products.html'">
                     <div class="dash-card-accent" aria-hidden="true"></div>
                     <div class="dash-card-inner">
                         <span class="dash-card-icon" data-admin-icon="products" aria-hidden="true"></span>
                         <div class="dash-card-body">
                             <h3>商品マスタ管理</h3>
-                            <p>登録商品数</p>
-                            <span class="stat-value">2,000+ Items</span>
+                        </div>
+                        <span class="dash-card-chevron" aria-hidden="true">›</span>
+                    </div>
+                </div>
+                <div class="dash-card card-estimates" data-feature="adminProducts" onclick="location.href='admin-estimates.html'" role="link" tabindex="0" onkeydown="if(event.key==='Enter')location.href='admin-estimates.html'">
+                    <div class="dash-card-accent" aria-hidden="true"></div>
+                    <div class="dash-card-inner">
+                        <span class="dash-card-icon" data-admin-icon="estimates" aria-hidden="true"></span>
+                        <div class="dash-card-body">
+                            <h3>見積・特価管理</h3>
+                        </div>
+                        <span class="dash-card-chevron" aria-hidden="true">›</span>
+                    </div>
+                </div>
+                <div class="dash-card card-customers" data-feature="adminCustomers" onclick="location.href='admin-customers.html'" role="link" tabindex="0" onkeydown="if(event.key==='Enter')location.href='admin-customers.html'">
+                    <div class="dash-card-accent" aria-hidden="true"></div>
+                    <div class="dash-card-inner">
+                        <span class="dash-card-icon" data-admin-icon="customers" aria-hidden="true"></span>
+                        <div class="dash-card-body">
+                            <h3>顧客管理</h3>
+                        </div>
+                        <span class="dash-card-chevron" aria-hidden="true">›</span>
+                    </div>
+                </div>
+                <div class="dash-card card-prices" data-feature="adminPrices" onclick="location.href='admin-prices.html'" role="link" tabindex="0" onkeydown="if(event.key==='Enter')location.href='admin-prices.html'">
+                    <div class="dash-card-accent" aria-hidden="true"></div>
+                    <div class="dash-card-inner">
+                        <span class="dash-card-icon" data-admin-icon="prices" aria-hidden="true"></span>
+                        <div class="dash-card-body">
+                            <h3>価格・掛率設定</h3>
+                        </div>
+                        <span class="dash-card-chevron" aria-hidden="true">›</span>
+                    </div>
+                </div>
+                <div class="dash-card card-settings" onclick="location.href='admin-settings.html'" role="link" tabindex="0" onkeydown="if(event.key==='Enter')location.href='admin-settings.html'">
+                    <div class="dash-card-accent" aria-hidden="true"></div>
+                    <div class="dash-card-inner">
+                        <span class="dash-card-icon" data-admin-icon="settings" aria-hidden="true"></span>
+                        <div class="dash-card-body">
+                            <h3>システム設定</h3>
                         </div>
                         <span class="dash-card-chevron" aria-hidden="true">›</span>
                     </div>
@@ -249,25 +291,76 @@
     <script src="../js/admin-icons.js"></script>
     <script src="../js/admin-common.js"></script>
     <script>
-        (function () {
-            var el = document.getElementById("dashboard-today-line");
-            if (!el) return;
-            var d = new Date();
-            var w = ["日", "月", "火", "水", "木", "金", "土"];
-            el.textContent =
-                "本日は" + (d.getMonth() + 1) + "月" + d.getDate() + "日（" + w[d.getDay()] + "）です。";
-        })();
+        function escapeDashboardHtml(text) {
+            const div = document.createElement("div");
+            div.textContent = text == null ? "" : String(text);
+            return div.innerHTML;
+        }
+
+        function filterAdminDashboardAnnouncements(list) {
+            const now = new Date();
+            return (list || []).filter(function (ann) {
+                if (ann.enabled === false) return false;
+                const cat = ann.category || "general";
+                if (cat === "order") return false;
+                const target = ann.target || "all";
+                if (target !== "all" && target !== "admin") return false;
+                if (ann.startDate && now < new Date(ann.startDate)) return false;
+                if (ann.endDate && now > new Date(ann.endDate)) return false;
+                return true;
+            }).sort(function (a, b) {
+                const aStart = a.startDate ? new Date(a.startDate) : new Date(0);
+                const bStart = b.startDate ? new Date(b.startDate) : new Date(0);
+                return bStart - aStart;
+            });
+        }
+
+        function renderDashboardAnnouncements(list) {
+            const container = document.getElementById("dashboard-announcements-list");
+            if (!container) return;
+
+            if (!list.length) {
+                container.innerHTML = '<p class="dashboard-announcements-empty">現在、表示するお知らせはありません。</p>';
+                return;
+            }
+
+            container.innerHTML = list.map(function (ann) {
+                const typeClass = "type-" + (ann.type || "info");
+                const linkHtml = ann.linkUrl
+                    ? '<p class="meta"><a href="' + escapeDashboardHtml(ann.linkUrl) + '" target="_blank" rel="noopener noreferrer">' +
+                        escapeDashboardHtml(ann.linkText || "詳細を見る") + "</a></p>"
+                    : "";
+                return (
+                    '<article class="dashboard-announcement-item ' + typeClass + '">' +
+                    "<h4>" + escapeDashboardHtml(ann.title || "（タイトルなし）") + "</h4>" +
+                    '<p class="body">' + escapeDashboardHtml(ann.body || "") + "</p>" +
+                    linkHtml +
+                    "</article>"
+                );
+            }).join("");
+        }
 
         document.addEventListener("admin-ready", async function() {
+            const annContainer = document.getElementById("dashboard-announcements-list");
             try {
                 const res = await fetch("/api/admin/settings");
-                if (!res.ok) return;
+                if (!res.ok) {
+                    if (annContainer) {
+                        annContainer.innerHTML = '<p class="dashboard-announcements-empty">案内の取得に失敗しました。</p>';
+                    }
+                    return;
+                }
                 const data = await res.json();
                 const f = data.features || {};
                 document.querySelectorAll("#dashboard-cards [data-feature]").forEach(card => {
                     if (f[card.dataset.feature] === false) card.style.display = "none";
                 });
-            } catch (e) {}
+                renderDashboardAnnouncements(filterAdminDashboardAnnouncements(data.announcements));
+            } catch (e) {
+                if (annContainer) {
+                    annContainer.innerHTML = '<p class="dashboard-announcements-empty">案内の取得に失敗しました。</p>';
+                }
+            }
         });
     </script>
 </body>

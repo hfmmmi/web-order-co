@@ -1,564 +1,382 @@
 document.addEventListener("DOMContentLoaded", function () {
     console.log("☎️ CRM Manager Loaded");
 
-    const supportListContainer = document.querySelector("#support-ticket-list");
+    const supportListBody = document.getElementById("support-ticket-list-body");
+    const supportFilterArea = document.getElementById("support-filter-area");
+    const supportModal = document.getElementById("support-ticket-modal");
+    const supportModalClose = document.getElementById("support-ticket-modal-close");
+    const btnSupportUpdate = document.getElementById("btn-support-update");
     const kaitoriContainer = document.querySelector("#kaitori-list-container");
-    // ★重要: 全チケットデータを保持するメモリキャッシュ
-    let allSupportTickets = [];
-    let currentFilter = 'open'; // デフォルトは「未対応」のみ表示
 
-    // =========================================================
-    // イベント駆動: 号砲(admin-ready)を待つ
-    // =========================================================
-    document.addEventListener("admin-ready", function() {
+    let allSupportTickets = [];
+    let currentFilter = "active";
+    let currentTicket = null;
+
+    function esc(text) {
+        if (typeof escapeHtml !== "undefined") return escapeHtml(text);
+        return String(text == null ? "" : text)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+    }
+
+    function escAttr(text) {
+        return esc(text);
+    }
+
+    function formatSupportDateTime(value) {
+        const d = new Date(value);
+        if (Number.isNaN(d.getTime())) return "";
+        const y = d.getFullYear();
+        const mo = String(d.getMonth() + 1).padStart(2, "0");
+        const da = String(d.getDate()).padStart(2, "0");
+        const h = String(d.getHours()).padStart(2, "0");
+        const mi = String(d.getMinutes()).padStart(2, "0");
+        return y + "/" + mo + "/" + da + " " + h + ":" + mi;
+    }
+
+    function supportStatusLabel(status) {
+        if (status === "open") return "未対応";
+        if (status === "verifying") return "検証中";
+        if (status === "resolved") return "対応完了";
+        return status || "未対応";
+    }
+
+    function supportDisplayId(ticket) {
+        if (ticket.displayId != null && String(ticket.displayId).trim() !== "") {
+            return String(ticket.displayId);
+        }
+        return ticket.ticketId != null ? String(ticket.ticketId) : "";
+    }
+
+    function supportStatusBadgeClass(status) {
+        if (status === "open") return "support-status-badge--open";
+        if (status === "verifying") return "support-status-badge--verifying";
+        if (status === "resolved") return "support-status-badge--resolved";
+        return "support-status-badge--open";
+    }
+
+    document.addEventListener("admin-ready", function () {
         console.log("🚀 CRM Manager: Auth Signal Received.");
+        setupSupportFilterTabs();
         fetchSupportTickets();
-        if(kaitoriContainer) fetchKaitoriList();
+        if (kaitoriContainer) fetchKaitoriList();
     });
 
-    // ---------------------------------------------------------
-    // サポート・不具合管理 (CRM機能)
-    // ---------------------------------------------------------
+    function setupSupportFilterTabs() {
+        if (!supportFilterArea || document.getElementById("support-status-tab-container")) return;
+
+        const container = document.createElement("div");
+        container.id = "support-status-tab-container";
+
+        const btnActive = createFilterTabBtn("未対応", "btn-warning");
+        const btnClosed = createFilterTabBtn("履歴", "btn-secondary");
+
+        btnActive.onclick = function () {
+            currentFilter = "active";
+            updateFilterTabStyle(btnActive, btnClosed);
+            applyFilterAndRender();
+        };
+        btnClosed.onclick = function () {
+            currentFilter = "closed";
+            updateFilterTabStyle(btnClosed, btnActive);
+            applyFilterAndRender();
+        };
+
+        container.appendChild(btnActive);
+        container.appendChild(btnClosed);
+        supportFilterArea.appendChild(container);
+        updateFilterTabStyle(btnActive, btnClosed);
+    }
+
+    function createFilterTabBtn(text, cls) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = text;
+        btn.className = "btn " + cls;
+        return btn;
+    }
+
+    function updateFilterTabStyle(active, inactive) {
+        active.style.opacity = "1";
+        active.style.fontWeight = "bold";
+        active.style.border = "2px solid #333";
+        inactive.style.opacity = "0.6";
+        inactive.style.fontWeight = "normal";
+        inactive.style.border = "1px solid #ccc";
+    }
+
     async function fetchSupportTickets() {
-        if (!supportListContainer) return;
-        supportListContainer.innerHTML = "<p>データを問い合わせ中...</p>";
+        if (!supportListBody) return;
+        supportListBody.innerHTML =
+            '<tr><td colspan="4" class="support-table-empty">データを問い合わせ中...</td></tr>';
         try {
-            // ★修正: /api を削除 (/admin/support-tickets)
             const response = await fetch("/admin/support-tickets");
-            
+
             if (response.status === 401) {
-                supportListContainer.innerHTML = "<p>認証待ち...</p>";
+                supportListBody.innerHTML =
+                    '<tr><td colspan="4" class="support-table-empty">認証待ち...</td></tr>';
                 return;
             }
 
             if (!response.ok) throw new Error("取得に失敗しました");
-            
-            // ★データを保存し、フィルタリングを実行
+
             allSupportTickets = await response.json();
             applyFilterAndRender();
-
         } catch (error) {
-            supportListContainer.innerHTML = "<p style=\"color:red;\">読み込みエラー: " + (typeof escapeHtml !== "undefined" ? escapeHtml(error.message) : String(error.message).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")) + "</p>";
+            supportListBody.innerHTML =
+                '<tr><td colspan="4" class="support-table-empty support-table-empty--error">読み込みエラー: ' +
+                esc(error.message) +
+                "</td></tr>";
         }
     }
 
-    // ★フィルタリングと描画の分離
     function applyFilterAndRender() {
         let filtered = [];
-        
-        if (currentFilter === 'all') {
-            filtered = allSupportTickets;
+
+        if (currentFilter === "active") {
+            filtered = allSupportTickets.filter(function (t) {
+                return t.status === "open" || t.status === "verifying";
+            });
         } else {
-            filtered = allSupportTickets.filter(t => t.status === currentFilter);
+            filtered = allSupportTickets.filter(function (t) {
+                return t.status === "resolved";
+            });
         }
 
-        renderSupportTickets(filtered);
+        filtered.sort(function (a, b) {
+            return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+        });
+
+        renderSupportTicketTable(filtered);
     }
 
-    // ★グローバル関数: HTML側のタブボタンから呼ばれる
-    window.filterSupport = function(status, btnElement) {
-        currentFilter = status;
+    function renderSupportTicketTable(tickets) {
+        if (!supportListBody) return;
+        supportListBody.innerHTML = "";
 
-        // タブのアクティブ表示切り替え
-        document.querySelectorAll('.support-tab').forEach(btn => btn.classList.remove('active'));
-        if(btnElement) btnElement.classList.add('active');
+        if (!tickets.length) {
+            let msg = "該当するデータはありません";
+            if (currentFilter === "active") msg = "現在、未対応の申請はありません";
+            else msg = "完了済みの案件はありません";
 
-        // 再描画 (通信なしで高速)
-        applyFilterAndRender();
-    };
-
-    function renderSupportTickets(tickets) {
-        supportListContainer.innerHTML = "";
-        
-        if (tickets.length === 0) {
-            // ステータスに応じたメッセージ
-            let msg = "データはありません";
-            if(currentFilter === 'open') msg = "現在、未対応の申請はありません";
-            else if(currentFilter === 'verifying') msg = "検証中の案件はありません";
-            else if(currentFilter === 'resolved') msg = "完了済みの案件はありません";
-            
-            supportListContainer.innerHTML = "<p style=\"color:#666; padding:10px;\">" + (typeof escapeHtml !== "undefined" ? escapeHtml(msg) : String(msg).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")) + "</p>";
+            supportListBody.innerHTML =
+                '<tr><td colspan="4" class="support-table-empty">' + esc(msg) + "</td></tr>";
             return;
         }
 
-        tickets.forEach(ticket => {
-            const isBug = ticket.category === "bug" || ticket.category === "system";
-            const ticketId = ticket.ticketId;
-            
-            // 色分け設定
-            let borderColor = "#ccc";
-            let bgColor = "#fff";
+        tickets.forEach(function (ticket) {
+            const ticketId = ticket.ticketId != null ? String(ticket.ticketId) : "";
+            const idShown = supportDisplayId(ticket);
+            const dateStr = formatSupportDateTime(ticket.timestamp);
+            const status = ticket.status || "open";
+            const statusLabel = supportStatusLabel(status);
+            const badgeClass = supportStatusBadgeClass(status);
 
-            if (isBug) {
-                borderColor = "#dc3545";
-                bgColor = "#fff5f5";
-            }
-            // 完了済みは少し薄くする
-            if (ticket.status === "resolved") {
-                borderColor = "#adb5bd";
-                bgColor = "#f8f9fa"; 
-            }
+            const tr = document.createElement("tr");
+            tr.className = "support-row";
+            tr.dataset.id = ticketId;
 
-            // 日付整形
-            const dateStr = new Date(ticket.timestamp).toLocaleString("ja-JP");
-            
-            // 履歴HTML
-            let historyHtml = "";
-            if (ticket.history && ticket.history.length > 0) {
-                historyHtml = `<div style="background:#f8f9fa; padding:5px; margin-top:5px; border:1px solid #ddd; max-height:100px; overflow-y:auto; font-size:0.85rem;">`;
-                ticket.history.forEach(h => {
-                    const hDate = new Date(h.date).toLocaleString("ja-JP", { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-                    historyHtml += `<div style="border-bottom:1px solid #eee; margin-bottom:3px;">
-                        <span style="color:#666; font-size:0.8em;">${hDate}</span> ${h.action}
-                    </div>`;
+            tr.innerHTML =
+                '<td class="support-col-id"><a href="#" class="support-id-link" data-id="' +
+                escAttr(ticketId) +
+                '">' +
+                esc(idShown) +
+                "</a></td>" +
+                "<td>" +
+                esc(dateStr) +
+                "</td>" +
+                "<td>" +
+                esc(ticket.customerName || "不明") +
+                "</td>" +
+                '<td><span class="support-status-badge ' +
+                badgeClass +
+                '">' +
+                esc(statusLabel) +
+                "</span></td>";
+
+            tr.addEventListener("click", function (e) {
+                if (e.target.closest(".support-id-link")) return;
+                const req = allSupportTickets.find(function (t) {
+                    return String(t.ticketId) === ticketId;
                 });
-                historyHtml += `</div>`;
-            } else {
-                historyHtml = `<div style="color:#999; font-size:0.85rem; padding:5px;">履歴なし</div>`;
+                if (req) openSupportTicketModal(req);
+            });
+
+            const link = tr.querySelector(".support-id-link");
+            if (link) {
+                link.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const req = allSupportTickets.find(function (t) {
+                        return String(t.ticketId) === ticketId;
+                    });
+                    if (req) openSupportTicketModal(req);
+                });
             }
 
-            // カード生成
-            const card = document.createElement("div");
-            card.style.border = `2px solid ${borderColor}`;
-            card.style.backgroundColor = bgColor;
-            card.style.padding = "15px";
-            card.style.marginBottom = "15px";
-            card.style.borderRadius = "8px";
-
-            const statusOptions = `
-                <option value="open" ${ticket.status === 'open' ? 'selected' : ''}>未対応</option>
-                <option value="verifying" ${ticket.status === 'verifying' ? 'selected' : ''}>検証中</option>
-                <option value="resolved" ${ticket.status === 'resolved' ? 'selected' : ''}>対応完了</option>
-            `;
-
-            // ★UI変更: 2列グリッドで「WEB(左) vs 社内(右)」を対比
-            card.innerHTML = `
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px; border-bottom:1px solid ${borderColor}; padding-bottom:5px;">
-                    <span style="font-weight:bold; font-size:1.1rem;">${ticketId}</span>
-                    <span style="font-size:0.85rem; color:#555;">${dateStr}</span>
-                </div>
-
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:15px;">
-                    <div style="display:flex; flex-direction:column; gap:10px;">
-                        <div>
-                            <label style="font-size:0.7rem; font-weight:bold; color:#666;">WEB注文ID (自動)</label>
-                            <input type="text" value="${ticket.orderId || ''}" readonly 
-                                style="width:100%; box-sizing:border-box; background:#e9ecef; border:1px solid #ced4da; color:#555; font-size:0.9rem;">
-                        </div>
-                        <div>
-                            <label style="font-size:0.7rem; font-weight:bold; color:#666;">WEB発注NO. (顧客入力)</label>
-                            <input type="text" value="${ticket.customerPoNumber || ''}" readonly
-                                style="width:100%; box-sizing:border-box; background:#e9ecef; border:1px solid #ced4da; color:#555; font-size:0.9rem;">
-                        </div>
-                    </div>
-
-                    <div style="display:flex; flex-direction:column; gap:10px;">
-                        <div>
-                            <label style="font-size:0.7rem; font-weight:bold; color:#666;">社内受注NO. (基幹)</label>
-                            <input type="text" id="internalOrderNo-${ticketId}" value="${ticket.internalOrderNo || ''}" placeholder="未入力"
-                                style="width:100%; box-sizing:border-box; border:1px solid #ced4da; background:#fff; font-size:0.9rem;">
-                        </div>
-                        <div>
-                            <label style="font-size:0.7rem; font-weight:bold; color:#666;">社内発注NO. (基幹)</label>
-                            <input type="text" id="internalCustomerPo-${ticketId}" value="${ticket.internalCustomerPoNumber || ''}" placeholder="未入力"
-                                style="width:100%; box-sizing:border-box; border:1px solid #ced4da; background:#fff; font-size:0.9rem;">
-                        </div>
-                    </div>
-                </div>
-
-                <div style="margin-bottom:10px;">
-                    <label style="font-size:0.8rem; font-weight:bold;">顧客: ${ticket.customerName} (${ticket.customerId}) の申告</label>
-                    <div style="background: #fff; padding: 8px; border:1px solid #ccc; border-radius: 4px; font-size: 0.95rem; white-space: pre-wrap;">${ticket.detail}</div>
-                </div>
-
-                ${(() => {
-                    const list = ticket.attachments;
-                    if (!list || !list.length) return "";
-                    const tid = encodeURIComponent(ticket.ticketId || "");
-                    const items = list.map((a) => {
-                        const sn = encodeURIComponent(a.storedName || "");
-                        const lab = typeof escapeHtml !== "undefined"
-                            ? escapeHtml(a.originalName || a.storedName || "file")
-                            : String(a.originalName || a.storedName || "file").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-                        return `<li><a href="/support/attachment/${tid}/${sn}" target="_blank" rel="noopener">${lab}</a></li>`;
-                    }).join("");
-                    return `<div style="margin-bottom:10px;"><label style="font-size:0.8rem; font-weight:bold;">添付ファイル</label><ul style="margin:6px 0 0 18px; font-size:0.9rem;">${items}</ul></div>`;
-                })()}
-
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;">
-                    <div>
-                        <label style="font-size:0.8rem; font-weight:bold;">希望対応</label>
-                        <input type="text" id="desiredAction-${ticketId}" value="${ticket.desiredAction || ''}" list="action-list" style="width:100%; box-sizing:border-box;">
-                        <datalist id="action-list">
-                            <option value="代替品発送">
-                            <option value="赤伝処理">
-                            <option value="部品送付">
-                        </datalist>
-                    </div>
-                    <div>
-                        <label style="font-size:0.8rem; font-weight:bold;">回収指定日</label>
-                        <input type="date" id="collectionDate-${ticketId}" value="${ticket.collectionDate || ''}" style="width:100%; box-sizing:border-box;">
-                    </div>
-                </div>
-
-                <div style="margin-bottom:10px;">
-                    <label style="font-size:0.8rem; font-weight:bold;">対応履歴 (Log)</label>
-                    ${historyHtml}
-                </div>
-
-                <div style="margin-top:10px;">
-                    <label style="font-size:0.8rem; font-weight:bold;">ステータス更新 & メモ</label>
-                    <div style="display:flex; gap:10px; margin-bottom:0;">
-                        <select id="status-${ticketId}" style="padding:5px;">
-                            ${statusOptions}
-                        </select>
-                        <input type="text" id="historyLog-${ticketId}" placeholder="例: 電話で謝罪、代替品手配済み..." style="flex:1; padding:5px;">
-                    </div>
-                    <div style="display:flex; justify-content:flex-end; margin-top:1em;">
-                        <button type="button" onclick="updateTicket('${ticketId}')" style="width:max-content; box-sizing:border-box; padding:8px 1ch; background:#dfe3e6; color:#111827; border:1px solid #c5cdd5; border-radius:4px; cursor:pointer; font-weight:bold; font-size:0.8125rem; font-family:inherit;">
-                            更新・履歴追加
-                        </button>
-                    </div>
-                </div>
-            `;
-            supportListContainer.appendChild(card);
+            supportListBody.appendChild(tr);
         });
     }
 
-    // グローバル関数: 更新処理
-    window.updateTicket = async function(ticketId) {
-        const status = document.getElementById(`status-${ticketId}`).value;
-        const log = document.getElementById(`historyLog-${ticketId}`).value;
-        const internalNo = document.getElementById(`internalOrderNo-${ticketId}`).value;
-        const internalPo = document.getElementById(`internalCustomerPo-${ticketId}`).value; // ★追加
-        const action = document.getElementById(`desiredAction-${ticketId}`).value;
-        const colDate = document.getElementById(`collectionDate-${ticketId}`).value;
+    function openSupportTicketModal(ticket) {
+        currentTicket = ticket;
+        if (!supportModal) return;
+
+        const ticketId = ticket.ticketId != null ? String(ticket.ticketId) : "";
+        const idShown = supportDisplayId(ticket);
+        const setText = function (id, val) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = val != null ? String(val) : "";
+        };
+        const setInput = function (id, val) {
+            const el = document.getElementById(id);
+            if (el) el.value = val != null ? String(val) : "";
+        };
+
+        setText("support-m-ticket-id", idShown);
+        setText(
+            "support-m-customer",
+            (ticket.customerName || "不明") + " (" + (ticket.customerId || "") + ")"
+        );
+        setText("support-m-date", formatSupportDateTime(ticket.timestamp));
+        setInput("support-m-order-id", ticket.orderId || "");
+        setInput("support-m-customer-po", ticket.customerPoNumber || "");
+        setInput("support-m-internal-order", ticket.internalOrderNo || "");
+        setInput("support-m-internal-po", ticket.internalCustomerPoNumber || "");
+        setInput("support-m-desired-action", ticket.desiredAction || "");
+        setInput("support-m-collection-date", ticket.collectionDate || "");
+
+        const detailEl = document.getElementById("support-m-detail");
+        if (detailEl) detailEl.textContent = ticket.detail || "";
+
+        const statusEl = document.getElementById("support-m-status");
+        if (statusEl) statusEl.value = ticket.status || "open";
+
+        const logInput = document.getElementById("support-m-history-log");
+        if (logInput) logInput.value = "";
+
+        const historyEl = document.getElementById("support-m-history");
+        if (historyEl) {
+            if (ticket.history && ticket.history.length > 0) {
+                historyEl.innerHTML = ticket.history
+                    .map(function (h) {
+                        const hDate = new Date(h.date).toLocaleString("ja-JP", {
+                            month: "numeric",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit"
+                        });
+                        return (
+                            '<div style="border-bottom:1px solid #eee; margin-bottom:4px; padding-bottom:4px;">' +
+                            '<span style="color:#666; font-size:0.8em;">' +
+                            esc(hDate) +
+                            "</span> " +
+                            esc(h.action) +
+                            "</div>"
+                        );
+                    })
+                    .join("");
+            } else {
+                historyEl.innerHTML = '<span style="color:#999;">履歴なし</span>';
+            }
+        }
+
+        const attachWrap = document.getElementById("support-m-attachments-wrap");
+        const attachList = document.getElementById("support-m-attachments");
+        const attachments = ticket.attachments;
+        if (attachWrap && attachList) {
+            if (attachments && attachments.length > 0) {
+                attachWrap.style.display = "";
+                attachList.innerHTML = attachments
+                    .map(function (a) {
+                        const tid = encodeURIComponent(ticketId);
+                        const sn = encodeURIComponent(a.storedName || "");
+                        const lab = esc(a.originalName || a.storedName || "file");
+                        return (
+                            '<li><a href="/support/attachment/' +
+                            tid +
+                            "/" +
+                            sn +
+                            '" target="_blank" rel="noopener">' +
+                            lab +
+                            "</a></li>"
+                        );
+                    })
+                    .join("");
+            } else {
+                attachWrap.style.display = "none";
+                attachList.innerHTML = "";
+            }
+        }
+
+        supportModal.style.display = "flex";
+    }
+
+    function closeSupportTicketModal() {
+        if (supportModal) supportModal.style.display = "none";
+        currentTicket = null;
+    }
+
+    if (supportModalClose) {
+        supportModalClose.addEventListener("click", closeSupportTicketModal);
+    }
+    if (supportModal) {
+        supportModal.addEventListener("click", function (e) {
+            if (e.target === supportModal) closeSupportTicketModal();
+        });
+    }
+
+    async function updateCurrentTicket() {
+        if (!currentTicket || !currentTicket.ticketId) return;
+
+        const ticketId = currentTicket.ticketId;
+        const statusEl = document.getElementById("support-m-status");
+        const logEl = document.getElementById("support-m-history-log");
+        const data = {
+            ticketId: ticketId,
+            status: statusEl ? statusEl.value : "open",
+            internalOrderNo: document.getElementById("support-m-internal-order")?.value || "",
+            internalCustomerPoNumber: document.getElementById("support-m-internal-po")?.value || "",
+            desiredAction: document.getElementById("support-m-desired-action")?.value || "",
+            collectionDate: document.getElementById("support-m-collection-date")?.value || "",
+            newHistoryLog: logEl ? logEl.value : ""
+        };
 
         if (!confirm("内容を更新しますか？")) return;
 
-        const data = {
-            ticketId: ticketId,
-            status: status,
-            internalOrderNo: internalNo,
-            internalCustomerPoNumber: internalPo, // ★追加
-            desiredAction: action,
-            collectionDate: colDate,
-            newHistoryLog: log 
-        };
-
         try {
-            // ★修正: /api を削除 (/admin/update-ticket)
             const response = await fetch("/admin/update-ticket", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
             });
-            
+
             const result = await response.json();
             if (result.success) {
                 toastSuccess("更新しました");
+                closeSupportTicketModal();
                 fetchSupportTickets();
             } else {
-                toastError("エラー: " + result.message);
+                toastError("エラー: " + (result.message || "更新に失敗しました"));
             }
         } catch (e) {
             console.error(e);
             toastError("通信エラー");
         }
-    };
-
-
-    // ---------------------------------------------------------
-    // ツールバー: テンプレートDL / 全件DL / CSV取込（商品マスタ管理と同系）
-    // ---------------------------------------------------------
-    const supportCsvInput = document.querySelector("#support-tickets-csv-input");
-    const supportCsvUlBtn = document.querySelector("#btn-support-csv-excel");
-
-    function normCsvHeader(s) {
-        return String(s == null ? "" : s).trim().replace(/^\uFEFF/, "");
     }
 
-    function csvEscapeCell(v) {
-        const s = String(v ?? "");
-        if (/[",\n\r]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
-        return s;
+    if (btnSupportUpdate) {
+        btnSupportUpdate.addEventListener("click", updateCurrentTicket);
     }
 
-    function parseCsvToRows(text) {
-        const src = String(text || "").replace(/^\uFEFF/, "");
-        const rows = [];
-        let row = [];
-        let field = "";
-        let i = 0;
-        let inQuotes = false;
-        while (i < src.length) {
-            const c = src[i];
-            if (inQuotes) {
-                if (c === '"') {
-                    if (src[i + 1] === '"') {
-                        field += '"';
-                        i += 2;
-                        continue;
-                    }
-                    inQuotes = false;
-                    i++;
-                    continue;
-                }
-                field += c;
-                i++;
-                continue;
-            }
-            if (c === '"') {
-                inQuotes = true;
-                i++;
-                continue;
-            }
-            if (c === ",") {
-                row.push(field);
-                field = "";
-                i++;
-                continue;
-            }
-            if (c === "\n") {
-                row.push(field);
-                rows.push(row);
-                row = [];
-                field = "";
-                i++;
-                continue;
-            }
-            if (c === "\r") {
-                i++;
-                continue;
-            }
-            field += c;
-            i++;
-        }
-        row.push(field);
-        if (row.length > 1 || (row.length === 1 && row[0] !== "")) {
-            rows.push(row);
-        }
-        return rows;
-    }
+    window.updateTicket = updateCurrentTicket;
 
-    function headerIndexMap(headerRow) {
-        const m = {};
-        headerRow.forEach(function (cell, idx) {
-            const k = normCsvHeader(cell).toLowerCase();
-            if (k) m[k] = idx;
-        });
-        return m;
-    }
-
-    function cellByHeader(row, map, keys) {
-        for (let k = 0; k < keys.length; k++) {
-            const idx = map[keys[k].toLowerCase()];
-            if (idx !== undefined) {
-                const v = row[idx];
-                return v == null ? "" : String(v);
-            }
-        }
-        return "";
-    }
-
-    function downloadUtf8Csv(filename, csvBody) {
-        const blob = new Blob(["\uFEFF" + csvBody], { type: "text/csv;charset=utf-8;" });
-        const a = document.createElement("a");
-        const url = URL.createObjectURL(blob);
-        a.href = url;
-        a.download = filename;
-        a.rel = "noopener";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-    }
-
-    function downloadSupportTemplate() {
-        const header = [
-            "ticketId",
-            "status",
-            "internalOrderNo",
-            "internalCustomerPoNumber",
-            "desiredAction",
-            "collectionDate",
-            "newHistoryLog"
-        ].join(",");
-        const example = ["T-EXAMPLE", "open", "", "", "", "", ""].map(csvEscapeCell).join(",");
-        downloadUtf8Csv("support_tickets_template.csv", header + "\n" + example + "\n");
-    }
-
-    function exportSupportTicketsCsv() {
-        if (!allSupportTickets || allSupportTickets.length === 0) {
-            if (window.toastWarning) window.toastWarning("エクスポートするデータがありません。リスト更新後にお試しください。");
-            return;
-        }
-        const keys = [
-            "ticketId",
-            "status",
-            "category",
-            "type",
-            "orderId",
-            "customerId",
-            "customerName",
-            "customerPoNumber",
-            "internalOrderNo",
-            "internalCustomerPoNumber",
-            "desiredAction",
-            "collectionDate",
-            "detail",
-            "timestamp"
-        ];
-        const lines = [keys.join(",")];
-        allSupportTickets.forEach(function (t) {
-            const row = keys.map(function (key) {
-                let v = t && t[key];
-                if (key === "type" && (v == null || v === "") && t) {
-                    v = t.supportType;
-                }
-                return csvEscapeCell(v);
-            });
-            lines.push(row.join(","));
-        });
-        downloadUtf8Csv("support_tickets_all.csv", lines.join("\n") + "\n");
-        if (window.toastSuccess) window.toastSuccess("CSVをダウンロードしました");
-    }
-
-    async function importSupportTicketsFromCsvText(csvText) {
-        const rows = parseCsvToRows(csvText);
-        if (rows.length < 2) {
-            if (window.toastError) window.toastError("CSVにデータ行がありません");
-            return;
-        }
-        const map = headerIndexMap(rows[0]);
-        if (map.ticketid === undefined) {
-            if (window.toastError) window.toastError("CSVの1行目に ticketId 列が必要です");
-            return;
-        }
-        let ok = 0;
-        let skip = 0;
-        let fail = 0;
-        for (let r = 1; r < rows.length; r++) {
-            const row = rows[r];
-            if (!row || row.every(function (c) { return String(c || "").trim() === ""; })) {
-                continue;
-            }
-            const ticketId = (cellByHeader(row, map, ["ticketId", "ticket_id"]) || "").trim();
-            if (!ticketId) {
-                skip++;
-                continue;
-            }
-            const existing = allSupportTickets.find(function (t) { return t && t.ticketId === ticketId; });
-            if (!existing) {
-                skip++;
-                continue;
-            }
-            const status = (cellByHeader(row, map, ["status"]) || existing.status || "open").trim();
-            const internalOrderNo = cellByHeader(row, map, ["internalOrderNo", "internal_order_no"]);
-            const internalCustomerPoNumber = cellByHeader(row, map, [
-                "internalCustomerPoNumber",
-                "internal_customer_po_number"
-            ]);
-            const desiredAction = cellByHeader(row, map, ["desiredAction", "desired_action"]);
-            const collectionDate = cellByHeader(row, map, ["collectionDate", "collection_date"]);
-            const newHistoryLog = cellByHeader(row, map, ["newHistoryLog", "new_history_log"]).trim();
-
-            const body = {
-                ticketId: ticketId,
-                status: status,
-                internalOrderNo: internalOrderNo,
-                internalCustomerPoNumber: internalCustomerPoNumber,
-                desiredAction: desiredAction,
-                collectionDate: collectionDate,
-                newHistoryLog: newHistoryLog || undefined
-            };
-
-            try {
-                const fetchFn = typeof adminApiFetch === "function" ? adminApiFetch : fetch;
-                const response = await fetchFn("/admin/update-ticket", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    credentials: "include",
-                    body: JSON.stringify(body)
-                });
-                const result = await response.json().catch(function () { return {}; });
-                if (result && result.success) {
-                    ok++;
-                } else {
-                    fail++;
-                }
-            } catch (e) {
-                console.error(e);
-                fail++;
-            }
-        }
-        if (window.toastSuccess) {
-            window.toastSuccess("取込完了: 成功 " + ok + " / スキップ " + skip + " / 失敗 " + fail);
-        }
-        fetchSupportTickets();
-    }
-
-    supportCsvUlBtn?.addEventListener("click", function () {
-        supportCsvInput?.click();
-    });
-
-    if (supportCsvInput) {
-        supportCsvInput.addEventListener("change", function () {
-            const file = supportCsvInput.files && supportCsvInput.files[0];
-            if (!file) return;
-            const name = (file.name || "").toLowerCase();
-            if (!name.endsWith(".csv")) {
-                if (window.toastError) window.toastError("CSV（.csv）のみ取り込めます");
-                supportCsvInput.value = "";
-                return;
-            }
-            const reader = new FileReader();
-            reader.onload = async function () {
-                try {
-                    if (supportCsvUlBtn) {
-                        supportCsvUlBtn.disabled = true;
-                        supportCsvUlBtn.textContent = "処理中...";
-                    }
-                    await importSupportTicketsFromCsvText(String(reader.result || ""));
-                } catch (e) {
-                    console.error(e);
-                    if (window.toastError) window.toastError("取込に失敗しました");
-                } finally {
-                    supportCsvInput.value = "";
-                    if (supportCsvUlBtn) {
-                        supportCsvUlBtn.disabled = false;
-                        supportCsvUlBtn.textContent = "↑ UL";
-                    }
-                }
-            };
-            reader.onerror = function () {
-                if (window.toastError) window.toastError("ファイルの読み込みに失敗しました");
-                supportCsvInput.value = "";
-            };
-            reader.readAsText(file, "UTF-8");
-        });
-    }
-
-    document.querySelectorAll(".js-support-template-dl").forEach(function (btn) {
-        btn.addEventListener("click", function () {
-            downloadSupportTemplate();
-        });
-    });
-
-    document.querySelectorAll(".js-support-export-dl").forEach(function (btn) {
-        btn.addEventListener("click", function () {
-            exportSupportTicketsCsv();
-        });
-    });
-
-    // ---------------------------------------------------------
-    // 買取依頼リスト (変更なし)
-    // ---------------------------------------------------------
     async function fetchKaitoriList() {
         if (!kaitoriContainer) return;
         kaitoriContainer.innerHTML = "<p>問い合わせ中...</p>";
         try {
-            // ★修正: /api を削除 (/admin/kaitori-list)
             const res = await fetch("/admin/kaitori-list");
             if (res.status === 401) return;
 
@@ -568,8 +386,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
             kaitoriContainer.innerHTML = "";
-            list.forEach(req => {
-                 const div = document.createElement("div");
+            list.forEach(function (req) {
+                const div = document.createElement("div");
                 div.style.background = "white";
                 div.style.padding = "10px";
                 div.style.marginBottom = "10px";
@@ -578,23 +396,45 @@ document.addEventListener("DOMContentLoaded", function () {
                 const dateStr = new Date(req.requestDate).toLocaleString("ja-JP");
                 let itemsHtml = "<ul style='margin:5px 0; padding-left:20px; font-size:0.9rem;'>";
                 let totalEst = 0;
-                req.items.forEach(item => {
+                req.items.forEach(function (item) {
                     const sub = item.price * item.quantity;
                     totalEst += sub;
-                    itemsHtml += `<li>${item.name} (${item.maker}) x ${item.quantity} = ¥${sub.toLocaleString()}</li>`;
+                    itemsHtml +=
+                        "<li>" +
+                        esc(item.name) +
+                        " (" +
+                        esc(item.maker) +
+                        ") x " +
+                        item.quantity +
+                        " = ¥" +
+                        sub.toLocaleString() +
+                        "</li>";
                 });
                 itemsHtml += "</ul>";
-                div.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; font-weight:bold;">
-                        <span>ID: ${req.requestId} (${req.customerName})</span>
-                        <span style="color:#28a745;">見積合計: ¥${totalEst.toLocaleString()}</span>
-                    </div>
-                    <div style="font-size:0.8rem; color:#666;">${dateStr} / ステータス: ${req.status}</div>
-                    ${itemsHtml}
-                    <div style="font-size:0.9rem; color:#d63384;">備考: ${req.note || "なし"}</div>
-                `;
+                div.innerHTML =
+                    '<div style="display:flex; justify-content:space-between; font-weight:bold;">' +
+                    "<span>ID: " +
+                    esc(req.displayId || req.requestId) +
+                    " (" +
+                    esc(req.customerName) +
+                    ")</span>" +
+                    '<span style="color:#28a745;">見積合計: ¥' +
+                    totalEst.toLocaleString() +
+                    "</span>" +
+                    "</div>" +
+                    '<div style="font-size:0.8rem; color:#666;">' +
+                    esc(dateStr) +
+                    " / ステータス: " +
+                    esc(req.status) +
+                    "</div>" +
+                    itemsHtml +
+                    '<div style="font-size:0.9rem; color:#d63384;">備考: ' +
+                    esc(req.note || "なし") +
+                    "</div>";
                 kaitoriContainer.appendChild(div);
             });
-        } catch (error) { kaitoriContainer.innerHTML = "<p style='color:red'>読み込みエラー</p>"; }
+        } catch (error) {
+            kaitoriContainer.innerHTML = "<p style='color:red'>読み込みエラー</p>";
+        }
     }
 });

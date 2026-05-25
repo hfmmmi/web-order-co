@@ -74,7 +74,9 @@ document.addEventListener("DOMContentLoaded", function () {
     // ファイルアップロード処理 (Robust XHR Version)
     // =========================================================
     if (fileInput && btnCsvExcelImport) {
-        btnCsvExcelImport.addEventListener("click", function () {
+        btnCsvExcelImport.addEventListener("click", function (e) {
+            e.stopPropagation();
+            setOrdersMoreMenuOpen(false);
             fileInput.click();
         });
         fileInput.addEventListener("change", function (e) {
