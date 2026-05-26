@@ -142,10 +142,9 @@ function renderSidebar(features) {
         { name: '受注管理', iconKey: 'orders', link: 'admin-orders.html', id: 'orders', featureKey: 'adminOrders' },
         { name: '買取査定', iconKey: 'kaitori', link: 'admin-kaitori.html', id: 'kaitori', featureKey: 'adminKaitori' },
         { name: 'サポート', iconKey: 'support', link: 'admin-support.html', id: 'support', featureKey: 'adminSupport' },
-        { name: '商品マスタ管理', iconKey: 'products', link: 'admin-products.html', id: 'products', featureKey: 'adminProducts' },
+        { name: '商品管理', iconKey: 'products', link: 'admin-products.html', id: 'products', featureKey: 'adminProducts' },
         { name: '見積・特価管理', iconKey: 'estimates', link: 'admin-estimates.html', id: 'estimates', featureKey: 'adminProducts' },
         { name: '顧客管理', iconKey: 'customers', link: 'admin-customers.html', id: 'customers', featureKey: 'adminCustomers' },
-        { name: '価格・掛率設定', iconKey: 'prices', link: 'admin-prices.html', id: 'prices', featureKey: 'adminPrices' },
         { name: 'システム設定', iconKey: 'settings', link: 'admin-settings.html', id: 'settings', featureKey: null }
     ];
 
@@ -166,7 +165,11 @@ function renderSidebar(features) {
         const isOrdersFamily =
             item.id === "orders" &&
             (currentPath === "admin-orders.html" || currentPath === "admin-orders-new.html" || currentPath === "admin-order-detail.html");
-        const isActive = currentPath === item.link || isProductsFamily || isOrdersFamily ? "active" : "";
+        const isSupportFamily =
+            item.id === "support" &&
+            (currentPath === "admin-support.html" || currentPath === "admin-support-new.html");
+        const isActive =
+            currentPath === item.link || isProductsFamily || isOrdersFamily || isSupportFamily ? "active" : "";
         const iconMarkup = adminIconHtml(item.iconKey);
         menuHtml += `
             <li class="menu-item ${isActive}" onclick="window.location.href='${item.link}'">

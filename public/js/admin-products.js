@@ -5,12 +5,52 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("📦 Product Manager Loaded (Extended Edition)");
 
     const productListContainer = document.querySelector("#admin-product-list");
+    const productListSummary = document.getElementById("admin-product-list-summary");
 
     const csvFileInput = document.querySelector("#csv-file-input");
-    const csvExcelHeaderBtn = document.getElementById("btn-product-csv-excel");
+    const btnProductsMore = document.getElementById("btn-products-more");
+    const productsMoreMenu = document.getElementById("products-more-menu");
+    const btnProductUpload = document.getElementById("btn-product-upload");
+    const btnProductExportDl = document.getElementById("btn-product-export-dl");
 
-    csvExcelHeaderBtn?.addEventListener("click", function () {
-        csvFileInput?.click();
+    function setProductsMoreMenuOpen(open) {
+        if (!productsMoreMenu) return;
+        if (open) {
+            productsMoreMenu.classList.add("is-open");
+            productsMoreMenu.setAttribute("aria-hidden", "false");
+            if (btnProductsMore) btnProductsMore.setAttribute("aria-expanded", "true");
+        } else {
+            productsMoreMenu.classList.remove("is-open");
+            productsMoreMenu.setAttribute("aria-hidden", "true");
+            if (btnProductsMore) btnProductsMore.setAttribute("aria-expanded", "false");
+        }
+    }
+
+    if (btnProductUpload && csvFileInput) {
+        btnProductUpload.addEventListener("click", function (e) {
+            e.stopPropagation();
+            setProductsMoreMenuOpen(false);
+            csvFileInput.click();
+        });
+    }
+
+    if (btnProductExportDl) {
+        btnProductExportDl.addEventListener("click", function (e) {
+            e.stopPropagation();
+            setProductsMoreMenuOpen(false);
+            window.location.href = "/api/admin/product-master/export";
+        });
+    }
+
+    if (btnProductsMore && productsMoreMenu) {
+        btnProductsMore.addEventListener("click", function (e) {
+            e.stopPropagation();
+            setProductsMoreMenuOpen(!productsMoreMenu.classList.contains("is-open"));
+        });
+    }
+
+    document.addEventListener("click", function () {
+        setProductsMoreMenuOpen(false);
     });
 
     let allProducts = [];
@@ -39,6 +79,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!productListContainer) return;
 
         productListContainer.innerHTML = "<p style='padding:10px;'>データを読み込んでいます...</p>";
+        if (productListSummary) productListSummary.innerHTML = "";
 
         try {
             const [response, rankRes] = await Promise.all([
@@ -93,8 +134,8 @@ document.addEventListener("DOMContentLoaded", function () {
         searchInput.id = "admin-prod-dynamic-search";
         searchInput.type = "text";
         searchInput.className = "admin-product-list-search-field";
-        searchInput.placeholder = "コード、商品名、メーカー、仕様、備考、ランク価格で検索…";
-        searchInput.setAttribute("aria-label", "コード、商品名、メーカー、仕様、備考、ランク価格で検索");
+        searchInput.placeholder = "";
+        searchInput.setAttribute("aria-label", "商品検索");
 
         searchMount.appendChild(searchIcon);
         searchMount.appendChild(searchInput);
@@ -120,13 +161,6 @@ document.addEventListener("DOMContentLoaded", function () {
             });
             renderProductList(filtered);
         });
-    }
-
-    function openProductEditor(product) {
-        const code = encodeURIComponent(product.productCode || "");
-        if (!code) return;
-        const url = `admin-products-new.html?edit=${code}`;
-        window.open(url, "_blank", "noopener,noreferrer");
     }
 
     function buildProductPageNumberItems(totalPages, current) {
@@ -271,10 +305,21 @@ document.addEventListener("DOMContentLoaded", function () {
         const rankBtnHtml = hasRank
             ? `<button type="button" class="btn-product-rank-toggle" aria-expanded="false">ランク ▼</button>`
             : "";
+        const codeRaw = product.productCode != null ? String(product.productCode) : "";
+        const editHref =
+            codeRaw.trim() !== ""
+                ? "admin-products-new.html?edit=" + encodeURIComponent(codeRaw)
+                : "";
+        const codeCellHtml =
+            editHref !== ""
+                ? `<a href="${editHref}" class="admin-product-col-code admin-product-code-edit-link" target="_blank" rel="noopener noreferrer">${escHtml(
+                      codeRaw
+                  )}</a>`
+                : `<span class="admin-product-col-code">${escHtml(codeRaw)}</span>`;
 
         row.innerHTML = `
                 <div class="admin-product-row-grid">
-                    <span class="admin-product-col-code">${escHtml(product.productCode)}</span>
+                    ${codeCellHtml}
                     <span class="admin-product-col-badge">${catTag}</span>
                     <span class="admin-product-col-name">${statusTag} ${escHtml(product.name)}</span>
                     <span class="admin-product-col-price">定価: ¥${(product.basePrice || 0).toLocaleString()}</span>
@@ -282,7 +327,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 </div>
                 <div class="admin-product-row-actions">
                     ${rankBtnHtml}
-                    <button type="button" class="btn-edit-row" style="box-sizing: border-box; padding: 6px 10px; background: #dfe3e6; color: #111827; border: 1px solid #c5cdd5; border-radius: 6px; flex-shrink: 0; font-weight: 600; font-size: 0.75rem; font-family: inherit; line-height: 1.25; cursor: pointer; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); display: inline-flex; align-items: center; justify-content: center;">編集</button>
                 </div>
             `;
 
@@ -304,12 +348,6 @@ document.addEventListener("DOMContentLoaded", function () {
             wrap.appendChild(row);
         }
 
-        const editBtn = row.querySelector(".btn-edit-row");
-        editBtn.addEventListener("click", function (event) {
-            event.stopPropagation();
-            openProductEditor(product);
-        });
-
         parent.appendChild(wrap);
     }
 
@@ -318,8 +356,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const products = lastFilteredProducts;
         productListContainer.innerHTML = "";
+        if (productListSummary) productListSummary.innerHTML = "";
 
         if (products.length === 0) {
+            if (productListSummary) {
+                productListSummary.innerHTML = "該当：<strong>0</strong> 件";
+            }
             productListContainer.innerHTML = "<div style='padding:10px; color:#999;'>一致する商品はありません</div>";
             return;
         }
@@ -332,17 +374,13 @@ document.addEventListener("DOMContentLoaded", function () {
         const fromN = startIdx + 1;
         const toN = startIdx + limited.length;
 
-        const resultInfo = document.createElement("div");
-        resultInfo.style.marginBottom = "10px";
-        resultInfo.style.fontSize = "0.9rem";
-        resultInfo.style.color = "#6b7280";
-        resultInfo.style.padding = "8px 12px 0";
-        if (totalPages > 1) {
-            resultInfo.innerHTML = `該当：<strong>${products.length}</strong> 件 · <strong>${fromN}</strong>〜<strong>${toN}</strong> 件を表示`;
-        } else {
-            resultInfo.innerHTML = `該当：<strong>${products.length}</strong> 件`;
+        if (productListSummary) {
+            if (totalPages > 1) {
+                productListSummary.innerHTML = `該当：<strong>${products.length}</strong> 件 · <strong>${fromN}</strong>〜<strong>${toN}</strong> 件を表示`;
+            } else {
+                productListSummary.innerHTML = `該当：<strong>${products.length}</strong> 件`;
+            }
         }
-        productListContainer.appendChild(resultInfo);
 
         const itemsWrap = document.createElement("div");
         itemsWrap.className = "admin-product-list-items";
@@ -370,10 +408,8 @@ document.addEventListener("DOMContentLoaded", function () {
             reader.onload = async function (event) {
                 try {
                     const base64Data = event.target.result.split(",")[1];
-                    if (csvExcelHeaderBtn) {
-                        csvExcelHeaderBtn.disabled = true;
-                        csvExcelHeaderBtn.textContent = "処理中...";
-                    }
+                    if (btnProductUpload) btnProductUpload.disabled = true;
+                    if (btnProductsMore) btnProductsMore.disabled = true;
 
                     const response = await adminApiFetch("/api/upload-product-data", {
                         method: "POST",
@@ -393,23 +429,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     toastError("通信エラーまたはファイル形式エラー");
                 } finally {
                     csvFileInput.value = "";
-                    if (csvExcelHeaderBtn) {
-                        csvExcelHeaderBtn.disabled = false;
-                        csvExcelHeaderBtn.textContent = "↑ UL";
-                    }
+                    if (btnProductUpload) btnProductUpload.disabled = false;
+                    if (btnProductsMore) btnProductsMore.disabled = false;
                 }
             };
         });
     }
 
-    document.querySelectorAll(".js-product-template-dl").forEach(function (btn) {
-        btn.addEventListener("click", function () {
-            window.location.href = "/api/admin/product-master/template";
-        });
-    });
-    document.querySelectorAll(".js-product-export-dl").forEach(function (btn) {
-        btn.addEventListener("click", function () {
-            window.location.href = "/api/admin/product-master/export";
-        });
-    });
 });

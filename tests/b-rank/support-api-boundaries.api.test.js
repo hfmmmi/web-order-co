@@ -51,6 +51,59 @@ describe("Bランク: サポートAPI境界", () => {
         expect(res.statusCode).toBe(401);
     });
 
+    test("admin/create-ticket は未認証で401", async () => {
+        const res = await request(app).post("/admin/create-ticket").send({
+            customerId: "TEST001",
+            type: "その他",
+            detail: "管理者登録テスト"
+        });
+        expect(res.statusCode).toBe(401);
+    });
+
+    test("admin/create-ticket は管理者が顧客代理でチケットを作成できる", async () => {
+        const admin = request.agent(app);
+        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+
+        const res = await admin.post("/admin/create-ticket").send({
+            customerId: "TEST001",
+            category: "product",
+            type: "見積依頼",
+            detail: "受注システムからの登録",
+            orderId: "ORD-TEST"
+        });
+        expect(res.statusCode).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.ticketId).toMatch(/^SP-/);
+
+        const tickets = await readJson("support_tickets.json");
+        const created = tickets.find((t) => t.ticketId === res.body.ticketId);
+        expect(created).toBeTruthy();
+        expect(created.customerId).toBe("TEST001");
+        expect(created.type).toBe("見積依頼");
+        expect(created.history).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({ action: "受注システムより登録" })
+            ])
+        );
+    });
+
+    test("admin/create-ticket は顧客未指定でも作成できる", async () => {
+        const admin = request.agent(app);
+        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+
+        const res = await admin.post("/admin/create-ticket").send({
+            type: "その他",
+            detail: "内容のみ"
+        });
+        expect(res.statusCode).toBe(200);
+        expect(res.body.success).toBe(true);
+
+        const tickets = await readJson("support_tickets.json");
+        const created = tickets.find((t) => t.ticketId === res.body.ticketId);
+        expect(created.customerId).toBe("");
+        expect(created.detail).toBe("内容のみ");
+    });
+
     test("admin/update-ticket は存在しないticketIdで404", async () => {
         const admin = request.agent(app);
         await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });

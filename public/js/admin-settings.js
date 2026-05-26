@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     await loadSettings();
     await loadAdminAccount();
     initTabs();
+    activateSettingsTabFromQuery();
     document.getElementById("settings-form").addEventListener("submit", saveSettings);
 
     const btnAddShippingRule = document.getElementById("btn-add-shipping-rule");
@@ -39,7 +40,7 @@ const FEATURE_DEFS = {
     admin: [
         { key: "adminKaitori", label: "買取査定" },
         { key: "adminOrders", label: "受注管理" },
-        { key: "adminProducts", label: "商品マスタ管理" },
+        { key: "adminProducts", label: "商品管理" },
         { key: "adminCustomers", label: "顧客管理" },
         { key: "adminPrices", label: "価格・掛率設定" },
         { key: "adminSupport", label: "サポート" }
@@ -70,15 +71,37 @@ function buildMailFromField(displayName, address) {
 }
 
 function initTabs() {
+    const settingsFooter = document.querySelector(".settings-footer-actions");
+
+    function syncSettingsFooter(tabKey) {
+        if (!settingsFooter) return;
+        const hideFooter = tabKey === "stock" || tabKey === "prices";
+        settingsFooter.style.display = hideFooter ? "none" : "";
+    }
+
     document.querySelectorAll(".tab-btn").forEach(btn => {
         btn.addEventListener("click", () => {
             document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
             document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
             btn.classList.add("active");
-            const tabId = "tab-" + btn.dataset.tab;
-            document.getElementById(tabId).classList.add("active");
+            const tabKey = btn.dataset.tab || "";
+            const tabId = "tab-" + tabKey;
+            const panel = document.getElementById(tabId);
+            if (panel) panel.classList.add("active");
+            syncSettingsFooter(tabKey);
         });
     });
+
+    const activeBtn = document.querySelector(".tab-btn.active");
+    syncSettingsFooter(activeBtn ? activeBtn.dataset.tab || "" : "");
+}
+
+function activateSettingsTabFromQuery() {
+    const params = new URLSearchParams(window.location.search);
+    const tabKey = params.get("tab");
+    if (!tabKey) return;
+    const btn = document.querySelector('.tab-btn[data-tab="' + tabKey + '"]');
+    if (btn) btn.click();
 }
 
 function renderRankNamesList(container, count, rankNamesData) {

@@ -1,5 +1,5 @@
 // public/js/admin-products-stock.js
-// 管理画面：商品ページ内の在庫表示・連携（admin-products.html 用）
+// 管理画面：在庫連携・表示設定（admin-settings.html の在庫タブ用）
 document.addEventListener("DOMContentLoaded", function () {
     const stockDisplayToggle = document.querySelector("#stock-display-toggle");
     const stockHiddenMessageInput = document.querySelector("#stock-hidden-message");

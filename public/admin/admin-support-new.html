@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>新規追加 - サポート - 受注システム</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .admin-layout-wrapper {
+            display: flex;
+            height: 100vh;
+        }
+
+        .admin-main-content {
+            flex-grow: 1;
+            background: #eef1f5;
+            --admin-main-bg: #eef1f5;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .page-header {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 12px;
+        }
+
+        .page-header-leading {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0;
+        }
+
+        .page-header-leading h2 {
+            margin: 0;
+            font-size: 1.65rem;
+            font-weight: 700;
+            color: #374151;
+            letter-spacing: 0.02em;
+        }
+
+        .page-header-inline-actions {
+            display: inline-flex;
+            flex-wrap: nowrap;
+            align-items: center;
+            gap: 8px;
+            flex: 0 0 auto;
+            margin-left: 4ch;
+        }
+
+        .page-header-toolbar-btn {
+            box-sizing: border-box;
+            padding: 8px 10px;
+            cursor: pointer;
+            background: #fff;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            border-radius: 0;
+            font-weight: 400;
+            font-size: inherit;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            font-family: inherit;
+        }
+
+        a.page-header-toolbar-btn:visited {
+            color: #374151;
+        }
+
+        #support-create-submit.page-header-toolbar-btn {
+            font-weight: 600;
+        }
+
+        .admin-section {
+            background: #fff;
+            padding: 22px 24px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+        }
+
+        .support-create-field {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 14px;
+        }
+
+        .support-create-field > label {
+            flex: 0 0 11rem;
+            margin: 0;
+            padding-top: 8px;
+            font-size: 0.93rem;
+            font-weight: 700;
+            color: #374151;
+        }
+
+        .support-create-field-control {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .support-create-field-control input,
+        .support-create-field-control select,
+        .support-create-field-control textarea {
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            padding: 8px 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-family: inherit;
+        }
+
+        .support-create-customer-wrap {
+            position: relative;
+            width: 100%;
+        }
+
+        .support-create-customer-suggestions {
+            display: none;
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 100%;
+            margin: 4px 0 0 0;
+            padding: 4px 0;
+            list-style: none;
+            max-height: 220px;
+            overflow-y: auto;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 40;
+        }
+
+        .support-create-customer-suggestions.is-open {
+            display: block;
+        }
+
+        .support-create-customer-suggestions li {
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .support-create-customer-suggestions li:hover {
+            background: #eff6ff;
+        }
+
+        .support-create-attach-hint {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        .support-new-form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 18px;
+            padding-top: 14px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        #support-new-load-status {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-bottom: 12px;
+        }
+
+        #support-new-status-message {
+            margin-top: 12px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-layout-wrapper">
+        <aside class="admin-sidebar"></aside>
+
+        <main class="admin-main-content">
+            <div class="page-header">
+                <div class="page-header-leading">
+                    <h2><span class="admin-page-icon" data-admin-icon="support" aria-hidden="true"></span>新規追加</h2>
+                    <div class="page-header-inline-actions">
+                        <a href="admin-support.html" class="page-header-toolbar-btn">戻る</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-main-scroll">
+                <div class="admin-section">
+                    <div id="support-new-load-status">データを読み込み中…</div>
+                    <form id="support-create-form" style="display: none;">
+                        <div class="support-create-field">
+                            <label for="support-create-customer-search">顧客</label>
+                            <div class="support-create-field-control">
+                                <div class="support-create-customer-wrap">
+                                    <input type="search" id="support-create-customer-search" autocomplete="off"
+                                        aria-autocomplete="list" aria-controls="support-create-customer-suggestions"
+                                        aria-expanded="false" disabled>
+                                    <ul id="support-create-customer-suggestions" class="support-create-customer-suggestions"
+                                        role="listbox" aria-label="顧客候補"></ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="support-create-field">
+                            <label for="support-create-type">申請項目</label>
+                            <div class="support-create-field-control">
+                                <select id="support-create-type">
+                                    <option value="">選択してください</option>
+                                    <option value="初期不良・破損">商品の初期不良・破損</option>
+                                    <option value="誤発送・不足">商品の誤発送・不足</option>
+                                    <option value="見積依頼">見積依頼</option>
+                                    <option value="操作方法の質問">操作方法がわからない</option>
+                                    <option value="システムエラー">システムのエラー・不具合</option>
+                                    <option value="その他">その他</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="support-create-field">
+                            <label for="support-create-order-id">対象の注文ID</label>
+                            <div class="support-create-field-control">
+                                <input type="text" id="support-create-order-id" autocomplete="off">
+                            </div>
+                        </div>
+
+                        <div class="support-create-field">
+                            <label for="support-create-customer-po">WEB発注NO.</label>
+                            <div class="support-create-field-control">
+                                <input type="text" id="support-create-customer-po" autocomplete="off">
+                            </div>
+                        </div>
+
+                        <div class="support-create-field">
+                            <label for="support-create-detail">内容</label>
+                            <div class="support-create-field-control">
+                                <textarea id="support-create-detail" rows="5"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="support-create-field">
+                            <label for="support-create-attachments">添付ファイル</label>
+                            <div class="support-create-field-control">
+                                <input type="file" id="support-create-attachments" name="attachments" multiple
+                                    accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.txt,.csv,.doc,.docx,.xls,.xlsx,.zip,application/pdf,image/*">
+                                <p class="support-create-attach-hint">最大5ファイル・各10MBまで（PDF・画像・Office・zip等）</p>
+                            </div>
+                        </div>
+
+                        <div id="support-new-status-message" role="status" aria-live="polite"></div>
+
+                        <div class="support-new-form-actions">
+                            <a href="admin-support.html" class="page-header-toolbar-btn">キャンセル</a>
+                            <button type="submit" id="support-create-submit" class="page-header-toolbar-btn"
+                                style="background: #dfe3e6; color: #111827; border-color: #c5cdd5;">
+                                登録する
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/admin-icons.js"></script>
+    <script src="../js/admin-common.js"></script>
+    <script src="../js/admin-support-new.js?v=1.1"></script>
+</body>
+
+</html>

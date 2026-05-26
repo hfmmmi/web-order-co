@@ -9,8 +9,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const custPaginationMount = document.querySelector("#cust-pagination-mount");
     const addCustBtn = document.querySelector("#btn-add-customer"); 
 
-    const priceCsvInput = document.querySelector("#price-csv-input");
-    const priceCsvBtn = document.querySelector("#price-csv-btn");
     const customerCsvFileInput = document.querySelector("#customer-csv-file-input");
     const customerCsvExcelBtn = document.querySelector("#btn-customer-csv-excel");
     const customerCsvDownloadBtn = document.querySelector("#btn-customer-csv-download");
@@ -118,19 +116,6 @@ document.addEventListener("DOMContentLoaded", function () {
     if (proxyRequestCancelBtn) proxyRequestCancelBtn.addEventListener("click", closeProxyRequestModal);
     if (proxyRequestModalClose) proxyRequestModalClose.addEventListener("click", closeProxyRequestModal);
 
-    // God Hand Elements
-    const godCustId = document.querySelector("#price-customer-id");
-    const godProdCode = document.querySelector("#price-product-code");
-    const godSuggestCust = document.querySelector("#suggest-customer");
-    const godSuggestProd = document.querySelector("#suggest-product");
-    const priceEditArea = document.querySelector("#price-edit-area");
-    const currentPriceDisplay = document.querySelector("#current-price-display");
-    const newSpecialPrice = document.querySelector("#new-special-price");
-    const savePriceBtn = document.querySelector("#btn-save-price");
-
-    // Special Price List Elements
-    const specialPriceTableBody = document.querySelector("#special-price-table-body");
-
     let currentPage = 1;
     let totalPages = 1;
 
@@ -210,7 +195,6 @@ document.addEventListener("DOMContentLoaded", function () {
     document.addEventListener("admin-ready", function () {
         console.log("🚀 Customer Manager: Auth Signal Received.");
         loadCustomers();
-        loadSpecialPrices(); 
     });
 
     // -------------------------------------------------------------
@@ -399,14 +383,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     });
                 });
 
-                // 既存: 「特価設定へ」ボタン
+                // 「特価設定へ」→ システム設定の価格タブ
                 tr.querySelector(".btn-god-mode").addEventListener("click", function () {
                     const id = this.dataset.id;
-                    document.querySelector(".menu-item[onclick*='prices']").click();
-                    if (godCustId) {
-                        godCustId.value = id;
-                        godCustId.focus();
-                    }
+                    const q = id ? "?tab=prices&customerId=" + encodeURIComponent(id) : "?tab=prices";
+                    window.location.href = "admin-settings.html" + q;
                 });
                 custTableBody.appendChild(tr);
             });
@@ -559,7 +540,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     toastSuccess(d.message, 4000);
                     fileInput.value = "";
                     if (apiEndpoint.includes("customer")) loadCustomers(1);
-                    if (apiEndpoint.includes("price")) loadSpecialPrices(); // 特価も更新
                 } else {
                     toastError("失敗: " + d.message);
                 }
@@ -642,180 +622,6 @@ document.addEventListener("DOMContentLoaded", function () {
     if (customerCsvDownloadBtn) {
         customerCsvDownloadBtn.addEventListener("click", downloadCustomerMasterCsv);
     }
-    if (priceCsvBtn) {
-        priceCsvBtn.addEventListener("click", () => uploadCsv(priceCsvInput, "/api/upload-price-data"));
-    }
-
-    function fillGodSuggestList(container, items, formatLabel, onSelect) {
-        if (!container) return;
-        container.innerHTML = "";
-        if (!items || items.length === 0) {
-            container.style.display = "none";
-            return;
-        }
-        container.style.display = "block";
-        items.forEach((item) => {
-            const div = document.createElement("div");
-            div.textContent = formatLabel(item);
-            div.style.padding = "5px";
-            div.style.cursor = "pointer";
-            div.onmouseover = () => { div.style.background = "#eee"; };
-            div.onmouseout = () => { div.style.background = "white"; };
-            div.onclick = () => {
-                onSelect(item);
-                container.style.display = "none";
-            };
-            container.appendChild(div);
-        });
-    }
-
-    // -------------------------------------------------------------
-    // God Hand Mode (個別価格設定)
-    // -------------------------------------------------------------
-    if (godCustId) {
-        godCustId.addEventListener("input", async function () {
-            const val = this.value;
-            if (val.length < 2) { godSuggestCust.style.display = "none"; return; }
-            try {
-                const res = await adminApiFetch(`/api/admin/customers?keyword=${encodeURIComponent(val)}&page=1`);
-                if (res.status === 401) return;
-
-                const d = await res.json();
-                const list = Array.isArray(d.customers) ? d.customers : [];
-                fillGodSuggestList(
-                    godSuggestCust,
-                    list,
-                    (c) => `${c.customerId} : ${c.customerName}`,
-                    (c) => {
-                        godCustId.value = c.customerId;
-                        checkCurrentPrice();
-                    }
-                );
-            } catch (e) {
-                godSuggestCust.style.display = "none";
-            }
-        });
-    }
-
-    if (godProdCode) {
-        godProdCode.addEventListener("input", async function () {
-            const val = this.value;
-            if (val.length < 2) { godSuggestProd.style.display = "none"; return; }
-            try {
-                const res = await adminApiFetch("/api/admin/products");
-                if (res.status === 401) return;
-
-                const products = await res.json();
-                const filtered = products.filter(p => p.productCode.includes(val) || p.name.includes(val)).slice(0, 10);
-
-                fillGodSuggestList(
-                    godSuggestProd,
-                    filtered,
-                    (p) => `${p.productCode} : ${p.name}`,
-                    (p) => {
-                        godProdCode.value = p.productCode;
-                        checkCurrentPrice();
-                    }
-                );
-            } catch (e) {
-                godSuggestProd.style.display = "none";
-            }
-        });
-    }
-
-    async function checkCurrentPrice() {
-        const cId = godCustId.value;
-        const pCode = godProdCode.value;
-        if (!cId || !pCode) return;
-
-        priceEditArea.style.display = "flex";
-        currentPriceDisplay.textContent = "確認中...";
-
-        try {
-            const res = await adminApiFetch(`/api/get-price?customerId=${cId}&productCode=${pCode}`);
-            const d = await res.json();
-            if (d.success) {
-                const prefix = d.isSpecial ? "特価" : "定価";
-                currentPriceDisplay.textContent = `${prefix}: ${d.currentPrice}円`;
-                currentPriceDisplay.style.color = d.isSpecial ? "red" : "black";
-            } else {
-                currentPriceDisplay.textContent = "---";
-            }
-        } catch (e) { console.error(e); }
-    }
-
-    if (savePriceBtn) {
-        savePriceBtn.addEventListener("click", async () => {
-            const cId = godCustId.value;
-            const pCode = godProdCode.value;
-            const price = newSpecialPrice.value;
-            if (!cId || !pCode || !price) { toastWarning("全項目を入力してください"); return; }
-
-            try {
-                const res = await adminApiFetch("/api/update-single-price", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        targetCustomerId: cId,
-                        targetProductCode: pCode,
-                        newPrice: price
-                    })
-                });
-                const d = await res.json();
-                if (d.success) {
-                    toastSuccess("特価を保存しました");
-                    checkCurrentPrice();
-                    loadSpecialPrices(); // 特価リストも更新
-                    newSpecialPrice.value = "";
-                } else {
-                    toastError("失敗: " + d.message);
-                }
-            } catch (e) { toastError("通信エラー"); }
-        });
-    }
-
-    document.addEventListener("click", (e) => {
-        if (godSuggestCust && e.target !== godCustId) godSuggestCust.style.display = "none";
-        if (godSuggestProd && e.target !== godProdCode) godSuggestProd.style.display = "none";
-    });
-
-    // =============================================================
-    // 14. 特価リスト表示
-    // =============================================================
-    async function loadSpecialPrices() {
-        if (!specialPriceTableBody) return;
-
-        specialPriceTableBody.innerHTML = "<tr><td colspan='3' style='text-align:center'>データ読み込み中...</td></tr>";
-
-        try {
-            const res = await adminApiFetch("/api/admin/special-prices-list");
-            if (res.status === 401) return;
-
-            const list = await res.json();
-
-            specialPriceTableBody.innerHTML = "";
-            if (list.length === 0) {
-                specialPriceTableBody.innerHTML = "<tr><td colspan='3' style='text-align:center'>現在、個別特価の設定はありません</td></tr>";
-                return;
-            }
-
-            list.forEach(item => {
-                const tr = document.createElement("tr");
-                tr.innerHTML = `
-                    <td style="padding:8px;">${item.customerName} <br><small style="color:#666">(${item.customerId})</small></td>
-                    <td style="padding:8px;">${item.productName} <br><small style="color:#666">(${item.productCode})</small></td>
-                    <td class="prices-col-price">${parseInt(item.specialPrice, 10).toLocaleString()} 円</td>
-                `;
-
-                specialPriceTableBody.appendChild(tr);
-            });
-
-        } catch (error) {
-            console.error("特価リスト取得エラー", error);
-            specialPriceTableBody.innerHTML = "<tr><td colspan='3' style='color:red; text-align:center'>読み込みエラーが発生しました</td></tr>";
-        }
-    }
-
     // ランク一覧をAPIから取得してdatalistを更新（表示名付き）
     const rankListEl = document.getElementById("rank-list");
     if (rankListEl) {

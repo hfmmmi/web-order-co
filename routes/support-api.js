@@ -7,6 +7,7 @@ const path = require("path");
 const crypto = require("crypto");
 const fs = require("fs").promises;
 const mailService = require("../services/mailService");
+const customerService = require("../services/customerService");
 const { dbPath, DATA_ROOT } = require("../dbPaths");
 const { runWithJsonFileWriteLock } = require("../utils/jsonWriteQueue");
 const {
@@ -270,6 +271,117 @@ router.get("/support/my-tickets", async (req, res) => {
         res.json({ success: true, tickets: mine });
     } catch (error) {
         console.error("サポート履歴取得エラー", error);
+        res.status(500).json({ success: false, message: "サーバーエラー" });
+    }
+});
+
+// 1.9 サポート申請（管理者が代理登録）
+router.post("/admin/create-ticket", async (req, res) => {
+    if (!req.session.isAdmin) return res.status(401).json({ message: "権限がありません" });
+
+    const newRequest = req.body && typeof req.body === "object" ? req.body : {};
+    const customerId = newRequest.customerId != null ? String(newRequest.customerId).trim() : "";
+    const detail = newRequest.detail != null ? String(newRequest.detail).trim() : "";
+    const type = newRequest.type != null ? String(newRequest.type).trim() : "";
+
+    let customerName = "";
+    if (customerId) {
+        let customer;
+        try {
+            customer = await customerService.getCustomerById(customerId);
+        } catch (e) {
+            console.error("顧客取得エラー", e);
+            return res.status(500).json({ success: false, message: "サーバーエラー" });
+        }
+        if (!customer) {
+            return res.status(400).json({ success: false, message: "顧客が見つかりません" });
+        }
+        customerName =
+            customer.customerName != null ? String(customer.customerName) : String(customerId);
+    }
+
+    const rawCat = newRequest.category != null ? String(newRequest.category).trim() : "";
+    const allowedCategories = new Set(["product", "system", "other", "support", "bug"]);
+    const normalizedCategory = allowedCategories.has(rawCat) ? rawCat : "product";
+
+    try {
+        let ticketId;
+
+        await runWithJsonFileWriteLock(SUPPORT_DB_PATH, async () => {
+            let tickets = [];
+            try {
+                const data = await fs.readFile(SUPPORT_DB_PATH, "utf-8");
+                tickets = JSON.parse(data);
+                if (!Array.isArray(tickets)) tickets = [];
+            } catch (e) {
+                tickets = [];
+            }
+
+            ticketId = nextPrefixedSequentialId(tickets, SUPPORT_DISPLAY_OPTS);
+
+            let attachmentRecords = [];
+            try {
+                if (req.files && req.files.attachments) {
+                    attachmentRecords = await saveTicketAttachments(ticketId, req.files.attachments);
+                }
+            } catch (e) {
+                if (e && e.code === "FILE_TOO_LARGE") {
+                    const err = new Error("FILE_TOO_LARGE");
+                    err.code = "FILE_TOO_LARGE";
+                    throw err;
+                }
+                throw e;
+            }
+
+            const adminLabel = req.session.adminName || "管理者";
+            const ticketData = {
+                ticketId,
+                status: "open",
+                category: normalizedCategory,
+                orderId: newRequest.orderId || "",
+                type,
+                detail,
+                internalOrderNo: "",
+                internalCustomerPoNumber: "",
+                customerPoNumber: newRequest.customerPoNumber || "",
+                desiredAction: "",
+                collectionDate: "",
+                history: [
+                    {
+                        date: new Date().toISOString(),
+                        action: "受注システムより登録",
+                        by: adminLabel
+                    }
+                ],
+                customerId,
+                customerName,
+                timestamp: new Date().toISOString(),
+                attachments: attachmentRecords
+            };
+
+            tickets.push(ticketData);
+            await fs.writeFile(SUPPORT_DB_PATH, JSON.stringify(tickets, null, 2));
+
+            mailService.sendSupportNotification(ticketData).catch((e) => {
+                console.error("メール送信失敗:", e);
+            });
+        });
+
+        res.json({
+            success: true,
+            message: "チケットを登録しました",
+            ticketId,
+            displayId: ticketId
+        });
+    } catch (error) {
+        if (error && error.code === "FILE_TOO_LARGE") {
+            return res.status(400).json({
+                success: false,
+                message:
+                    "添付ファイルが大きすぎます（1ファイルあたり最大10MB、拡張子はPDF・画像・Office・zip等に限ります）"
+            });
+        }
+        console.error("管理者サポート登録エラー", error);
         res.status(500).json({ success: false, message: "サーバーエラー" });
     }
 });

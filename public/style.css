@@ -1137,3 +1137,8 @@ input[type="text"], input[type="password"] {
         font-size: 1rem;
     }
 }
+
+/* 管理画面ヘッダー：新規追加・その他（太字にしない） */
+.page-header-inline-actions .page-header-action-plain {
+    font-weight: 400;
+}
