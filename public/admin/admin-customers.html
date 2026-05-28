@@ -33,6 +33,57 @@
             color: #374151;
             letter-spacing: 0.02em;
         }
+        .page-header-inline-actions {
+            display: inline-flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            align-items: center;
+            gap: 8px;
+            flex: 0 0 auto;
+            margin-left: 4ch;
+        }
+        .customers-more-wrap {
+            position: relative;
+            flex: 0 0 auto;
+        }
+        .customers-more-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 4px;
+            min-width: 280px;
+            padding: 4px;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 50;
+        }
+        .customers-more-menu.is-open {
+            display: block;
+        }
+        .customers-more-menu button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 8px 12px;
+            border: none;
+            background: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #374151;
+            font-weight: 500;
+            font-family: inherit;
+        }
+        .customers-more-menu button:hover:not(:disabled) {
+            background: #f3f4f6;
+        }
+        .customers-more-menu button:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
         .page-header-toolbar-btn {
             box-sizing: border-box;
             width: max-content;
@@ -59,27 +110,56 @@
             opacity: 0;
         }
         .cust-header-search-group {
+            position: relative;
             display: flex;
             align-items: center;
-            gap: 8px;
             flex: 1 1 220px;
             min-width: min(100%, 220px);
-            max-width: 28rem;
+            max-width: 27.5rem;
+        }
+        .cust-header-search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #6b7280;
         }
         .cust-header-search-field {
-            flex: 1;
-            min-width: 0;
-            padding: 8px 10px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-size: inherit;
             box-sizing: border-box;
+            width: 100%;
+            min-width: 0;
+            margin: 0;
+            padding: 8px 10px 8px 2.25rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0;
+            font-size: inherit;
             font-family: inherit;
+            line-height: 1.25;
+            background: #fff;
+            color: #374151;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            height: calc(1.25em + 16px + 2px);
         }
         .cust-header-search-field:focus {
             outline: 2px solid #93c5fd;
             outline-offset: 1px;
             border-color: #3b82f6;
+        }
+        .cust-id-edit-link {
+            padding: 0;
+            margin: 0;
+            border: none;
+            background: none;
+            font: inherit;
+            font-variant-numeric: tabular-nums;
+            color: #111827;
+            text-decoration: underline;
+            cursor: pointer;
+            text-align: left;
+        }
+        .cust-id-edit-link:hover {
+            color: #1d4ed8;
         }
 
         /* 受注管理と同型のページネーション */
@@ -120,7 +200,7 @@
             background: #fff;
             color: #374151;
             font-size: 0.875rem;
-            font-weight: 600;
+            font-weight: 400;
             cursor: pointer;
             font-variant-numeric: tabular-nums;
             appearance: none;
@@ -145,7 +225,7 @@
         .orders-pagination-ellipsis {
             padding: 0 4px;
             color: #9ca3af;
-            font-weight: 600;
+            font-weight: 400;
             user-select: none;
         }
 
@@ -183,10 +263,10 @@
             vertical-align: middle;
             color: #111827;
         }
-        #cust-list-area .cust-table th:nth-child(4),
-        #cust-list-area .cust-table th:nth-child(5),
-        #cust-list-area .cust-table td:nth-child(4),
-        #cust-list-area .cust-table td:nth-child(5) { text-align: center; }
+        #cust-list-area .cust-table .cust-col-check,
+        #cust-list-area .cust-table .cust-col-rank,
+        #cust-list-area .cust-table .cust-col-actions { text-align: center; }
+        #cust-list-area .cust-table .cust-col-check { width: 2.5rem; }
         #cust-list-area .cust-table td.cust-col-email { font-size: 0.8125rem; color: #374151; }
 
         /* モーダル用CSS (簡易版・style.cssに移設推奨) */
@@ -247,12 +327,21 @@
             <div class="page-header">
                 <div class="page-header-leading">
                     <h2><span class="admin-page-icon" data-admin-icon="customers" aria-hidden="true"></span>顧客管理</h2>
-                    <button type="button" id="btn-add-customer" class="page-header-toolbar-btn page-header-action-plain">新規追加</button>
-                    <button type="button" id="btn-customer-csv-excel" class="page-header-toolbar-btn">↑ UL</button>
-                    <button type="button" id="btn-customer-csv-download" class="page-header-toolbar-btn">↓ DL</button>
+                    <div class="page-header-inline-actions">
+                        <button type="button" id="btn-add-customer" class="page-header-toolbar-btn page-header-action-plain">新規追加</button>
+                        <div class="customers-more-wrap">
+                            <button type="button" id="btn-customers-more" class="page-header-toolbar-btn page-header-action-plain" aria-haspopup="menu" aria-controls="customers-more-menu" aria-expanded="false">その他</button>
+                            <div id="customers-more-menu" class="customers-more-menu" role="menu" aria-hidden="true">
+                                <button type="button" role="menuitem" id="btn-customer-csv-download">選択した顧客情報をダウンロード</button>
+                                <button type="button" role="menuitem" id="btn-customer-csv-excel">顧客情報をアップロード</button>
+                            </div>
+                        </div>
+                    </div>
                     <div class="cust-header-search-group">
-                        <input type="text" id="cust-search-keyword" class="cust-header-search-field" placeholder="顧客ID・顧客名で検索" autocomplete="off" aria-label="顧客ID・顧客名で検索">
-                        <button type="button" id="cust-search-btn" class="page-header-toolbar-btn">検索</button>
+                        <svg class="cust-header-search-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                            <path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
+                        </svg>
+                        <input type="text" id="cust-search-keyword" class="cust-header-search-field" autocomplete="off" aria-label="検索">
                     </div>
                 </div>
             </div>
@@ -264,11 +353,14 @@
                     <table class="cust-table">
                         <thead>
                             <tr>
+                                <th scope="col" class="cust-col-check">
+                                    <input type="checkbox" class="cust-select-all" title="このページを全選択" aria-label="このページの顧客をすべて選択">
+                                </th>
                                 <th scope="col">顧客ID</th>
                                 <th scope="col">顧客名</th>
                                 <th scope="col">メール</th>
-                                <th scope="col">ランク</th>
-                                <th scope="col">操作</th>
+                                <th scope="col" class="cust-col-rank">ランク</th>
+                                <th scope="col" class="cust-col-actions">操作</th>
                             </tr>
                         </thead>
                         <tbody id="cust-table-body"></tbody>

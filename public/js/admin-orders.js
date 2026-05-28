@@ -17,7 +17,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const clearSearchBtn = document.querySelector("#clear-order-search-btn");
     
-    const searchBtn = document.querySelector("#order-search-btn");
     
     // CSVボタン2種
     const btnCsvUnexported = document.querySelector("#btn-csv-unexported");
@@ -153,15 +152,6 @@ document.addEventListener("DOMContentLoaded", function () {
             .toLowerCase();
     }
 
-    function debounce(func, wait) {
-        let timeout;
-        return function(...args) {
-            const context = this;
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func.apply(context, args), wait);
-        };
-    }
-
     // ---------------------------------------------------------
     // イベント設定
     // ---------------------------------------------------------
@@ -170,7 +160,7 @@ document.addEventListener("DOMContentLoaded", function () {
         searchTextInput.addEventListener("keydown", function (e) {
             if (e.key === "Enter") {
                 e.preventDefault();
-                if (searchBtn) searchBtn.click();
+                execClientSearch();
             }
         });
     }
@@ -1740,15 +1730,17 @@ document.addEventListener("DOMContentLoaded", function () {
     // イベント監視 (Debounce適用)
     // ---------------------------------------------------------
     
-    const debouncedSearch = debounce(execClientSearch, 300);
-
-    if (dateStartInput) dateStartInput.addEventListener("change", execClientSearch);
-    if (dateEndInput) dateEndInput.addEventListener("change", execClientSearch);
+    if (dateStartInput) {
+        dateStartInput.addEventListener("change", execClientSearch);
+        dateStartInput.addEventListener("input", execClientSearch);
+    }
+    if (dateEndInput) {
+        dateEndInput.addEventListener("change", execClientSearch);
+        dateEndInput.addEventListener("input", execClientSearch);
+    }
     if (statusSelect) statusSelect.addEventListener("change", execClientSearch);
 
-    if (searchTextInput) searchTextInput.addEventListener("input", debouncedSearch);
-
-    if (searchBtn) searchBtn.addEventListener("click", execClientSearch);
+    if (searchTextInput) searchTextInput.addEventListener("input", execClientSearch);
 
     // 未連携CSV出力（その他メニュー内）
     if (btnCsvUnexported) {

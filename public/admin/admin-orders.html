@@ -364,22 +364,6 @@
             color: #ef4444;
         }
 
-        .order-search-btn {
-            box-sizing: border-box;
-            width: max-content;
-            flex: 0 0 auto;
-            white-space: nowrap;
-            padding: 8px 10px;
-            cursor: pointer;
-            background: #fff;
-            color: #111827;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            font-weight: 400;
-            font-size: inherit;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-        }
-
         .upload-status-msg {
             margin-top: 0;
             font-weight: bold;
@@ -588,7 +572,7 @@
             background: #fff;
             color: #374151;
             font-size: 0.875rem;
-            font-weight: 600;
+            font-weight: 400;
             cursor: pointer;
             font-variant-numeric: tabular-nums;
             appearance: none;
@@ -615,11 +599,11 @@
         .orders-pagination-ellipsis {
             padding: 0 4px;
             color: #9ca3af;
-            font-weight: 600;
+            font-weight: 400;
             user-select: none;
         }
 
-        /* 受注検索: 全ステータス〜検索 まで1行・高さ40pxで揃える */
+        /* 受注検索: 全ステータス〜キーワード まで1行・高さ40pxで揃える */
         .orders-search-toolbar {
             display: flex;
             flex-wrap: nowrap;
@@ -670,24 +654,26 @@
         }
 
         .orders-search-toolbar .input-with-clear {
-            flex: 1 1 200px;
-            min-width: 160px;
-            max-width: 520px;
-            width: auto;
+            position: relative;
+            flex: 0 0 auto;
+            width: 27.5rem;
+            max-width: 100%;
+            min-width: min(100%, 12rem);
+        }
+
+        .orders-search-keyword-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #6b7280;
+            z-index: 1;
         }
 
         .orders-search-toolbar__keyword {
             width: 100%;
-            padding: 0 34px 0 10px;
-        }
-
-        .orders-search-toolbar .order-search-btn {
-            height: 40px;
-            padding: 0 14px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9rem;
+            padding: 0 34px 0 2.25rem;
         }
 
         a.page-header-toolbar-btn {
@@ -747,13 +733,13 @@
                         <span class="orders-search-toolbar__tilde">～</span>
                         <input type="date" id="filter-date-end" class="orders-search-toolbar__field orders-search-toolbar__date">
                         <div class="input-with-clear">
+                            <svg class="orders-search-keyword-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                                <path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
+                            </svg>
                             <input type="text" id="order-search-text" class="orders-search-toolbar__field orders-search-toolbar__keyword"
                                 aria-label="キーワードで検索">
                             <span class="clear-input-btn" id="clear-order-search-btn">×</span>
                         </div>
-                        <button type="button" id="order-search-btn" class="order-search-btn">
-                            検索
-                        </button>
                     </div>
                 </div>
 

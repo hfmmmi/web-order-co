@@ -277,7 +277,7 @@ input[type="text"], input[type="password"] {
     text-decoration: none;
     cursor: pointer;
     font-family: inherit;
-    font-weight: 600;
+    font-weight: 400;
     transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
@@ -293,7 +293,7 @@ input[type="text"], input[type="password"] {
     color: #111827;
     text-decoration: none;
     cursor: default;
-    font-weight: 600;
+    font-weight: 400;
 }
 
 .pagination-area .product-pagination__nav {
@@ -312,7 +312,7 @@ input[type="text"], input[type="password"] {
     background: #fff;
     color: #6b7280;
     font-size: 0.9rem;
-    font-weight: 700;
+    font-weight: 400;
     cursor: pointer;
     font-family: inherit;
     transition: background 0.15s, border-color 0.15s;
@@ -339,7 +339,13 @@ input[type="text"], input[type="password"] {
     border-radius: 50%;
     font-size: 0.75em;
     line-height: 1;
-    font-weight: 700;
+    font-weight: 400;
+}
+
+/* 管理画面など共通ページ送り（前へ・次へ・ページ番号） */
+.orders-pagination-btn,
+.orders-pagination-ellipsis {
+    font-weight: 400;
 }
 
 /* <button> の UA 既定の最小幅を抑え、ラベル幅に合わせる */

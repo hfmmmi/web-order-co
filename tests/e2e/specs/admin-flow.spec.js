@@ -12,7 +12,7 @@ test("管理E2E: 管理ログイン -> 顧客管理画面 -> 設定画面", asyn
 
     await page.locator(".menu-item", { hasText: "顧客管理" }).click();
     await expect(page).toHaveURL(/admin\/admin-customers\.html$/);
-    await expect(page.locator("#cust-search-btn")).toBeVisible();
+    await expect(page.locator("#cust-search-keyword")).toBeVisible();
     await expect(page.locator("#btn-add-customer")).toBeVisible();
 
     await page.locator(".menu-item", { hasText: "システム設定" }).click();

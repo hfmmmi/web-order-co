@@ -57,6 +57,7 @@
             flex-wrap: wrap;
             align-items: center;
             gap: 8px;
+            margin-left: 4ch;
         }
 
         .page-header-toolbar-btn {
@@ -69,7 +70,7 @@
             color: #374151;
             border: 1px solid #d1d5db;
             border-radius: 0;
-            font-weight: 600;
+            font-weight: 400;
             font-size: inherit;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
             text-decoration: none;
@@ -159,6 +160,7 @@
             padding: 8px 10px;
             background: #f3f4f6;
             border-bottom: 1px solid #e5e7eb;
+            font-weight: 400;
         }
 
         .order-create-lines-table td {
@@ -180,6 +182,25 @@
             font-size: 0.9rem;
             color: #6b7280;
             margin-bottom: 12px;
+        }
+
+        .order-create-lookup-row {
+            display: flex;
+            align-items: stretch;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .order-create-lookup-row .order-create-customer-wrap,
+        .order-create-lookup-row .order-create-deliv-name-wrap {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .order-create-lookup-btn {
+            flex: 0 0 auto;
+            align-self: stretch;
+            min-height: 40px;
         }
 
         .order-create-customer-wrap,
@@ -258,9 +279,129 @@
         }
 
         .order-create-customer-suggestions .order-create-customer-suggest-empty:hover,
-        .order-create-deliv-suggestions .order-create-deliv-suggest-empty:hover,
         .order-create-product-suggestions .order-create-product-suggest-empty:hover {
             background: transparent;
+        }
+
+        .order-create-picker-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1100;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            box-sizing: border-box;
+        }
+
+        .order-create-picker-modal.is-open {
+            display: flex;
+        }
+
+        .order-create-picker-dialog {
+            background: #fff;
+            width: 100%;
+            max-width: 520px;
+            max-height: min(85vh, 560px);
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .order-create-picker-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .order-create-picker-header h3 {
+            margin: 0;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #374151;
+        }
+
+        .order-create-picker-close {
+            border: none;
+            background: none;
+            font-size: 1.5rem;
+            line-height: 1;
+            color: #9ca3af;
+            cursor: pointer;
+            padding: 0 4px;
+            font-family: inherit;
+        }
+
+        .order-create-picker-close:hover {
+            color: #111827;
+        }
+
+        .order-create-picker-body {
+            padding: 14px 16px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-height: 0;
+            flex: 1;
+        }
+
+        .order-create-picker-keyword {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 8px 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-family: inherit;
+        }
+
+        .order-create-picker-results {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            max-height: 320px;
+        }
+
+        .order-create-picker-results li {
+            padding: 10px 12px;
+            font-size: 0.9rem;
+            color: #111827;
+            border-bottom: 1px solid #f3f4f6;
+            cursor: pointer;
+            line-height: 1.4;
+        }
+
+        .order-create-picker-results li:last-child {
+            border-bottom: none;
+        }
+
+        .order-create-picker-results li:hover,
+        .order-create-picker-results li:focus {
+            background: #eff6ff;
+        }
+
+        .order-create-picker-results .order-create-picker-empty {
+            color: #6b7280;
+            cursor: default;
+        }
+
+        .order-create-picker-results .order-create-picker-empty:hover {
+            background: transparent;
+        }
+
+        .order-create-picker-sub {
+            display: block;
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-top: 2px;
         }
     </style>
 </head>
@@ -293,24 +434,26 @@
                         <div class="order-create-field">
                             <label for="order-create-customer-search">顧客名</label>
                             <div class="order-create-field-control">
-                                <div class="order-create-customer-wrap">
-                                    <input type="search" id="order-create-customer-search" autocomplete="off"
-                                        aria-autocomplete="list" aria-controls="order-create-customer-suggestions"
-                                        aria-expanded="false" disabled>
-                                    <ul id="order-create-customer-suggestions" class="order-create-customer-suggestions"
-                                        role="listbox" aria-label="顧客候補"></ul>
+                                <div class="order-create-lookup-row">
+                                    <div class="order-create-customer-wrap">
+                                        <input type="search" id="order-create-customer-search" autocomplete="off"
+                                            aria-autocomplete="list" aria-controls="order-create-customer-suggestions"
+                                            aria-expanded="false" disabled>
+                                        <ul id="order-create-customer-suggestions" class="order-create-customer-suggestions"
+                                            role="listbox" aria-label="顧客候補"></ul>
+                                    </div>
+                                    <button type="button" id="btn-order-create-customer-lookup" class="page-header-toolbar-btn order-create-lookup-btn">検索</button>
                                 </div>
                             </div>
                         </div>
                         <div class="order-create-field">
                             <label for="order-create-deliv-name">納品先名</label>
                             <div class="order-create-field-control">
-                                <div class="order-create-deliv-name-wrap">
-                                    <input type="text" id="order-create-deliv-name" maxlength="100" autocomplete="off"
-                                        aria-autocomplete="list" aria-controls="order-create-deliv-suggestions"
-                                        aria-expanded="false">
-                                    <ul id="order-create-deliv-suggestions" class="order-create-deliv-suggestions"
-                                        role="listbox" aria-label="顧客マスタの納品先"></ul>
+                                <div class="order-create-lookup-row">
+                                    <div class="order-create-deliv-name-wrap">
+                                        <input type="text" id="order-create-deliv-name" maxlength="100" autocomplete="off">
+                                    </div>
+                                    <button type="button" id="btn-order-create-deliv-lookup" class="page-header-toolbar-btn order-create-lookup-btn">検索</button>
                                 </div>
                             </div>
                         </div>
@@ -379,7 +522,33 @@
 
     <script src="../js/admin-icons.js"></script>
     <script src="../js/admin-common.js"></script>
-    <script src="../js/admin-orders-new.js?v=2.1"></script>
+    <div id="order-create-customer-picker-modal" class="order-create-picker-modal" role="dialog" aria-modal="true" aria-labelledby="order-create-customer-picker-title" aria-hidden="true">
+        <div class="order-create-picker-dialog">
+            <div class="order-create-picker-header">
+                <h3 id="order-create-customer-picker-title">顧客を検索</h3>
+                <button type="button" class="order-create-picker-close" data-picker-close="customer" aria-label="閉じる">×</button>
+            </div>
+            <div class="order-create-picker-body">
+                <input type="search" id="order-create-customer-picker-keyword" class="order-create-picker-keyword" autocomplete="off" aria-label="顧客ID・顧客名で検索">
+                <ul id="order-create-customer-picker-results" class="order-create-picker-results" role="listbox" aria-label="顧客候補"></ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="order-create-deliv-picker-modal" class="order-create-picker-modal" role="dialog" aria-modal="true" aria-labelledby="order-create-deliv-picker-title" aria-hidden="true">
+        <div class="order-create-picker-dialog">
+            <div class="order-create-picker-header">
+                <h3 id="order-create-deliv-picker-title">納品先を検索</h3>
+                <button type="button" class="order-create-picker-close" data-picker-close="deliv" aria-label="閉じる">×</button>
+            </div>
+            <div class="order-create-picker-body">
+                <input type="search" id="order-create-deliv-picker-keyword" class="order-create-picker-keyword" autocomplete="off" aria-label="納品先名・顧客名で検索">
+                <ul id="order-create-deliv-picker-results" class="order-create-picker-results" role="listbox" aria-label="納品先候補"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/admin-orders-new.js?v=2.2"></script>
 </body>
 
 </html>
