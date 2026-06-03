@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const loadStatusEl = document.getElementById("order-new-load-status");
     const btnOrderCreateAddLine = document.getElementById("order-create-add-line");
     const btnOrderCreateSubmit = document.getElementById("order-create-submit");
+    const btnOrderCreateClear = document.getElementById("order-create-clear");
     const customerSearchInput = document.getElementById("order-create-customer-search");
     const customerSuggestionsUl = document.getElementById("order-create-customer-suggestions");
     const customerWrap = document.querySelector(".order-create-customer-wrap");
@@ -193,7 +194,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function selectDeliveryFromCustomerMaster(c) {
         if (!c) return;
         selectCustomer(c);
-        applyDeliveryFromMaster(c);
+        void applyDeliveryForCustomer(c);
         closeDelivPickerModal();
     }
 
@@ -249,11 +250,7 @@ document.addEventListener("DOMContentLoaded", function () {
         customerSuggestionsUl.innerHTML = "";
 
         if (raw.length === 0) {
-            const li = document.createElement("li");
-            li.className = "order-create-customer-suggest-empty";
-            li.textContent = "顧客IDまたは社名を入力してください";
-            customerSuggestionsUl.appendChild(li);
-            openCustomerSuggestions();
+            closeCustomerSuggestions();
             return;
         }
 
@@ -311,21 +308,45 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    function applyDeliveryFromMaster(c) {
-        if (!c) return;
+    function applyDeliveryFields(delivery, customerName) {
+        if (!delivery) return;
         const nameEl = document.getElementById("order-create-deliv-name");
         const zipEl = document.getElementById("order-create-deliv-zip");
         const addrEl = document.getElementById("order-create-deliv-address");
         const telEl = document.getElementById("order-create-deliv-tel");
-        const dn = String(c.deliveryName || "").trim();
-        const nm = dn || String(c.customerName || "").trim();
+        const dn = String(delivery.deliveryName || "").trim();
+        const nm = dn || String(customerName || "").trim();
         if (nameEl) nameEl.value = nm;
-        if (zipEl) zipEl.value = digitsOnlyZipString(c.deliveryZip || "");
-        if (addrEl) addrEl.value = String(c.deliveryAddress || "").trim();
-        if (telEl) telEl.value = String(c.deliveryTel || "").trim();
+        if (zipEl) zipEl.value = digitsOnlyZipString(delivery.deliveryZip || "");
+        if (addrEl) addrEl.value = String(delivery.deliveryAddress || "").trim();
+        if (telEl) telEl.value = String(delivery.deliveryTel || "").trim();
         if (zipEl && addrEl && digitsOnlyZipString(zipEl.value).length === 7 && !String(addrEl.value || "").trim()) {
             lookupAddressFromZip();
         }
+    }
+
+    async function applyDeliveryForCustomer(c) {
+        if (!c || !c.customerId) return;
+        try {
+            const res = await fetch(
+                "/api/admin/customers/" + encodeURIComponent(c.customerId) + "/default-delivery",
+                { credentials: "include" }
+            );
+            if (res.status === 401) return;
+            const data = await res.json();
+            if (res.ok && data.success && data.delivery) {
+                applyDeliveryFields(data.delivery, c.customerName);
+                return;
+            }
+        } catch (e) {
+            console.error(e);
+        }
+        applyDeliveryFields({
+            deliveryName: c.deliveryName || "",
+            deliveryZip: c.deliveryZip || "",
+            deliveryAddress: c.deliveryAddress || "",
+            deliveryTel: c.deliveryTel || ""
+        }, c.customerName);
     }
 
     const debouncedZipLookup = debounce(lookupAddressFromZip, 350);
@@ -555,6 +576,23 @@ document.addEventListener("DOMContentLoaded", function () {
         closeCustomerSuggestions();
     }
 
+    function clearOrderCreateForm() {
+        resetOrderCreateFormFields();
+        closeCustomerPickerModal();
+        closeDelivPickerModal();
+        document.querySelectorAll(".order-create-product-suggestions").forEach(function (u) {
+            u.classList.remove("is-open");
+            u.innerHTML = "";
+        });
+        document.querySelectorAll(".order-create-product-search").forEach(function (inp) {
+            inp.setAttribute("aria-expanded", "false");
+        });
+        const products = cachedProductsForOrderCreate;
+        if (products && products.length > 0) {
+            addOrderCreateLineRow(products);
+        }
+    }
+
     async function initOrderCreatePage() {
         if (!orderCreateForm || !orderCreateLinesBody) return;
         setLoadStatus("データを読み込み中…", false);
@@ -601,9 +639,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 clearCustomerSelection();
             }
             debouncedRenderSuggestions();
-        });
-        customerSearchInput.addEventListener("focus", function () {
-            renderCustomerSuggestions();
         });
     }
 
@@ -672,6 +707,12 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    if (btnOrderCreateClear) {
+        btnOrderCreateClear.addEventListener("click", function () {
+            clearOrderCreateForm();
+        });
+    }
+
     if (orderCreateForm) {
         orderCreateForm.addEventListener("submit", async function (e) {
             e.preventDefault();
@@ -703,8 +744,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             const dDate = document.getElementById("order-create-deliv-date");
-            let dateStr = "";
-            if (dDate && dDate.value) dateStr = dDate.value.replace(/-/g, "/");
+            let dateStr = dDate && dDate.value ? dDate.value.trim() : "";
 
             const orderDateEl = document.getElementById("order-create-order-date");
             const orderDateYmd = orderDateEl && orderDateEl.value ? orderDateEl.value.trim() : "";

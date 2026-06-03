@@ -532,7 +532,36 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // CSV/Excel 一括取込（ファイル選択で即実行）
-    document.getElementById("btn-kaitori-csv-excel")?.addEventListener("click", () => {
+    const btnKaitoriMore = document.getElementById("btn-kaitori-more");
+    const kaitoriMoreMenu = document.getElementById("kaitori-more-menu");
+
+    function setKaitoriMoreMenuOpen(open) {
+        if (!kaitoriMoreMenu) return;
+        if (open) {
+            kaitoriMoreMenu.classList.add("is-open");
+            kaitoriMoreMenu.setAttribute("aria-hidden", "false");
+            if (btnKaitoriMore) btnKaitoriMore.setAttribute("aria-expanded", "true");
+        } else {
+            kaitoriMoreMenu.classList.remove("is-open");
+            kaitoriMoreMenu.setAttribute("aria-hidden", "true");
+            if (btnKaitoriMore) btnKaitoriMore.setAttribute("aria-expanded", "false");
+        }
+    }
+
+    if (btnKaitoriMore && kaitoriMoreMenu) {
+        btnKaitoriMore.addEventListener("click", function (e) {
+            e.stopPropagation();
+            setKaitoriMoreMenuOpen(!kaitoriMoreMenu.classList.contains("is-open"));
+        });
+    }
+
+    document.addEventListener("click", function () {
+        setKaitoriMoreMenuOpen(false);
+    });
+
+    document.getElementById("btn-kaitori-upload-list")?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        setKaitoriMoreMenuOpen(false);
         document.getElementById("kaitori-file-input")?.click();
     });
 

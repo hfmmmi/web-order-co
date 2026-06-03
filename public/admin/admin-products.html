@@ -338,12 +338,25 @@
             flex: 1;
             min-width: 0;
             display: grid;
-            grid-template-columns: 9rem 5.5rem minmax(0, 1fr) max-content minmax(0, 12rem);
+            grid-template-columns: 2.25rem 9rem 5.5rem minmax(0, 1fr) max-content minmax(0, 12rem);
             align-items: center;
             column-gap: 10px;
             overflow-x: auto;
             line-height: 1.35;
             font-size: 0.875rem;
+        }
+
+        .admin-product-col-select {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .admin-product-col-select input[type="checkbox"] {
+            width: 1rem;
+            height: 1rem;
+            margin: 0;
+            cursor: pointer;
         }
 
         .admin-product-row-actions {
@@ -533,7 +546,7 @@
                 <div class="page-header-leading">
                     <h2><span class="admin-page-icon" data-admin-icon="products" aria-hidden="true"></span>商品管理</h2>
                     <div class="page-header-inline-actions">
-                        <a href="admin-products-new.html" id="btn-product-new-add" class="page-header-toolbar-btn page-header-action-plain" target="_blank" rel="noopener noreferrer">新規追加</a>
+                        <a href="admin-products-new.html" id="btn-product-new-add" class="page-header-toolbar-btn page-header-action-plain">新規追加</a>
                         <div class="products-more-wrap">
                             <button type="button" id="btn-products-more" class="page-header-toolbar-btn page-header-action-plain"
                                 aria-haspopup="menu" aria-controls="products-more-menu" aria-expanded="false">
@@ -542,6 +555,7 @@
                             <div id="products-more-menu" class="products-more-menu" role="menu" aria-hidden="true">
                                 <button type="button" role="menuitem" id="btn-product-upload">商品をアップロード</button>
                                 <button type="button" role="menuitem" id="btn-product-export-dl">リストをダウンロード</button>
+                                <button type="button" role="menuitem" id="btn-delete-selected-products">選択した商品を削除</button>
                             </div>
                         </div>
                         <div id="admin-product-search-mount" class="admin-product-list-search-mount"></div>

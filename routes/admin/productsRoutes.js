@@ -26,6 +26,19 @@ router.post("/update-product", requireAdmin, async (req, res) => {
     } catch (e) { res.status(500).json({ message: e.message }); }
 });
 
+router.post("/delete-product", requireAdmin, async (req, res) => {
+    try {
+        const code = req.body && req.body.productCode != null ? String(req.body.productCode).trim() : "";
+        if (!code) {
+            return res.json({ success: false, message: "商品コードが指定されていません" });
+        }
+        const result = await productService.deleteProduct(code);
+        res.json(result);
+    } catch (e) {
+        res.status(500).json({ success: false, message: e.message });
+    }
+});
+
 router.post("/upload-product-data", requireAdmin, async (req, res) => {
     try {
         const result = await productService.importProductCsv(req.body.fileData);

@@ -106,8 +106,9 @@
             font-family: inherit;
         }
 
-        /* 「＋新規」「削除」: 背景なし・文字 #111827・グレー枠 */
+        /* 「＋新規」「コピー」「削除」: 背景なし・文字 #111827・グレー枠 */
         #np-tool-new.reg-tool-btn,
+        #np-tool-copy.reg-tool-btn,
         #np-tool-delete.reg-tool-btn.reg-tool-btn--danger {
             background: transparent !important;
             color: #111827 !important;
@@ -116,14 +117,24 @@
         }
 
         #np-tool-new.reg-tool-btn:hover:not(:disabled),
+        #np-tool-copy.reg-tool-btn:hover:not(:disabled),
         #np-tool-delete.reg-tool-btn.reg-tool-btn--danger:hover:not(:disabled) {
             background: #f9fafb !important;
             filter: none;
         }
 
+        #np-tool-new.reg-tool-btn,
+        #np-tool-copy.reg-tool-btn,
+        #np-tool-delete.reg-tool-btn.reg-tool-btn--danger {
+            font-weight: 400;
+            border-radius: 0;
+        }
+
         #np-tool-save.reg-tool-btn {
             background: #d6e7f1;
             border-color: #b0cde5;
+            font-weight: 400;
+            border-radius: 0;
         }
 
         .reg-tool-btn:hover:not(:disabled) {
@@ -166,15 +177,12 @@
             background: #fff;
         }
 
-        /* 備考行と同じ偶数行の背景（#fff）に合わせる */
-        .product-reg-row--section {
-            grid-template-columns: 1fr;
+        .product-reg-row--shade {
+            background: #f9fafb !important;
+        }
+
+        .product-reg-row--plain {
             background: #fff !important;
-            font-weight: 700;
-            color: #111827;
-            padding-top: 8px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #e5e7eb;
         }
 
         .product-reg-label {
@@ -202,88 +210,10 @@
             outline-offset: 1px;
         }
 
-        .np-extras {
-            margin-top: 12px;
-            border: 1px solid #e5e7eb;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-        }
-
-        .np-extras > summary {
-            padding: 10px 14px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.88rem;
-            color: #374151;
-            list-style: none;
-            background: #f8fafc;
-        }
-
-        .np-extras > summary::-webkit-details-marker {
-            display: none;
-        }
-
-        .np-extras[open] > summary {
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .np-extras-body {
-            padding: 14px 16px 18px;
-        }
-
-        .np-mini-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.88rem;
-        }
-
-        .np-mini-table th,
-        .np-mini-table td {
-            border: 1px solid #e5e7eb;
-            padding: 8px 10px;
-            text-align: left;
-        }
-
-        .np-mini-table th {
-            background: #f3f4f6;
-            color: #374151;
-            font-weight: 600;
-        }
-
-        .np-ref-row {
-            padding: 8px 10px;
-            border-bottom: 1px solid #e5e7eb;
-            font-size: 0.88rem;
-        }
-
-        .np-ref-code {
-            color: #6b7280;
-            font-size: 0.85rem;
-            margin-right: 6px;
-        }
-
-        .np-ref-meta {
-            color: #9ca3af;
-            font-size: 0.85rem;
-        }
-
-        #np-reference-list {
-            max-height: 220px;
-            overflow-y: auto;
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            background: #fff;
-        }
-
-        .np-ref-search {
-            width: 100%;
-            max-width: 400px;
-            margin-bottom: 8px;
-            padding: 7px 10px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            box-sizing: border-box;
+        .product-reg-footer {
+            display: flex;
+            justify-content: flex-end;
+            padding: 12px 0 0;
         }
     </style>
 </head>
@@ -301,8 +231,8 @@
                             <button type="button" id="np-tool-new" class="reg-tool-btn" title="フォームをクリア">
                                 <span aria-hidden="true">＋</span> 新規
                             </button>
-                            <button type="button" id="np-tool-save" class="reg-tool-btn" title="マスタに保存">
-                                保存
+                            <button type="button" id="np-tool-copy" class="reg-tool-btn" title="商品コード以外をコピーして新規登録">
+                                コピー
                             </button>
                             <span class="product-reg-toolbar-spacer" aria-hidden="true"></span>
                             <button type="button" id="np-tool-delete" class="reg-tool-btn reg-tool-btn--danger" title="マスタから削除" style="display: none;">
@@ -315,48 +245,53 @@
                         <div class="product-reg-row">
                             <div class="product-reg-label">商品コード<span class="req">*</span></div>
                             <div class="product-reg-field">
-                                <input type="text" id="np-product-code" class="form-control" placeholder="例: PRD-001" required autocomplete="off">
+                                <input type="text" id="np-product-code" class="form-control" required autocomplete="off">
                             </div>
                         </div>
                         <div class="product-reg-row">
                             <div class="product-reg-label">商品名<span class="req">*</span></div>
                             <div class="product-reg-field">
-                                <input type="text" id="np-product-name" class="form-control" placeholder="商品名を入力" required autocomplete="off">
+                                <input type="text" id="np-product-name" class="form-control" required autocomplete="off">
                             </div>
                         </div>
                         <div class="product-reg-row">
                             <div class="product-reg-label">仕様・規格</div>
                             <div class="product-reg-field">
-                                <input type="text" id="np-product-category" class="form-control" placeholder="純正 / 再生 / 汎用 / 海外純正（価格表の並び順）" autocomplete="off">
+                                <input type="text" id="np-product-category" class="form-control" autocomplete="off">
                             </div>
                         </div>
                         <div class="product-reg-row">
                             <div class="product-reg-label">備考</div>
                             <div class="product-reg-field">
-                                <textarea id="np-product-remarks" class="form-control" rows="2" placeholder="マスタ・Excelの「備考」列と同期されます" autocomplete="off"></textarea>
+                                <textarea id="np-product-remarks" class="form-control" rows="2" autocomplete="off"></textarea>
                             </div>
                         </div>
                         <div class="product-reg-row">
                             <div class="product-reg-label">メーカー名</div>
                             <div class="product-reg-field">
-                                <input type="text" id="np-product-manufacturer" class="form-control" placeholder="例: RICOH, Canon（価格表のメーカー列に表示）" autocomplete="off">
+                                <input type="text" id="np-product-manufacturer" class="form-control" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="product-reg-row">
+                            <div class="product-reg-label">単位</div>
+                            <div class="product-reg-field">
+                                <input type="text" id="np-product-unit" class="form-control" maxlength="20" autocomplete="off">
                             </div>
                         </div>
 
-                        <div class="product-reg-row product-reg-row--section">価格・在庫・公開</div>
-                        <div class="product-reg-row">
-                            <div class="product-reg-label">標準価格（税抜）</div>
+                        <div class="product-reg-row product-reg-row--shade">
+                            <div class="product-reg-label">標準価格</div>
                             <div class="product-reg-field">
                                 <input type="number" id="np-product-price" class="form-control" placeholder="0" min="0" step="1">
                             </div>
                         </div>
-                        <div class="product-reg-row">
+                        <div class="product-reg-row product-reg-row--plain">
                             <div class="product-reg-label">仕入単価</div>
                             <div class="product-reg-field">
                                 <input type="number" id="np-product-purchase-price" class="form-control" placeholder="0" min="0" step="1">
                             </div>
                         </div>
-                        <div class="product-reg-row">
+                        <div class="product-reg-row product-reg-row--shade">
                             <div class="product-reg-label">納期区分（在庫状況）</div>
                             <div class="product-reg-field">
                                 <select id="np-product-stock" class="form-control">
@@ -367,7 +302,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="product-reg-row">
+                        <div class="product-reg-row product-reg-row--plain">
                             <div class="product-reg-label">公開状態</div>
                             <div class="product-reg-field">
                                 <select id="np-product-active" class="form-control">
@@ -380,17 +315,11 @@
                         <button type="submit" id="np-add-btn" tabindex="-1" aria-hidden="true" style="position:absolute;clip:rect(0,0,0,0);width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;">submit</button>
                     </form>
                 </div>
-
-                <details class="np-extras" id="np-extras-details">
-                    <summary>参照（直近の登録・マスタ検索）</summary>
-                    <div class="np-extras-body">
-                        <h4 style="margin:0 0 8px; font-size:0.9rem;">このタブで登録した商品</h4>
-                        <div id="np-session-list"></div>
-                        <h4 style="margin:20px 0 8px; font-size:0.9rem;">登録済みマスタ（重複確認）</h4>
-                        <input type="text" id="np-reference-search" class="np-ref-search" placeholder="コード・商品名・メーカー・規格で絞り込み…" autocomplete="off">
-                        <div id="np-reference-list"></div>
-                    </div>
-                </details>
+                <div class="product-reg-footer">
+                    <button type="button" id="np-tool-save" class="reg-tool-btn" title="マスタに保存">
+                        保存
+                    </button>
+                </div>
             </div>
         </main>
     </div>

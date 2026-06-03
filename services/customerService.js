@@ -369,6 +369,36 @@ class CustomerService {
         };
     }
 
+    /** 管理画面・新規受注: 顧客マスタ優先、未設定項目は直近受注から補完 */
+    async getDefaultDeliveryForOrderCreate(customerId) {
+        const list = await this._loadAll();
+        const c = list.find((x) => x.customerId === customerId);
+        if (!c) return null;
+
+        const master = {
+            deliveryName: c.deliveryName || "",
+            deliveryZip: c.deliveryZip || "",
+            deliveryAddress: c.deliveryAddress || "",
+            deliveryTel: c.deliveryTel || ""
+        };
+
+        const needsOrderFallback = ![master.deliveryZip, master.deliveryAddress, master.deliveryTel]
+            .some((v) => String(v || "").trim());
+
+        let fromOrder = null;
+        if (needsOrderFallback) {
+            const orderService = require("./orderService");
+            fromOrder = await orderService.getLatestDeliveryInfoForCustomer(customerId);
+        }
+
+        return {
+            deliveryName: master.deliveryName || (fromOrder && fromOrder.deliveryName) || c.customerName || "",
+            deliveryZip: master.deliveryZip || (fromOrder && fromOrder.deliveryZip) || "",
+            deliveryAddress: master.deliveryAddress || (fromOrder && fromOrder.deliveryAddress) || "",
+            deliveryTel: master.deliveryTel || (fromOrder && fromOrder.deliveryTel) || ""
+        };
+    }
+
     /** 顧客本人: 既定納品先の更新（顧客マスタ・新規受注の反映先） */
     async updateCustomerDelivery(customerId, { deliveryName, deliveryZip, deliveryAddress, deliveryTel }) {
         return runWithJsonFileWriteLock(CUSTOMERS_DB_PATH, async () => {

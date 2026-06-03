@@ -190,7 +190,7 @@
             height: 40px;
             padding: 0 34px 0 10px;
             border: 1px solid #e5e7eb;
-            border-radius: 8px;
+            border-radius: 0;
             font-size: 0.9rem;
             background-color: #fff;
             font-family: inherit;
@@ -223,8 +223,8 @@
             background: transparent;
             color: #111827;
             border: 1px solid #9ca3af;
-            border-radius: 8px;
-            font-weight: 600;
+            border-radius: 0;
+            font-weight: 400;
             font-size: 0.9rem;
             font-family: inherit;
             display: inline-flex;
@@ -240,6 +240,7 @@
             background: #dfe3e6 !important;
             color: #111827 !important;
             border: 1px solid #c5cdd5 !important;
+            border-radius: 0;
         }
 
         #btn-add-kaitori-item.kaitori-btn--primary:hover:not(:disabled) {
@@ -247,18 +248,69 @@
         }
 
         /* アクティブサブタブ（受注の「詳細」系アクセント色に合わせる） */
-        .kaitori-btn-csv-excel {
+        .kaitori-more-wrap {
+            position: relative;
             flex: 0 0 auto;
-            width: auto;
-            padding: 6px 12px;
-            background: #fff !important;
-            color: #111827 !important;
-            border: 1px solid #9ca3af !important;
         }
 
-        .kaitori-btn-csv-excel:hover {
-            background: #f3f4f6 !important;
-            border-color: #9ca3af !important;
+        .kaitori-more-btn {
+            box-sizing: border-box;
+            height: 40px;
+            padding: 0 14px;
+            cursor: pointer;
+            background: transparent;
+            color: #111827;
+            border: 1px solid #9ca3af;
+            border-radius: 0;
+            font-weight: 400;
+            font-size: 0.9rem;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+
+        .kaitori-more-btn:hover {
+            background: #f3f4f6;
+        }
+
+        .kaitori-more-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 4px;
+            min-width: 220px;
+            padding: 4px;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 50;
+        }
+
+        .kaitori-more-menu.is-open {
+            display: block;
+        }
+
+        .kaitori-more-menu button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 8px 12px;
+            border: none;
+            background: none;
+            border-radius: 0;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #374151;
+            font-weight: 400;
+            font-family: inherit;
+        }
+
+        .kaitori-more-menu button:hover:not(:disabled) {
+            background: #f3f4f6;
         }
 
         .kaitori-master-result-info {
@@ -351,11 +403,7 @@
         }
 
         .kaitori-import-inline .kaitori-import-note {
-            flex: 1 1 200px;
-            margin: 0;
-            font-size: 0.85rem;
-            color: #6b7280;
-            line-height: 1.45;
+            display: none;
         }
 
         .kaitori-btn {
@@ -782,16 +830,22 @@
                         <div class="kaitori-master-search-group">
                             <div class="input-with-clear kaitori-master-search-field-wrap">
                                 <input type="text" id="kaitori-master-search-text" class="kaitori-master-search-field"
-                                    placeholder="メーカーまたは商品名で検索…"
                                     aria-label="メーカーまたは商品名で検索"
                                     autocomplete="off">
                                 <span class="clear-input-btn" id="clear-kaitori-master-search">×</span>
                             </div>
                             <button type="button" id="btn-kaitori-master-search" class="kaitori-master-search-btn">検索</button>
+                            <div class="kaitori-more-wrap">
+                                <button type="button" id="btn-kaitori-more" class="kaitori-more-btn"
+                                    aria-haspopup="menu" aria-controls="kaitori-more-menu" aria-expanded="false">
+                                    その他
+                                </button>
+                                <div id="kaitori-more-menu" class="kaitori-more-menu" role="menu" aria-hidden="true">
+                                    <button type="button" role="menuitem" id="btn-kaitori-upload-list">リストをアップロード</button>
+                                </div>
+                            </div>
                         </div>
                         <input type="file" id="kaitori-file-input" class="kaitori-file-input kaitori-file-input--hidden" accept=".csv,.xlsx,.xls" aria-hidden="true" tabindex="-1">
-                        <button type="button" id="btn-kaitori-csv-excel" class="kaitori-btn kaitori-btn-csv-excel">↑ UL</button>
-                        <p class="kaitori-import-note">※必須：メーカー / 商品名 / 区分 / 買取単価 / 買取先</p>
                     </div>
 
                     <div class="kaitori-toolbar-row kaitori-toolbar-row--tight">

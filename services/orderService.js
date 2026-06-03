@@ -163,6 +163,36 @@ class OrderService {
         return await this.searchOrders({ isAdmin: true });
     }
 
+    /** 顧客の直近受注から納品先情報を取得（新規受注フォームの自動入力用） */
+    async getLatestDeliveryInfoForCustomer(customerId) {
+        const id = String(customerId || "").trim();
+        if (!id) return null;
+        const orders = await this._loadJson(ORDERS_DB);
+        const sorted = orders
+            .filter((o) => o.customerId === id)
+            .sort((a, b) => {
+                const da = new Date(a.orderDate || 0).getTime();
+                const db = new Date(b.orderDate || 0).getTime();
+                return db - da;
+            });
+        for (const order of sorted) {
+            const info = order.deliveryInfo || {};
+            const zip = info.zip != null ? String(info.zip).trim() : "";
+            const address = info.address != null ? String(info.address).trim() : "";
+            const tel = info.tel != null ? String(info.tel).trim() : "";
+            const name = info.name != null ? String(info.name).trim() : "";
+            if (zip || address || tel || name) {
+                return {
+                    deliveryName: name,
+                    deliveryZip: zip,
+                    deliveryAddress: address,
+                    deliveryTel: tel
+                };
+            }
+        }
+        return null;
+    }
+
     // 注文検索・一覧取得
     async searchOrders(criteria) {
         const { status, keyword, start, end, customerId, isAdmin } = criteria;

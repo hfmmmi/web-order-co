@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const codeInput = document.querySelector("#np-product-code");
     const nameInput = document.querySelector("#np-product-name");
     const manufacturerInput = document.querySelector("#np-product-manufacturer");
+    const unitInput = document.querySelector("#np-product-unit");
     const categoryInput = document.querySelector("#np-product-category");
     const remarksInput = document.querySelector("#np-product-remarks");
     const priceInput = document.querySelector("#np-product-price");
@@ -13,11 +14,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const activeSelect = document.querySelector("#np-product-active");
     const saveToolBtn = document.querySelector("#np-tool-save");
     const newToolBtn = document.querySelector("#np-tool-new");
+    const copyToolBtn = document.querySelector("#np-tool-copy");
     const deleteToolBtn = document.querySelector("#np-tool-delete");
     const tabLabel = document.querySelector("#np-reg-tab-label");
-    const sessionListEl = document.querySelector("#np-session-list");
-    const refListEl = document.querySelector("#np-reference-list");
-    const refSearchInput = document.querySelector("#np-reference-search");
 
     const urlParams = new URLSearchParams(window.location.search);
     const editRaw = urlParams.get("edit");
@@ -25,7 +24,6 @@ document.addEventListener("DOMContentLoaded", function () {
         editRaw != null && String(editRaw).trim() !== "" ? decodeURIComponent(String(editRaw).trim()) : null;
 
     let allProducts = [];
-    const sessionAdded = [];
     let isEditMode = false;
 
     const TITLE_NEW = "商品登録 - 発注システム";
@@ -61,22 +59,68 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    function applyFormDataExceptCode(data) {
+        if (!data) return;
+        if (nameInput) nameInput.value = data.name || "";
+        if (manufacturerInput) manufacturerInput.value = data.manufacturer || "";
+        if (unitInput) unitInput.value = data.unit || "";
+        if (categoryInput) categoryInput.value = data.category || "";
+        if (remarksInput) remarksInput.value = data.remarks != null ? String(data.remarks) : "";
+        if (priceInput) priceInput.value = data.basePrice != null ? data.basePrice : 0;
+        if (purchasePriceInput) {
+            purchasePriceInput.value = data.purchaseUnitPrice != null ? data.purchaseUnitPrice : 0;
+        }
+        if (stockSelect) stockSelect.value = data.stockStatus || stockSelect.options[0].value;
+        if (activeSelect) {
+            const isActive = Object.prototype.hasOwnProperty.call(data, "active") ? data.active : true;
+            activeSelect.value = isActive ? "true" : "false";
+        }
+    }
+
+    function copyFormForNewProduct() {
+        const data = getFormData();
+        if (!data.name && !data.manufacturer && !data.unit && !data.category && !data.remarks && !data.basePrice && !data.purchaseUnitPrice) {
+            toastWarning("コピーする内容がありません");
+            return;
+        }
+
+        if (isEditMode) {
+            isEditMode = false;
+            editProductCode = null;
+            if (deleteToolBtn) deleteToolBtn.style.display = "none";
+            setTabLabel("商品登録");
+            document.title = TITLE_NEW;
+            try {
+                window.history.replaceState({}, "", "admin-products-new.html");
+            } catch (e) {
+                /* ignore */
+            }
+        }
+
+        applyFormDataExceptCode(data);
+        if (codeInput) {
+            codeInput.value = "";
+            codeInput.readOnly = false;
+            codeInput.style.backgroundColor = "";
+            codeInput.focus();
+        }
+        toastSuccess("商品コード以外をコピーしました。新しい商品コードを入力してください", 3500);
+    }
+
     function applyEditProduct(product) {
         if (!codeInput || !nameInput) return;
         codeInput.value = product.productCode || "";
-        nameInput.value = product.name || "";
-        manufacturerInput.value = product.manufacturer || "";
-        categoryInput.value = product.category || "";
-        if (remarksInput) remarksInput.value = product.remarks != null ? String(product.remarks) : "";
-        priceInput.value = product.basePrice != null ? product.basePrice : 0;
-        if (purchasePriceInput) {
-            purchasePriceInput.value = product.purchaseUnitPrice != null ? product.purchaseUnitPrice : 0;
-        }
-        if (stockSelect) stockSelect.value = product.stockStatus || stockSelect.options[0].value;
-        if (activeSelect) {
-            const isActive = Object.prototype.hasOwnProperty.call(product, "active") ? product.active : true;
-            activeSelect.value = isActive ? "true" : "false";
-        }
+        applyFormDataExceptCode({
+            name: product.name || "",
+            manufacturer: product.manufacturer || "",
+            unit: product.unit || "",
+            category: product.category || "",
+            remarks: product.remarks != null ? String(product.remarks) : "",
+            basePrice: product.basePrice != null ? product.basePrice : 0,
+            purchaseUnitPrice: product.purchaseUnitPrice != null ? product.purchaseUnitPrice : 0,
+            stockStatus: product.stockStatus || (stockSelect ? stockSelect.options[0].value : ""),
+            active: Object.prototype.hasOwnProperty.call(product, "active") ? product.active : true
+        });
         codeInput.readOnly = true;
         codeInput.style.backgroundColor = "#f3f4f6";
         isEditMode = true;
@@ -108,6 +152,7 @@ document.addEventListener("DOMContentLoaded", function () {
             productCode: codeInput.value.trim(),
             name: nameInput.value.trim(),
             manufacturer: manufacturerInput.value.trim(),
+            unit: unitInput ? unitInput.value.trim() : "",
             category: categoryInput.value.trim(),
             remarks: remarksInput ? remarksInput.value.trim() : "",
             basePrice: parseInt(priceInput.value, 10) || 0,
@@ -117,96 +162,19 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     }
 
-    function renderSessionList() {
-        if (!sessionListEl) return;
-        if (sessionAdded.length === 0) {
-            sessionListEl.innerHTML =
-                "<p style=\"margin:0; color:#6b7280; font-size:0.88rem;\">まだありません。「保存」で新規登録するとここに表示されます。</p>";
-            return;
-        }
-        const rows = sessionAdded
-            .map(
-                (p) =>
-                    `<tr><td>${escapeHtml(p.productCode)}</td><td>${escapeHtml(p.name)}</td><td>${escapeHtml(
-                        p.manufacturer || ""
-                    )}</td><td>${escapeHtml(p.category || "")}</td><td>¥${(p.basePrice || 0).toLocaleString()}</td></tr>`
-            )
-            .join("");
-        sessionListEl.innerHTML = `
-            <table class="np-mini-table">
-                <thead><tr><th>商品コード</th><th>商品名</th><th>メーカー</th><th>規格</th><th>標準価格</th></tr></thead>
-                <tbody>${rows}</tbody>
-            </table>`;
-    }
-
-    function escapeHtml(s) {
-        return String(s)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;");
-    }
-
-    function renderReferenceList(products) {
-        if (!refListEl) return;
-        if (products.length === 0) {
-            refListEl.innerHTML = "<p style=\"margin:0; color:#6b7280;\">商品がありません</p>";
-            return;
-        }
-        const limit = 150;
-        const slice = products.slice(0, limit);
-        refListEl.innerHTML = slice
-            .map(
-                (p) =>
-                    `<div class="np-ref-row"><span class="np-ref-code">${escapeHtml(p.productCode)}</span> <strong>${escapeHtml(
-                        p.name
-                    )}</strong> <span class="np-ref-meta">${escapeHtml(p.manufacturer || "")} ${escapeHtml(
-                        p.category || ""
-                    )}</span></div>`
-            )
-            .join("");
-        if (products.length > limit) {
-            refListEl.innerHTML += `<p style="margin:8px 0 0; color:#4b5563; font-size:0.85rem;">先頭 ${limit} 件を表示しています。検索で絞り込んでください。</p>`;
-        }
-    }
-
     async function fetchProductList() {
-        if (!refListEl) return;
-        refListEl.innerHTML = "<p style=\"margin:0; color:#6b7280;\">読み込み中…</p>";
         try {
             const response = await adminApiFetch("/api/admin/products");
-            if (response.status === 401) {
-                refListEl.innerHTML = "<p style=\"margin:0; color:#c62828;\">認証が必要です。</p>";
-                return;
-            }
+            if (response.status === 401) return;
             if (!response.ok) throw new Error("fetch failed");
             allProducts = await response.json();
-            applyReferenceFilter();
             tryApplyEditModeAfterFetch();
         } catch (e) {
             console.error(e);
-            refListEl.innerHTML = "<p style=\"margin:0; color:#c62828;\">一覧の取得に失敗しました。</p>";
+            if (editProductCode) {
+                toastError("商品一覧の取得に失敗しました");
+            }
         }
-    }
-
-    function applyReferenceFilter() {
-        const term =
-            refSearchInput && refSearchInput.value ? refSearchInput.value.normalize("NFKC").toLowerCase() : "";
-        if (!term) {
-            renderReferenceList(allProducts);
-            return;
-        }
-        const filtered = allProducts.filter((p) => {
-            const hay = [p.productCode, p.name, p.manufacturer, p.category]
-                .map((v) => (v || "").toString().normalize("NFKC").toLowerCase())
-                .join(" ");
-            return hay.includes(term);
-        });
-        renderReferenceList(filtered);
-    }
-
-    if (refSearchInput) {
-        refSearchInput.addEventListener("input", applyReferenceFilter);
     }
 
     if (newToolBtn && form) {
@@ -217,6 +185,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 resetFormDefaults();
             }
         });
+    }
+
+    if (copyToolBtn) {
+        copyToolBtn.addEventListener("click", copyFormForNewProduct);
     }
 
     if (deleteToolBtn) {
@@ -288,8 +260,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (data.success) {
                     toastSuccess(isEditMode ? "更新しました" : "保存しました");
                     if (!isEditMode) {
-                        sessionAdded.unshift({ ...payload });
-                        renderSessionList();
                         resetFormDefaults();
                     }
                     await fetchProductList();
@@ -309,7 +279,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     document.addEventListener("admin-ready", function () {
-        renderSessionList();
         fetchProductList();
     });
 });

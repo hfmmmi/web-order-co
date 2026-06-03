@@ -138,6 +138,7 @@ class ProductService {
                 productCode: code,
                 name: (newProduct.name != null && newProduct.name !== "") ? String(newProduct.name).trim() : code,
                 manufacturer: (newProduct.manufacturer != null) ? String(newProduct.manufacturer).trim() : "",
+                unit: (newProduct.unit != null) ? String(newProduct.unit).trim() : "",
                 category: (newProduct.category != null) ? String(newProduct.category).trim() : "",
                 remarks: (newProduct.remarks != null) ? String(newProduct.remarks).trim() : "",
                 basePrice: normalizeNonNegativeIntPrice(newProduct.basePrice, 0),
@@ -175,6 +176,9 @@ class ProductService {
             }
             if (Object.prototype.hasOwnProperty.call(updateData, "manufacturer")) {
                 next.manufacturer = updateData.manufacturer != null ? String(updateData.manufacturer).trim() : "";
+            }
+            if (Object.prototype.hasOwnProperty.call(updateData, "unit")) {
+                next.unit = updateData.unit != null ? String(updateData.unit).trim() : "";
             }
             if (Object.prototype.hasOwnProperty.call(updateData, "category")) {
                 next.category = updateData.category != null ? String(updateData.category).trim() : "";

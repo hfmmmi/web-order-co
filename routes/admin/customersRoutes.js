@@ -31,6 +31,23 @@ router.get("/admin/customers", requireAdmin, async (req, res) => {
     }
 });
 
+router.get("/admin/customers/:customerId/default-delivery", requireAdmin, async (req, res) => {
+    const customerId = req.params.customerId != null ? String(req.params.customerId).trim() : "";
+    if (!customerId) {
+        return res.status(400).json({ success: false, message: "顧客IDが必要です" });
+    }
+    try {
+        const delivery = await customerService.getDefaultDeliveryForOrderCreate(customerId);
+        if (!delivery) {
+            return res.status(404).json({ success: false, message: "顧客が見つかりません" });
+        }
+        res.json({ success: true, delivery });
+    } catch (e) {
+        console.error("Customer default delivery error:", e);
+        res.status(500).json({ success: false, message: "納品先の取得に失敗しました" });
+    }
+});
+
 router.post("/add-customer", requireAdmin, validateBody(addCustomerSchema), async (req, res) => {
     try {
         const result = await customerService.addCustomer(req.body);

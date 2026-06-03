@@ -131,7 +131,6 @@
 
         .order-create-deliv-date {
             max-width: 12rem;
-            height: 40px;
         }
 
         .order-create-zip-input {
@@ -200,7 +199,11 @@
         .order-create-lookup-btn {
             flex: 0 0 auto;
             align-self: stretch;
-            min-height: 40px;
+            box-sizing: border-box;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            line-height: 1.2;
         }
 
         .order-create-customer-wrap,
@@ -435,6 +438,7 @@
                             <label for="order-create-customer-search">顧客名</label>
                             <div class="order-create-field-control">
                                 <div class="order-create-lookup-row">
+                                    <button type="button" id="btn-order-create-customer-lookup" class="page-header-toolbar-btn order-create-lookup-btn">検索</button>
                                     <div class="order-create-customer-wrap">
                                         <input type="search" id="order-create-customer-search" autocomplete="off"
                                             aria-autocomplete="list" aria-controls="order-create-customer-suggestions"
@@ -442,7 +446,6 @@
                                         <ul id="order-create-customer-suggestions" class="order-create-customer-suggestions"
                                             role="listbox" aria-label="顧客候補"></ul>
                                     </div>
-                                    <button type="button" id="btn-order-create-customer-lookup" class="page-header-toolbar-btn order-create-lookup-btn">検索</button>
                                 </div>
                             </div>
                         </div>
@@ -450,10 +453,10 @@
                             <label for="order-create-deliv-name">納品先名</label>
                             <div class="order-create-field-control">
                                 <div class="order-create-lookup-row">
+                                    <button type="button" id="btn-order-create-deliv-lookup" class="page-header-toolbar-btn order-create-lookup-btn">検索</button>
                                     <div class="order-create-deliv-name-wrap">
                                         <input type="text" id="order-create-deliv-name" maxlength="100" autocomplete="off">
                                     </div>
-                                    <button type="button" id="btn-order-create-deliv-lookup" class="page-header-toolbar-btn order-create-lookup-btn">検索</button>
                                 </div>
                             </div>
                         </div>
@@ -461,25 +464,25 @@
                             <label for="order-create-deliv-zip">郵便番号</label>
                             <div class="order-create-field-control">
                                 <input type="text" id="order-create-deliv-zip" class="order-create-zip-input" maxlength="7"
-                                    inputmode="numeric" pattern="[0-9]*" autocomplete="postal-code">
+                                    inputmode="numeric" pattern="[0-9]*" autocomplete="off">
                             </div>
                         </div>
                         <div class="order-create-field">
                             <label for="order-create-deliv-address">住所</label>
                             <div class="order-create-field-control">
-                                <input type="text" id="order-create-deliv-address" maxlength="300" autocomplete="street-address">
+                                <input type="text" id="order-create-deliv-address" maxlength="300" autocomplete="off">
                             </div>
                         </div>
                         <div class="order-create-field">
                             <label for="order-create-deliv-tel">電話番号</label>
                             <div class="order-create-field-control">
-                                <input type="text" id="order-create-deliv-tel" maxlength="30" autocomplete="tel">
+                                <input type="text" id="order-create-deliv-tel" maxlength="30" autocomplete="off">
                             </div>
                         </div>
                         <div class="order-create-field">
                             <label for="order-create-deliv-date">納品希望日</label>
                             <div class="order-create-field-control">
-                                <input type="date" id="order-create-deliv-date" class="order-create-deliv-date">
+                                <input type="text" id="order-create-deliv-date" class="order-create-deliv-date" autocomplete="off">
                             </div>
                         </div>
                         <div class="order-create-field">
@@ -509,7 +512,7 @@
                             </div>
                         </div>
                         <div class="order-new-form-actions">
-                            <a href="admin-orders.html" class="page-header-toolbar-btn">キャンセル</a>
+                            <button type="button" id="order-create-clear" class="page-header-toolbar-btn">クリア</button>
                             <button type="submit" id="order-create-submit" class="page-header-toolbar-btn" style="background: #dfe3e6; color: #111827; border-color: #c5cdd5;">
                                 受注を登録
                             </button>
@@ -548,7 +551,7 @@
         </div>
     </div>
 
-    <script src="../js/admin-orders-new.js?v=2.2"></script>
+    <script src="../js/admin-orders-new.js?v=2.7"></script>
 </body>
 
 </html>

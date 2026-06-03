@@ -76,17 +76,23 @@
         }
 
         .settings-tabs {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(10, minmax(0, 1fr));
             gap: 4px;
             margin-bottom: 20px;
             border-bottom: 1px solid #e5e7eb;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .settings-tabs .tab-btn {
-            display: inline-flex;
+            display: flex;
             align-items: center;
-            padding: 10px 14px;
+            justify-content: center;
+            box-sizing: border-box;
+            width: 100%;
+            min-width: 0;
+            padding: 10px 8px;
             border: 1px solid transparent;
             border-bottom: none;
             background: #f3f4f6;
@@ -94,11 +100,19 @@
             cursor: pointer;
             border-radius: 8px 8px 0 0;
             font-weight: 600;
-            font-size: 0.875rem;
+            font-size: 0.8125rem;
             font-family: inherit;
+            text-align: center;
+            line-height: 1.3;
+            white-space: normal;
         }
 
-        .settings-tab-icon,
+        @media (max-width: 1280px) {
+            .settings-tabs {
+                grid-template-columns: repeat(5, minmax(0, 1fr));
+            }
+        }
+
         .settings-section-icon {
             display: inline-flex;
             align-items: center;
@@ -107,11 +121,6 @@
             margin-right: 6px;
             color: #4b5563;
             flex-shrink: 0;
-        }
-
-        .settings-tab-icon svg {
-            width: 18px;
-            height: 18px;
         }
 
         .settings-section-icon svg {
@@ -781,24 +790,24 @@
 
             <div class="admin-main-scroll">
             <div class="settings-tabs">
-                <button type="button" class="tab-btn active" data-tab="mail"><span class="settings-tab-icon" data-admin-icon="settingsTabMail" aria-hidden="true"></span>メール</button>
-                <button type="button" class="tab-btn" data-tab="admin-account"><span class="settings-tab-icon" data-admin-icon="settingsTabUser" aria-hidden="true"></span>管理者アカウント</button>
-                <button type="button" class="tab-btn" data-tab="recaptcha"><span class="settings-tab-icon" data-admin-icon="settingsTabLock" aria-hidden="true"></span>ログインCAPTCHA</button>
-                <button type="button" class="tab-btn" data-tab="features"><span class="settings-tab-icon" data-admin-icon="settingsTabToggle" aria-hidden="true"></span>機能ON/OFF</button>
-                <button type="button" class="tab-btn" data-tab="rank-names"><span class="settings-tab-icon" data-admin-icon="settingsTabTag" aria-hidden="true"></span>ランクの名前</button>
-                <button type="button" class="tab-btn" data-tab="shipping-cart"><span class="settings-tab-icon" data-admin-icon="settingsTabShipping" aria-hidden="true"></span>送料規定・カートお知らせ</button>
-                <button type="button" class="tab-btn" data-tab="announcements"><span class="settings-tab-icon" data-admin-icon="settingsTabAnnounce" aria-hidden="true"></span>お知らせ・バナー</button>
-                <button type="button" class="tab-btn" data-tab="data-formats"><span class="settings-tab-icon" data-admin-icon="settingsTabData" aria-hidden="true"></span>汎用・連携</button>
-                <button type="button" class="tab-btn" data-tab="stock"><span class="settings-tab-icon" data-admin-icon="settingsTabStock" aria-hidden="true"></span>在庫連携・表示設定</button>
-                <button type="button" class="tab-btn" data-tab="prices"><span class="settings-tab-icon" data-admin-icon="settingsTabPrices" aria-hidden="true"></span>価格・掛率設定</button>
+                <button type="button" class="tab-btn active" data-tab="mail">メール</button>
+                <button type="button" class="tab-btn" data-tab="admin-account">アカウント</button>
+                <button type="button" class="tab-btn" data-tab="features">機能表示</button>
+                <button type="button" class="tab-btn" data-tab="rank-names">ランク</button>
+                <button type="button" class="tab-btn" data-tab="shipping-cart">注文</button>
+                <button type="button" class="tab-btn" data-tab="announcements">お知らせ</button>
+                <button type="button" class="tab-btn" data-tab="data-formats">汎用・連携</button>
+                <button type="button" class="tab-btn" data-tab="stock">在庫連携・表示設定</button>
+                <button type="button" class="tab-btn" data-tab="prices">価格・掛率設定</button>
+                <button type="button" class="tab-btn" data-tab="recaptcha">その他</button>
             </div>
 
             <form id="settings-form">
                 <!-- メールタブ -->
                 <div id="tab-mail" class="tab-panel active">
                     <div class="admin-section">
-                        <details class="settings-collapse" open>
-                            <summary>受注・サポート通知先と送信元</summary>
+                        <details class="settings-collapse">
+                            <summary>通知先</summary>
                             <div class="settings-collapse-body">
                                 <div class="form-group">
                                     <label for="orderNotifyTo">受注通知先</label>
@@ -851,7 +860,7 @@
                             </div>
                         </details>
                         <details class="settings-collapse">
-                            <summary>受注確認・サポート申請メールテンプレート</summary>
+                            <summary>メールテンプレート</summary>
                             <div class="settings-collapse-body">
                                 <div class="form-group">
                                     <label for="orderSubject">受注確認の件名</label>
@@ -872,7 +881,7 @@
                             </div>
                         </details>
                         <details class="settings-collapse">
-                            <summary>招待・パスワード再設定・変更完了メール（顧客宛）</summary>
+                            <summary>招待設定</summary>
                             <div class="settings-collapse-body">
                                 <div class="form-group">
                                     <label for="inviteSubject">初回招待の件名</label>
@@ -903,10 +912,10 @@
                     </div>
                 </div>
 
-                <!-- 管理者アカウントタブ -->
+                <!-- アカウントタブ -->
                 <div id="tab-admin-account" class="tab-panel">
                     <div class="admin-section">
-                        <details class="settings-collapse" open>
+                        <details class="settings-collapse">
                             <summary>管理者ID・表示名</summary>
                             <div class="settings-collapse-body">
                                 <p class="settings-muted-block" style="margin-top:0;">管理者としてログインする際のIDと表示名を設定します。</p>
@@ -938,25 +947,7 @@
                     </div>
                 </div>
 
-                <!-- ログインCAPTCHA（reCAPTCHA v2）タブ -->
-                <div id="tab-recaptcha" class="tab-panel">
-                    <div class="admin-section">
-                        <h3>reCAPTCHA v2（「私はロボットではありません」）</h3>
-                        <p class="hint settings-hint-spaced">ログイン失敗が2回を超えると、3回目以降はCAPTCHAの入力が必須になります。Google reCAPTCHA のサイトキーとシークレットキーを取得して設定してください。未設定の場合はCAPTCHAは使用されません。</p>
-                        <div class="form-group">
-                            <label for="recaptchaSiteKey">サイトキー — 公開用</label>
-                            <input type="text" id="recaptchaSiteKey" class="form-control" placeholder="例: 6Lcxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off">
-                        </div>
-                        <div class="form-group">
-                            <label for="recaptchaSecretKey">シークレットキー — サーバー用・非公開</label>
-                            <input type="password" id="recaptchaSecretKey" class="form-control" placeholder="変更する場合のみ入力" autocomplete="new-password">
-                            <span class="hint" id="recaptchaSecretKeyHint">空欄のまま保存すると既存のシークレットキーを維持します</span>
-                        </div>
-                        <p class="hint"><a href="https://www.google.com/recaptcha/admin" target="_blank" rel="noopener">Google reCAPTCHA 管理コンソール</a>で「reCAPTCHA v2」の「チェックボックス」タイプのキーを登録してください。</p>
-                    </div>
-                </div>
-
-                <!-- 機能ON/OFFタブ -->
+                <!-- 機能表示タブ -->
                 <div id="tab-features" class="tab-panel">
                     <div class="admin-section">
                         <h3>顧客向け機能</h3>
@@ -968,7 +959,7 @@
                     </div>
                 </div>
 
-                <!-- ランクの名前タブ -->
+                <!-- ランクタブ -->
                 <div id="tab-rank-names" class="tab-panel">
                     <div class="admin-section">
                         <h3>ランク数と表示名</h3>
@@ -980,10 +971,10 @@
                     </div>
                 </div>
 
-                <!-- 送料規定・カートお知らせタブ -->
+                <!-- 注文タブ -->
                 <div id="tab-shipping-cart" class="tab-panel">
                     <div class="admin-section">
-                        <details class="settings-collapse" open>
+                        <details class="settings-collapse">
                             <summary>カートの内容確認ページ</summary>
                             <div class="settings-collapse-body">
                                 <p class="settings-muted-block" style="margin-top:0;">注文確定前のカート画面の最下部に表示する「送料・配送に関するお知らせ」です。</p>
@@ -1011,7 +1002,7 @@
                 <!-- 汎用・連携（見積PDF・価格表・受注CSV・物流取込） -->
                 <div id="tab-data-formats" class="tab-panel">
                     <div class="admin-section">
-                        <details class="settings-collapse" open>
+                        <details class="settings-collapse">
                             <summary>顧客向け見積PDFの発行元</summary>
                             <div class="settings-collapse-body">
                                 <p class="hint" style="margin-top:0;">カート画面の「見積書」に反映されます。</p>
@@ -1107,6 +1098,28 @@
                             <strong class="settings-announce-warn">※お知らせを追加・編集したら、画面上部の「設定を保存」ボタンを押すと、顧客画面に反映されます。</strong>
                         </p>
                         <div id="announcements-list"></div>
+                    </div>
+                </div>
+
+                <!-- その他タブ -->
+                <div id="tab-recaptcha" class="tab-panel">
+                    <div class="admin-section">
+                        <details class="settings-collapse">
+                            <summary>ログインCAPTCHA</summary>
+                            <div class="settings-collapse-body">
+                                <p class="hint settings-hint-spaced" style="margin-top:0;">ログイン失敗が2回を超えると、3回目以降はCAPTCHAの入力が必須になります。Google reCAPTCHA のサイトキーとシークレットキーを取得して設定してください。未設定の場合はCAPTCHAは使用されません。</p>
+                                <div class="form-group">
+                                    <label for="recaptchaSiteKey">サイトキー — 公開用</label>
+                                    <input type="text" id="recaptchaSiteKey" class="form-control" placeholder="例: 6Lcxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+                                </div>
+                                <div class="form-group">
+                                    <label for="recaptchaSecretKey">シークレットキー — サーバー用・非公開</label>
+                                    <input type="password" id="recaptchaSecretKey" class="form-control" placeholder="変更する場合のみ入力" autocomplete="new-password">
+                                    <span class="hint" id="recaptchaSecretKeyHint">空欄のまま保存すると既存のシークレットキーを維持します</span>
+                                </div>
+                                <p class="hint"><a href="https://www.google.com/recaptcha/admin" target="_blank" rel="noopener">Google reCAPTCHA 管理コンソール</a>で「reCAPTCHA v2」の「チェックボックス」タイプのキーを登録してください。</p>
+                            </div>
+                        </details>
                     </div>
                 </div>
 

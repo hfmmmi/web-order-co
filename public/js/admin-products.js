@@ -12,6 +12,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const productsMoreMenu = document.getElementById("products-more-menu");
     const btnProductUpload = document.getElementById("btn-product-upload");
     const btnProductExportDl = document.getElementById("btn-product-export-dl");
+    const btnDeleteSelectedProducts = document.getElementById("btn-delete-selected-products");
+
+    const selectedProductCodes = new Set();
 
     function setProductsMoreMenuOpen(open) {
         if (!productsMoreMenu) return;
@@ -39,6 +42,61 @@ document.addEventListener("DOMContentLoaded", function () {
             e.stopPropagation();
             setProductsMoreMenuOpen(false);
             window.location.href = "/api/admin/product-master/export";
+        });
+    }
+
+    if (btnDeleteSelectedProducts) {
+        btnDeleteSelectedProducts.addEventListener("click", async function (e) {
+            e.stopPropagation();
+            if (selectedProductCodes.size === 0) {
+                toastWarning("チェックした商品がありません");
+                return;
+            }
+            const codes = Array.from(selectedProductCodes);
+            const preview = codes.slice(0, 8).join("\n");
+            const extra = codes.length > 8 ? "\n… ほか " + (codes.length - 8) + " 件" : "";
+            const confirmMsg =
+                "【重要】チェックした " +
+                codes.length +
+                " 件の商品をマスタから完全に削除します。\n取り消せません。よろしいですか？\n\n" +
+                preview +
+                extra;
+            if (!confirm(confirmMsg)) return;
+            setProductsMoreMenuOpen(false);
+            let ok = 0;
+            let fail = 0;
+            const failed = [];
+            btnDeleteSelectedProducts.disabled = true;
+            for (let i = 0; i < codes.length; i++) {
+                const code = codes[i];
+                try {
+                    const response = await adminApiFetch("/api/delete-product", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ productCode: code })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        ok++;
+                        selectedProductCodes.delete(code);
+                    } else {
+                        fail++;
+                        failed.push(code + (data.message ? ": " + data.message : ""));
+                    }
+                } catch (err) {
+                    fail++;
+                    failed.push(code);
+                    console.error(err);
+                }
+            }
+            btnDeleteSelectedProducts.disabled = false;
+            if (ok > 0) {
+                toastSuccess(ok + " 件の商品を削除しました", 4000);
+                await fetchProductList();
+            }
+            if (fail > 0) {
+                toastError("削除に失敗: " + fail + " 件\n" + failed.slice(0, 5).join("\n"));
+            }
         });
     }
 
@@ -303,22 +361,29 @@ document.addEventListener("DOMContentLoaded", function () {
                 : `<span class="admin-product-col-remarks"></span>`;
 
         const rankBtnHtml = hasRank
-            ? `<button type="button" class="btn-product-rank-toggle" aria-expanded="false">ランク ▼</button>`
+            ? `<button type="button" class="btn-product-rank-toggle" aria-expanded="false">ランク</button>`
             : "";
         const codeRaw = product.productCode != null ? String(product.productCode) : "";
+        const selectCellHtml =
+            codeRaw.trim() !== ""
+                ? `<label class="admin-product-col-select"><input type="checkbox" class="admin-product-select-cb" data-product-code="${escHtml(
+                      codeRaw
+                  )}" aria-label="${escHtml(codeRaw)} を選択"></label>`
+                : `<span class="admin-product-col-select" aria-hidden="true"></span>`;
         const editHref =
             codeRaw.trim() !== ""
                 ? "admin-products-new.html?edit=" + encodeURIComponent(codeRaw)
                 : "";
         const codeCellHtml =
             editHref !== ""
-                ? `<a href="${editHref}" class="admin-product-col-code admin-product-code-edit-link" target="_blank" rel="noopener noreferrer">${escHtml(
+                ? `<a href="${editHref}" class="admin-product-col-code admin-product-code-edit-link">${escHtml(
                       codeRaw
                   )}</a>`
                 : `<span class="admin-product-col-code">${escHtml(codeRaw)}</span>`;
 
         row.innerHTML = `
                 <div class="admin-product-row-grid">
+                    ${selectCellHtml}
                     ${codeCellHtml}
                     <span class="admin-product-col-badge">${catTag}</span>
                     <span class="admin-product-col-name">${statusTag} ${escHtml(product.name)}</span>
@@ -330,6 +395,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 </div>
             `;
 
+        const selectCb = row.querySelector(".admin-product-select-cb");
+        if (selectCb && codeRaw.trim() !== "") {
+            if (selectedProductCodes.has(codeRaw)) selectCb.checked = true;
+            selectCb.addEventListener("change", function () {
+                if (selectCb.checked) selectedProductCodes.add(codeRaw);
+                else selectedProductCodes.delete(codeRaw);
+            });
+            selectCb.addEventListener("click", function (event) {
+                event.stopPropagation();
+            });
+        }
+
         const rankBtn = row.querySelector(".btn-product-rank-toggle");
         if (rankBtn && hasRank) {
             const panel = document.createElement("div");
@@ -339,7 +416,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 event.stopPropagation();
                 const open = !wrap.classList.contains("is-rank-open");
                 wrap.classList.toggle("is-rank-open", open);
-                rankBtn.textContent = open ? "ランク ▲" : "ランク ▼";
                 rankBtn.setAttribute("aria-expanded", open ? "true" : "false");
             });
             wrap.appendChild(row);
