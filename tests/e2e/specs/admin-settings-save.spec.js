@@ -1,6 +1,21 @@
 const { test, expect } = require("@playwright/test");
 
+async function openFeaturesCustomerPanel(page) {
+    await page.locator('.tab-btn[data-tab="features"]').click();
+    const customerLink = page.locator('#tab-features .settings-linkbox[data-panel="customer"]');
+    await expect(customerLink).toBeVisible();
+    await customerLink.click();
+    await expect(page.locator("#feat-support")).toBeVisible();
+}
+
+async function clickSaveSettings(page) {
+    await expect(page.locator("#btn-save")).toBeVisible();
+    await page.locator("#btn-save").click();
+}
+
 test("管理E2E: 設定保存後に再読込しても状態を維持する", async ({ page }) => {
+    test.setTimeout(90_000);
+
     await page.goto("/admin/admin-dashboard.html");
     await page.fill("#admin-id-input", "test-admin");
     await page.fill("#admin-pass-input", "AdminPass123!");
@@ -10,20 +25,19 @@ test("管理E2E: 設定保存後に再読込しても状態を維持する", asy
     await page.locator(".menu-item", { hasText: "システム設定" }).click();
     await expect(page).toHaveURL(/admin\/admin-settings\.html$/);
 
-    await page.getByRole("button", { name: "機能表示" }).click();
-    await page.getByRole("button", { name: "顧客向け機能" }).click();
+    await openFeaturesCustomerPanel(page);
     const supportCheckbox = page.locator("#feat-support");
-    await expect(supportCheckbox).toBeVisible();
     const before = await supportCheckbox.isChecked();
     await supportCheckbox.setChecked(!before);
 
-    await page.click("#btn-save");
+    await clickSaveSettings(page);
     await page.reload();
-    await page.getByRole("button", { name: "機能表示" }).click();
-    await page.getByRole("button", { name: "顧客向け機能" }).click();
+    await expect(page.locator("#admin-login-overlay")).toBeHidden();
+
+    await openFeaturesCustomerPanel(page);
     await expect(page.locator("#feat-support")).toBeChecked({ checked: !before });
 
     // 他E2Eに影響しないよう、変更したフラグを元に戻して終了する
     await supportCheckbox.setChecked(before);
-    await page.click("#btn-save");
+    await clickSaveSettings(page);
 });

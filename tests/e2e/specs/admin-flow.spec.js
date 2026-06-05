@@ -17,5 +17,6 @@ test("管理E2E: 管理ログイン -> 顧客管理画面 -> 設定画面", asyn
 
     await page.locator(".menu-item", { hasText: "システム設定" }).click();
     await expect(page).toHaveURL(/admin\/admin-settings\.html$/);
-    await expect(page.locator("#btn-save")).toBeVisible();
+    await expect(page.locator(".settings-tabs")).toBeVisible();
+    await expect(page.getByRole("button", { name: "通知先" })).toBeVisible();
 });
