@@ -64,25 +64,28 @@
         .admin-section h3 {
             margin: 0 0 16px 0;
             font-size: 1.05rem;
-            font-weight: 600;
+            font-weight: 400;
             color: #374151;
         }
 
         .admin-section h4 {
             margin: 16px 0 12px 0;
             font-size: 1rem;
-            font-weight: 600;
+            font-weight: 400;
             color: #374151;
         }
 
         .settings-tabs {
             display: grid;
             grid-template-columns: repeat(10, minmax(0, 1fr));
-            gap: 4px;
+            gap: 0;
             margin-bottom: 20px;
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 2px solid #e5e7eb;
             width: 100%;
             box-sizing: border-box;
+            align-items: end;
+            padding: 4px 0 0;
+            background: #fff;
         }
 
         .settings-tabs .tab-btn {
@@ -92,19 +95,21 @@
             box-sizing: border-box;
             width: 100%;
             min-width: 0;
-            padding: 10px 8px;
-            border: 1px solid transparent;
+            padding: 12px 8px;
+            border: 1px solid #d1d5db;
             border-bottom: none;
-            background: #f3f4f6;
-            color: #374151;
+            background: #fff;
+            color: #9ca3af;
             cursor: pointer;
-            border-radius: 8px 8px 0 0;
+            border-radius: 0;
             font-weight: 600;
             font-size: 0.8125rem;
             font-family: inherit;
             text-align: center;
             line-height: 1.3;
             white-space: normal;
+            margin-bottom: -2px;
+            transition: background 0.15s, color 0.15s, border-color 0.15s;
         }
 
         @media (max-width: 1280px) {
@@ -155,15 +160,15 @@
         }
 
         .settings-tabs .tab-btn:hover {
-            background: #e5e7eb;
+            background: #f9fafb;
         }
 
         .settings-tabs .tab-btn.active {
-            background: #fff;
-            border-color: #e5e7eb;
-            border-bottom-color: #fff;
-            margin-bottom: -1px;
+            background: #DFE3E6;
             color: #111827;
+            border-color: #d1d5db;
+            border-bottom-color: #DFE3E6;
+            margin-bottom: -2px;
         }
 
         .tab-panel {
@@ -178,7 +183,7 @@
         .settings-prices-section .prices-section-title {
             margin: 0 0 14px 0;
             font-size: 1.05rem;
-            font-weight: 600;
+            font-weight: 400;
             color: #374151;
         }
 
@@ -203,7 +208,7 @@
         .settings-prices-section .prices-field label {
             display: block;
             font-size: 0.8rem;
-            font-weight: 600;
+            font-weight: 400;
             color: #374151;
             margin-bottom: 4px;
         }
@@ -284,7 +289,7 @@
         }
 
         .settings-prices-section .prices-data-table th {
-            font-weight: 600;
+            font-weight: 400;
             color: #374151;
         }
 
@@ -296,7 +301,7 @@
         }
 
         .settings-prices-section .prices-data-table td.prices-col-price {
-            font-weight: 700;
+            font-weight: 400;
             color: #dc2626;
         }
 
@@ -327,7 +332,7 @@
         }
 
         .settings-prices-section .prices-dl-row label {
-            font-weight: 600;
+            font-weight: 400;
             color: #374151;
             font-size: 0.9rem;
         }
@@ -370,7 +375,7 @@
         .form-group label {
             display: block;
             margin-bottom: 6px;
-            font-weight: 600;
+            font-weight: 400;
             color: #374151;
             font-size: 0.9rem;
         }
@@ -538,7 +543,7 @@
 
         .shipping-rule-row-head label {
             margin: 0;
-            font-weight: 600;
+            font-weight: 400;
             color: #374151;
         }
 
@@ -633,7 +638,7 @@
         .btn-small {
             padding: 6px 12px;
             font-size: 0.8125rem;
-            font-weight: 600;
+            font-weight: 400;
             font-family: inherit;
             border-radius: 8px;
             cursor: pointer;
@@ -729,7 +734,7 @@
             list-style: none;
             cursor: pointer;
             padding: 14px 16px;
-            font-weight: 600;
+            font-weight: 400;
             font-size: 1.02rem;
             color: #374151;
             background: #f9fafb;
@@ -774,6 +779,94 @@
         .settings-collapse-body .settings-hr {
             margin-top: 16px;
         }
+
+        /* リンクボックス（横並び・最大2列・等幅） */
+        .settings-linkbox-menu .settings-linkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 0;
+        }
+
+        .settings-linkbox {
+            display: block;
+            box-sizing: border-box;
+            width: 100%;
+            padding: 14px 18px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #f9fafb;
+            color: #111827;
+            font-size: 1rem;
+            font-weight: 400;
+            font-family: inherit;
+            text-align: left;
+            cursor: pointer;
+            transition: background 0.15s ease, border-color 0.15s ease;
+        }
+
+        .settings-linkbox:hover {
+            background: #f3f4f6;
+            border-color: #d1d5db;
+        }
+
+        .settings-linkbox-detail-header {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .settings-linkbox-detail-title {
+            grid-column: 2;
+            justify-self: center;
+            margin: 0;
+            font-size: 1.05rem;
+            font-weight: 400;
+            color: #111827;
+            text-align: center;
+        }
+
+        .settings-linkbox-panel .announcements-toolbar {
+            justify-content: flex-end;
+        }
+
+        .settings-linkbox-back {
+            grid-column: 3;
+            justify-self: end;
+            padding: 8px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: #fff;
+            color: #374151;
+            font-size: 0.9rem;
+            font-weight: 400;
+            font-family: inherit;
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .settings-linkbox-back:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+            color: #111827;
+        }
+
+        .settings-linkbox-panels {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .settings-linkbox-panel {
+            display: none;
+        }
+
+        .settings-linkbox-panel.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -805,10 +898,22 @@
             <form id="settings-form">
                 <!-- メールタブ -->
                 <div id="tab-mail" class="tab-panel active">
-                    <div class="admin-section">
-                        <details class="settings-collapse">
-                            <summary>通知先</summary>
-                            <div class="settings-collapse-body">
+                    <div class="admin-section settings-linkbox-section" data-settings-tab="mail">
+                        <div class="settings-linkbox-menu">
+                            <nav class="settings-linkbox-grid" aria-label="メール設定項目">
+                                <button type="button" class="settings-linkbox" data-panel="notify">通知先</button>
+                                <button type="button" class="settings-linkbox" data-panel="smtp">SMTP接続</button>
+                                <button type="button" class="settings-linkbox" data-panel="template">メールテンプレート</button>
+                                <button type="button" class="settings-linkbox" data-panel="invite">招待設定</button>
+                            </nav>
+                        </div>
+                        <div class="settings-linkbox-detail" hidden>
+                            <div class="settings-linkbox-detail-header">
+                                <h3 class="settings-linkbox-detail-title"></h3>
+                                <button type="button" class="settings-linkbox-back">戻る</button>
+                            </div>
+                            <div class="settings-linkbox-panels">
+                            <div class="settings-linkbox-panel settings-collapse-body" data-panel="notify" hidden>
                                 <div class="form-group">
                                     <label for="orderNotifyTo">受注通知先</label>
                                     <input type="text" id="orderNotifyTo" class="form-control" placeholder="irikura2@hifumi-m.com">
@@ -828,10 +933,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </details>
-                        <details class="settings-collapse">
-                            <summary>SMTP接続</summary>
-                            <div class="settings-collapse-body">
+                            <div class="settings-linkbox-panel settings-collapse-body" data-panel="smtp" hidden>
                                 <div class="form-group">
                                     <label for="smtpHost">SMTPホスト</label>
                                     <input type="text" id="smtpHost" class="form-control" placeholder="例: smtp.example.com（空欄ならGmail等のプリセット使用）">
@@ -858,10 +960,7 @@
                                     <span class="hint" id="smtpPasswordHint">空欄のまま保存すると既存のパスワードを維持します</span>
                                 </div>
                             </div>
-                        </details>
-                        <details class="settings-collapse">
-                            <summary>メールテンプレート</summary>
-                            <div class="settings-collapse-body">
+                            <div class="settings-linkbox-panel settings-collapse-body" data-panel="template" hidden>
                                 <div class="form-group">
                                     <label for="orderSubject">受注確認の件名</label>
                                     <input type="text" id="orderSubject" class="form-control" placeholder="【受注確認】注文ID: {{orderId}}">
@@ -879,10 +978,7 @@
                                     <textarea id="supportBody" class="form-control" placeholder="プレースホルダ: {{ticketId}}, {{categoryLabel}}, {{customerName}}, {{customerId}}, {{date}}, {{orderId}}, {{customerPoNumber}}, {{detail}}, {{attachmentsList}}"></textarea>
                                 </div>
                             </div>
-                        </details>
-                        <details class="settings-collapse">
-                            <summary>招待設定</summary>
-                            <div class="settings-collapse-body">
+                            <div class="settings-linkbox-panel settings-collapse-body" data-panel="invite" hidden>
                                 <div class="form-group">
                                     <label for="inviteSubject">初回招待の件名</label>
                                     <input type="text" id="inviteSubject" class="form-control" placeholder="【発注システム】初回ログインのご案内">
@@ -908,288 +1004,366 @@
                                     <textarea id="passwordChangedBody" class="form-control" placeholder="プレースホルダ: {{customerName}}, {{date}}"></textarea>
                                 </div>
                             </div>
-                        </details>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- アカウントタブ -->
                 <div id="tab-admin-account" class="tab-panel">
-                    <div class="admin-section">
-                        <details class="settings-collapse">
-                            <summary>管理者ID・表示名</summary>
-                            <div class="settings-collapse-body">
-                                <p class="settings-muted-block" style="margin-top:0;">管理者としてログインする際のIDと表示名を設定します。</p>
-                                <div class="form-group">
-                                    <label for="admin-account-id">管理者ID<span class="settings-label-muted-suffix">（英数字・ピリオド・アンダースコア・ハイフンのみ）</span></label>
-                                    <input type="text" id="admin-account-id" class="form-control" placeholder="例: admin" autocomplete="off">
+                    <div class="admin-section settings-linkbox-section" data-settings-tab="admin-account">
+                        <div class="settings-linkbox-menu">
+                            <nav class="settings-linkbox-grid" aria-label="アカウント設定項目">
+                                <button type="button" class="settings-linkbox" data-panel="identity">管理者ID・表示名</button>
+                                <button type="button" class="settings-linkbox" data-panel="credentials">メールアドレス・パスワード</button>
+                            </nav>
+                        </div>
+                        <div class="settings-linkbox-detail" hidden>
+                            <div class="settings-linkbox-detail-header">
+                                <h3 class="settings-linkbox-detail-title"></h3>
+                                <button type="button" class="settings-linkbox-back">戻る</button>
+                            </div>
+                            <div class="settings-linkbox-panels">
+                                <div class="settings-linkbox-panel settings-collapse-body" data-panel="identity" hidden>
+                                    <p class="settings-muted-block" style="margin-top:0;">管理者としてログインする際のIDと表示名を設定します。</p>
+                                    <div class="form-group">
+                                        <label for="admin-account-id">管理者ID<span class="settings-label-muted-suffix">（英数字・ピリオド・アンダースコア・ハイフンのみ）</span></label>
+                                        <input type="text" id="admin-account-id" class="form-control" placeholder="例: admin" autocomplete="off">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="admin-account-name">表示名</label>
+                                        <input type="text" id="admin-account-name" class="form-control" placeholder="例: 管理者">
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <label for="admin-account-name">表示名</label>
-                                    <input type="text" id="admin-account-name" class="form-control" placeholder="例: 管理者">
+                                <div class="settings-linkbox-panel settings-collapse-body" data-panel="credentials" hidden>
+                                    <div class="form-group">
+                                        <label for="admin-account-email">メールアドレス（パスワード再設定リンクの送信先）</label>
+                                        <input type="email" id="admin-account-email" class="form-control" placeholder="空欄の場合はサポート通知先に送信">
+                                        <span class="hint">パスワードを忘れた場合、ここに再設定リンクを送ります。未設定時はシステム設定の「サポート通知先」に送信されます。</span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="admin-account-password">パスワード</label>
+                                        <input type="password" id="admin-account-password" class="form-control" placeholder="変更する場合のみ入力（4文字以上）" autocomplete="new-password">
+                                        <span class="hint" id="admin-account-password-hint">空欄のまま保存すると既存のパスワードを維持します。</span>
+                                    </div>
                                 </div>
                             </div>
-                        </details>
-                        <details class="settings-collapse">
-                            <summary>メールアドレス・パスワード</summary>
-                            <div class="settings-collapse-body">
-                                <div class="form-group">
-                                    <label for="admin-account-email">メールアドレス（パスワード再設定リンクの送信先）</label>
-                                    <input type="email" id="admin-account-email" class="form-control" placeholder="空欄の場合はサポート通知先に送信">
-                                    <span class="hint">パスワードを忘れた場合、ここに再設定リンクを送ります。未設定時はシステム設定の「サポート通知先」に送信されます。</span>
-                                </div>
-                                <div class="form-group">
-                                    <label for="admin-account-password">パスワード</label>
-                                    <input type="password" id="admin-account-password" class="form-control" placeholder="変更する場合のみ入力（4文字以上）" autocomplete="new-password">
-                                    <span class="hint" id="admin-account-password-hint">空欄のまま保存すると既存のパスワードを維持します。</span>
-                                </div>
-                            </div>
-                        </details>
+                        </div>
                     </div>
                 </div>
 
                 <!-- 機能表示タブ -->
                 <div id="tab-features" class="tab-panel">
-                    <div class="admin-section">
-                        <h3>顧客向け機能</h3>
-                        <div class="feature-grid" id="features-customer"></div>
-                    </div>
-                    <div class="admin-section">
-                        <h3>管理画面機能</h3>
-                        <div class="feature-grid" id="features-admin"></div>
+                    <div class="admin-section settings-linkbox-section" data-settings-tab="features">
+                        <div class="settings-linkbox-menu">
+                            <nav class="settings-linkbox-grid" aria-label="機能表示設定項目">
+                                <button type="button" class="settings-linkbox" data-panel="customer">顧客向け機能</button>
+                                <button type="button" class="settings-linkbox" data-panel="admin">管理画面機能</button>
+                            </nav>
+                        </div>
+                        <div class="settings-linkbox-detail" hidden>
+                            <div class="settings-linkbox-detail-header">
+                                <h3 class="settings-linkbox-detail-title"></h3>
+                                <button type="button" class="settings-linkbox-back">戻る</button>
+                            </div>
+                            <div class="settings-linkbox-panels">
+                                <div class="settings-linkbox-panel settings-collapse-body" data-panel="customer" hidden>
+                                    <div class="feature-grid" id="features-customer"></div>
+                                </div>
+                                <div class="settings-linkbox-panel settings-collapse-body" data-panel="admin" hidden>
+                                    <div class="feature-grid" id="features-admin"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- ランクタブ -->
                 <div id="tab-rank-names" class="tab-panel">
-                    <div class="admin-section">
-                        <h3>ランク数と表示名</h3>
-                        <div class="form-group settings-form-narrow">
-                            <label for="rank-count">ランクの数</label>
-                            <input type="number" id="rank-count" class="form-control" min="1" max="26" value="10" placeholder="10">
+                    <div class="admin-section settings-linkbox-section" data-settings-tab="rank-names">
+                        <div class="settings-linkbox-menu">
+                            <nav class="settings-linkbox-grid" aria-label="ランク設定項目">
+                                <button type="button" class="settings-linkbox" data-panel="ranks">ランク数と表示名</button>
+                            </nav>
                         </div>
-                        <div id="rank-names-list" class="settings-rank-names-grid"></div>
+                        <div class="settings-linkbox-detail" hidden>
+                            <div class="settings-linkbox-detail-header">
+                                <h3 class="settings-linkbox-detail-title"></h3>
+                                <button type="button" class="settings-linkbox-back">戻る</button>
+                            </div>
+                            <div class="settings-linkbox-panels">
+                                <div class="settings-linkbox-panel settings-collapse-body" data-panel="ranks" hidden>
+                                    <div class="form-group settings-form-narrow">
+                                        <label for="rank-count">ランクの数</label>
+                                        <input type="number" id="rank-count" class="form-control" min="1" max="26" value="10" placeholder="10">
+                                    </div>
+                                    <div id="rank-names-list" class="settings-rank-names-grid"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- 注文タブ -->
                 <div id="tab-shipping-cart" class="tab-panel">
-                    <div class="admin-section">
-                        <details class="settings-collapse">
-                            <summary>カートの内容確認ページ</summary>
-                            <div class="settings-collapse-body">
-                                <p class="settings-muted-block" style="margin-top:0;">注文確定前のカート画面の最下部に表示する「送料・配送に関するお知らせ」です。</p>
-                                <div class="form-group">
-                                    <label for="cart-shipping-notice">送料・配送お知らせ</label>
-                                    <textarea id="cart-shipping-notice" class="form-control" rows="12" placeholder="例:&#10;【注意】送料・配送に関する重要なお知らせ&#10;&#10;・表示価格はまとめ買い優遇価格です。&#10;・同一メーカー製品の合計が11,000円未満の場合は別途送料が発生します。"></textarea>
+                    <div class="admin-section settings-linkbox-section" data-settings-tab="shipping-cart">
+                        <div class="settings-linkbox-menu">
+                            <nav class="settings-linkbox-grid" aria-label="注文設定項目">
+                                <button type="button" class="settings-linkbox" data-panel="cart-notice">カートの内容確認ページ</button>
+                                <button type="button" class="settings-linkbox" data-panel="shipping-rules">送料規定</button>
+                            </nav>
+                        </div>
+                        <div class="settings-linkbox-detail" hidden>
+                            <div class="settings-linkbox-detail-header">
+                                <h3 class="settings-linkbox-detail-title"></h3>
+                                <button type="button" class="settings-linkbox-back">戻る</button>
+                            </div>
+                            <div class="settings-linkbox-panels">
+                                <div class="settings-linkbox-panel settings-collapse-body" data-panel="cart-notice" hidden>
+                                    <p class="settings-muted-block" style="margin-top:0;">注文確定前のカート画面の最下部に表示する「送料・配送に関するお知らせ」です。</p>
+                                    <div class="form-group">
+                                        <label for="cart-shipping-notice">送料・配送お知らせ</label>
+                                        <textarea id="cart-shipping-notice" class="form-control" rows="12" placeholder="例:&#10;【注意】送料・配送に関する重要なお知らせ&#10;&#10;・表示価格はまとめ買い優遇価格です。&#10;・同一メーカー製品の合計が11,000円未満の場合は別途送料が発生します。"></textarea>
+                                    </div>
+                                </div>
+                                <div class="settings-linkbox-panel settings-collapse-body" data-panel="shipping-rules" hidden>
+                                    <p class="settings-muted-block" style="margin-top:0;">ランク別価格表をExcelでダウンロードする際、メーカーごとのシートの先頭に記載されます。「既定」はメーカーに該当する規定がない場合に使われます。メーカー名は商品マスタの「メーカー名」と一致させてください。</p>
+                                    <div class="form-group">
+                                        <label for="shipping-rule-default">既定（どのメーカーにも当てはまらない場合）</label>
+                                        <textarea id="shipping-rule-default" class="form-control" rows="4" placeholder="送料規定のテキスト（複数行可）"></textarea>
+                                    </div>
+                                    <div id="shipping-rules-list" class="settings-shipping-rules-list"></div>
+                                    <button type="button" id="btn-add-shipping-rule" class="btn-small btn-secondary settings-btn-add-shipping settings-btn-with-icon"><span class="settings-btn-icon" data-admin-icon="settingsBtnPlus" aria-hidden="true"></span>メーカーを追加</button>
                                 </div>
                             </div>
-                        </details>
-                        <details class="settings-collapse">
-                            <summary>送料規定</summary>
-                            <div class="settings-collapse-body">
-                                <p class="settings-muted-block" style="margin-top:0;">ランク別価格表をExcelでダウンロードする際、メーカーごとのシートの先頭に記載されます。「既定」はメーカーに該当する規定がない場合に使われます。メーカー名は商品マスタの「メーカー名」と一致させてください。</p>
-                                <div class="form-group">
-                                    <label for="shipping-rule-default">既定（どのメーカーにも当てはまらない場合）</label>
-                                    <textarea id="shipping-rule-default" class="form-control" rows="4" placeholder="送料規定のテキスト（複数行可）"></textarea>
-                                </div>
-                                <div id="shipping-rules-list" class="settings-shipping-rules-list"></div>
-                                <button type="button" id="btn-add-shipping-rule" class="btn-small btn-secondary settings-btn-add-shipping settings-btn-with-icon"><span class="settings-btn-icon" data-admin-icon="settingsBtnPlus" aria-hidden="true"></span>メーカーを追加</button>
-                            </div>
-                        </details>
+                        </div>
                     </div>
                 </div>
 
                 <!-- 汎用・連携（見積PDF・価格表・受注CSV・物流取込） -->
                 <div id="tab-data-formats" class="tab-panel">
-                    <div class="admin-section">
-                        <details class="settings-collapse">
-                            <summary>顧客向け見積PDFの発行元</summary>
-                            <div class="settings-collapse-body">
-                                <p class="hint" style="margin-top:0;">カート画面の「見積書」に反映されます。</p>
-                                <div class="form-row">
-                                    <div class="form-group"><label>会社名</label><input type="text" id="df-pb-company" class="form-control" placeholder="株式会社○○"></div>
-                                    <div class="form-group"><label>ロゴ文言</label><input type="text" id="df-pb-logo" class="form-control"></div>
-                                </div>
-                                <div class="form-row">
-                                    <div class="form-group"><label>郵便番号</label><input type="text" id="df-pb-zip" class="form-control settings-input-postal"></div>
-                                    <div class="form-group"><label>住所</label><input type="text" id="df-pb-address" class="form-control"></div>
-                                </div>
-                                <div class="form-row">
-                                    <div class="form-group"><label>TEL</label><input type="text" id="df-pb-tel" class="form-control"></div>
-                                    <div class="form-group"><label>FAX</label><input type="text" id="df-pb-fax" class="form-control"></div>
-                                </div>
-                                <div class="form-group"><label>担当欄の表示</label><input type="text" id="df-pb-contact" class="form-control" placeholder="担当者"></div>
-                                <div class="form-row">
-                                    <div class="form-group"><label>件名（顧客側ブロック）</label><input type="text" id="df-pb-subject" class="form-control"></div>
-                                    <div class="form-group"><label>支払条件</label><input type="text" id="df-pb-payment" class="form-control"></div>
-                                </div>
-                                <div class="form-group"><label>有効期限の文言</label><input type="text" id="df-pb-valid" class="form-control" placeholder="発行より1ヶ月"></div>
-                                <div class="form-group"><label>備考フッター（HTML可・改行可）</label><textarea id="df-pb-footer" class="form-control" rows="4"></textarea></div>
+                    <div class="admin-section settings-linkbox-section" data-settings-tab="data-formats">
+                        <div class="settings-linkbox-menu">
+                            <nav class="settings-linkbox-grid" aria-label="汎用・連携設定項目">
+                                <button type="button" class="settings-linkbox" data-panel="pdf-branding">顧客向け見積PDFの発行元</button>
+                                <button type="button" class="settings-linkbox" data-panel="pricelist">価格表のカテゴリ・ヘッダー</button>
+                                <button type="button" class="settings-linkbox" data-panel="logistics-import">物流ステータスCSV取込（列名）</button>
+                                <button type="button" class="settings-linkbox" data-panel="order-export">受注データCSVエクスポート（基幹連携）</button>
+                                <button type="button" class="settings-linkbox" data-panel="estimate-aliases">見積Excel/CSV取込の列名エイリアス（上級者向け）</button>
+                                <button type="button" class="settings-linkbox" data-panel="fixed-columns">固定列インデックス取込（Excel・上級者向け）</button>
+                            </nav>
+                        </div>
+                        <div class="settings-linkbox-detail" hidden>
+                            <div class="settings-linkbox-detail-header">
+                                <h3 class="settings-linkbox-detail-title"></h3>
+                                <button type="button" class="settings-linkbox-back">戻る</button>
                             </div>
-                        </details>
-                        <details class="settings-collapse">
-                            <summary>価格表のカテゴリ・ヘッダー</summary>
-                            <div class="settings-collapse-body">
-                                <div class="form-group"><label>カテゴリの並び（カンマ区切り）</label><input type="text" id="df-pl-sort" class="form-control" placeholder="純正,再生,汎用,海外純正"></div>
-                                <div class="form-row">
-                                    <div class="form-group"><label>メーカー別シートにするカテゴリ名</label><input type="text" id="df-pl-split" class="form-control" placeholder="純正"></div>
-                                    <div class="form-group"><label>シート内をメーカー順に並べ替えるカテゴリ</label><input type="text" id="df-pl-sortsheet" class="form-control" placeholder="再生"></div>
+                            <div class="settings-linkbox-panels">
+                                <div class="settings-linkbox-panel settings-collapse-body" data-panel="pdf-branding" hidden>
+                                    <p class="hint" style="margin-top:0;">カート画面の「見積書」に反映されます。</p>
+                                    <div class="form-row">
+                                        <div class="form-group"><label>会社名</label><input type="text" id="df-pb-company" class="form-control" placeholder="株式会社○○"></div>
+                                        <div class="form-group"><label>ロゴ文言</label><input type="text" id="df-pb-logo" class="form-control"></div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group"><label>郵便番号</label><input type="text" id="df-pb-zip" class="form-control settings-input-postal"></div>
+                                        <div class="form-group"><label>住所</label><input type="text" id="df-pb-address" class="form-control"></div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group"><label>TEL</label><input type="text" id="df-pb-tel" class="form-control"></div>
+                                        <div class="form-group"><label>FAX</label><input type="text" id="df-pb-fax" class="form-control"></div>
+                                    </div>
+                                    <div class="form-group"><label>担当欄の表示</label><input type="text" id="df-pb-contact" class="form-control" placeholder="担当者"></div>
+                                    <div class="form-row">
+                                        <div class="form-group"><label>件名（顧客側ブロック）</label><input type="text" id="df-pb-subject" class="form-control"></div>
+                                        <div class="form-group"><label>支払条件</label><input type="text" id="df-pb-payment" class="form-control"></div>
+                                    </div>
+                                    <div class="form-group"><label>有効期限の文言</label><input type="text" id="df-pb-valid" class="form-control" placeholder="発行より1ヶ月"></div>
+                                    <div class="form-group"><label>備考フッター（HTML可・改行可）</label><textarea id="df-pb-footer" class="form-control" rows="4"></textarea></div>
                                 </div>
-                                <div class="form-group"><label>カテゴリ→Excelシート名（JSONオブジェクト）</label><textarea id="df-pl-sheetnames" class="form-control" rows="3" placeholder='{"再生":"再生","汎用":"汎用"}'></textarea></div>
-                                <div class="form-group"><label>価格表CSVのヘッダー行（カンマ区切り・改行なし）</label><input type="text" id="df-pl-csv-h" class="form-control"></div>
-                                <div class="form-group"><label>商品名から除去する文字列（価格表の表示用）</label><input type="text" id="df-pl-strip" class="form-control" placeholder="商品コード"></div>
-                                <div class="form-group"><label>価格表Excelのヘッダー列（カンマ区切り）</label><input type="text" id="df-pl-xlsx-h" class="form-control"></div>
-                            </div>
-                        </details>
-                        <details class="settings-collapse">
-                            <summary>物流ステータスCSV取込（列名）</summary>
-                            <div class="settings-collapse-body">
-                                <p class="hint" style="margin-top:0;">社内メモ内の公開注文ID検出用の正規表現・列名の候補をカンマ区切りで指定します。</p>
-                                <div class="form-group"><label>メモ欄の列名候補</label><input type="text" id="df-li-memo" class="form-control" placeholder="社内メモ,備考"></div>
-                                <div class="form-group"><label>公開ID検出の正規表現</label><input type="text" id="df-li-pattern" class="form-control" placeholder="W(\\d{11})"></div>
-                                <div class="form-row">
-                                    <div class="form-group"><label>受注番号の列名候補</label><input type="text" id="df-li-ordno" class="form-control"></div>
-                                    <div class="form-group"><label>得意先名の列名候補</label><input type="text" id="df-li-cust" class="form-control"></div>
+                                <div class="settings-linkbox-panel settings-collapse-body" data-panel="pricelist" hidden>
+                                    <div class="form-group"><label>カテゴリの並び（カンマ区切り）</label><input type="text" id="df-pl-sort" class="form-control" placeholder="純正,再生,汎用,海外純正"></div>
+                                    <div class="form-row">
+                                        <div class="form-group"><label>メーカー別シートにするカテゴリ名</label><input type="text" id="df-pl-split" class="form-control" placeholder="純正"></div>
+                                        <div class="form-group"><label>シート内をメーカー順に並べ替えるカテゴリ</label><input type="text" id="df-pl-sortsheet" class="form-control" placeholder="再生"></div>
+                                    </div>
+                                    <div class="form-group"><label>カテゴリ→Excelシート名（JSONオブジェクト）</label><textarea id="df-pl-sheetnames" class="form-control" rows="3" placeholder='{"再生":"再生","汎用":"汎用"}'></textarea></div>
+                                    <div class="form-group"><label>価格表CSVのヘッダー行（カンマ区切り・改行なし）</label><input type="text" id="df-pl-csv-h" class="form-control"></div>
+                                    <div class="form-group"><label>商品名から除去する文字列（価格表の表示用）</label><input type="text" id="df-pl-strip" class="form-control" placeholder="商品コード"></div>
+                                    <div class="form-group"><label>価格表Excelのヘッダー列（カンマ区切り）</label><input type="text" id="df-pl-xlsx-h" class="form-control"></div>
                                 </div>
-                                <div class="form-row">
-                                    <div class="form-group"><label>合計金額の列名候補</label><input type="text" id="df-li-total" class="form-control"></div>
-                                    <div class="form-group"><label>受注日の列名候補</label><input type="text" id="df-li-odate" class="form-control"></div>
+                                <div class="settings-linkbox-panel settings-collapse-body" data-panel="logistics-import" hidden>
+                                    <p class="hint" style="margin-top:0;">社内メモ内の公開注文ID検出用の正規表現・列名の候補をカンマ区切りで指定します。</p>
+                                    <div class="form-group"><label>メモ欄の列名候補</label><input type="text" id="df-li-memo" class="form-control" placeholder="社内メモ,備考"></div>
+                                    <div class="form-group"><label>公開ID検出の正規表現</label><input type="text" id="df-li-pattern" class="form-control" placeholder="W(\\d{11})"></div>
+                                    <div class="form-row">
+                                        <div class="form-group"><label>受注番号の列名候補</label><input type="text" id="df-li-ordno" class="form-control"></div>
+                                        <div class="form-group"><label>得意先名の列名候補</label><input type="text" id="df-li-cust" class="form-control"></div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group"><label>合計金額の列名候補</label><input type="text" id="df-li-total" class="form-control"></div>
+                                        <div class="form-group"><label>受注日の列名候補</label><input type="text" id="df-li-odate" class="form-control"></div>
+                                    </div>
+                                    <div class="form-group"><label>納品日・納期の列名候補</label><input type="text" id="df-li-ddate" class="form-control"></div>
+                                    <div class="form-group"><label>新規行の source 文字列</label><input type="text" id="df-li-src" class="form-control" placeholder="FLAM"></div>
                                 </div>
-                                <div class="form-group"><label>納品日・納期の列名候補</label><input type="text" id="df-li-ddate" class="form-control"></div>
-                                <div class="form-group"><label>新規行の source 文字列</label><input type="text" id="df-li-src" class="form-control" placeholder="FLAM"></div>
+                                <div class="settings-linkbox-panel settings-collapse-body" data-panel="order-export" hidden>
+                                    <p class="hint" style="margin-top:0;">ヘッダー行のみ変更する場合は1行目を編集。データ列の対応を変える場合は列キー配列をJSONで指定（列数はヘッダーと一致必須）。空欄は既定のまま。</p>
+                                    <div class="form-group"><label>ヘッダー行（カンマ区切り1行）</label><textarea id="df-order-csv-h" class="form-control" rows="4" placeholder="空欄＝システム既定"></textarea></div>
+                                    <div class="form-group"><label>列キー（JSON配列・例: ["orderId","orderDate","empty",...]）</label><textarea id="df-order-csv-keys" class="form-control" rows="6" placeholder="空欄＝システム既定。利用可能キー: orderId, orderDate, customerId, customerName, deliveryNote, internalMemo, productCode, productName, unitPrice, quantity, empty, literal:0"></textarea></div>
+                                </div>
+                                <div class="settings-linkbox-panel settings-collapse-body" data-panel="estimate-aliases" hidden>
+                                    <p class="hint" style="margin-top:0;">既定の別名に追加するヘッダー名をJSONで指定します。キー: estimateId, customerId, productCode, productName, price, validUntil, manufacturer, subject</p>
+                                    <div class="form-group"><label>列名エイリアス（JSON）</label><textarea id="df-est-aliases" class="form-control" rows="5" placeholder='例: {"customerId":["取引先コード"]}'></textarea></div>
+                                </div>
+                                <div class="settings-linkbox-panel settings-collapse-body" data-panel="fixed-columns" hidden>
+                                    <p class="hint" style="margin-top:0;">csvService.importFlamData 等で使用。通常は空欄で既定（0始まり列番号のJSON）。</p>
+                                    <div class="form-group"><label>列インデックス（JSON）</label><textarea id="df-fixed-cols" class="form-control" rows="3" placeholder='{"orderId":0,"orderDate":1,...}'></textarea></div>
+                                </div>
                             </div>
-                        </details>
-                        <details class="settings-collapse">
-                            <summary>受注データCSVエクスポート（基幹連携）</summary>
-                            <div class="settings-collapse-body">
-                                <p class="hint" style="margin-top:0;">ヘッダー行のみ変更する場合は1行目を編集。データ列の対応を変える場合は列キー配列をJSONで指定（列数はヘッダーと一致必須）。空欄は既定のまま。</p>
-                                <div class="form-group"><label>ヘッダー行（カンマ区切り1行）</label><textarea id="df-order-csv-h" class="form-control" rows="4" placeholder="空欄＝システム既定"></textarea></div>
-                                <div class="form-group"><label>列キー（JSON配列・例: ["orderId","orderDate","empty",...]）</label><textarea id="df-order-csv-keys" class="form-control" rows="6" placeholder="空欄＝システム既定。利用可能キー: orderId, orderDate, customerId, customerName, deliveryNote, internalMemo, productCode, productName, unitPrice, quantity, empty, literal:0"></textarea></div>
-                            </div>
-                        </details>
-                        <details class="settings-collapse">
-                            <summary>見積Excel/CSV取込の列名エイリアス（上級者向け）</summary>
-                            <div class="settings-collapse-body">
-                                <p class="hint" style="margin-top:0;">既定の別名に追加するヘッダー名をJSONで指定します。キー: estimateId, customerId, productCode, productName, price, validUntil, manufacturer, subject</p>
-                                <div class="form-group"><label>列名エイリアス（JSON）</label><textarea id="df-est-aliases" class="form-control" rows="5" placeholder='例: {"customerId":["取引先コード"]}'></textarea></div>
-                            </div>
-                        </details>
-                        <details class="settings-collapse">
-                            <summary>固定列インデックス取込（Excel・上級者向け）</summary>
-                            <div class="settings-collapse-body">
-                                <p class="hint" style="margin-top:0;">csvService.importFlamData 等で使用。通常は空欄で既定（0始まり列番号のJSON）。</p>
-                                <div class="form-group"><label>列インデックス（JSON）</label><textarea id="df-fixed-cols" class="form-control" rows="3" placeholder='{"orderId":0,"orderDate":1,...}'></textarea></div>
-                            </div>
-                        </details>
+                        </div>
                     </div>
                 </div>
 
                 <!-- お知らせタブ -->
                 <div id="tab-announcements" class="tab-panel">
-                    <div class="admin-section">
-                        <div class="announcements-toolbar">
-                            <h3>お知らせ・バナー管理</h3>
-                            <button type="button" id="btn-add-announcement" class="btn-small settings-btn-with-icon settings-btn-announcement-add"><span class="settings-btn-icon" data-admin-icon="settingsBtnPlus" aria-hidden="true"></span>新規追加</button>
+                    <div class="admin-section settings-linkbox-section" data-settings-tab="announcements">
+                        <div class="settings-linkbox-menu">
+                            <nav class="settings-linkbox-grid" aria-label="お知らせ設定項目">
+                                <button type="button" class="settings-linkbox" data-panel="manage">お知らせ・バナー管理</button>
+                            </nav>
                         </div>
-                        <p class="settings-muted-block settings-announce-intro">
-                            <strong>【注文に関するお知らせ】</strong>（バナー）: 配送遅延、休業前後の締め時間変更など、注文・発送に直接関係するお知らせのみ。注文ページ・注文履歴ページに表示されます。<br>
-                            <strong>【一般お知らせ】</strong>: その他の案内・ニュース。顧客のホーム（<code>home.html</code>）上部に一覧表示されます。<br>
-                            開始日時・終了日時を設定すると、自動的に表示・非表示が切り替わります。<br>
-                            <strong class="settings-announce-warn">※お知らせを追加・編集したら、画面上部の「設定を保存」ボタンを押すと、顧客画面に反映されます。</strong>
-                        </p>
-                        <div id="announcements-list"></div>
+                        <div class="settings-linkbox-detail" hidden>
+                            <div class="settings-linkbox-detail-header">
+                                <h3 class="settings-linkbox-detail-title"></h3>
+                                <button type="button" class="settings-linkbox-back">戻る</button>
+                            </div>
+                            <div class="settings-linkbox-panels">
+                                <div class="settings-linkbox-panel settings-collapse-body" data-panel="manage" hidden>
+                                    <div class="announcements-toolbar">
+                                        <button type="button" id="btn-add-announcement" class="btn-small settings-btn-with-icon settings-btn-announcement-add"><span class="settings-btn-icon" data-admin-icon="settingsBtnPlus" aria-hidden="true"></span>新規追加</button>
+                                    </div>
+                                    <p class="settings-muted-block settings-announce-intro">
+                                        【注文に関するお知らせ】（バナー）: 配送遅延、休業前後の締め時間変更など、注文・発送に直接関係するお知らせのみ。注文ページ・注文履歴ページに表示されます。<br>
+                                        【一般お知らせ】: その他の案内・ニュース。顧客のホーム（<code>home.html</code>）上部に一覧表示されます。<br>
+                                        開始日時・終了日時を設定すると、自動的に表示・非表示が切り替わります。<br>
+                                        <span class="settings-announce-warn">※お知らせを追加・編集したら、画面上部の「保存」ボタンを押すと、顧客画面に反映されます。</span>
+                                    </p>
+                                    <div id="announcements-list"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- その他タブ -->
                 <div id="tab-recaptcha" class="tab-panel">
-                    <div class="admin-section">
-                        <details class="settings-collapse">
-                            <summary>ログインCAPTCHA</summary>
-                            <div class="settings-collapse-body">
-                                <p class="hint settings-hint-spaced" style="margin-top:0;">ログイン失敗が2回を超えると、3回目以降はCAPTCHAの入力が必須になります。Google reCAPTCHA のサイトキーとシークレットキーを取得して設定してください。未設定の場合はCAPTCHAは使用されません。</p>
-                                <div class="form-group">
-                                    <label for="recaptchaSiteKey">サイトキー — 公開用</label>
-                                    <input type="text" id="recaptchaSiteKey" class="form-control" placeholder="例: 6Lcxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off">
-                                </div>
-                                <div class="form-group">
-                                    <label for="recaptchaSecretKey">シークレットキー — サーバー用・非公開</label>
-                                    <input type="password" id="recaptchaSecretKey" class="form-control" placeholder="変更する場合のみ入力" autocomplete="new-password">
-                                    <span class="hint" id="recaptchaSecretKeyHint">空欄のまま保存すると既存のシークレットキーを維持します</span>
-                                </div>
-                                <p class="hint"><a href="https://www.google.com/recaptcha/admin" target="_blank" rel="noopener">Google reCAPTCHA 管理コンソール</a>で「reCAPTCHA v2」の「チェックボックス」タイプのキーを登録してください。</p>
+                    <div class="admin-section settings-linkbox-section" data-settings-tab="recaptcha">
+                        <div class="settings-linkbox-menu">
+                            <nav class="settings-linkbox-grid" aria-label="その他設定項目">
+                                <button type="button" class="settings-linkbox" data-panel="captcha">ログインCAPTCHA</button>
+                            </nav>
+                        </div>
+                        <div class="settings-linkbox-detail" hidden>
+                            <div class="settings-linkbox-detail-header">
+                                <h3 class="settings-linkbox-detail-title"></h3>
+                                <button type="button" class="settings-linkbox-back">戻る</button>
                             </div>
-                        </details>
+                            <div class="settings-linkbox-panels">
+                                <div class="settings-linkbox-panel settings-collapse-body" data-panel="captcha" hidden>
+                                    <p class="hint settings-hint-spaced" style="margin-top:0;">ログイン失敗が2回を超えると、3回目以降はCAPTCHAの入力が必須になります。Google reCAPTCHA のサイトキーとシークレットキーを取得して設定してください。未設定の場合はCAPTCHAは使用されません。</p>
+                                    <div class="form-group">
+                                        <label for="recaptchaSiteKey">サイトキー — 公開用</label>
+                                        <input type="text" id="recaptchaSiteKey" class="form-control" placeholder="例: 6Lcxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="recaptchaSecretKey">シークレットキー — サーバー用・非公開</label>
+                                        <input type="password" id="recaptchaSecretKey" class="form-control" placeholder="変更する場合のみ入力" autocomplete="new-password">
+                                        <span class="hint" id="recaptchaSecretKeyHint">空欄のまま保存すると既存のシークレットキーを維持します</span>
+                                    </div>
+                                    <p class="hint"><a href="https://www.google.com/recaptcha/admin" target="_blank" rel="noopener">Google reCAPTCHA 管理コンソール</a>で「reCAPTCHA v2」の「チェックボックス」タイプのキーを登録してください。</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="settings-footer-actions">
-                    <button type="submit" id="btn-save" class="settings-btn-save">設定を保存</button>
+                    <button type="submit" id="btn-save" class="settings-btn-save">保存</button>
                 </div>
             </form>
 
             <!-- 価格・掛率設定タブ（settings-form 外） -->
             <div id="tab-prices" class="tab-panel">
-                <div class="admin-section settings-prices-section">
-                    <h3 class="settings-section-heading">価格・掛率設定</h3>
-
-                    <h4 class="prices-section-title">個別価格設定</h4>
-                    <div class="prices-subpanel">
-                        <div class="prices-form-row">
-                            <div class="prices-field">
-                                <label for="price-customer-id">顧客ID</label>
-                                <input type="text" id="price-customer-id" class="prices-field-input" placeholder="ID検索…" autocomplete="off">
-                                <div id="suggest-customer" class="prices-suggest" role="listbox" aria-label="顧客候補"></div>
-                            </div>
-                            <div class="prices-field">
-                                <label for="price-product-code">商品コード</label>
-                                <input type="text" id="price-product-code" class="prices-field-input" placeholder="商品検索…" autocomplete="off">
-                                <div id="suggest-product" class="prices-suggest" role="listbox" aria-label="商品候補"></div>
-                            </div>
-                            <div id="price-edit-area">
-                                <span id="current-price-display" style="font-weight: 700; font-size: 0.9rem; color: #374151;">---</span>
-                                <span aria-hidden="true" style="color: #9ca3af;">→</span>
-                                <input type="number" id="new-special-price" class="prices-field-input" placeholder="新単価" style="width: 96px;">
-                                <button type="button" id="btn-save-price" class="prices-toolbar-btn">保存</button>
-                            </div>
-                        </div>
+                <div class="admin-section settings-prices-section settings-linkbox-section" data-settings-tab="prices">
+                    <div class="settings-linkbox-menu">
+                        <nav class="settings-linkbox-grid" aria-label="価格・掛率設定項目">
+                            <button type="button" class="settings-linkbox" data-panel="individual">個別価格設定</button>
+                            <button type="button" class="settings-linkbox" data-panel="special-list">設定済み個別特価リスト</button>
+                            <button type="button" class="settings-linkbox" data-panel="bulk">個別価格一括登録</button>
+                            <button type="button" class="settings-linkbox" data-panel="pricelist-dl">ランク別価格表ダウンロード</button>
+                        </nav>
                     </div>
-
-                    <div class="prices-divider">
-                        <h4 class="prices-section-title">設定済み個別特価リスト</h4>
-                        <div class="prices-data-table-wrap">
-                            <table class="prices-data-table">
-                                <thead>
-                                    <tr>
-                                        <th>顧客名</th>
-                                        <th>商品名</th>
-                                        <th class="prices-col-price">特別単価</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="special-price-table-body"></tbody>
-                            </table>
+                    <div class="settings-linkbox-detail" hidden>
+                        <div class="settings-linkbox-detail-header">
+                            <h3 class="settings-linkbox-detail-title"></h3>
+                            <button type="button" class="settings-linkbox-back">戻る</button>
                         </div>
-                    </div>
-
-                    <div class="admin-section" style="margin-top: 20px; margin-bottom: 0;">
-                        <div class="prices-bulk-panel">
-                            <h4 class="prices-section-title">個別価格一括登録</h4>
-                            <div class="prices-bulk-actions">
-                                <input type="file" id="price-csv-input" accept=".csv,.xlsx,.xls">
-                                <button type="button" id="price-csv-btn" class="prices-toolbar-btn prices-btn-register">登録</button>
+                        <div class="settings-linkbox-panels">
+                            <div class="settings-linkbox-panel settings-collapse-body" data-panel="individual" hidden>
+                                <div class="prices-subpanel">
+                                    <div class="prices-form-row">
+                                        <div class="prices-field">
+                                            <label for="price-customer-id">顧客ID</label>
+                                            <input type="text" id="price-customer-id" class="prices-field-input" placeholder="ID検索…" autocomplete="off">
+                                            <div id="suggest-customer" class="prices-suggest" role="listbox" aria-label="顧客候補"></div>
+                                        </div>
+                                        <div class="prices-field">
+                                            <label for="price-product-code">商品コード</label>
+                                            <input type="text" id="price-product-code" class="prices-field-input" placeholder="商品検索…" autocomplete="off">
+                                            <div id="suggest-product" class="prices-suggest" role="listbox" aria-label="商品候補"></div>
+                                        </div>
+                                        <div id="price-edit-area">
+                                            <span id="current-price-display" style="font-size: 0.9rem; color: #374151;">---</span>
+                                            <span aria-hidden="true" style="color: #9ca3af;">→</span>
+                                            <input type="number" id="new-special-price" class="prices-field-input" placeholder="新単価" style="width: 96px;">
+                                            <button type="button" id="btn-save-price" class="prices-toolbar-btn">保存</button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <div style="margin-top: 20px;">
-                        <h4 class="prices-section-title">ランク別価格表ダウンロード</h4>
-                        <div class="prices-dl-row">
-                            <label for="pricelist-rank-select">ランクを選択</label>
-                            <select id="pricelist-rank-select">
-                                <option value="A">A</option>
-                            </select>
-                            <a id="pricelist-download-link" href="/api/admin/download-pricelist-by-rank/A" class="prices-toolbar-btn">CSV</a>
-                            <a id="pricelist-excel-link" href="/api/admin/download-pricelist-excel-by-rank/A" class="prices-toolbar-btn">Excel</a>
+                            <div class="settings-linkbox-panel settings-collapse-body" data-panel="special-list" hidden>
+                                <div class="prices-data-table-wrap">
+                                    <table class="prices-data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>顧客名</th>
+                                                <th>商品名</th>
+                                                <th class="prices-col-price">特別単価</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="special-price-table-body"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="settings-linkbox-panel settings-collapse-body" data-panel="bulk" hidden>
+                                <div class="prices-bulk-panel">
+                                    <div class="prices-bulk-actions">
+                                        <input type="file" id="price-csv-input" accept=".csv,.xlsx,.xls">
+                                        <button type="button" id="price-csv-btn" class="prices-toolbar-btn prices-btn-register">登録</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="settings-linkbox-panel settings-collapse-body" data-panel="pricelist-dl" hidden>
+                                <div class="prices-dl-row">
+                                    <label for="pricelist-rank-select">ランクを選択</label>
+                                    <select id="pricelist-rank-select">
+                                        <option value="A">A</option>
+                                    </select>
+                                    <a id="pricelist-download-link" href="/api/admin/download-pricelist-by-rank/A" class="prices-toolbar-btn">CSV</a>
+                                    <a id="pricelist-excel-link" href="/api/admin/download-pricelist-excel-by-rank/A" class="prices-toolbar-btn">Excel</a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1197,105 +1371,113 @@
 
             <!-- 在庫連携・表示設定タブ（settings-form 外：独自保存のため） -->
             <div id="tab-stock" class="tab-panel">
-                <div class="admin-section settings-stock-section">
-                    <h3 class="settings-section-heading">在庫連携・表示設定</h3>
-                    <div class="stock-grid" style="display:flex; flex-wrap:wrap; gap:20px; margin-bottom:20px;">
-                        <div class="stock-card" style="flex:1; min-width:280px; background:#f8f9fa; padding:15px; border-radius:6px; border:1px solid #dee2e6;">
-                            <h4 style="margin-top:0;">表示設定</h4>
-                            <label style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
-                                <input type="checkbox" id="stock-display-toggle">
-                                商品一覧で在庫数を表示する
-                            </label>
-                            <div class="form-group">
-                                <label for="stock-hidden-message">非公開時メッセージ</label>
-                                <input type="text" id="stock-hidden-message" class="form-control" placeholder="例: 仕入先直送のため在庫非公開">
-                            </div>
-                            <div class="form-group">
-                                <label for="stock-stockless-label">在庫代替ラベル</label>
-                                <input type="text" id="stock-stockless-label" class="form-control" placeholder="例: 仕入先直送">
-                            </div>
-                            <label style="display:flex; align-items:center; gap:8px; margin:10px 0;">
-                                <input type="checkbox" id="stock-allow-zero">
-                                在庫0でも発注を許可する
-                            </label>
-                            <div class="form-group">
-                                <label for="stock-highlight-minutes">同期遅延アラート (分)</label>
-                                <input type="number" id="stock-highlight-minutes" class="form-control" min="15" value="180">
-                            </div>
-                            <div class="form-group" style="margin-top:14px; border-top:1px solid #dee2e6; padding-top:12px;">
-                                <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:6px;">
-                                    <label style="margin-bottom:0;">登録倉庫名</label>
-                                    <button type="button" id="add-warehouse-preset" class="btn-primary" style="background:#e5e7eb; color:#374151; border:1px solid #d1d5db; padding:4px 10px;">＋ 追加</button>
-                                </div>
-                                <div id="warehouse-preset-list" style="margin-top:8px;"></div>
-                            </div>
-                            <div style="display:flex; justify-content:flex-end; margin-top:4px;">
-                                <button id="stock-save-settings" type="button" class="btn-primary" style="background:#8cc4dc; color:#111827; border:none; padding:8px 16px;">設定を保存</button>
-                            </div>
-                            <div id="stock-settings-status" style="margin-top:10px; font-size:0.9rem; color:#17a2b8;"></div>
-                        </div>
+                <div class="admin-section settings-stock-section settings-linkbox-section" data-settings-tab="stock">
+                    <div class="settings-linkbox-menu">
+                        <nav class="settings-linkbox-grid" aria-label="在庫・表示設定項目">
+                            <button type="button" class="settings-linkbox" data-panel="display">表示設定</button>
+                            <button type="button" class="settings-linkbox" data-panel="manual">手動在庫調整</button>
+                        </nav>
                     </div>
-
-                    <div class="admin-subsection" style="background:#f8f9fa; border:1px solid #dee2e6; border-radius:6px; padding:15px;">
-                        <h4>手動在庫調整</h4>
-                        <form id="stock-manual-form">
-                            <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
-                                <div class="form-group" style="flex:1; min-width:180px;">
-                                    <label for="manual-stock-code">商品コード</label>
-                                    <input type="text" id="manual-stock-code" class="form-control" required>
+                    <div class="settings-linkbox-detail" hidden>
+                        <div class="settings-linkbox-detail-header">
+                            <h3 class="settings-linkbox-detail-title"></h3>
+                            <button type="button" class="settings-linkbox-back">戻る</button>
+                        </div>
+                        <div class="settings-linkbox-panels">
+                            <div class="settings-linkbox-panel settings-collapse-body" data-panel="display" hidden>
+                                <label style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+                                    <input type="checkbox" id="stock-display-toggle">
+                                    商品一覧で在庫数を表示する
+                                </label>
+                                <div class="form-group">
+                                    <label for="stock-hidden-message">非公開時メッセージ</label>
+                                    <input type="text" id="stock-hidden-message" class="form-control" placeholder="例: 仕入先直送のため在庫非公開">
                                 </div>
-                                <button type="button" id="load-stock-btn" class="btn-primary" style="height:38px; background:transparent; color:#111827; border:1px solid #d1d5db;">現在庫を読み込む</button>
+                                <div class="form-group">
+                                    <label for="stock-stockless-label">在庫代替ラベル</label>
+                                    <input type="text" id="stock-stockless-label" class="form-control" placeholder="例: 仕入先直送">
+                                </div>
+                                <label style="display:flex; align-items:center; gap:8px; margin:10px 0;">
+                                    <input type="checkbox" id="stock-allow-zero">
+                                    在庫0でも発注を許可する
+                                </label>
+                                <div class="form-group">
+                                    <label for="stock-highlight-minutes">同期遅延アラート (分)</label>
+                                    <input type="number" id="stock-highlight-minutes" class="form-control" min="15" value="180">
+                                </div>
+                                <div class="form-group" style="margin-top:14px; border-top:1px solid #e5e7eb; padding-top:12px;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:6px;">
+                                        <label style="margin-bottom:0;">登録倉庫名</label>
+                                        <button type="button" id="add-warehouse-preset" class="btn-primary" style="background:#e5e7eb; color:#374151; border:1px solid #d1d5db; padding:4px 10px;">＋ 追加</button>
+                                    </div>
+                                    <div id="warehouse-preset-list" style="margin-top:8px;"></div>
+                                </div>
+                                <div style="display:flex; justify-content:flex-end; margin-top:4px;">
+                                    <button id="stock-save-settings" type="button" class="btn-primary" style="background:#8cc4dc; color:#111827; border:none; padding:8px 16px; font-weight:400;">保存</button>
+                                </div>
+                                <div id="stock-settings-status" style="margin-top:10px; font-size:0.9rem; color:#17a2b8;"></div>
                             </div>
-                            <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:10px;">
-                                <div class="form-group" style="flex:1; min-width:150px;">
-                                    <label>合計在庫数</label>
-                                    <input type="number" id="manual-total-qty" class="form-control" min="0" value="0">
-                                </div>
-                                <div class="form-group" style="flex:1; min-width:150px;">
-                                    <label>引当済み</label>
-                                    <input type="number" id="manual-reserved-qty" class="form-control" min="0" value="0">
-                                </div>
-                                <div class="form-group" style="flex:1; min-width:150px;">
-                                    <label>公開状態</label>
-                                    <select id="manual-publish" class="form-control">
-                                        <option value="true">在庫を表示する</option>
-                                        <option value="false">非公開（文言表示）</option>
-                                    </select>
-                                </div>
-                            </div>
+                            <div class="settings-linkbox-panel settings-collapse-body" data-panel="manual" hidden>
+                                <form id="stock-manual-form">
+                                    <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
+                                        <div class="form-group" style="flex:1; min-width:180px;">
+                                            <label for="manual-stock-code">商品コード</label>
+                                            <input type="text" id="manual-stock-code" class="form-control" required>
+                                        </div>
+                                        <button type="button" id="load-stock-btn" class="btn-primary" style="height:38px; background:transparent; color:#111827; border:1px solid #d1d5db;">現在庫を読み込む</button>
+                                    </div>
+                                    <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:10px;">
+                                        <div class="form-group" style="flex:1; min-width:150px;">
+                                            <label>合計在庫数</label>
+                                            <input type="number" id="manual-total-qty" class="form-control" min="0" value="0">
+                                        </div>
+                                        <div class="form-group" style="flex:1; min-width:150px;">
+                                            <label>引当済み</label>
+                                            <input type="number" id="manual-reserved-qty" class="form-control" min="0" value="0">
+                                        </div>
+                                        <div class="form-group" style="flex:1; min-width:150px;">
+                                            <label>公開状態</label>
+                                            <select id="manual-publish" class="form-control">
+                                                <option value="true">在庫を表示する</option>
+                                                <option value="false">非公開（文言表示）</option>
+                                            </select>
+                                        </div>
+                                    </div>
 
-                            <div class="form-group">
-                                <label>非公開時メッセージ</label>
-                                <input type="text" id="manual-hidden-message" class="form-control">
-                            </div>
+                                    <div class="form-group">
+                                        <label>非公開時メッセージ</label>
+                                        <input type="text" id="manual-hidden-message" class="form-control">
+                                    </div>
 
-                            <label style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
-                                <input type="checkbox" id="manual-lock-flag">
-                                手動ロック（自動同期から除外）
-                            </label>
+                                    <label style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+                                        <input type="checkbox" id="manual-lock-flag">
+                                        手動ロック（自動同期から除外）
+                                    </label>
 
-                            <div style="border:1px dashed #ccc; padding:10px; border-radius:4px; margin-bottom:15px;">
-                                <div style="display:flex; justify-content:space-between; align-items:center;">
-                                    <h4 style="margin:0;">倉庫別在庫</h4>
-                                    <button type="button" id="add-warehouse-row" class="btn-primary" style="background:transparent; color:#111827; border:1px solid #d1d5db; padding:4px 10px;">＋ 倉庫を追加</button>
-                                </div>
-                                <p style="color:#666; font-size:0.85rem; margin:6px 0 8px 0;">各倉庫のコード・倉庫名・数量を入力してください。</p>
-                                <div id="warehouse-list-header" style="display:none; gap:8px; margin-bottom:4px; padding:0 2px; font-size:0.85rem; color:#555;">
-                                    <span style="width:100px; min-width:100px;">倉庫コード</span>
-                                    <span style="flex:1; min-width:120px;">倉庫名</span>
-                                    <span style="width:100px; min-width:80px; text-align:right;">数量</span>
-                                    <span style="width:42px;"></span>
-                                </div>
-                                <div id="warehouse-list" style="margin-top:4px;">
-                                    <div style="color:#888; font-size:0.9rem;">倉庫行を追加してください</div>
-                                </div>
-                            </div>
+                                    <div style="border:1px dashed #ccc; padding:10px; border-radius:4px; margin-bottom:15px;">
+                                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                                            <h4 style="margin:0; font-weight:400;">倉庫別在庫</h4>
+                                            <button type="button" id="add-warehouse-row" class="btn-primary" style="background:transparent; color:#111827; border:1px solid #d1d5db; padding:4px 10px;">＋ 倉庫を追加</button>
+                                        </div>
+                                        <p style="color:#666; font-size:0.85rem; margin:6px 0 8px 0;">各倉庫のコード・倉庫名・数量を入力してください。</p>
+                                        <div id="warehouse-list-header" style="display:none; gap:8px; margin-bottom:4px; padding:0 2px; font-size:0.85rem; color:#555;">
+                                            <span style="width:100px; min-width:100px;">倉庫コード</span>
+                                            <span style="flex:1; min-width:120px;">倉庫名</span>
+                                            <span style="width:100px; min-width:80px; text-align:right;">数量</span>
+                                            <span style="width:42px;"></span>
+                                        </div>
+                                        <div id="warehouse-list" style="margin-top:4px;">
+                                            <div style="color:#888; font-size:0.9rem;">倉庫行を追加してください</div>
+                                        </div>
+                                    </div>
 
-                            <div style="display:flex; justify-content:flex-end; margin-top:4px;">
-                                <button type="submit" class="btn-primary" style="background:#8cc4dc; color:#111827; border:none; padding:8px 16px;">在庫を保存</button>
+                                    <div style="display:flex; justify-content:flex-end; margin-top:4px;">
+                                        <button type="submit" class="btn-primary" style="background:#8cc4dc; color:#111827; border:none; padding:8px 16px;">在庫を保存</button>
+                                    </div>
+                                    <div id="manual-stock-status" style="margin-top:10px; font-size:0.9rem;"></div>
+                                </form>
                             </div>
-                            <div id="manual-stock-status" style="margin-top:10px; font-size:0.9rem;"></div>
-                        </form>
+                        </div>
                     </div>
                 </div>
             </div>

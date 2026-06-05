@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     await loadSettings();
     await loadAdminAccount();
     initTabs();
+    initSettingsLinkboxes();
     activateSettingsTabFromQuery();
     document.getElementById("settings-form").addEventListener("submit", saveSettings);
 
@@ -70,15 +71,26 @@ function buildMailFromField(displayName, address) {
     return `"${q}" <${addr}>`;
 }
 
-function initTabs() {
+function getActiveSettingsTabKey() {
+    const activeBtn = document.querySelector(".tab-btn.active");
+    return activeBtn ? activeBtn.dataset.tab || "" : "";
+}
+
+function isSettingsLinkboxMenuVisible(tabKey) {
+    const section = document.querySelector('.settings-linkbox-section[data-settings-tab="' + tabKey + '"]');
+    if (!section) return false;
+    const detail = section.querySelector(".settings-linkbox-detail");
+    return !!detail && detail.hasAttribute("hidden");
+}
+
+function syncSettingsFooter(tabKey) {
     const settingsFooter = document.querySelector(".settings-footer-actions");
+    if (!settingsFooter) return;
+    const hideFooter = tabKey === "stock" || tabKey === "prices" || isSettingsLinkboxMenuVisible(tabKey);
+    settingsFooter.style.display = hideFooter ? "none" : "";
+}
 
-    function syncSettingsFooter(tabKey) {
-        if (!settingsFooter) return;
-        const hideFooter = tabKey === "stock" || tabKey === "prices";
-        settingsFooter.style.display = hideFooter ? "none" : "";
-    }
-
+function initTabs() {
     document.querySelectorAll(".tab-btn").forEach(btn => {
         btn.addEventListener("click", () => {
             document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
@@ -88,12 +100,59 @@ function initTabs() {
             const tabId = "tab-" + tabKey;
             const panel = document.getElementById(tabId);
             if (panel) panel.classList.add("active");
+            document.querySelectorAll(".settings-linkbox-section").forEach(showSettingsLinkboxMenu);
             syncSettingsFooter(tabKey);
         });
     });
 
-    const activeBtn = document.querySelector(".tab-btn.active");
-    syncSettingsFooter(activeBtn ? activeBtn.dataset.tab || "" : "");
+    syncSettingsFooter(getActiveSettingsTabKey());
+}
+
+function showSettingsLinkboxMenu(section) {
+    if (!section) return;
+    const menu = section.querySelector(".settings-linkbox-menu");
+    const detail = section.querySelector(".settings-linkbox-detail");
+    if (menu) menu.removeAttribute("hidden");
+    if (detail) detail.setAttribute("hidden", "");
+    section.querySelectorAll(".settings-linkbox-panel").forEach(panel => {
+        panel.classList.remove("active");
+        panel.setAttribute("hidden", "");
+    });
+    const tabKey = section.dataset.settingsTab || "";
+    if (getActiveSettingsTabKey() === tabKey) syncSettingsFooter(tabKey);
+}
+
+function showSettingsLinkboxDetail(section, panelKey, label) {
+    if (!section) return;
+    const menu = section.querySelector(".settings-linkbox-menu");
+    const detail = section.querySelector(".settings-linkbox-detail");
+    const titleEl = section.querySelector(".settings-linkbox-detail-title");
+    const tabKey = section.dataset.settingsTab || "";
+    if (menu) menu.setAttribute("hidden", "");
+    if (detail) detail.removeAttribute("hidden");
+    if (titleEl) titleEl.textContent = label || "";
+    section.querySelectorAll(".settings-linkbox-panel").forEach(panel => {
+        const isActive = panel.dataset.panel === panelKey;
+        panel.classList.toggle("active", isActive);
+        if (isActive) panel.removeAttribute("hidden");
+        else panel.setAttribute("hidden", "");
+    });
+    if (getActiveSettingsTabKey() === tabKey) syncSettingsFooter(tabKey);
+}
+
+function initSettingsLinkboxes() {
+    document.querySelectorAll(".settings-linkbox-section").forEach(section => {
+        section.querySelectorAll(".settings-linkbox").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const panelKey = btn.dataset.panel;
+                const label = btn.textContent.trim();
+                if (panelKey) showSettingsLinkboxDetail(section, panelKey, label);
+            });
+        });
+        const backBtn = section.querySelector(".settings-linkbox-back");
+        if (backBtn) backBtn.addEventListener("click", () => showSettingsLinkboxMenu(section));
+        showSettingsLinkboxMenu(section);
+    });
 }
 
 function activateSettingsTabFromQuery() {
@@ -109,7 +168,7 @@ function renderRankNamesList(container, count, rankNamesData) {
     const rankIds = ALL_RANK_IDS.slice(0, count);
     container.innerHTML = rankIds.map((id, i) => `
         <div class="form-group" style="margin-bottom:8px;">
-            <label for="rank-name-${id}" style="font-weight:bold; min-width:24px;">${id}（ランク${i + 1}）</label>
+            <label for="rank-name-${id}" style="min-width:24px;">${id}（ランク${i + 1}）</label>
             <input type="text" id="rank-name-${id}" class="form-control" placeholder="ランク${i + 1}" style="max-width:180px;">
         </div>
     `).join("");
@@ -475,7 +534,7 @@ function renderAnnouncements() {
             <div class="announcement-item" data-index="${index}" style="border-left: 4px solid ${colors.border};">
                 <div class="announcement-item-header">
                     <h4 style="color: ${colors.text};">
-                        ${ann.enabled ? '<span style="font-size:0.8rem;font-weight:700;color:#15803d;margin-right:6px;">有効</span>' : '<span style="font-size:0.8rem;font-weight:700;color:#b91c1c;margin-right:6px;">無効</span>'} ${ann.title || "（タイトルなし）"}
+                        ${ann.enabled ? '<span style="font-size:0.8rem;color:#15803d;margin-right:6px;">有効</span>' : '<span style="font-size:0.8rem;color:#b91c1c;margin-right:6px;">無効</span>'} ${ann.title || "（タイトルなし）"}
                         <span style="font-size: 0.85rem; font-weight: normal; color: #666; margin-left: 10px;">
                             [${categoryLabel}] [${targetLabel}] ${ann.type || "info"}
                         </span>
@@ -486,11 +545,11 @@ function renderAnnouncements() {
                     </div>
                 </div>
                 <div style="color: #555; margin-bottom: 8px;">
-                    <strong>本文:</strong> ${ann.body || "（本文なし）"}
+                    本文: ${ann.body || "（本文なし）"}
                 </div>
                 <div style="font-size: 0.85rem; color: #666;">
-                    <strong>表示期間:</strong> ${startDate} 〜 ${endDate}
-                    ${ann.linkUrl ? `<br><strong>リンク:</strong> <a href="${ann.linkUrl}" target="_blank">${ann.linkText || ann.linkUrl}</a>` : ""}
+                    表示期間: ${startDate} 〜 ${endDate}
+                    ${ann.linkUrl ? `<br>リンク: <a href="${ann.linkUrl}" target="_blank">${ann.linkText || ann.linkUrl}</a>` : ""}
                 </div>
                 <div class="announcement-form" id="ann-form-${index}">
                     ${renderAnnouncementForm(ann, index)}
@@ -655,14 +714,14 @@ function saveAnnouncement(index) {
     ann.linkText = document.getElementById(`ann-linkText-${index}`)?.value.trim() || "";
 
     renderAnnouncements();
-    if (typeof toastSuccess === "function") toastSuccess("お知らせを保存しました（画面上部の「設定を保存」ボタンで確定してください）");
+    if (typeof toastSuccess === "function") toastSuccess("お知らせを保存しました（画面上部の「保存」ボタンで確定してください）");
 }
 
 function deleteAnnouncement(index) {
     if (!confirm("このお知らせを削除しますか？")) return;
     announcementsData.splice(index, 1);
     renderAnnouncements();
-    if (typeof toastSuccess === "function") toastSuccess("お知らせを削除しました（画面上部の「設定を保存」ボタンで確定してください）");
+    if (typeof toastSuccess === "function") toastSuccess("お知らせを削除しました（画面上部の「保存」ボタンで確定してください）");
 }
 
 function collectAnnouncementsData() {
