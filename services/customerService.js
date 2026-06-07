@@ -59,13 +59,35 @@ class CustomerService {
 
     // 3. 顧客検索（ページネーション対応）
     async searchCustomers(keyword = "", page = 1, limit = DEFAULT_CUSTOMER_PAGE_SIZE) {
+        const { normalizeSearchKey } = require("../utils/searchNormalize");
         const list = await this._loadAll();
-        // ★修正: null安全対策 (keywordがundefinedの場合に備える)
-        const safeKeyword = (keyword || "").normalize('NFKC').toLowerCase();
+        const safeKeyword = normalizeSearchKey(keyword);
+        if (!safeKeyword) {
+            const startIndex = (page - 1) * limit;
+            const paginatedItems = list.slice(startIndex, startIndex + limit);
+            const safeList = paginatedItems.map((c) => ({
+                customerId: c.customerId,
+                customerName: c.customerName,
+                priceRank: c.priceRank || "",
+                email: c.email || "",
+                allowProxyLogin: c.allowProxyLogin === true,
+                deliveryName: c.deliveryName || "",
+                deliveryZip: c.deliveryZip || "",
+                deliveryAddress: c.deliveryAddress || "",
+                deliveryTel: c.deliveryTel || ""
+            }));
+            return {
+                customers: safeList,
+                totalCount: list.length,
+                currentPage: Number(page),
+                totalPages: Math.ceil(list.length / limit) || 1,
+                pageSize: limit
+            };
+        }
 
-        const filtered = list.filter(c => {
-            const id = c.customerId ? String(c.customerId).normalize('NFKC').toLowerCase() : "";
-            const name = c.customerName ? String(c.customerName).normalize('NFKC').toLowerCase() : "";
+        const filtered = list.filter((c) => {
+            const id = normalizeSearchKey(c.customerId);
+            const name = normalizeSearchKey(c.customerName);
             return id.includes(safeKeyword) || name.includes(safeKeyword);
         });
 

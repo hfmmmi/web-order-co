@@ -8,9 +8,26 @@ async function openFeaturesCustomerPanel(page) {
     await expect(page.locator("#feat-support")).toBeVisible();
 }
 
+async function waitForAdminSettingsLoaded(page) {
+    await page.waitForResponse(
+        (res) =>
+            res.url().includes("/api/admin/settings") &&
+            res.request().method() === "GET" &&
+            res.ok()
+    );
+}
+
 async function clickSaveSettings(page) {
     await expect(page.locator("#btn-save")).toBeVisible();
+    const saveDone = page.waitForResponse(
+        (res) =>
+            res.url().includes("/api/admin/settings") &&
+            res.request().method() === "PUT" &&
+            res.ok()
+    );
     await page.locator("#btn-save").click();
+    await saveDone;
+    await expect(page.locator("#btn-save")).toBeEnabled();
 }
 
 test("管理E2E: 設定保存後に再読込しても状態を維持する", async ({ page }) => {
@@ -31,7 +48,10 @@ test("管理E2E: 設定保存後に再読込しても状態を維持する", asy
     await supportCheckbox.setChecked(!before);
 
     await clickSaveSettings(page);
+
+    const settingsLoaded = waitForAdminSettingsLoaded(page);
     await page.reload();
+    await settingsLoaded;
     await expect(page.locator("#admin-login-overlay")).toBeHidden();
 
     await openFeaturesCustomerPanel(page);

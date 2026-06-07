@@ -203,6 +203,8 @@
 
         .settings-prices-section .prices-field {
             position: relative;
+            min-width: 220px;
+            flex: 1 1 220px;
         }
 
         .settings-prices-section .prices-field label {
@@ -214,12 +216,21 @@
         }
 
         .settings-prices-section .prices-field-input {
+            width: 100%;
+            min-width: 200px;
             padding: 8px 10px;
             border: 1px solid #d1d5db;
             border-radius: 8px;
             font-size: 0.875rem;
             font-family: inherit;
             box-sizing: border-box;
+        }
+
+        /* サジェストは親パネルの外にはみ出すため overflow を visible に */
+        .settings-prices-section .settings-linkbox-panels,
+        .settings-prices-section .settings-linkbox-panel.active,
+        .settings-prices-section .prices-subpanel {
+            overflow: visible;
         }
 
         .settings-prices-section .prices-suggest {
@@ -232,9 +243,23 @@
             border: 1px solid #e5e7eb;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            z-index: 100;
+            z-index: 2000;
             max-height: 200px;
             overflow-y: auto;
+        }
+
+        .settings-prices-section .prices-suggest-item {
+            padding: 8px 10px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            line-height: 1.35;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .settings-prices-section .prices-suggest-item:hover {
+            background: #f3f4f6;
         }
 
         .settings-prices-section #suggest-customer.prices-suggest {
@@ -1490,6 +1515,7 @@
     <script src="../js/admin-settings-dataformats.js"></script>
     <script src="../js/admin-settings.js"></script>
     <script src="../js/admin-products-stock.js"></script>
+    <script src="../js/searchNormalize.js"></script>
     <script src="../js/admin-settings-prices.js"></script>
 </body>
 </html>

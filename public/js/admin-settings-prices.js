@@ -37,15 +37,8 @@ document.addEventListener("DOMContentLoaded", function () {
         container.style.display = "block";
         items.forEach((item) => {
             const div = document.createElement("div");
+            div.className = "prices-suggest-item";
             div.textContent = formatLabel(item);
-            div.style.padding = "5px";
-            div.style.cursor = "pointer";
-            div.onmouseover = () => {
-                div.style.background = "#eee";
-            };
-            div.onmouseout = () => {
-                div.style.background = "white";
-            };
             div.onclick = () => {
                 onSelect(item);
                 container.style.display = "none";
@@ -128,8 +121,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 const res = await adminApiFetch("/api/admin/products");
                 if (res.status === 401) return;
                 const products = await res.json();
+                const q = normalizeSearchKey(val);
                 const filtered = products
-                    .filter((p) => p.productCode.includes(val) || p.name.includes(val))
+                    .filter((p) => {
+                        const code = normalizeSearchKey(p.productCode);
+                        const name = normalizeSearchKey(p.name);
+                        const mfr = normalizeSearchKey(p.manufacturer);
+                        return (
+                            code.includes(q) ||
+                            name.includes(q) ||
+                            (mfr && mfr.includes(q))
+                        );
+                    })
                     .slice(0, 10);
                 fillGodSuggestList(
                     godSuggestProd,
@@ -206,8 +209,20 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     document.addEventListener("click", (e) => {
-        if (godSuggestCust && e.target !== godCustId) godSuggestCust.style.display = "none";
-        if (godSuggestProd && e.target !== godProdCode) godSuggestProd.style.display = "none";
+        if (
+            godSuggestCust &&
+            e.target !== godCustId &&
+            !godSuggestCust.contains(e.target)
+        ) {
+            godSuggestCust.style.display = "none";
+        }
+        if (
+            godSuggestProd &&
+            e.target !== godProdCode &&
+            !godSuggestProd.contains(e.target)
+        ) {
+            godSuggestProd.style.display = "none";
+        }
     });
 
     async function loadSpecialPrices() {
