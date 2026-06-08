@@ -20,6 +20,7 @@ async function primeCustomerLoginFailures(request, count = 2) {
         expect(r.ok()).toBeTruthy();
         const body = await r.json();
         expect(body.success).toBe(false);
+        expect(body.message).not.toMatch(/15分後/);
     }
 }
 
@@ -29,7 +30,10 @@ async function resetLoginRateLimit() {
     const e2eDataDir = path.join(__dirname, "..", ".e2e_data");
     const filePath = path.join(e2eDataDir, "login_rate_limit.json");
     await fs.mkdir(e2eDataDir, { recursive: true });
-    await fs.writeFile(filePath, JSON.stringify({}, null, 2), "utf-8");
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+        await fs.writeFile(filePath, JSON.stringify({}, null, 2), "utf-8");
+        await new Promise((resolve) => setTimeout(resolve, 50 * (attempt + 1)));
+    }
 }
 
 test("顧客E2E: captchaRequired=true のとき reCAPTCHA領域が表示される", async ({ page, request }) => {
@@ -123,7 +127,11 @@ test("顧客E2E: siteKey 切替後も CAPTCHA 表示状態が破綻しない", a
         await page.fill("#username-input", "TEST001");
         await page.fill("#password-input", "WrongPassword!");
         await primeCustomerLoginFailures(request, 2);
-        await page.getByRole("button", { name: "ログイン" }).click();
+        const loginBtn = page.getByRole("button", { name: "ログイン" });
+        await Promise.all([
+            page.waitForEvent("dialog", { timeout: 10000 }),
+            loginBtn.click()
+        ]);
         await expect(page.locator("#recaptcha-wrap")).toBeVisible();
 
         // 無効化して再読込後、CAPTCHA領域は表示されないこと

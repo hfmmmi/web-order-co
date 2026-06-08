@@ -246,26 +246,42 @@ document.addEventListener("DOMContentLoaded", async function() {
         let recaptchaSiteKey = "";
         let recaptchaWidgetId = null;
         let recaptchaReady = false;
-        try {
-            const pubRes = await fetch("/api/settings/public", { credentials: "same-origin" });
+
+        function loadRecaptchaScript() {
+            if (window.grecaptcha) { recaptchaReady = true; return; }
+            const s = document.createElement("script");
+            s.src = "https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoaded&render=explicit";
+            s.async = true;
+            s.defer = true;
+            document.head.appendChild(s);
+        }
+
+        async function loadPublicRecaptchaSiteKey() {
+            const pubRes = await fetch("/api/settings/public", { credentials: "same-origin", cache: "no-store" });
             const pubData = await pubRes.json();
-            if (pubData.recaptchaSiteKey && pubData.recaptchaSiteKey.trim()) {
-                recaptchaSiteKey = pubData.recaptchaSiteKey.trim();
-                (function loadRecaptchaScript() {
-                    if (window.grecaptcha) { recaptchaReady = true; return; }
-                    const s = document.createElement("script");
-                    s.src = "https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoaded&render=explicit";
-                    s.async = true;
-                    s.defer = true;
-                    document.head.appendChild(s);
-                })();
+            const key = (pubData.recaptchaSiteKey && pubData.recaptchaSiteKey.trim())
+                ? pubData.recaptchaSiteKey.trim()
+                : "";
+            if (key && key !== recaptchaSiteKey) {
+                recaptchaSiteKey = key;
+                recaptchaWidgetId = null;
+                loadRecaptchaScript();
             }
+            return recaptchaSiteKey;
+        }
+
+        try {
+            await loadPublicRecaptchaSiteKey();
         } catch (e) { /* 設定取得失敗時はCAPTCHAなしで運用 */ }
         window.onRecaptchaLoaded = function() { recaptchaReady = true; };
 
-        function showRecaptchaAndRender() {
-            if (!recaptchaWrap || !recaptchaContainer || !recaptchaSiteKey) return;
+        async function showRecaptchaAndRender() {
+            if (!recaptchaWrap || !recaptchaContainer) return;
             recaptchaWrap.style.display = "block";
+            if (!recaptchaSiteKey) {
+                try { await loadPublicRecaptchaSiteKey(); } catch (e) {}
+            }
+            if (!recaptchaSiteKey) return;
             if (!recaptchaReady || !window.grecaptcha) return;
             if (recaptchaWidgetId !== null) {
                 try { window.grecaptcha.reset(recaptchaWidgetId); } catch (e) {}
@@ -343,7 +359,7 @@ document.addEventListener("DOMContentLoaded", async function() {
                         window.location.href = data.redirectUrl || successUrl;
                     } else {
                         if (data.captchaRequired) {
-                            showRecaptchaAndRender();
+                            await showRecaptchaAndRender();
                             // スクリプト読み込み遅延時は少し待って再描画
                             if (!recaptchaReady && recaptchaSiteKey) {
                                 const check = setInterval(function() {
