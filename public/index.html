@@ -9,6 +9,11 @@
     <body class="body-login"> 
         <div class="login-container">
             <h1>発注システム</h1>
+
+            <div id="session-expired-notice" class="login-session-notice" role="status" hidden>
+                <p class="login-session-notice-title">セッションの有効期限が切れました</p>
+                <p class="login-session-notice-body">長時間の無操作、またはシステム更新によりログイン状態が解除されました。お手数ですが、再度ログインしてください。</p>
+            </div>
             
             <div>
                 <label>ID:</label>

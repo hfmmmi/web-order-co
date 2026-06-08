@@ -67,6 +67,21 @@ describe("Sランク: セッション120分タイムアウト", () => {
         expect(after.body.customerId).toBeNull();
     });
 
+    test("期限切れ後にトップページへアクセスするとログイン画面へ誘導", async () => {
+        const agent = request.agent(app);
+
+        const login = await agent
+            .post("/api/login")
+            .send({ id: "TEST001", pass: "CustPass123!" });
+        expect(login.statusCode).toBe(200);
+
+        fakeNow += (120 * 60 * 1000) + 1;
+
+        const expiredPage = await agent.get("/");
+        expect(expiredPage.statusCode).toBe(302);
+        expect(expiredPage.headers.location).toBe("/index.html?sessionExpired=1");
+    });
+
     test("顧客/管理者同居セッションは 120:00+ でまとめて失効し、再ログイン時に副作用を残さない", async () => {
         const agent = request.agent(app);
 

@@ -15,6 +15,17 @@ function escapeHtml(str) {
     return div.innerHTML;
 }
 
+const SESSION_EXPIRED_LOGIN_URL = "/index.html?sessionExpired=1";
+
+/** セッション切れ時にログイン画面へ誘導（案内メッセージ付き） */
+function redirectToSessionExpiredLogin() {
+    if (window.isRedirecting) return;
+    window.isRedirecting = true;
+    window.location.href = SESSION_EXPIRED_LOGIN_URL;
+}
+
+window.redirectToSessionExpiredLogin = redirectToSessionExpiredLogin;
+
 /**
  * セッション保存中のカート数量を、グローバルナビの「カート」リンクへ反映する
  * （どの顧客ページを開いても件数を表示するための共通処理）
@@ -151,9 +162,7 @@ window.fetch = async (...args) => {
                 return response;
             }
             if (!window.isRedirecting) {
-                window.isRedirecting = true;
-                alert("再ログインが必要です。\n（長時間の無操作やシステム更新によりセッションが切れた場合があります）\n\nログイン画面に移動します。");
-                window.location.href = "/index.html";
+                redirectToSessionExpiredLogin();
             }
             throw new Error("Session Expired");
         }
@@ -174,10 +183,12 @@ function resetTimer() {
     if (path.endsWith('index.html') || path === '/' || path.endsWith('/')) return;
 
     clearTimeout(inactivityTimer);
-    inactivityTimer = setTimeout(() => {
+    inactivityTimer = setTimeout(async function () {
         console.warn("💤 120分無操作のため自動ログアウトします");
-        alert("長時間操作がなかったため、安全のためログアウトしました。");
-        window.location.href = "/index.html";
+        try {
+            await fetch("/api/logout", { method: "POST", credentials: "same-origin" });
+        } catch (e) { /* 通信失敗時もログイン画面へ */ }
+        redirectToSessionExpiredLogin();
     }, TIMEOUT_LIMIT);
 }
 
@@ -188,11 +199,37 @@ function resetTimer() {
 
 
 // --- 🖥️ 3. 画面操作ロジック ---
+function showSessionExpiredNoticeIfNeeded() {
+    const path = window.location.pathname;
+    const isLoginPage = path.endsWith("index.html") || path === "/" || path.endsWith("/");
+    if (!isLoginPage) return;
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("sessionExpired") !== "1") return;
+
+    const notice = document.getElementById("session-expired-notice");
+    if (notice) {
+        notice.hidden = false;
+    } else if (typeof window.showToast === "function") {
+        window.showToast(
+            "セッションの有効期限が切れました。再度ログインしてください。",
+            "warning",
+            8000
+        );
+    }
+
+    params.delete("sessionExpired");
+    const nextQuery = params.toString();
+    const nextUrl = nextQuery ? path + "?" + nextQuery : path;
+    window.history.replaceState(null, "", nextUrl);
+}
+
 document.addEventListener("DOMContentLoaded", async function() {
 
     // タイマー始動
     resetTimer();
     updateGlobalCartBadge();
+    showSessionExpiredNoticeIfNeeded();
 
     // ログイン画面の要素を探す
     const loginButton = document.querySelector("#login-btn"); 

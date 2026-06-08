@@ -54,6 +54,15 @@ window.toastError = (msg, duration) => window.showToast(msg, 'error', duration);
 window.toastWarning = (msg, duration) => window.showToast(msg, 'warning', duration);
 window.toastInfo = (msg, duration) => window.showToast(msg, 'info', duration);
 
+const ADMIN_SESSION_EXPIRED_LOGIN_URL = "../index.html?sessionExpired=1";
+
+/** セッション切れ時にログイン画面へ誘導（案内メッセージ付き） */
+function redirectToSessionExpiredLogin() {
+    if (window.isRedirecting) return;
+    window.isRedirecting = true;
+    window.location.href = ADMIN_SESSION_EXPIRED_LOGIN_URL;
+}
+
 /**
  * 管理画面向け fetch。credentials を付与し、401 時はトースト後にログインへ誘導。
  * @param {string|URL} url
@@ -63,13 +72,7 @@ window.toastInfo = (msg, duration) => window.showToast(msg, 'info', duration);
 window.adminApiFetch = async function (url, init) {
     const res = await fetch(url, { credentials: "include", ...(init || {}) });
     if (res.status === 401) {
-        let msg = "再ログインが必要です";
-        try {
-            const j = await res.clone().json();
-            if (j && j.message) msg = j.message;
-        } catch (e) { /* 非JSON */ }
-        if (window.toastError) window.toastError(msg);
-        window.location.href = "../index.html";
+        redirectToSessionExpiredLogin();
     }
     return res;
 };
@@ -82,14 +85,11 @@ function resetTimer() {
     clearTimeout(inactivityTimer);
     inactivityTimer = setTimeout(async () => {
         console.warn("💤 Admin Session Timeout");
-        alert("管理画面の操作が120分間なかったため、セキュリティ保護のためログアウトします。");
-        
-        // サーバー側も明示的にログアウトさせる
         try {
             await fetch("/api/admin/logout", { method: "POST" });
         } catch(e) { console.error(e); }
 
-        window.location.href = "../index.html";
+        redirectToSessionExpiredLogin();
     }, TIMEOUT_LIMIT);
 }
 
