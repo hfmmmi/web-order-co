@@ -285,6 +285,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const keyword = normalizeText(rawKeyword); // 正規化して検索語とする
 
         const filtered = fullMasterData.filter(item => {
+            if (item.status === "買取終了") return false;
             // 比較対象（商品名・メーカー）も正規化して比較する
             const normName = normalizeText(item.name);
             const normMaker = normalizeText(item.maker);

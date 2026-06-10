@@ -17,6 +17,17 @@ function escapeKaitoriAttr(str) {
 }
 
 /** 申請日時: YYYY/MM/DD HH:mm（秒なし・ローカル） */
+const KAITORI_MASTER_STATUS_ACTIVE = "買取中";
+const KAITORI_MASTER_STATUS_ENDED = "買取終了";
+
+function normalizeKaitoriMasterStatus(status) {
+    return status === KAITORI_MASTER_STATUS_ENDED ? KAITORI_MASTER_STATUS_ENDED : KAITORI_MASTER_STATUS_ACTIVE;
+}
+
+function isKaitoriMasterEnded(status) {
+    return normalizeKaitoriMasterStatus(status) === KAITORI_MASTER_STATUS_ENDED;
+}
+
 function formatKaitoriRequestDateTime(value) {
     const d = new Date(value);
     if (Number.isNaN(d.getTime())) return "";
@@ -257,19 +268,28 @@ class KaitoriView {
     renderMasterList(list) {
         this.masterBody.innerHTML = "";
         if(!list || list.length === 0) {
-            this.masterBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">該当なし</td></tr>';
+            this.masterBody.innerHTML = '<tr><td colspan="8" style="text-align:center;">該当なし</td></tr>';
             return;
         }
 
         list.forEach(item => {
             const tr = document.createElement("tr");
             tr.className = "kaitori-master-row";
+            const status = normalizeKaitoriMasterStatus(item.status);
+            const ended = isKaitoriMasterEnded(status);
+            const statusHtml = ended
+                ? `<span class="kaitori-master-status-ended">${KAITORI_MASTER_STATUS_ENDED}</span>`
+                : status;
+            const priceHtml = ended
+                ? `<td class="kaitori-master-price-ended" style="text-align:right;">-</td>`
+                : `<td style="text-align:right; font-weight:bold;">¥${Number(item.price || 0).toLocaleString()}</td>`;
             tr.innerHTML = `
                 <td>${item.id}</td>
                 <td>${item.maker}</td>
                 <td>${item.name}</td>
                 <td>${item.type}</td>
-                <td style="text-align:right; font-weight:bold;">¥${item.price.toLocaleString()}</td>
+                <td>${statusHtml}</td>
+                ${priceHtml}
                 <td>${item.destination || "大阪"}</td>
                 <td class="kaitori-td-center">
                     <button type="button" class="btn-edit-master" data-id="${item.id}">編集</button>
@@ -279,14 +299,31 @@ class KaitoriView {
         });
     }
 
+    syncMasterPriceFieldState() {
+        const statusEl = document.getElementById("km-status");
+        const priceEl = document.getElementById("km-price");
+        if (!statusEl || !priceEl) return;
+
+        const ended = isKaitoriMasterEnded(statusEl.value);
+        priceEl.disabled = ended;
+        priceEl.classList.toggle("km-price--disabled", ended);
+        if (ended) {
+            priceEl.removeAttribute("required");
+        } else {
+            priceEl.setAttribute("required", "");
+        }
+    }
+
     openMasterModal(item = null) {
         document.getElementById("km-modal-title").textContent = item ? "マスタ編集" : "新規追加";
         document.getElementById("km-id").value = item ? item.id : "";
         document.getElementById("km-maker").value = item ? item.maker : "";
         document.getElementById("km-name").value = item ? item.name : "";
         document.getElementById("km-type").value = item ? item.type : this.primaryProductCategoryForBadge;
+        document.getElementById("km-status").value = normalizeKaitoriMasterStatus(item ? item.status : KAITORI_MASTER_STATUS_ACTIVE);
         document.getElementById("km-price").value = item ? item.price : 0;
         document.getElementById("km-destination").value = item ? item.destination : "大阪";
+        this.syncMasterPriceFieldState();
         const delBtn = document.getElementById("km-btn-delete");
         if (delBtn) delBtn.style.display = item ? "inline-flex" : "none";
         this.masterModal.style.display = "flex";

@@ -9,6 +9,7 @@ const {
     nextPrefixedSequentialId,
     attachPrefixedDisplayIds
 } = require("../utils/sequentialPrefixedId");
+const kaitoriMasterExportService = require("../services/kaitoriMasterExportService");
 
 const KAITORI_DB_PATH = dbPath("kaitori_requests.json");
 const KAITORI_MASTER_PATH = dbPath("kaitori_master.json");
@@ -19,6 +20,25 @@ const KAITORI_DISPLAY_OPTS = {
     dateField: "requestDate",
     idField: "requestId"
 };
+
+const KAITORI_MASTER_STATUS_ACTIVE = "買取中";
+const KAITORI_MASTER_STATUS_ENDED = "買取終了";
+
+function normalizeKaitoriMasterStatus(status) {
+    return status === KAITORI_MASTER_STATUS_ENDED ? KAITORI_MASTER_STATUS_ENDED : KAITORI_MASTER_STATUS_ACTIVE;
+}
+
+function buildKaitoriMasterItem(item, fallbackId) {
+    return {
+        id: item.id || fallbackId,
+        maker: item.maker || "",
+        name: item.name || "",
+        type: item.type || "",
+        status: normalizeKaitoriMasterStatus(item.status),
+        price: parseInt(item.price, 10) || 0,
+        destination: item.destination || "大阪"
+    };
+}
 
 function nextKaitoriRequestId(requests) {
     return nextPrefixedSequentialId(requests, KAITORI_DISPLAY_OPTS);
@@ -139,6 +159,27 @@ router.post("/admin/kaitori-update", async (req, res) => {
 //  2. 買取マスタ管理 (CRUD & Import)
 // ==========================================
 
+router.get("/admin/kaitori-master/export", async (req, res) => {
+    if (!req.session.isAdmin) return res.status(401).json({ message: "権限なし" });
+
+    try {
+        const buffer = await kaitoriMasterExportService.buildKaitoriMasterExportBuffer();
+        const filename = kaitoriMasterExportService.buildExportFilename();
+        res.setHeader(
+            "Content-Type",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        );
+        res.setHeader(
+            "Content-Disposition",
+            `attachment; filename*=UTF-8''${encodeURIComponent(filename)}`
+        );
+        return res.send(Buffer.from(buffer));
+    } catch (error) {
+        console.error("Kaitori master export error:", error);
+        return res.status(500).json({ success: false, message: "マスタの出力に失敗しました" });
+    }
+});
+
 router.get("/kaitori-master", async (req, res) => {
     const isCustomer = !!req.session.customerId;
     const isAdmin = !!req.session.isAdmin;
@@ -149,7 +190,12 @@ router.get("/kaitori-master", async (req, res) => {
 
     try {
         const data = await fs.readFile(KAITORI_MASTER_PATH, "utf-8");
-        res.json(JSON.parse(data));
+        let list = JSON.parse(data);
+        if (!Array.isArray(list)) list = [];
+        if (isCustomer && !isAdmin) {
+            list = list.filter((item) => normalizeKaitoriMasterStatus(item.status) !== KAITORI_MASTER_STATUS_ENDED);
+        }
+        res.json(list);
     } catch (error) {
         res.json([]);
     }
@@ -164,14 +210,9 @@ router.post("/admin/kaitori-master/import", async (req, res) => {
     try {
         let count = 0;
         await runWithJsonFileWriteLock(KAITORI_MASTER_PATH, async () => {
-            const cleanList = newList.map((item, index) => ({
-                id: item.id || `K-${Date.now()}-${index}`,
-                maker: item.maker || "",
-                name: item.name || "",
-                type: item.type || "",
-                price: parseInt(item.price, 10) || 0,
-                destination: item.destination || "大阪"
-            }));
+            const cleanList = newList.map((item, index) =>
+                buildKaitoriMasterItem(item, `K-${Date.now()}-${index}`)
+            );
             count = cleanList.length;
             await fs.writeFile(KAITORI_MASTER_PATH, JSON.stringify(cleanList, null, 2));
         });
@@ -199,14 +240,7 @@ router.post("/admin/kaitori-master/add", async (req, res) => {
                 master = [];
             }
 
-            item = {
-                id: newItem.id || `K-${Date.now()}`,
-                maker: newItem.maker || "",
-                name: newItem.name || "",
-                type: newItem.type || "",
-                price: parseInt(newItem.price, 10) || 0,
-                destination: newItem.destination || "大阪"
-            };
+            item = buildKaitoriMasterItem(newItem, `K-${Date.now()}`);
 
             master.push(item);
             await fs.writeFile(KAITORI_MASTER_PATH, JSON.stringify(master, null, 2));
@@ -236,6 +270,11 @@ router.post("/admin/kaitori-master/edit", async (req, res) => {
             }
 
             master[idx] = { ...master[idx], ...updates };
+            if (updates.status !== undefined) {
+                master[idx].status = normalizeKaitoriMasterStatus(updates.status);
+            } else if (master[idx].status === undefined) {
+                master[idx].status = KAITORI_MASTER_STATUS_ACTIVE;
+            }
             if (updates.price !== undefined) master[idx].price = parseInt(updates.price, 10) || 0;
 
             await fs.writeFile(KAITORI_MASTER_PATH, JSON.stringify(master, null, 2));

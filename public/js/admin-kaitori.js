@@ -461,7 +461,7 @@ document.addEventListener("DOMContentLoaded", function () {
     async function loadMasterList() {
         if (masterResultInfoEl) masterResultInfoEl.innerHTML = "";
         if (masterPaginationEl) masterPaginationEl.innerHTML = "";
-        view.masterBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">読込中...</td></tr>';
+        view.masterBody.innerHTML = '<tr><td colspan="8" style="text-align:center;">読込中...</td></tr>';
         try {
             const res = await fetch("/kaitori-master");
             if (res.status === 401) return;
@@ -470,12 +470,14 @@ document.addEventListener("DOMContentLoaded", function () {
         } catch (e) {
             if (masterResultInfoEl) masterResultInfoEl.innerHTML = "";
             if (masterPaginationEl) masterPaginationEl.innerHTML = "";
-            view.masterBody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:red;">読込失敗</td></tr>';
+            view.masterBody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:red;">読込失敗</td></tr>';
         }
     }
 
     // 新規追加ボタン
     document.getElementById("btn-add-kaitori-item")?.addEventListener("click", () => view.openMasterModal(null));
+
+    document.getElementById("km-status")?.addEventListener("change", () => view.syncMasterPriceFieldState());
 
     document.getElementById("km-btn-delete")?.addEventListener("click", () => {
         const id = document.getElementById("km-id").value;
@@ -487,12 +489,15 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("km-form")?.addEventListener("submit", async (e) => {
         e.preventDefault();
         const id = document.getElementById("km-id").value;
+        const status = document.getElementById("km-status").value;
+        const priceInput = document.getElementById("km-price");
         const payload = {
             id: id || undefined,
             maker: document.getElementById("km-maker").value,
             name: document.getElementById("km-name").value,
             type: document.getElementById("km-type").value,
-            price: parseInt(document.getElementById("km-price").value),
+            status,
+            price: parseInt(priceInput.value, 10) || 0,
             destination: document.getElementById("km-destination").value
         };
         // ★修正: /api を削除
@@ -559,6 +564,12 @@ document.addEventListener("DOMContentLoaded", function () {
         setKaitoriMoreMenuOpen(false);
     });
 
+    document.getElementById("btn-kaitori-download-list")?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        setKaitoriMoreMenuOpen(false);
+        window.location.href = "/admin/kaitori-master/export";
+    });
+
     document.getElementById("btn-kaitori-upload-list")?.addEventListener("click", (e) => {
         e.stopPropagation();
         setKaitoriMoreMenuOpen(false);
@@ -591,14 +602,19 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
-            const masterData = rawData.map((row, idx) => ({
-                id: row["ID"] || `K-IMP-${Date.now()}-${idx}`,
-                maker: row["メーカー"] || row["Maker"] || "",
-                name: row["商品名"] || row["Name"] || "",
-                type: row["区分"] || row["Type"] || "その他",
-                price: row["買取単価"] || row["Price"] || 0,
-                destination: row["納品先"] || row["買取先"] || row["Destination"] || "大阪"
-            }));
+            const masterData = rawData.map((row, idx) => {
+                const rawStatus = row["ステータス"] || row["Status"] || "買取中";
+                const status = rawStatus === "買取終了" ? "買取終了" : "買取中";
+                return {
+                    id: row["ID"] || `K-IMP-${Date.now()}-${idx}`,
+                    maker: row["メーカー"] || row["Maker"] || "",
+                    name: row["商品名"] || row["Name"] || "",
+                    type: row["区分"] || row["Type"] || "その他",
+                    status,
+                    price: row["買取単価"] || row["Price"] || 0,
+                    destination: row["納品先"] || row["買取先"] || row["Destination"] || "大阪"
+                };
+            });
             await sendImportData(masterData);
         } catch (err) {
             console.error(err);

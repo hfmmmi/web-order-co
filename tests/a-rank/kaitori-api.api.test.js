@@ -162,6 +162,26 @@ describe("Aランク: 買取API", () => {
         });
     });
 
+    describe("GET /admin/kaitori-master/export", () => {
+        test("未認証で401", async () => {
+            const res = await request(app).get("/admin/kaitori-master/export");
+            expect(res.statusCode).toBe(401);
+        });
+
+        test("管理者はテンプレート形式のExcelを取得できる", async () => {
+            await writeJson("kaitori_master.json", [
+                { id: "EX1", maker: "CANON", name: "品A", type: "純正", price: 200, destination: "兵庫", status: "買取中" },
+                { id: "EX2", maker: "EPSON", name: "品B", type: "不問", price: 100, destination: "大阪", status: "買取終了" }
+            ]);
+            const admin = request.agent(app);
+            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            const res = await admin.get("/admin/kaitori-master/export");
+            expect(res.statusCode).toBe(200);
+            expect(String(res.headers["content-type"])).toContain("spreadsheetml");
+            expect(String(res.headers["content-disposition"] || "")).toMatch(/\.xlsx/);
+        });
+    });
+
     describe("GET /kaitori-master", () => {
         test("未ログインで401", async () => {
             const res = await request(app).get("/kaitori-master");
