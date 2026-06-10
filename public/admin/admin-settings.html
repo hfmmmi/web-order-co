@@ -521,6 +521,48 @@
             gap: 12px;
         }
 
+        .staff-accounts-heading {
+            margin: 0 0 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .staff-account-row {
+            display: grid;
+            grid-template-columns: minmax(120px, 1fr) minmax(120px, 1fr) minmax(160px, 1.2fr) minmax(140px, 1fr) auto;
+            gap: 8px 10px;
+            align-items: end;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .staff-account-row--customer {
+            grid-template-columns: minmax(120px, 1fr) minmax(120px, 1fr) minmax(100px, 0.9fr) minmax(160px, 1.2fr) minmax(140px, 1fr) auto;
+        }
+
+        .staff-account-row .form-group {
+            margin-bottom: 0;
+        }
+
+        .staff-account-row label {
+            display: block;
+            font-size: 0.78rem;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .staff-account-row .staff-account-remove {
+            background: transparent;
+            color: #111827;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 7px 10px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-bottom: 2px;
+        }
+
         .settings-muted-block {
             color: #4b5563;
             margin-bottom: 15px;
@@ -892,6 +934,79 @@
         .settings-linkbox-panel.active {
             display: block;
         }
+
+        .settings-mail-history-table-wrap {
+            max-height: 420px;
+            overflow: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .settings-mail-history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+        }
+
+        .settings-mail-history-table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            text-align: left;
+            padding: 9px 10px;
+            background: #f3f4f6;
+            color: #374151;
+            font-weight: 600;
+            border-bottom: 1px solid #e5e7eb;
+            white-space: nowrap;
+        }
+
+        .settings-mail-history-table tbody td {
+            padding: 9px 10px;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: top;
+            color: #111827;
+        }
+
+        .settings-mail-history-table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .settings-mail-history-empty {
+            text-align: center;
+            padding: 28px 12px;
+            color: #6b7280;
+        }
+
+        .settings-mail-history-status--ok { color: #047857; }
+        .settings-mail-history-status--ng { color: #b91c1c; }
+
+        .settings-mail-history-subject {
+            max-width: 260px;
+            word-break: break-word;
+        }
+
+        .settings-mail-history-pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 0 0;
+        }
+
+        .settings-mail-history-pagination button {
+            padding: 6px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        .settings-mail-history-pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -1036,44 +1151,29 @@
 
                 <!-- アカウントタブ -->
                 <div id="tab-admin-account" class="tab-panel">
-                    <div class="admin-section settings-linkbox-section" data-settings-tab="admin-account">
-                        <div class="settings-linkbox-menu">
-                            <nav class="settings-linkbox-grid" aria-label="アカウント設定項目">
-                                <button type="button" class="settings-linkbox" data-panel="identity">管理者ID・表示名</button>
-                                <button type="button" class="settings-linkbox" data-panel="credentials">メールアドレス・パスワード</button>
-                            </nav>
+                    <div class="admin-section staff-accounts-section">
+                        <p class="settings-muted-block" style="margin-top:0;">
+                            受注システム（管理者）と発注システム（顧客担当者）のログインアカウントを、担当者ごとに管理します。
+                            ID・パスワード・担当名（表示名）を設定してください。
+                        </p>
+
+                        <h3 class="staff-accounts-heading">受注システム（管理者）</h3>
+                        <p class="settings-muted-block">受注管理画面へのログインに使用します。</p>
+                        <div id="admin-accounts-list" class="staff-accounts-list"></div>
+                        <button type="button" id="btn-add-admin-account" class="btn-small settings-btn-announcement-add" style="margin-top:8px;">＋ 管理者を追加</button>
+
+                        <h3 class="staff-accounts-heading" style="margin-top:28px;">発注システム（顧客担当者）</h3>
+                        <p class="settings-muted-block">
+                            顧客向け発注画面へのログインに使用します。ログインIDは顧客ID（会社ID）とは別に設定します。
+                            担当者でログインした場合、カートの担当者名欄に担当名が自動入力されます。
+                        </p>
+                        <div id="customer-users-list" class="staff-accounts-list"></div>
+                        <button type="button" id="btn-add-customer-user" class="btn-small settings-btn-announcement-add" style="margin-top:8px;">＋ 担当者を追加</button>
+
+                        <div style="display:flex; justify-content:flex-end; margin-top:20px;">
+                            <button type="button" id="btn-save-staff-accounts" class="btn-primary" style="background:#8cc4dc; color:#111827; border:none; padding:8px 16px; font-weight:400;">担当者アカウントを保存</button>
                         </div>
-                        <div class="settings-linkbox-detail" hidden>
-                            <div class="settings-linkbox-detail-header">
-                                <h3 class="settings-linkbox-detail-title"></h3>
-                                <button type="button" class="settings-linkbox-back">戻る</button>
-                            </div>
-                            <div class="settings-linkbox-panels">
-                                <div class="settings-linkbox-panel settings-collapse-body" data-panel="identity" hidden>
-                                    <p class="settings-muted-block" style="margin-top:0;">管理者としてログインする際のIDと表示名を設定します。</p>
-                                    <div class="form-group">
-                                        <label for="admin-account-id">管理者ID<span class="settings-label-muted-suffix">（英数字・ピリオド・アンダースコア・ハイフンのみ）</span></label>
-                                        <input type="text" id="admin-account-id" class="form-control" placeholder="例: admin" autocomplete="off">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="admin-account-name">表示名</label>
-                                        <input type="text" id="admin-account-name" class="form-control" placeholder="例: 管理者">
-                                    </div>
-                                </div>
-                                <div class="settings-linkbox-panel settings-collapse-body" data-panel="credentials" hidden>
-                                    <div class="form-group">
-                                        <label for="admin-account-email">メールアドレス（パスワード再設定リンクの送信先）</label>
-                                        <input type="email" id="admin-account-email" class="form-control" placeholder="空欄の場合はサポート通知先に送信">
-                                        <span class="hint">パスワードを忘れた場合、ここに再設定リンクを送ります。未設定時はシステム設定の「サポート通知先」に送信されます。</span>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="admin-account-password">パスワード</label>
-                                        <input type="password" id="admin-account-password" class="form-control" placeholder="変更する場合のみ入力（4文字以上）" autocomplete="new-password">
-                                        <span class="hint" id="admin-account-password-hint">空欄のまま保存すると既存のパスワードを維持します。</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <div id="staff-accounts-status" class="hint" style="margin-top:10px;"></div>
                     </div>
                 </div>
 
@@ -1287,6 +1387,7 @@
                         <div class="settings-linkbox-menu">
                             <nav class="settings-linkbox-grid" aria-label="その他設定項目">
                                 <button type="button" class="settings-linkbox" data-panel="captcha">ログインCAPTCHA</button>
+                                <button type="button" class="settings-linkbox" data-panel="mail-history">メール送信履歴</button>
                             </nav>
                         </div>
                         <div class="settings-linkbox-detail" hidden>
@@ -1307,6 +1408,26 @@
                                         <span class="hint" id="recaptchaSecretKeyHint">空欄のまま保存すると既存のシークレットキーを維持します</span>
                                     </div>
                                     <p class="hint"><a href="https://www.google.com/recaptcha/admin" target="_blank" rel="noopener">Google reCAPTCHA 管理コンソール</a>で「reCAPTCHA v2」の「チェックボックス」タイプのキーを登録してください。</p>
+                                </div>
+                                <div class="settings-linkbox-panel settings-collapse-body" data-panel="mail-history" hidden>
+                                    <div class="settings-mail-history-table-wrap">
+                                        <table class="settings-mail-history-table">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">送信日時</th>
+                                                    <th scope="col">種別</th>
+                                                    <th scope="col">件名</th>
+                                                    <th scope="col">宛先</th>
+                                                    <th scope="col">担当者</th>
+                                                    <th scope="col">結果</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="settings-mail-history-list-body">
+                                                <tr><td colspan="6" class="settings-mail-history-empty">読み込み中…</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div id="settings-mail-history-pagination" class="settings-mail-history-pagination" aria-label="ページ送り"></div>
                                 </div>
                             </div>
                         </div>

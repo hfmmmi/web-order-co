@@ -44,6 +44,17 @@ document.addEventListener("DOMContentLoaded", function () {
     let cart = {};
     let kaitoriHistoryList = [];
     const selectedKaitoriRequestIds = new Set();
+    let kaitoriHistorySortKey = null;
+    let kaitoriHistorySortDirection = "asc";
+
+    const KAITORI_HISTORY_STATUS_SORT_RANK = {
+        "未対応": 0,
+        "査定中": 1,
+        "保留": 2,
+        "成立": 3,
+        "キャンセル(返却)": 4,
+        "キャンセル(廃棄)": 5
+    };
 
     function kaitoriAttrEsc(s) {
         return String(s == null ? "" : s)
@@ -447,6 +458,259 @@ document.addEventListener("DOMContentLoaded", function () {
         return metaHtml + tableHtml;
     }
 
+    function kaitoriHistoryItemCount(item) {
+        return (item.items || []).reduce(function (sum, i) {
+            return sum + (i.qty || 0);
+        }, 0);
+    }
+
+    function kaitoriHistoryContentLabel(item) {
+        if (!item.items || item.items.length === 0) return "";
+        return item.items[0].name || "";
+    }
+
+    function kaitoriHistoryDisplayId(item) {
+        if (item.displayId != null && String(item.displayId).trim() !== "") {
+            return String(item.displayId);
+        }
+        return item.requestId != null ? String(item.requestId) : "";
+    }
+
+    function getKaitoriHistorySortRawValue(item, key) {
+        if (!item) return null;
+        switch (key) {
+            case "id":
+                return kaitoriHistoryDisplayId(item);
+            case "requestDate":
+                return item.requestDate || "";
+            case "content":
+                return kaitoriHistoryContentLabel(item);
+            case "status":
+                return item.status && String(item.status).trim() !== "" ? String(item.status).trim() : "未対応";
+            case "itemCount":
+                return kaitoriHistoryItemCount(item);
+            default:
+                return null;
+        }
+    }
+
+    function compareKaitoriHistorySortValues(aVal, bVal, key) {
+        if (aVal == null && bVal == null) return 0;
+        if (aVal == null || aVal === "") return 1;
+        if (bVal == null || bVal === "") return -1;
+
+        if (key === "requestDate") {
+            const ta = new Date(aVal).getTime();
+            const tb = new Date(bVal).getTime();
+            const na = Number.isNaN(ta) ? 0 : ta;
+            const nb = Number.isNaN(tb) ? 0 : tb;
+            return na - nb;
+        }
+
+        if (key === "id") {
+            const na = Number(aVal);
+            const nb = Number(bVal);
+            if (!Number.isNaN(na) && !Number.isNaN(nb) && String(aVal).trim() !== "" && String(bVal).trim() !== "") {
+                return na - nb;
+            }
+            return String(aVal).localeCompare(String(bVal), "ja", { numeric: true });
+        }
+
+        if (key === "status") {
+            const ra = Object.prototype.hasOwnProperty.call(KAITORI_HISTORY_STATUS_SORT_RANK, aVal)
+                ? KAITORI_HISTORY_STATUS_SORT_RANK[aVal]
+                : 99;
+            const rb = Object.prototype.hasOwnProperty.call(KAITORI_HISTORY_STATUS_SORT_RANK, bVal)
+                ? KAITORI_HISTORY_STATUS_SORT_RANK[bVal]
+                : 99;
+            if (ra !== rb) return ra - rb;
+            return String(aVal).localeCompare(String(bVal), "ja");
+        }
+
+        if (key === "itemCount") {
+            return Number(aVal) - Number(bVal);
+        }
+
+        return String(aVal).localeCompare(String(bVal), "ja", { sensitivity: "base" });
+    }
+
+    function sortKaitoriHistoryList(list) {
+        if (!kaitoriHistorySortKey || !Array.isArray(list)) return list;
+        const dir = kaitoriHistorySortDirection === "desc" ? -1 : 1;
+        const key = kaitoriHistorySortKey;
+        return [...list].sort(function (a, b) {
+            const cmp = compareKaitoriHistorySortValues(
+                getKaitoriHistorySortRawValue(a, key),
+                getKaitoriHistorySortRawValue(b, key),
+                key
+            );
+            if (cmp !== 0) return cmp * dir;
+            const idA = getKaitoriHistorySortRawValue(a, "id");
+            const idB = getKaitoriHistorySortRawValue(b, "id");
+            return compareKaitoriHistorySortValues(idA, idB, "id") * dir;
+        });
+    }
+
+    function buildKaitoriHistorySortThHtml(key, label, extraClass, extraStyle) {
+        const active = kaitoriHistorySortKey === key;
+        const indicator = active ? (kaitoriHistorySortDirection === "asc" ? " ▲" : " ▼") : "";
+        const aria = active
+            ? (kaitoriHistorySortDirection === "asc" ? "ascending" : "descending")
+            : "none";
+        const cls = extraClass ? ` class="${extraClass}"` : "";
+        const style = extraStyle ? ` style="${extraStyle}"` : "";
+        return (
+            `<th scope="col"${cls}${style}>` +
+            `<button type="button" class="orders-sort-link${active ? " is-active" : ""}" data-sort-key="${key}" aria-sort="${aria}">` +
+            kaitoriPrintEsc(label) +
+            indicator +
+            "</button></th>"
+        );
+    }
+
+    function handleKaitoriHistorySortClick(key) {
+        if (kaitoriHistorySortKey === key) {
+            kaitoriHistorySortDirection = kaitoriHistorySortDirection === "asc" ? "desc" : "asc";
+        } else {
+            kaitoriHistorySortKey = key;
+            kaitoriHistorySortDirection = "asc";
+        }
+        renderKaitoriHistoryTable();
+    }
+
+    function renderKaitoriHistoryTable() {
+        if (!historyContainer) return;
+
+        if (!kaitoriHistoryList.length) {
+            historyContainer.innerHTML = "<p class=\"kaitori-intro-muted\">履歴はありません。</p>";
+            return;
+        }
+
+        const sortedList = sortKaitoriHistoryList(kaitoriHistoryList);
+
+        let html = `<table class="history-table">
+                <thead>
+                    <tr>
+                        <th scope="col" class="col-select">
+                            <input type="checkbox" class="kaitori-history-select-all" aria-label="すべて選択">
+                        </th>
+                        ${buildKaitoriHistorySortThHtml("id", "受付番号", "kaitori-history-id-cell", "width:100px;")}
+                        ${buildKaitoriHistorySortThHtml("requestDate", "申請日時", "", "width:140px;")}
+                        ${buildKaitoriHistorySortThHtml("content", "申請内容")}
+                        ${buildKaitoriHistorySortThHtml("status", "ステータス", "", "width:100px;")}
+                        ${buildKaitoriHistorySortThHtml("itemCount", "点数", "kaitori-th-numeric", "width:60px;")}
+                        <th style="width:40px;"></th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+        sortedList.forEach(function (item) {
+            const dateStr = formatKaitoriRequestDate(item.requestDate);
+            const statusResolved = resolveHistoryStatus(item.status);
+            const statusLabel = statusResolved.label;
+            const badgeClass = statusResolved.badgeClass;
+            const totalQty = kaitoriHistoryItemCount(item);
+
+            let summary = "-";
+            if (item.items && item.items.length > 0) {
+                const first = item.items[0];
+                summary = `<span style="font-weight:normal; color:#111827;">${first.name}</span>`;
+                if (item.items.length > 1) {
+                    summary += ` <span style="font-size:0.8rem; color:#6b7280;">...他 ${item.items.length - 1}種</span>`;
+                }
+            }
+
+            let logisticsHtml = "";
+            if (item.logistics) {
+                if (item.logistics.hyogo) {
+                    logisticsHtml += `<div>兵庫 / 回収： 梱包 ${item.logistics.hyogo.boxCount}個</div>`;
+                }
+                if (item.logistics.osaka) {
+                    const os = item.logistics.osaka;
+                    logisticsHtml += `<div style="margin-top:6px;">大阪 / 発送： 梱包 ${os.boxCount}個 / ${os.carrier || "-"} / No.${os.tracking || "-"}</div>`;
+                }
+            }
+
+            const noteHtml = item.customerNote
+                ? `<div style="color:#374151; margin-top:8px; background:#f9fafb; padding:10px 12px; border-radius:8px; border:1px solid #e5e7eb; border-left:3px solid #D6E7F1;">
+                         事務局メッセージ： ${item.customerNote}
+                       </div>`
+                : "";
+
+            const metaHtml = `
+                    <div style="margin-bottom:10px; font-size:0.9rem;">
+                        <div style="margin-bottom:5px;">受付番号： ${kaitoriPrintEsc(item.displayId || item.requestId)}</div>
+                        ${logisticsHtml}
+                        ${noteHtml}
+                    </div>
+                `;
+
+            let tableHtml = `<table class="detail-table">
+                    <thead><tr><th>商品名</th><th>単価</th><th>個数</th><th style="text-align:right;">小計</th></tr></thead>
+                    <tbody>`;
+
+            let grandTotal = 0;
+            if (item.items && Array.isArray(item.items)) {
+                item.items.forEach(function (itm) {
+                    const sub = itm.subtotal || (itm.price * itm.qty);
+                    grandTotal += sub;
+                    const destTag = itm.destination === "兵庫"
+                        ? '<span style="color:#6b7280; font-size:0.8rem; font-weight:normal;">[兵庫]</span>'
+                        : '<span style="color:#6b7280; font-size:0.8rem; font-weight:normal;">[大阪]</span>';
+                    tableHtml += `<tr>
+                            <td>${destTag} ${itm.name}</td>
+                            <td>¥${itm.price.toLocaleString()}</td>
+                            <td>${itm.qty}</td>
+                            <td style="text-align:right;">¥${sub.toLocaleString()}</td>
+                        </tr>`;
+                });
+            }
+            tableHtml += `</tbody></table>
+                    <div class="detail-total">合計査定額： ¥${grandTotal.toLocaleString()}</div>`;
+
+            const reqIdEsc = kaitoriAttrEsc(String(item.requestId != null ? item.requestId : ""));
+            const idShown = kaitoriPrintEsc(item.displayId || item.requestId || "");
+
+            html += `<tr class="history-main-row" data-id="${item.requestId}">
+                    <td class="col-select">
+                        <input type="checkbox" class="kaitori-history-row-select" data-request-id="${reqIdEsc}" aria-label="この申請を選択">
+                    </td>
+                    <td class="kaitori-history-id-cell"><span class="kaitori-history-id-text">${idShown}</span></td>
+                    <td class="history-date-cell">${dateStr}</td>
+                    <td>${summary}</td>
+                    <td><span class="status-badge ${badgeClass}">${statusLabel}</span></td>
+                    <td class="kaitori-td-numeric">${totalQty}点</td>
+                    <td style="text-align:center;"><span class="toggle-icon">▼</span></td>
+                </tr>`;
+
+            html += `<tr class="history-detail-row" id="detail-${item.requestId}">
+                    <td colspan="7" style="padding:0; border:none;">
+                        <div class="detail-content-wrapper">
+                            ${metaHtml}
+                            ${tableHtml}
+                        </div>
+                    </td>
+                </tr>`;
+        });
+
+        html += `</tbody></table>`;
+        historyContainer.innerHTML = html;
+
+        attachKaitoriHistorySelectionHandlers();
+        attachKaitoriHistoryRowToggleHandlers();
+    }
+
+    if (historyContainer) {
+        historyContainer.addEventListener("click", function (e) {
+            const btn = e.target.closest(".orders-sort-link[data-sort-key]");
+            if (!btn) return;
+            e.preventDefault();
+            e.stopPropagation();
+            const key = btn.getAttribute("data-sort-key");
+            if (key) handleKaitoriHistorySortClick(key);
+        });
+    }
+
     function collectSelectedKaitoriHistory() {
         if (selectedKaitoriRequestIds.size === 0) return [];
         const idSet = selectedKaitoriRequestIds;
@@ -751,131 +1015,11 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!historyContainer) return;
         historyContainer.innerHTML = "<p class=\"kaitori-intro-muted\">読み込み中...</p>";
         try {
-            // ★修正: /api を削除 (/my-kaitori-history)
             const res = await fetch("/my-kaitori-history");
             if (!res.ok) return;
             const list = await res.json();
             kaitoriHistoryList = Array.isArray(list) ? list : [];
-
-            if (kaitoriHistoryList.length === 0) {
-                historyContainer.innerHTML = "<p class=\"kaitori-intro-muted\">履歴はありません。</p>";
-                return;
-            }
-
-            // テーブルヘッダー
-            let html = `<table class="history-table">
-                <thead>
-                    <tr>
-                        <th scope="col" class="col-select">
-                            <input type="checkbox" class="kaitori-history-select-all" aria-label="すべて選択">
-                        </th>
-                        <th style="width:100px;">受付番号</th>
-                        <th style="width:140px;">申請日時</th>
-                        <th>申請内容</th>
-                        <th style="width:100px;">ステータス</th>
-                        <th style="width:60px;">点数</th>
-                        <th style="width:40px;"></th>
-                    </tr>
-                </thead>
-                <tbody>`;
-            
-            kaitoriHistoryList.forEach((item) => {
-                const dateStr = formatKaitoriRequestDate(item.requestDate);
-                const { label: statusLabel, badgeClass } = resolveHistoryStatus(item.status);
-                const totalQty = item.items ? item.items.reduce((sum, i) => sum + (i.qty || 0), 0) : 0;
-
-                // 頭出しの作成
-                let summary = "-";
-                if (item.items && item.items.length > 0) {
-                    const first = item.items[0];
-                    summary = `<span style="font-weight:normal; color:#111827;">${first.name}</span>`;
-                    if (item.items.length > 1) {
-                        summary += ` <span style="font-size:0.8rem; color:#6b7280;">...他 ${item.items.length - 1}種</span>`;
-                    }
-                }
-
-                // === 詳細コンテンツのHTML構築 ===
-                // 1. 物流情報
-                let logisticsHtml = "";
-                if (item.logistics) {
-                    if (item.logistics.hyogo) {
-                        logisticsHtml += `<div>兵庫 / 回収： 梱包 ${item.logistics.hyogo.boxCount}個</div>`;
-                    }
-                    if (item.logistics.osaka) {
-                        const os = item.logistics.osaka;
-                        logisticsHtml += `<div style="margin-top:6px;">大阪 / 発送： 梱包 ${os.boxCount}個 / ${os.carrier || "-"} / No.${os.tracking || "-"}</div>`;
-                    }
-                }
-                
-                const noteHtml = item.customerNote 
-                    ? `<div style="color:#374151; margin-top:8px; background:#f9fafb; padding:10px 12px; border-radius:8px; border:1px solid #e5e7eb; border-left:3px solid #D6E7F1;">
-                         事務局メッセージ： ${item.customerNote}
-                       </div>` 
-                    : "";
-
-                const metaHtml = `
-                    <div style="margin-bottom:10px; font-size:0.9rem;">
-                        <div style="margin-bottom:5px;">受付番号： ${kaitoriPrintEsc(item.displayId || item.requestId)}</div>
-                        ${logisticsHtml}
-                        ${noteHtml}
-                    </div>
-                `;
-
-                // 2. アイテムリスト
-                let tableHtml = `<table class="detail-table">
-                    <thead><tr><th>商品名</th><th>単価</th><th>個数</th><th style="text-align:right;">小計</th></tr></thead>
-                    <tbody>`;
-                
-                let grandTotal = 0;
-                if (item.items && Array.isArray(item.items)) {
-                    item.items.forEach(itm => {
-                        const sub = itm.subtotal || (itm.price * itm.qty);
-                        grandTotal += sub;
-                        const destTag = itm.destination === "兵庫" ? '<span style="color:#6b7280; font-size:0.8rem; font-weight:normal;">[兵庫]</span>' : '<span style="color:#6b7280; font-size:0.8rem; font-weight:normal;">[大阪]</span>';
-                        tableHtml += `<tr>
-                            <td>${destTag} ${itm.name}</td>
-                            <td>¥${itm.price.toLocaleString()}</td>
-                            <td>${itm.qty}</td>
-                            <td style="text-align:right;">¥${sub.toLocaleString()}</td>
-                        </tr>`;
-                    });
-                }
-                tableHtml += `</tbody></table>
-                    <div class="detail-total">合計査定額： ¥${grandTotal.toLocaleString()}</div>`;
-
-
-                const reqIdEsc = kaitoriAttrEsc(String(item.requestId != null ? item.requestId : ""));
-                const idShown = kaitoriPrintEsc(item.displayId || item.requestId || "");
-
-                // === 行セットの追加 (親行 + 子行) ===
-                html += `<tr class="history-main-row" data-id="${item.requestId}">
-                    <td class="col-select">
-                        <input type="checkbox" class="kaitori-history-row-select" data-request-id="${reqIdEsc}" aria-label="この申請を選択">
-                    </td>
-                    <td class="kaitori-history-id-cell"><span class="kaitori-history-id-text">${idShown}</span></td>
-                    <td class="history-date-cell">${dateStr}</td>
-                    <td>${summary}</td>
-                    <td><span class="status-badge ${badgeClass}">${statusLabel}</span></td>
-                    <td>${totalQty}点</td>
-                    <td style="text-align:center;"><span class="toggle-icon">▼</span></td>
-                </tr>`;
-                
-                html += `<tr class="history-detail-row" id="detail-${item.requestId}">
-                    <td colspan="7" style="padding:0; border:none;">
-                        <div class="detail-content-wrapper">
-                            ${metaHtml}
-                            ${tableHtml}
-                        </div>
-                    </td>
-                </tr>`;
-            });
-
-            html += `</tbody></table>`;
-            historyContainer.innerHTML = html;
-
-            attachKaitoriHistorySelectionHandlers();
-            attachKaitoriHistoryRowToggleHandlers();
-
+            renderKaitoriHistoryTable();
         } catch (error) {
             console.error("History error", error);
             historyContainer.innerHTML = "<p class=\"kaitori-intro-muted\">読み込みエラー</p>";

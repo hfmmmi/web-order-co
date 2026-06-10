@@ -1168,3 +1168,13 @@ input[type="text"], input[type="password"] {
 .page-header-inline-actions .page-header-action-plain {
     font-weight: 400;
 }
+
+/* 登録・更新者フッター（ページ下部の小さな監査表示） */
+.audit-record-footer {
+    margin-top: 12px;
+    padding-top: 8px;
+    border-top: 1px solid #e5e7eb;
+    font-size: 0.75rem;
+    color: #6b7280;
+    line-height: 1.5;
+}

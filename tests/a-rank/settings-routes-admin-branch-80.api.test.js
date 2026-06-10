@@ -616,4 +616,29 @@ describe("Aランク: settingsRoutes 管理API 分岐80%向け", () => {
             spy.mockRestore();
         }
     });
+
+    test("GET /api/admin/mail-history 未ログインは401", async () => {
+        const res = await request(app).get("/api/admin/mail-history");
+        expect(res.statusCode).toBe(401);
+    });
+
+    test("GET /api/admin/mail-history は送信履歴一覧を返す", async () => {
+        const mailHistoryService = require("../../services/mailHistoryService");
+        await mailHistoryService.appendMailHistory({
+            mailType: "invite",
+            subject: "【テスト】招待メール",
+            to: "invite@example.com",
+            success: true,
+            sentByAdminName: "テスト管理者"
+        });
+
+        const admin = request.agent(app);
+        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        const res = await admin.get("/api/admin/mail-history");
+        expect(res.statusCode).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(Array.isArray(res.body.items)).toBe(true);
+        expect(res.body.items.some((row) => row.subject === "【テスト】招待メール")).toBe(true);
+        expect(res.body.items.some((row) => row.actorLabel === "テスト管理者")).toBe(true);
+    });
 });

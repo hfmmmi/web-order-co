@@ -13,6 +13,16 @@ document.addEventListener("DOMContentLoaded", async function () {
         return y + "/" + m + "/" + day;
     }
 
+    function formatOrderTimeHm(orderDate) {
+        const d = new Date(orderDate);
+        if (Number.isNaN(d.getTime())) return "—";
+        const jstMs = d.getTime() + 9 * 60 * 60 * 1000;
+        const x = new Date(jstMs);
+        const hh = String(x.getUTCHours()).padStart(2, "0");
+        const mm = String(x.getUTCMinutes()).padStart(2, "0");
+        return hh + ":" + mm;
+    }
+
     const params = new URLSearchParams(window.location.search);
     const orderId = params.get("orderId");
 
@@ -48,10 +58,10 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         const order = data.order;
         const dateStr = formatOrderDateYmdSlash(order.orderDate);
-        const statusText = order.status || "未発送";
+        const timeStr = formatOrderTimeHm(order.orderDate);
 
         if (meta) {
-            meta.textContent = "注文ID " + String(order.orderId) + " · " + dateStr + " · " + statusText;
+            meta.textContent = "注文ID " + String(order.orderId) + " · " + dateStr + " · " + timeStr;
         }
         document.title = "注文詳細 " + String(order.orderId) + " - 発注システム";
 

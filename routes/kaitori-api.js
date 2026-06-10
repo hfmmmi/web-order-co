@@ -5,6 +5,7 @@ const router = express.Router();
 const fs = require("fs").promises;
 const { dbPath } = require("../dbPaths");
 const { runWithJsonFileWriteLock } = require("../utils/jsonWriteQueue");
+const { getActorNameFromSession, applyAuditOnCreate, applyAuditOnUpdate, pickAuditFields } = require("../utils/auditMeta");
 const {
     nextPrefixedSequentialId,
     attachPrefixedDisplayIds
@@ -86,6 +87,8 @@ router.post("/kaitori-request", async (req, res) => {
                 customerNote: ""
             };
 
+            applyAuditOnCreate(newRequest, getActorNameFromSession(req.session));
+
             requests.push(newRequest);
             await fs.writeFile(KAITORI_DB_PATH, JSON.stringify(requests, null, 2));
         });
@@ -120,6 +123,8 @@ router.post("/admin/kaitori-update", async (req, res) => {
 
     try {
         let notFound = false;
+        let auditSnapshot = null;
+        const actorName = getActorNameFromSession(req.session);
         await runWithJsonFileWriteLock(KAITORI_DB_PATH, async () => {
             const data = await fs.readFile(KAITORI_DB_PATH, "utf-8");
             let requests = JSON.parse(data);
@@ -140,7 +145,8 @@ router.post("/admin/kaitori-update", async (req, res) => {
                 requests[targetIndex].items = items;
             }
 
-            requests[targetIndex].updatedAt = new Date().toISOString();
+            applyAuditOnUpdate(requests[targetIndex], actorName);
+            auditSnapshot = pickAuditFields(requests[targetIndex]);
 
             await fs.writeFile(KAITORI_DB_PATH, JSON.stringify(requests, null, 2));
         });
@@ -148,7 +154,7 @@ router.post("/admin/kaitori-update", async (req, res) => {
         if (notFound) {
             return res.status(404).json({ success: false, message: "データが見つかりません" });
         }
-        res.json({ success: true, message: "内容を更新しました" });
+        res.json({ success: true, message: "内容を更新しました", audit: auditSnapshot });
     } catch (error) {
         console.error("更新エラー", error);
         res.status(500).json({ success: false, message: "サーバーエラー" });

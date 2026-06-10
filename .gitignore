@@ -20,6 +20,10 @@ reset_tokens.json
 # 管理者パスワード再設定トークン（24時間・1回使用）
 admin_reset_tokens.json
 
+# 顧客担当者アカウント・パスワード再設定トークン
+customer_users.json
+customer_user_reset_tokens.json
+
 # パスワード再設定のレート制限用（IP別・15分窓）
 reset_rate_limit.json
 

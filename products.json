@@ -365,7 +365,14 @@
       "D": 25463
     },
     "rankPricesUpdatedAt": 1780951810086,
-    "remarks": ""
+    "remarks": "",
+    "unit": "",
+    "purchaseUnitPrice": 0,
+    "active": true,
+    "createdBy": "管理者",
+    "createdAt": "2026-06-10T04:54:47.324Z",
+    "updatedBy": "管理者",
+    "updatedAt": "2026-06-10T04:54:47.324Z"
   },
   {
     "productCode": "JP500H",

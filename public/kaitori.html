@@ -684,6 +684,46 @@
             color: #374151;
         }
 
+        .orders-sort-link {
+            display: inline;
+            margin: 0;
+            padding: 0;
+            border: none;
+            background: none;
+            font: inherit;
+            font-weight: 600;
+            color: inherit;
+            text-decoration: underline;
+            text-underline-offset: 0.12em;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .orders-sort-link:hover {
+            color: inherit;
+            text-decoration: underline;
+        }
+
+        .orders-sort-link.is-active {
+            color: inherit;
+        }
+
+        .orders-sort-indicator {
+            font-size: 0.75em;
+            text-decoration: none;
+        }
+
+        .history-table th.kaitori-th-numeric,
+        .history-table td.kaitori-td-numeric {
+            text-align: right;
+        }
+
+        .history-table th.kaitori-th-numeric .orders-sort-link {
+            display: inline-block;
+            width: 100%;
+            text-align: right;
+        }
+
         body.kaitori-page .history-table .col-select {
             width: 2.25rem;
             text-align: center;

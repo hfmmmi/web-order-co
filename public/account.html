@@ -7,8 +7,8 @@
     <link rel="stylesheet" href="style.css">
     <style>
         .account-settings-page {
-            max-width: none;
-            margin: 0;
+            max-width: 720px;
+            margin: 0 auto;
         }
         .account-page-title {
             margin: 0 0 20px 0;
@@ -17,13 +17,15 @@
             font-weight: normal;
         }
         .account-settings-links {
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 10px;
-            max-width: 420px;
+            margin: 0;
         }
         .account-settings-link {
             display: block;
+            box-sizing: border-box;
+            width: 100%;
             padding: 14px 18px;
             background: #f9fafb;
             border: 1px solid #e5e7eb;
@@ -31,10 +33,18 @@
             color: #111827;
             text-decoration: none;
             font-size: 1rem;
+            font-weight: 400;
+            text-align: left;
+            transition: background 0.15s ease, border-color 0.15s ease;
         }
         .account-settings-link:hover {
             background: #f3f4f6;
             border-color: #d1d5db;
+        }
+        @media (max-width: 560px) {
+            .account-settings-links {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -62,6 +72,7 @@
 
             <nav class="account-settings-links" aria-label="設定メニュー">
                 <a href="account-delivery.html" class="account-settings-link">納品先編集</a>
+                <a href="account-profile.html" class="account-settings-link">アカウント設定</a>
             </nav>
         </div>
     </div>

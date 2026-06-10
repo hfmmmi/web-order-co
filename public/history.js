@@ -132,7 +132,7 @@ function computeFilteredHistoryOrders() {
 function execHistoryClientSearch(options) {
     const container = document.querySelector("#history-list-container");
     if (!container) return;
-    const filtered = computeFilteredHistoryOrders();
+    const filtered = sortHistoryOrdersList(computeFilteredHistoryOrders());
     const keepPage = options && options.keepPage;
     historyListContainerEl = container;
     historyViewOrders = filtered;
@@ -145,6 +145,155 @@ function execHistoryClientSearch(options) {
         historyCurrentPage = 1;
         renderHistoryPage();
     }
+}
+
+function getHistorySortRawValue(order, key) {
+    if (!order) return null;
+    switch (key) {
+        case "orderId":
+            return order.orderId != null ? String(order.orderId) : "";
+        case "orderDate":
+            return order.orderDate || "";
+        case "status":
+            return order.status || "未発送";
+        case "customer":
+            return order.customerName || "";
+        case "delivery":
+            return (order.deliveryInfo && order.deliveryInfo.name) || "";
+        case "totalAmount":
+            return Number(order.totalAmount) || 0;
+        default:
+            return null;
+    }
+}
+
+function compareHistorySortValues(aVal, bVal, key) {
+    if (aVal == null && bVal == null) return 0;
+    if (aVal == null || aVal === "") return 1;
+    if (bVal == null || bVal === "") return -1;
+
+    if (key === "orderDate") {
+        const ta = new Date(aVal).getTime();
+        const tb = new Date(bVal).getTime();
+        const na = Number.isNaN(ta) ? 0 : ta;
+        const nb = Number.isNaN(tb) ? 0 : tb;
+        return na - nb;
+    }
+
+    if (key === "orderId") {
+        const na = Number(aVal);
+        const nb = Number(bVal);
+        if (!Number.isNaN(na) && !Number.isNaN(nb) && String(aVal).trim() !== "" && String(bVal).trim() !== "") {
+            return na - nb;
+        }
+        return String(aVal).localeCompare(String(bVal), "ja", { numeric: true });
+    }
+
+    if (key === "status") {
+        const ra = Object.prototype.hasOwnProperty.call(HISTORY_ORDER_STATUS_SORT_RANK, aVal)
+            ? HISTORY_ORDER_STATUS_SORT_RANK[aVal]
+            : 99;
+        const rb = Object.prototype.hasOwnProperty.call(HISTORY_ORDER_STATUS_SORT_RANK, bVal)
+            ? HISTORY_ORDER_STATUS_SORT_RANK[bVal]
+            : 99;
+        if (ra !== rb) return ra - rb;
+        return String(aVal).localeCompare(String(bVal), "ja");
+    }
+
+    if (key === "totalAmount") {
+        return Number(aVal) - Number(bVal);
+    }
+
+    return String(aVal).localeCompare(String(bVal), "ja", { sensitivity: "base" });
+}
+
+function sortHistoryOrdersList(orders) {
+    if (!historySortKey || !Array.isArray(orders)) return orders;
+    const dir = historySortDirection === "desc" ? -1 : 1;
+    const key = historySortKey;
+    return [...orders].sort(function (a, b) {
+        const cmp = compareHistorySortValues(
+            getHistorySortRawValue(a, key),
+            getHistorySortRawValue(b, key),
+            key
+        );
+        if (cmp !== 0) return cmp * dir;
+        const idA = getHistorySortRawValue(a, "orderId");
+        const idB = getHistorySortRawValue(b, "orderId");
+        return compareHistorySortValues(idA, idB, "orderId") * dir;
+    });
+}
+
+function handleHistorySortHeaderClick(key) {
+    if (historySortKey === key) {
+        historySortDirection = historySortDirection === "asc" ? "desc" : "asc";
+    } else {
+        historySortKey = key;
+        historySortDirection = "asc";
+    }
+    historyCurrentPage = 1;
+    execHistoryClientSearch();
+}
+
+function createHistorySortHeaderCell(key, label, className) {
+    const th = document.createElement("th");
+    th.scope = "col";
+    if (className) th.className = className;
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "orders-sort-link";
+    btn.textContent = label;
+
+    if (historySortKey === key) {
+        btn.classList.add("is-active");
+        btn.setAttribute(
+            "aria-sort",
+            historySortDirection === "asc" ? "ascending" : "descending"
+        );
+        const indicator = document.createElement("span");
+        indicator.className = "orders-sort-indicator";
+        indicator.setAttribute("aria-hidden", "true");
+        indicator.textContent = historySortDirection === "asc" ? " ▲" : " ▼";
+        btn.appendChild(indicator);
+    } else {
+        btn.setAttribute("aria-sort", "none");
+    }
+
+    btn.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        handleHistorySortHeaderClick(key);
+    });
+
+    th.appendChild(btn);
+    return th;
+}
+
+function buildHistoryTableHeadRow() {
+    const tr = document.createElement("tr");
+
+    const thSelect = document.createElement("th");
+    thSelect.scope = "col";
+    thSelect.className = "col-select";
+    thSelect.innerHTML =
+        '<input type="checkbox" class="order-select-all" title="このページを全選択" aria-label="このページの注文をすべて選択">';
+    tr.appendChild(thSelect);
+
+    tr.appendChild(createHistorySortHeaderCell("orderId", "注文ID", "col-id"));
+    tr.appendChild(createHistorySortHeaderCell("orderDate", "注文日", "col-date"));
+    tr.appendChild(createHistorySortHeaderCell("status", "ステータス", "col-status"));
+    tr.appendChild(createHistorySortHeaderCell("customer", "得意先", "col-party"));
+    tr.appendChild(createHistorySortHeaderCell("delivery", "納品先", "col-product"));
+    tr.appendChild(createHistorySortHeaderCell("totalAmount", "合計金額", "col-numeric"));
+
+    const thAction = document.createElement("th");
+    thAction.scope = "col";
+    thAction.className = "col-action";
+    thAction.textContent = "操作";
+    tr.appendChild(thAction);
+
+    return tr;
 }
 
 /** 受注管理（admin-orders-view）と同じく注文日を YYYY/MM/DD（JST 日付）で表示 */
@@ -164,6 +313,15 @@ const HISTORY_PER_PAGE = 25;
 /** 現在表示している注文配列（全件または検索結果） */
 let historyViewOrders = [];
 let historyCurrentPage = 1;
+/** 一覧の並び替え（null のときは API 取得順を維持） */
+let historySortKey = null;
+let historySortDirection = "asc";
+
+const HISTORY_ORDER_STATUS_SORT_RANK = {
+    "未発送": 0,
+    "一部発送": 1,
+    "発送済": 2
+};
 /** 最後に renderHistoryList に渡したリスト用コンテナ（ページ切替で再利用） */
 let historyListContainerEl = null;
 
@@ -872,19 +1030,10 @@ function renderHistoryPage() {
     const table = document.createElement("table");
     table.className = "orders-list-table";
     table.setAttribute("role", "grid");
-    table.innerHTML =
-        "<thead><tr>" +
-        '<th scope="col" class="col-select">' +
-        '<input type="checkbox" class="order-select-all" title="このページを全選択" aria-label="このページの注文をすべて選択">' +
-        "</th>" +
-        '<th scope="col">注文ID</th>' +
-        '<th scope="col">注文日</th>' +
-        '<th scope="col">ステータス</th>' +
-        '<th scope="col">得意先</th>' +
-        '<th scope="col">納品先</th>' +
-        '<th scope="col" class="col-numeric">合計金額</th>' +
-        '<th scope="col" class="col-action">操作</th>' +
-        "</tr></thead>";
+
+    const thead = document.createElement("thead");
+    thead.appendChild(buildHistoryTableHeadRow());
+    table.appendChild(thead);
 
     const tbody = document.createElement("tbody");
     table.appendChild(tbody);

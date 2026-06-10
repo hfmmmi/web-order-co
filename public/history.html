@@ -348,6 +348,45 @@
             vertical-align: middle;
         }
 
+        body.history-page .orders-list-table thead th.col-numeric {
+            text-align: right;
+        }
+
+        body.history-page .orders-sort-link {
+            display: inline;
+            margin: 0;
+            padding: 0;
+            border: none;
+            background: none;
+            font: inherit;
+            font-weight: 600;
+            color: inherit;
+            text-decoration: underline;
+            text-underline-offset: 0.12em;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        body.history-page .orders-sort-link:hover {
+            color: inherit;
+            text-decoration: underline;
+        }
+
+        body.history-page .orders-sort-link.is-active {
+            color: inherit;
+        }
+
+        body.history-page .orders-sort-indicator {
+            font-size: 0.75em;
+            text-decoration: none;
+        }
+
+        body.history-page .orders-list-table th.col-numeric .orders-sort-link {
+            display: inline-block;
+            width: 100%;
+            text-align: right;
+        }
+
         body.history-page .orders-list-table tbody td {
             padding: 8px 10px;
             border-bottom: 1px solid #e5e7eb;
@@ -651,6 +690,7 @@
 
     <script src="script.js"></script>
     <script src="js/utils/printDocumentSave.js"></script>
+    <script src="js/audit-record-footer.js"></script>
     <script src="js/customer-order-detail-html.js"></script>
     <script src="history.js"></script>
 </body>

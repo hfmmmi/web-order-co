@@ -8,6 +8,8 @@ const crypto = require("crypto");
 const fs = require("fs").promises;
 const mailService = require("../services/mailService");
 const customerService = require("../services/customerService");
+const { mailLogMetaFromSession } = require("../utils/mailLogMeta");
+const { getActorNameFromSession, applyAuditOnCreate, applyAuditOnUpdate, pickAuditFields } = require("../utils/auditMeta");
 const { dbPath, DATA_ROOT } = require("../dbPaths");
 const { runWithJsonFileWriteLock } = require("../utils/jsonWriteQueue");
 const {
@@ -196,10 +198,14 @@ router.post("/request-support", async (req, res) => {
             customerName: req.session.customerName
             };
 
+            applyAuditOnCreate(ticketData, getActorNameFromSession(req.session));
+
             tickets.push(ticketData);
             await fs.writeFile(SUPPORT_DB_PATH, JSON.stringify(tickets, null, 2));
 
-            mailService.sendSupportNotification(ticketData).catch((e) => {
+            mailService
+                .sendSupportNotification(ticketData, mailLogMetaFromSession(req.session))
+                .catch((e) => {
                 console.error("メール送信失敗:", e);
             });
         });
@@ -359,10 +365,14 @@ router.post("/admin/create-ticket", async (req, res) => {
                 attachments: attachmentRecords
             };
 
+            applyAuditOnCreate(ticketData, getActorNameFromSession(req.session));
+
             tickets.push(ticketData);
             await fs.writeFile(SUPPORT_DB_PATH, JSON.stringify(tickets, null, 2));
 
-            mailService.sendSupportNotification(ticketData).catch((e) => {
+            mailService
+                .sendSupportNotification(ticketData, mailLogMetaFromSession(req.session))
+                .catch((e) => {
                 console.error("メール送信失敗:", e);
             });
         });
@@ -419,6 +429,8 @@ router.post("/admin/update-ticket", async (req, res) => {
 
     try {
         let updated = false;
+        let auditSnapshot = null;
+        const actorName = getActorNameFromSession(req.session);
         await runWithJsonFileWriteLock(SUPPORT_DB_PATH, async () => {
             const data = await fs.readFile(SUPPORT_DB_PATH, "utf-8");
             let tickets = JSON.parse(data);
@@ -442,6 +454,8 @@ router.post("/admin/update-ticket", async (req, res) => {
                             by: req.session.adminName || "Admin"
                         });
                     }
+                    applyAuditOnUpdate(t, actorName);
+                    auditSnapshot = pickAuditFields(t);
                     updated = true;
                 }
                 return t;
@@ -453,7 +467,7 @@ router.post("/admin/update-ticket", async (req, res) => {
         });
 
         if (updated) {
-            res.json({ success: true, message: "チケット情報を更新しました" });
+            res.json({ success: true, message: "チケット情報を更新しました", audit: auditSnapshot });
         } else {
             res.status(404).json({ success: false, message: "チケットが見つかりません" });
         }

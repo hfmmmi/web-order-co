@@ -2,19 +2,19 @@
 
 const express = require("express");
 const router = express.Router();
-const fs = require("fs").promises;
-const bcrypt = require("bcryptjs");
-const { dbPath } = require("../../dbPaths");
 const settingsService = require("../../services/settingsService");
 const mailService = require("../../services/mailService");
+const adminAccountService = require("../../services/adminAccountService");
+const customerUserService = require("../../services/customerUserService");
+const mailHistoryService = require("../../services/mailHistoryService");
 const { validateBody } = require("../../middlewares/validate");
 const {
     adminSettingsUpdateSchema,
-    adminAccountUpdateSchema
+    adminAccountUpdateSchema,
+    adminAccountsSaveSchema,
+    customerUsersSaveSchema
 } = require("../../validators/requestSchemas");
 const { requireAdmin } = require("./requireAdmin");
-
-const ADMINS_DB_PATH = dbPath("admins.json");
 
 // 公開用設定（顧客向け features とお知らせ・認証不要）
 router.get("/settings/public", async (req, res) => {
@@ -111,60 +111,98 @@ router.put("/admin/settings", requireAdmin, validateBody(adminSettingsUpdateSche
     }
 });
 
+router.get("/admin/accounts", requireAdmin, async (req, res) => {
+    try {
+        const accounts = await adminAccountService.getAdminAccountsPublic();
+        res.json({ success: true, accounts });
+    } catch (e) {
+        res.status(500).json({ success: false, message: "管理者アカウントの取得に失敗しました" });
+    }
+});
+
+router.put("/admin/accounts", requireAdmin, validateBody(adminAccountsSaveSchema), async (req, res) => {
+    try {
+        const accounts = await adminAccountService.saveAdminAccounts(req.body.accounts || []);
+        res.json({ success: true, message: "管理者アカウントを保存しました", accounts });
+    } catch (e) {
+        res.status(400).json({ success: false, message: e.message || "管理者アカウントの保存に失敗しました" });
+    }
+});
+
+router.get("/admin/customer-users", requireAdmin, async (req, res) => {
+    try {
+        const users = await customerUserService.getCustomerUsersPublic();
+        res.json({ success: true, users });
+    } catch (e) {
+        res.status(500).json({ success: false, message: "担当者アカウントの取得に失敗しました" });
+    }
+});
+
+router.put("/admin/customer-users", requireAdmin, validateBody(customerUsersSaveSchema), async (req, res) => {
+    try {
+        const users = await customerUserService.saveCustomerUsers(req.body.users || []);
+        res.json({ success: true, message: "担当者アカウントを保存しました", users });
+    } catch (e) {
+        res.status(400).json({ success: false, message: e.message || "担当者アカウントの保存に失敗しました" });
+    }
+});
+
+router.get("/admin/mail-history", requireAdmin, async (req, res) => {
+    try {
+        const page = req.query.page;
+        const limit = req.query.limit;
+        const keyword = req.query.keyword;
+        const result = await mailHistoryService.getMailHistory({ page, limit, keyword });
+        res.json({ success: true, ...result });
+    } catch (e) {
+        console.error("mail-history get error:", e);
+        res.status(500).json({ success: false, message: "メール送信履歴の取得に失敗しました" });
+    }
+});
+
+/** @deprecated 先頭1件のみ（後方互換） */
 router.get("/admin/account", requireAdmin, async (req, res) => {
     try {
-        const data = await fs.readFile(ADMINS_DB_PATH, "utf-8");
-        const list = JSON.parse(data);
-        if (!Array.isArray(list) || list.length === 0) {
+        const accounts = await adminAccountService.getAdminAccountsPublic();
+        if (!accounts.length) {
             return res.json({ adminId: "", name: "", passwordSet: false, email: "" });
         }
-        const admin = list[0];
+        const admin = accounts[0];
         res.json({
             adminId: admin.adminId || "",
             name: admin.name || "",
-            passwordSet: !!(admin.password && String(admin.password).trim()),
-            email: (admin.email && String(admin.email).trim()) || ""
+            passwordSet: !!admin.passwordSet,
+            email: admin.email || ""
         });
     } catch (e) {
-        if (e.code === "ENOENT") {
-            return res.json({ adminId: "", name: "", passwordSet: false, email: "" });
-        }
         res.status(500).json({ message: "管理者アカウントの取得に失敗しました" });
     }
 });
 
+/** @deprecated 先頭1件のみ更新（後方互換・テスト用） */
 router.put("/admin/account", requireAdmin, validateBody(adminAccountUpdateSchema), async (req, res) => {
     try {
         const { adminId, name, password, email } = req.body;
-        let list = [];
-        try {
-            const data = await fs.readFile(ADMINS_DB_PATH, "utf-8");
-            list = JSON.parse(data);
-        } catch (e) {
-            if (e.code !== "ENOENT") throw e;
-        }
-        if (!Array.isArray(list)) list = [];
-
-        let admin = list[0] || null;
-        if (!admin) {
-            if (!password || password.length < 4) {
-                return res.status(400).json({ message: "初回作成時はパスワードを4文字以上で指定してください" });
-            }
-            admin = { adminId: "", password: "", name: "" };
-            list = [admin];
-        }
-
-        admin.adminId = adminId;
-        if (name !== undefined) admin.name = name;
-        if (email !== undefined) admin.email = email === "" ? undefined : email;
-        if (password && String(password).trim().length >= 4) {
-            admin.password = await bcrypt.hash(String(password).trim(), 10);
-        }
-
-        await fs.writeFile(ADMINS_DB_PATH, JSON.stringify(list, null, 2), "utf-8");
+        const existing = await adminAccountService.getAdminAccountsPublic();
+        const rest = existing.slice(1).map((a) => ({
+            adminId: a.adminId,
+            name: a.name,
+            email: a.email
+        }));
+        const accounts = [
+            {
+                adminId,
+                name: name !== undefined ? name : "",
+                email: email !== undefined ? email : "",
+                ...(password && String(password).trim() ? { password: String(password).trim() } : {})
+            },
+            ...rest
+        ];
+        await adminAccountService.saveAdminAccounts(accounts);
         res.json({ success: true, message: "管理者アカウントを保存しました" });
     } catch (e) {
-        res.status(500).json({ message: e.message || "管理者アカウントの保存に失敗しました" });
+        const status = /初回|4文字|1件以上|重複/.test(String(e.message || "")) ? 400 : 500;
+        res.status(status).json({ message: e.message || "管理者アカウントの保存に失敗しました" });
     }
 });
 

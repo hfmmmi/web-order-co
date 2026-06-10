@@ -7,6 +7,8 @@ const crypto = require("crypto");
 const { dbPath } = require("../../dbPaths");
 const customerService = require("../../services/customerService");
 const mailService = require("../../services/mailService");
+const { mailLogMetaFromSession } = require("../../utils/mailLogMeta");
+const { getActorNameFromSession } = require("../../utils/auditMeta");
 const { PROXY_REQUEST_EXPIRY_MS } = require("../../utils/proxyRequestsStore");
 const { regenerateSession } = require("../../utils/sessionAsync");
 const { validateBody } = require("../../middlewares/validate");
@@ -23,7 +25,9 @@ router.get("/admin/customers", requireAdmin, async (req, res) => {
     try {
         const keyword = req.query.keyword || "";
         const page = parseInt(req.query.page) || 1;
-        const result = await customerService.getAllCustomers(keyword, page);
+        const sortBy = typeof req.query.sortBy === "string" ? req.query.sortBy : "";
+        const sortDir = req.query.sortDir === "desc" ? "desc" : "asc";
+        const result = await customerService.getAllCustomers(keyword, page, sortBy || null, sortDir);
         res.json(result);
     } catch (e) {
         console.error("Customer Fetch Error:", e);
@@ -50,14 +54,14 @@ router.get("/admin/customers/:customerId/default-delivery", requireAdmin, async 
 
 router.post("/add-customer", requireAdmin, validateBody(addCustomerSchema), async (req, res) => {
     try {
-        const result = await customerService.addCustomer(req.body);
+        const result = await customerService.addCustomer(req.body, getActorNameFromSession(req.session));
         res.json(result);
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 });
 
 router.post("/update-customer", requireAdmin, validateBody(updateCustomerSchema), async (req, res) => {
     try {
-        const result = await customerService.updateCustomer(req.body);
+        const result = await customerService.updateCustomer(req.body, getActorNameFromSession(req.session));
         res.json(result);
     } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 });
@@ -103,7 +107,13 @@ router.post("/admin/send-invite-email", requireAdmin, async (req, res) => {
 
         const baseUrl = `${req.protocol}://${req.get("host")}`;
         const inviteUrl = `${baseUrl}/setup.html?id=${encodeURIComponent(customerId)}&key=${encodeURIComponent(tempPassword)}`;
-        const mailResult = await mailService.sendInviteEmail(customer, inviteUrl, tempPassword, !!isPasswordReset);
+        const mailResult = await mailService.sendInviteEmail(
+            customer,
+            inviteUrl,
+            tempPassword,
+            !!isPasswordReset,
+            mailLogMetaFromSession(req.session)
+        );
 
         if (mailResult.success) {
             res.json({ success: true, message: `${customer.email} 宛に招待メールを送信しました` });
@@ -293,7 +303,13 @@ router.post("/admin/send-invite-email-with-token", requireAdmin, async (req, res
 
         const baseUrl = `${req.protocol}://${req.get("host")}`;
         const inviteUrl = `${baseUrl}/setup.html?id=${encodeURIComponent(customerId)}&key=${encodeURIComponent(tempPassword)}`;
-        const mailResult = await mailService.sendInviteEmail(customer, inviteUrl, tempPassword, !!isPasswordReset);
+        const mailResult = await mailService.sendInviteEmail(
+            customer,
+            inviteUrl,
+            tempPassword,
+            !!isPasswordReset,
+            mailLogMetaFromSession(req.session)
+        );
 
         if (mailResult.success) {
             res.json({ success: true, message: `${customer.email} 宛に招待メールを送信しました` });

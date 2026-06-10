@@ -13,7 +13,13 @@ document.addEventListener("DOMContentLoaded", function () {
     const customerCsvDownloadBtn = document.querySelector("#btn-customer-csv-download");
     const btnCustomersMore = document.getElementById("btn-customers-more");
     const customersMoreMenu = document.getElementById("customers-more-menu");
-    const custSelectAll = document.querySelector(".cust-select-all");
+
+    function getCustSelectAll() {
+        return document.querySelector(".cust-select-all");
+    }
+
+    let customersSortKey = null;
+    let customersSortDirection = "asc";
 
     function setCustomersMoreMenuOpen(open) {
         if (!customersMoreMenu) return;
@@ -39,32 +45,39 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function syncCustSelectAllState() {
-        if (!custSelectAll || !custTableBody) return;
+        const selectAll = getCustSelectAll();
+        if (!selectAll || !custTableBody) return;
         const boxes = custTableBody.querySelectorAll(".cust-row-check");
         if (!boxes.length) {
-            custSelectAll.checked = false;
-            custSelectAll.indeterminate = false;
+            selectAll.checked = false;
+            selectAll.indeterminate = false;
             return;
         }
         const checked = custTableBody.querySelectorAll(".cust-row-check:checked").length;
-        custSelectAll.checked = checked === boxes.length;
-        custSelectAll.indeterminate = checked > 0 && checked < boxes.length;
+        selectAll.checked = checked === boxes.length;
+        selectAll.indeterminate = checked > 0 && checked < boxes.length;
     }
 
-    if (custSelectAll) {
-        custSelectAll.addEventListener("change", function () {
+    function bindCustSelectAllHandler() {
+        const selectAll = getCustSelectAll();
+        if (!selectAll || selectAll.dataset.sortBound === "1") return;
+        selectAll.dataset.sortBound = "1";
+        selectAll.addEventListener("change", function () {
             if (!custTableBody) return;
-            const on = custSelectAll.checked;
+            const on = selectAll.checked;
             custTableBody.querySelectorAll(".cust-row-check").forEach(function (cb) {
                 cb.checked = on;
             });
-            custSelectAll.indeterminate = false;
+            selectAll.indeterminate = false;
         });
     }
+
+    bindCustSelectAllHandler();
 
     // Modal Elements (New)
     const custModal = document.getElementById("customer-modal");
     const cmForm = document.getElementById("cm-form");
+    const cmAuditFooter = document.getElementById("cm-audit-footer");
     const cmMode = document.getElementById("cm-mode");
     const cmTitle = document.getElementById("cm-modal-title");
     const cmId = document.getElementById("cm-id");
@@ -245,8 +258,82 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.addEventListener("admin-ready", function () {
         console.log("🚀 Customer Manager: Auth Signal Received.");
+        renderCustomerTableHead();
         loadCustomers();
     });
+
+    function createCustSortHeaderCell(key, label, className) {
+        const th = document.createElement("th");
+        th.scope = "col";
+        if (className) th.className = className;
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "orders-sort-link";
+        btn.textContent = label;
+
+        if (customersSortKey === key) {
+            btn.classList.add("is-active");
+            btn.setAttribute(
+                "aria-sort",
+                customersSortDirection === "asc" ? "ascending" : "descending"
+            );
+            const indicator = document.createElement("span");
+            indicator.className = "orders-sort-indicator";
+            indicator.setAttribute("aria-hidden", "true");
+            indicator.textContent = customersSortDirection === "asc" ? " ▲" : " ▼";
+            btn.appendChild(indicator);
+        } else {
+            btn.setAttribute("aria-sort", "none");
+        }
+
+        btn.addEventListener("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (customersSortKey === key) {
+                customersSortDirection = customersSortDirection === "asc" ? "desc" : "asc";
+            } else {
+                customersSortKey = key;
+                customersSortDirection = "asc";
+            }
+            renderCustomerTableHead();
+            loadCustomers(1);
+        });
+
+        th.appendChild(btn);
+        return th;
+    }
+
+    function renderCustomerTableHead() {
+        const headRow = document.getElementById("cust-table-head-row");
+        if (!headRow) return;
+        headRow.innerHTML = "";
+
+        const thSelect = document.createElement("th");
+        thSelect.scope = "col";
+        thSelect.className = "cust-col-check";
+        thSelect.innerHTML =
+            '<input type="checkbox" class="cust-select-all" title="このページを全選択" aria-label="このページの顧客をすべて選択">';
+        headRow.appendChild(thSelect);
+
+        headRow.appendChild(createCustSortHeaderCell("customerId", "顧客ID"));
+        headRow.appendChild(createCustSortHeaderCell("customerName", "顧客名"));
+
+        const thEmail = document.createElement("th");
+        thEmail.scope = "col";
+        thEmail.textContent = "メール";
+        headRow.appendChild(thEmail);
+
+        headRow.appendChild(createCustSortHeaderCell("priceRank", "ランク", "cust-col-rank"));
+
+        const thActions = document.createElement("th");
+        thActions.scope = "col";
+        thActions.className = "cust-col-actions";
+        thActions.textContent = "操作";
+        headRow.appendChild(thActions);
+
+        bindCustSelectAllHandler();
+    }
 
     // -------------------------------------------------------------
     // 顧客一覧ロジック (招待機能付き)
@@ -275,16 +362,21 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!custTableBody) return;
         const keyword = searchInput ? searchInput.value : "";
         if (custResultInfo) custResultInfo.innerHTML = "";
-        if (custSelectAll) {
-            custSelectAll.checked = false;
-            custSelectAll.indeterminate = false;
+        const selectAllEl = getCustSelectAll();
+        if (selectAllEl) {
+            selectAllEl.checked = false;
+            selectAllEl.indeterminate = false;
         }
         customersByIdOnPage.clear();
         custTableBody.innerHTML = "<tr><td colspan='6'>読み込み中...</td></tr>";
 
         try {
-            // ★修正: サーバー側の定義に合わせて URL を /customers に変更 (-list を削除)
-            const res = await adminApiFetch(`/api/admin/customers?keyword=${encodeURIComponent(keyword)}&page=${page}`);
+            let url =
+                `/api/admin/customers?keyword=${encodeURIComponent(keyword)}&page=${page}`;
+            if (customersSortKey) {
+                url += `&sortBy=${encodeURIComponent(customersSortKey)}&sortDir=${encodeURIComponent(customersSortDirection)}`;
+            }
+            const res = await adminApiFetch(url);
 
             if (res.status === 401) {
                 custTableBody.innerHTML = "<tr><td colspan='6'>認証待ち...</td></tr>";
@@ -308,9 +400,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (data.customers.length === 0) {
                 custTableBody.innerHTML = "<tr><td colspan='6'>該当なし</td></tr>";
-                if (custSelectAll) {
-                    custSelectAll.checked = false;
-                    custSelectAll.indeterminate = false;
+                const emptySelectAll = getCustSelectAll();
+                if (emptySelectAll) {
+                    emptySelectAll.checked = false;
+                    emptySelectAll.indeterminate = false;
                 }
                 return;
             }
@@ -439,7 +532,11 @@ document.addEventListener("DOMContentLoaded", function () {
                         deliveryName: row.deliveryName || "",
                         deliveryZip: row.deliveryZip || "",
                         deliveryAddress: row.deliveryAddress || "",
-                        deliveryTel: row.deliveryTel || ""
+                        deliveryTel: row.deliveryTel || "",
+                        createdBy: row.createdBy || "",
+                        createdAt: row.createdAt || "",
+                        updatedBy: row.updatedBy || "",
+                        updatedAt: row.updatedAt || ""
                     });
                 });
 
@@ -458,9 +555,10 @@ document.addEventListener("DOMContentLoaded", function () {
             console.error(err);
             if (custResultInfo) custResultInfo.innerHTML = "";
             custTableBody.innerHTML = "<tr><td colspan='6' style='color:red'>読み込みエラー</td></tr>";
-            if (custSelectAll) {
-                custSelectAll.checked = false;
-                custSelectAll.indeterminate = false;
+            const errSelectAll = getCustSelectAll();
+            if (errSelectAll) {
+                errSelectAll.checked = false;
+                errSelectAll.indeterminate = false;
             }
         }
     }
@@ -509,6 +607,18 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    function updateCustomerAuditFooter(data, mode) {
+        if (!cmAuditFooter || !window.AuditRecordFooter) return;
+        if (mode !== "edit" || !data) {
+            cmAuditFooter.hidden = true;
+            cmAuditFooter.textContent = "";
+            return;
+        }
+        AuditRecordFooter.setAuditRecordFooterElement(cmAuditFooter, data, {
+            fallbackDateFields: []
+        });
+    }
+
     function openModal(mode, data = {}) {
         cmMode.value = mode;
         if (mode === "add") {
@@ -529,6 +639,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (cmDeliveryZip) cmDeliveryZip.value = "";
             if (cmDeliveryAddress) cmDeliveryAddress.value = "";
             if (cmDeliveryTel) cmDeliveryTel.value = "";
+            updateCustomerAuditFooter(null, "add");
         } else {
             cmTitle.textContent = "顧客情報編集";
             cmId.readOnly = true;
@@ -547,6 +658,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (cmDeliveryZip) cmDeliveryZip.value = data.deliveryZip || "";
             if (cmDeliveryAddress) cmDeliveryAddress.value = data.deliveryAddress || "";
             if (cmDeliveryTel) cmDeliveryTel.value = data.deliveryTel || "";
+            updateCustomerAuditFooter(data, "edit");
         }
         custModal.style.display = "flex";
     }

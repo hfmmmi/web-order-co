@@ -5,6 +5,7 @@ const path = require("path");
 const fs = require("fs").promises;
 const nodemailer = require("nodemailer");
 const settingsService = require("./settingsService");
+const mailHistoryService = require("./mailHistoryService");
 const { DATA_ROOT } = require("../dbPaths");
 
 let _transporter = null;
@@ -21,12 +22,21 @@ async function getTransporter() {
     return _transporter;
 }
 
+async function recordMailHistory(entry) {
+    try {
+        await mailHistoryService.appendMailHistory(entry);
+    } catch (err) {
+        console.error("[Mail History] record failed:", err.message);
+    }
+}
+
 /**
  * 注文確定メールを送信する
  * @param {Object} order - 注文データオブジェクト
  * @param {String} customerName - 顧客名
+ * @param {Object} logMeta - 送信履歴用（担当者情報など）
  */
-async function sendOrderConfirmation(order, customerName) {
+async function sendOrderConfirmation(order, customerName, logMeta = {}) {
     try {
         const config = await settingsService.getMailConfig();
         const deliveryInfo = order.deliveryInfo || {};
@@ -67,9 +77,25 @@ async function sendOrderConfirmation(order, customerName) {
 
         await transporter.sendMail(mailOptions);
         console.log(`[Mail] Sent confirmation for OrderID: ${order.orderId}`);
+        await recordMailHistory({
+            mailType: "order_confirmation",
+            subject,
+            to: config.orderNotifyTo,
+            from: config.from,
+            success: true,
+            ...logMeta
+        });
         return true;
     } catch (error) {
         console.error("[Mail Error] 送信失敗:", error);
+        await recordMailHistory({
+            mailType: "order_confirmation",
+            subject: order && order.orderId ? `注文 ${order.orderId}` : "",
+            to: "",
+            success: false,
+            errorMessage: error.message,
+            ...logMeta
+        });
         return false;
     }
 }
@@ -95,9 +121,10 @@ function supportCategoryMailLabel(category) {
 /**
  * サポート申請受付メールを管理者に送信する
  * @param {Object} ticketData - チケットデータ
+ * @param {Object} logMeta - 送信履歴用
  * @returns {Promise<boolean>}
  */
-async function sendSupportNotification(ticketData) {
+async function sendSupportNotification(ticketData, logMeta = {}) {
     try {
         const config = await settingsService.getMailConfig();
         const categoryLabel = supportCategoryMailLabel(ticketData.category);
@@ -154,9 +181,25 @@ async function sendSupportNotification(ticketData) {
         }
         await transporter.sendMail(mailOpts);
         console.log(`[Mail] Sent support notification for Ticket: ${ticketData.ticketId}`);
+        await recordMailHistory({
+            mailType: "support_notification",
+            subject,
+            to: config.supportNotifyTo,
+            from: config.from,
+            success: true,
+            ...logMeta
+        });
         return true;
     } catch (error) {
         console.error("[Mail Error] サポート通知送信失敗:", error);
+        await recordMailHistory({
+            mailType: "support_notification",
+            subject: ticketData && ticketData.ticketId ? `サポート ${ticketData.ticketId}` : "",
+            to: "",
+            success: false,
+            errorMessage: error.message,
+            ...logMeta
+        });
         return false;
     }
 }
@@ -167,9 +210,10 @@ async function sendSupportNotification(ticketData) {
  * @param {string} inviteUrl - 招待URL（setup.html?id=xxx&key=yyy）
  * @param {string} tempPassword - 一時パスワード
  * @param {boolean} isPasswordReset - true=パスワード再設定用テンプレート, false=初回招待
+ * @param {Object} logMeta - 送信履歴用
  * @returns {Promise<{ success: boolean, message?: string }>}
  */
-async function sendInviteEmail(customer, inviteUrl, tempPassword, isPasswordReset = false) {
+async function sendInviteEmail(customer, inviteUrl, tempPassword, isPasswordReset = false, logMeta = {}) {
     try {
         if (!customer.email || !customer.email.trim()) {
             return { success: false, message: "顧客のメールアドレスが登録されていません" };
@@ -196,25 +240,48 @@ async function sendInviteEmail(customer, inviteUrl, tempPassword, isPasswordRese
         });
 
         const transporter = await getTransporter();
+        const to = customer.email.trim();
         await transporter.sendMail({
             from: config.from,
-            to: customer.email.trim(),
+            to,
             subject,
             text: body
         });
         console.log(`[Mail] Sent invite to ${customer.customerId} (${customer.email})`);
+        await recordMailHistory({
+            mailType: isPasswordReset ? "password_reset" : "invite",
+            subject,
+            to,
+            from: config.from,
+            success: true,
+            ...logMeta
+        });
         return { success: true };
     } catch (error) {
         console.error("[Mail Error] 招待メール送信失敗:", error);
         if (error.code === "EAUTH" || (error.message && error.message.includes("Missing credentials"))) {
             const isProduction = process.env.NODE_ENV === "production";
-            return {
+            const message = isProduction
+                ? "メール認証エラー: 本番環境では SMTP パスワードを環境変数 MAIL_PASSWORD に設定してください。"
+                : "メール認証エラー: SMTPパスワードが設定されていません。システム設定＞メール でパスワードを入力するか、MAIL_PASSWORD を設定してください。";
+            await recordMailHistory({
+                mailType: isPasswordReset ? "password_reset" : "invite",
+                subject: customer && customer.customerId ? `${customer.customerId} 宛` : "",
+                to: customer && customer.email ? customer.email.trim() : "",
                 success: false,
-                message: isProduction
-                    ? "メール認証エラー: 本番環境では SMTP パスワードを環境変数 MAIL_PASSWORD に設定してください。"
-                    : "メール認証エラー: SMTPパスワードが設定されていません。システム設定＞メール でパスワードを入力するか、MAIL_PASSWORD を設定してください。"
-            };
+                errorMessage: message,
+                ...logMeta
+            });
+            return { success: false, message };
         }
+        await recordMailHistory({
+            mailType: isPasswordReset ? "password_reset" : "invite",
+            subject: customer && customer.customerId ? `${customer.customerId} 宛` : "",
+            to: customer && customer.email ? customer.email.trim() : "",
+            success: false,
+            errorMessage: error.message,
+            ...logMeta
+        });
         return { success: false, message: error.message || "メール送信に失敗しました" };
     }
 }
@@ -222,9 +289,10 @@ async function sendInviteEmail(customer, inviteUrl, tempPassword, isPasswordRese
 /**
  * パスワード変更完了通知を顧客に送信する
  * @param {Object} customer - { customerId, customerName, email }
+ * @param {Object} logMeta - 送信履歴用
  * @returns {Promise<{ success: boolean, message?: string }>}
  */
-async function sendPasswordChangedNotification(customer) {
+async function sendPasswordChangedNotification(customer, logMeta = {}) {
     try {
         if (!customer || !(customer.email || "").trim()) {
             return { success: false, message: "顧客のメールアドレスが登録されていません" };
@@ -253,9 +321,25 @@ async function sendPasswordChangedNotification(customer) {
             text: body
         });
         console.log(`[Mail] Sent password-changed notification to ${customer.customerId}`);
+        await recordMailHistory({
+            mailType: "password_changed",
+            subject,
+            to: customer.email.trim(),
+            from: config.from,
+            success: true,
+            ...logMeta
+        });
         return { success: true };
     } catch (error) {
         console.error("[Mail Error] パスワード変更通知送信失敗:", error);
+        await recordMailHistory({
+            mailType: "password_changed",
+            subject: customer && customer.customerId ? `${customer.customerId} 宛` : "",
+            to: customer && customer.email ? customer.email.trim() : "",
+            success: false,
+            errorMessage: error.message,
+            ...logMeta
+        });
         return { success: false, message: error.message || "メール送信に失敗しました" };
     }
 }
@@ -263,9 +347,10 @@ async function sendPasswordChangedNotification(customer) {
 /**
  * ログイン失敗5回通知を送信する（顧客宛 or 管理者宛）
  * @param {Object} opts - { type: 'customer', customer, count } または { type: 'admin', adminId, adminName, count }
+ * @param {Object} logMeta - 送信履歴用
  * @returns {Promise<boolean>}
  */
-async function sendLoginFailureAlert(opts) {
+async function sendLoginFailureAlert(opts, logMeta = {}) {
     try {
         const config = await settingsService.getMailConfig();
         const t = config.templates;
@@ -291,6 +376,15 @@ async function sendLoginFailureAlert(opts) {
                 text: body
             });
             console.log(`[Mail] Sent login-failure alert to customer ${opts.customer.customerId}`);
+            await recordMailHistory({
+                mailType: "login_failure_alert",
+                subject,
+                to: opts.customer.email.trim(),
+                from: config.from,
+                success: true,
+                actorLabel: "システム",
+                ...logMeta
+            });
             return true;
         }
 
@@ -315,11 +409,29 @@ async function sendLoginFailureAlert(opts) {
                 text: body
             });
             console.log(`[Mail] Sent admin login-failure alert for ${opts.adminId}`);
+            await recordMailHistory({
+                mailType: "login_failure_alert",
+                subject,
+                to: config.supportNotifyTo,
+                from: config.from,
+                success: true,
+                actorLabel: "システム",
+                ...logMeta
+            });
             return true;
         }
         return false;
     } catch (error) {
         console.error("[Mail Error] ログイン失敗通知送信失敗:", error);
+        await recordMailHistory({
+            mailType: "login_failure_alert",
+            subject: "",
+            to: "",
+            success: false,
+            errorMessage: error.message,
+            actorLabel: "システム",
+            ...logMeta
+        });
         return false;
     }
 }

@@ -56,7 +56,8 @@ describe("Aランク: customersRoutes 分岐80%向け", () => {
             expect.any(Object),
             expect.any(String),
             expect.any(String),
-            true
+            true,
+            expect.any(Object)
         );
     });
 

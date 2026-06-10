@@ -105,7 +105,7 @@ describe("Aランク: admin-api カバレッジ", () => {
             .put("/api/admin/account")
             .send({ adminId: "new-admin", name: "新管理者" });
         expect(res.statusCode).toBe(400);
-        expect(res.body.message).toContain("パスワードを4文字以上");
+        expect(res.body.message).toContain("4文字以上");
     });
 
     test("PUT /api/admin/account 正常で name/email 更新", async () => {

@@ -11,6 +11,15 @@ document.addEventListener("DOMContentLoaded", function () {
     let allSupportTickets = [];
     let currentFilter = "active";
     let currentTicket = null;
+    /** 申請日時降順が従来の既定表示 */
+    let supportSortKey = "timestamp";
+    let supportSortDirection = "desc";
+
+    const SUPPORT_STATUS_SORT_RANK = {
+        open: 0,
+        verifying: 1,
+        resolved: 2
+    };
 
     function esc(text) {
         if (typeof escapeHtml !== "undefined") return escapeHtml(text);
@@ -60,6 +69,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.addEventListener("admin-ready", function () {
         console.log("🚀 CRM Manager: Auth Signal Received.");
         setupSupportFilterTabs();
+        renderSupportTableHead();
         fetchSupportTickets();
         if (kaitoriContainer) fetchKaitoriList();
     });
@@ -132,6 +142,131 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    function getSupportSortRawValue(ticket, key) {
+        if (!ticket) return null;
+        switch (key) {
+            case "id":
+                return supportDisplayId(ticket);
+            case "timestamp":
+                return ticket.timestamp || "";
+            case "customerName":
+                return ticket.customerName || "";
+            case "status":
+                return ticket.status || "open";
+            default:
+                return null;
+        }
+    }
+
+    function compareSupportSortValues(aVal, bVal, key) {
+        if (aVal == null && bVal == null) return 0;
+        if (aVal == null || aVal === "") return 1;
+        if (bVal == null || bVal === "") return -1;
+
+        if (key === "timestamp") {
+            const ta = new Date(aVal).getTime();
+            const tb = new Date(bVal).getTime();
+            const na = Number.isNaN(ta) ? 0 : ta;
+            const nb = Number.isNaN(tb) ? 0 : tb;
+            return na - nb;
+        }
+
+        if (key === "id") {
+            const na = Number(aVal);
+            const nb = Number(bVal);
+            if (!Number.isNaN(na) && !Number.isNaN(nb) && String(aVal).trim() !== "" && String(bVal).trim() !== "") {
+                return na - nb;
+            }
+            return String(aVal).localeCompare(String(bVal), "ja", { numeric: true });
+        }
+
+        if (key === "status") {
+            const ra = Object.prototype.hasOwnProperty.call(SUPPORT_STATUS_SORT_RANK, aVal)
+                ? SUPPORT_STATUS_SORT_RANK[aVal]
+                : 99;
+            const rb = Object.prototype.hasOwnProperty.call(SUPPORT_STATUS_SORT_RANK, bVal)
+                ? SUPPORT_STATUS_SORT_RANK[bVal]
+                : 99;
+            if (ra !== rb) return ra - rb;
+            return String(aVal).localeCompare(String(bVal), "ja");
+        }
+
+        return String(aVal).localeCompare(String(bVal), "ja", { sensitivity: "base" });
+    }
+
+    function sortSupportTickets(tickets) {
+        if (!supportSortKey || !Array.isArray(tickets)) return tickets;
+        const dir = supportSortDirection === "desc" ? -1 : 1;
+        const key = supportSortKey;
+        return [...tickets].sort(function (a, b) {
+            const cmp = compareSupportSortValues(
+                getSupportSortRawValue(a, key),
+                getSupportSortRawValue(b, key),
+                key
+            );
+            if (cmp !== 0) return cmp * dir;
+            const idA = getSupportSortRawValue(a, "id");
+            const idB = getSupportSortRawValue(b, "id");
+            return compareSupportSortValues(idA, idB, "id") * dir;
+        });
+    }
+
+    function handleSupportSortHeaderClick(key) {
+        if (supportSortKey === key) {
+            supportSortDirection = supportSortDirection === "asc" ? "desc" : "asc";
+        } else {
+            supportSortKey = key;
+            supportSortDirection = "asc";
+        }
+        renderSupportTableHead();
+        applyFilterAndRender();
+    }
+
+    function createSupportSortHeaderCell(key, label, className) {
+        const th = document.createElement("th");
+        th.scope = "col";
+        if (className) th.className = className;
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "orders-sort-link";
+        btn.textContent = label;
+
+        if (supportSortKey === key) {
+            btn.classList.add("is-active");
+            btn.setAttribute(
+                "aria-sort",
+                supportSortDirection === "asc" ? "ascending" : "descending"
+            );
+            const indicator = document.createElement("span");
+            indicator.className = "orders-sort-indicator";
+            indicator.setAttribute("aria-hidden", "true");
+            indicator.textContent = supportSortDirection === "asc" ? " ▲" : " ▼";
+            btn.appendChild(indicator);
+        } else {
+            btn.setAttribute("aria-sort", "none");
+        }
+
+        btn.addEventListener("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            handleSupportSortHeaderClick(key);
+        });
+
+        th.appendChild(btn);
+        return th;
+    }
+
+    function renderSupportTableHead() {
+        const headRow = document.getElementById("support-table-head-row");
+        if (!headRow) return;
+        headRow.innerHTML = "";
+        headRow.appendChild(createSupportSortHeaderCell("id", "ID", "support-col-id"));
+        headRow.appendChild(createSupportSortHeaderCell("timestamp", "申請日時"));
+        headRow.appendChild(createSupportSortHeaderCell("customerName", "顧客名"));
+        headRow.appendChild(createSupportSortHeaderCell("status", "状態"));
+    }
+
     function applyFilterAndRender() {
         let filtered = [];
 
@@ -145,11 +280,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         }
 
-        filtered.sort(function (a, b) {
-            return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
-        });
-
-        renderSupportTicketTable(filtered);
+        renderSupportTicketTable(sortSupportTickets(filtered));
     }
 
     function renderSupportTicketTable(tickets) {
@@ -312,6 +443,14 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         supportModal.style.display = "flex";
+
+        const auditFooter = document.getElementById("support-m-audit-footer");
+        if (auditFooter && window.AuditRecordFooter) {
+            AuditRecordFooter.setAuditRecordFooterElement(auditFooter, ticket, {
+                fallbackDateFields: ["timestamp"],
+                fallbackBy: ticket.customerName || "—"
+            });
+        }
     }
 
     function closeSupportTicketModal() {

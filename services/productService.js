@@ -6,6 +6,7 @@ const { parse } = require("csv-parse/sync");
 const { readProductMasterImportRows, ExcelJS } = require("../utils/excelReader");
 const { dbPath } = require("../dbPaths");
 const { runWithJsonFileWriteLock } = require("../utils/jsonWriteQueue");
+const { applyAuditOnCreate, applyAuditOnUpdate, pickAuditFields } = require("../utils/auditMeta");
 const settingsService = require("./settingsService");
 const priceService = require("./priceService");
 const { INTEGRATION_SNAPSHOT_MAX_LIMIT } = require("../utils/integrationSnapshotLimit");
@@ -122,7 +123,7 @@ class ProductService {
     }
 
     // 2. 商品追加（リクエストから正規化して category 等を確実に保存）
-    async addProduct(newProduct) {
+    async addProduct(newProduct, auditActor) {
         return runWithJsonFileWriteLock(PRODUCTS_DB_PATH, async () => {
             const productMaster = await this.getAllProducts();
             const code = (newProduct && newProduct.productCode != null) ? String(newProduct.productCode).trim() : "";
@@ -150,14 +151,15 @@ class ProductService {
             if (Object.keys(normalized.rankPrices || {}).length > 0) {
                 normalized.rankPricesUpdatedAt = Date.now();
             }
+            applyAuditOnCreate(normalized, auditActor);
             productMaster.push(normalized);
             await fs.writeFile(PRODUCTS_DB_PATH, JSON.stringify(productMaster, null, 2));
-            return { success: true };
+            return { success: true, audit: pickAuditFields(normalized) };
         });
     }
 
     // 3. 商品更新（部分更新可。未指定フィールドは既存値を維持し rankPrices を消さない）
-    async updateProduct(updateData) {
+    async updateProduct(updateData, auditActor) {
         return runWithJsonFileWriteLock(PRODUCTS_DB_PATH, async () => {
             const productMaster = await this.getAllProducts();
             const code = (updateData && updateData.productCode != null) ? String(updateData.productCode).trim() : "";
@@ -209,9 +211,10 @@ class ProductService {
             }
 
             next.productCode = cur.productCode;
+            applyAuditOnUpdate(next, auditActor);
             productMaster[index] = next;
             await fs.writeFile(PRODUCTS_DB_PATH, JSON.stringify(productMaster, null, 2));
-            return { success: true };
+            return { success: true, audit: pickAuditFields(next) };
         });
     }
 

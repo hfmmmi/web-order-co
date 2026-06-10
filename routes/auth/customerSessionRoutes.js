@@ -10,6 +10,7 @@ const { appendCustomerAuthLog } = require("../../services/authAuditLogService");
 const bcrypt = require("bcryptjs");
 
 const customerService = require("../../services/customerService");
+const customerUserService = require("../../services/customerUserService");
 const mailService = require("../../services/mailService");
 const settingsService = require("../../services/settingsService");
 const { requestPasswordReset } = require("../../services/passwordResetRequestService");
@@ -20,7 +21,8 @@ const {
     ADMINS_DB_PATH
 } = require("../../services/authTokenStore");
 const { validateBody } = require("../../middlewares/validate");
-const { loginSchema, updateAccountDeliverySchema } = require("../../validators/requestSchemas");
+const { mailLogMetaFromSession } = require("../../utils/mailLogMeta");
+const { loginSchema, updateAccountDeliverySchema, updateAccountProfileSchema } = require("../../validators/requestSchemas");
 const {
     LOGIN_LOCK_MESSAGE,
     LOGIN_CAPTCHA_REQUIRED_MESSAGE,
@@ -34,6 +36,7 @@ const {
 const { sanitizeAdminName } = require("./sanitizeAdminName");
 
 const CUSTOMERS_DB_PATH = dbPath("customers.json");
+const CUSTOMER_USER_RESET_TOKENS_PATH = dbPath("customer_user_reset_tokens.json");
 const INVITE_EXPIRY_HOURS = 24;
 
 router.post("/login", validateBody(loginSchema), async (req, res) => {
@@ -55,6 +58,65 @@ router.post("/login", validateBody(loginSchema), async (req, res) => {
             const valid = await require("./recaptcha").verifyRecaptcha(captchaToken.trim(), recaptchaSecret);
             if (!valid) {
                 return res.json({ success: false, message: LOGIN_CAPTCHA_FAILED_MESSAGE, captchaRequired: true });
+            }
+        }
+
+        const userAuth = await customerUserService.authenticateCustomerUser(id, pass);
+        if (userAuth && userAuth.user) {
+            if (!userAuth.ok) {
+                await recordLoginFailure(accountKey);
+                appendCustomerAuthLog({
+                    action: "failed_login",
+                    customerId: userAuth.user.customerId || id,
+                    customerName: userAuth.user.contactName || null,
+                    ip: req.ip
+                }).catch(() => {});
+                return res.json({ success: false, message: "IDまたはPASSが間違っています" });
+            }
+
+            const customer = userAuth.customer;
+            const user = userAuth.user;
+            await clearLoginFailures(accountKey);
+            const preservedAdminState = {
+                isAdmin: !!req.session.isAdmin,
+                adminName: req.session.adminName || null
+            };
+            await regenerateSession(req);
+
+            req.session.isAdmin = preservedAdminState.isAdmin;
+            req.session.adminName = preservedAdminState.adminName;
+            req.session.customerId = customer.customerId;
+            req.session.customerName = customer.customerName;
+            req.session.customerUserId = user.userId;
+            req.session.contactName = user.contactName || "";
+            req.session.priceRank = customer.priceRank || "";
+            req.session.proxyByAdmin = null;
+            req.session.proxySavedCustomerId = null;
+            req.session.proxySavedCustomerName = null;
+            req.session.proxySavedPriceRank = null;
+            req.session.proxySavedCustomerUserId = null;
+            req.session.proxySavedContactName = null;
+
+            req.session.lastActivity = Date.now();
+            appendCustomerAuthLog({
+                action: "login",
+                customerId: customer.customerId,
+                customerName: customer.customerName || null,
+                contactName: user.contactName || null,
+                customerUserId: user.userId,
+                ip: req.ip
+            }).catch(() => {});
+
+            console.log(
+                `顧客担当者ログイン成功: ${user.userId} → ${customer.customerId} (AdminStatus: ${req.session.isAdmin})`
+            );
+
+            try {
+                await require("../../utils/sessionAsync").saveSession(req);
+                res.json({ success: true, redirectUrl: "home.html" });
+            } catch (err) {
+                console.error("Session Save Error:", err);
+                return res.json({ success: false, message: "セッション保存失敗" });
             }
         }
 
@@ -82,11 +144,15 @@ router.post("/login", validateBody(loginSchema), async (req, res) => {
             req.session.adminName = preservedAdminState.adminName;
             req.session.customerId = customer.customerId;
             req.session.customerName = customer.customerName;
+            req.session.customerUserId = null;
+            req.session.contactName = null;
             req.session.priceRank = customer.priceRank || "";
             req.session.proxyByAdmin = null;
             req.session.proxySavedCustomerId = null;
             req.session.proxySavedCustomerName = null;
             req.session.proxySavedPriceRank = null;
+            req.session.proxySavedCustomerUserId = null;
+            req.session.proxySavedContactName = null;
 
             req.session.lastActivity = Date.now();
             appendCustomerAuthLog({
@@ -131,6 +197,8 @@ router.get("/session", (req, res) => {
         loggedIn,
         customerId: req.session.customerId || null,
         customerName: req.session.customerName || null,
+        customerUserId: req.session.customerUserId || null,
+        contactName: req.session.contactName || null,
         proxyByAdmin: req.session.proxyByAdmin || null
     });
 });
@@ -194,6 +262,122 @@ router.post("/account/proxy-request/reject", async (req, res) => {
     } catch (e) {
         console.error("Proxy reject error:", e);
         res.status(500).json({ message: "処理に失敗しました" });
+    }
+});
+
+router.get("/account/profile", async (req, res) => {
+    if (!req.session.customerId) {
+        return res.status(401).json({ success: false, message: "ログインが必要です" });
+    }
+    try {
+        const customer = await customerService.getCustomerById(req.session.customerId);
+        if (!customer) {
+            return res.status(404).json({ success: false, message: "顧客が見つかりません" });
+        }
+
+        if (req.session.customerUserId) {
+            const user = await customerUserService.findCustomerUserByLoginId(req.session.customerUserId);
+            if (!user || user.customerId !== req.session.customerId) {
+                return res.status(404).json({ success: false, message: "担当者アカウントが見つかりません" });
+            }
+            const publicUser = customerUserService.toPublicCustomerUser(user);
+            return res.json({
+                success: true,
+                accountType: "staff",
+                userId: publicUser.userId,
+                contactName: publicUser.contactName,
+                customerId: customer.customerId,
+                customerName: customer.customerName || customer.customerId,
+                email: publicUser.email || "",
+                passwordSet: !!publicUser.passwordSet
+            });
+        }
+
+        res.json({
+            success: true,
+            accountType: "company",
+            customerId: customer.customerId,
+            customerName: customer.customerName || customer.customerId,
+            email: (customer.email && String(customer.email).trim()) || "",
+            passwordSet: true
+        });
+    } catch (err) {
+        console.error("Account profile get error:", err);
+        res.status(500).json({ success: false, message: "アカウント情報の取得に失敗しました" });
+    }
+});
+
+router.put("/account/profile", validateBody(updateAccountProfileSchema), async (req, res) => {
+    if (!req.session.customerId) {
+        return res.status(401).json({ success: false, message: "ログインが必要です" });
+    }
+
+    const body = req.body || {};
+    const currentPassword = body.currentPassword;
+    const newPassword = body.password && String(body.password).trim() ? body.password : "";
+
+    try {
+        if (req.session.customerUserId) {
+            const result = await customerUserService.updateCustomerUserProfile(req.session.customerUserId, {
+                contactName: body.contactName,
+                email: body.email,
+                currentPassword,
+                password: newPassword
+            });
+            if (!result.success) {
+                return res.status(400).json(result);
+            }
+            if (result.user && result.user.contactName !== undefined) {
+                req.session.contactName = result.user.contactName;
+                await require("../../utils/sessionAsync").saveSession(req);
+            }
+            if (newPassword && result.user && result.user.email) {
+                mailService
+                    .sendPasswordChangedNotification(
+                        {
+                            customerId: result.user.userId,
+                            customerName: result.user.contactName || result.user.userId,
+                            email: result.user.email
+                        },
+                        mailLogMetaFromSession(req.session)
+                    )
+                    .catch((err) => console.error("[account/profile] 変更完了通知送信失敗:", err));
+            }
+            return res.json({
+                success: true,
+                message: result.message,
+                contactName: result.user ? result.user.contactName : req.session.contactName
+            });
+        }
+
+        const passwordOk = await customerService.verifyCustomerPassword(
+            req.session.customerId,
+            currentPassword
+        );
+        if (!passwordOk) {
+            return res.status(400).json({ success: false, message: "現在のパスワードが正しくありません" });
+        }
+        if (!newPassword) {
+            return res.status(400).json({
+                success: false,
+                message: "会社アカウントではパスワードの変更のみ可能です"
+            });
+        }
+
+        const result = await customerService.updateCustomerPassword(req.session.customerId, newPassword);
+        if (!result.success) {
+            return res.status(400).json(result);
+        }
+        const customer = await customerService.getCustomerById(req.session.customerId);
+        if (customer && customer.email) {
+            mailService
+                .sendPasswordChangedNotification(customer, mailLogMetaFromSession(req.session))
+                .catch((err) => console.error("[account/profile] 変更完了通知送信失敗:", err));
+        }
+        return res.json({ success: true, message: "パスワードを変更しました" });
+    } catch (err) {
+        console.error("Account profile update error:", err);
+        res.status(500).json({ success: false, message: "アカウント設定の保存に失敗しました" });
     }
 });
 
@@ -277,6 +461,8 @@ router.post("/logout", (req, res) => {
         }).catch(() => {});
         req.session.customerId = null;
         req.session.customerName = null;
+        req.session.customerUserId = null;
+        req.session.contactName = null;
         req.session.priceRank = null;
 
         if (!req.session.isAdmin) {
@@ -332,7 +518,59 @@ router.post("/setup", async (req, res) => {
             console.log(`パスワード再設定完了（顧客申込）: ${id}`);
             const customer = await customerService.getCustomerById(id);
             if (customer && customer.email) {
-                mailService.sendPasswordChangedNotification(customer).catch(err => console.error("[request-password-reset] 変更完了通知送信失敗:", err));
+                mailService
+                    .sendPasswordChangedNotification(customer, {
+                        sentByCustomerName: customer.customerName || customer.customerId
+                    })
+                    .catch((err) =>
+                        console.error("[request-password-reset] 変更完了通知送信失敗:", err)
+                    );
+            }
+            return res.json({ success: true, message: "パスワードを変更しました。ログインしてください。" });
+        }
+
+        const userResetKind = await require("../../services/authTokenStore").mutateJsonFile(
+            CUSTOMER_USER_RESET_TOKENS_PATH,
+            {},
+            async (userResetTokens) => {
+                if (!userResetTokens[id] || userResetTokens[id].token !== tokenOrPass) return "none";
+                if (Date.now() > userResetTokens[id].expiresAt) {
+                    delete userResetTokens[id];
+                    return "expired_user_reset";
+                }
+                return "valid_user_reset";
+            }
+        );
+
+        if (userResetKind === "expired_user_reset") {
+            return res.json({
+                success: false,
+                message: "このリンクの有効期限（24時間）が切れています。再度「パスワードをお忘れの方」から申請してください。"
+            });
+        }
+
+        if (userResetKind === "valid_user_reset") {
+            const result = await customerUserService.updateCustomerUserPassword(id, newPass);
+            if (!result.success) {
+                return res.json(result);
+            }
+            await require("../../services/authTokenStore").mutateJsonFile(CUSTOMER_USER_RESET_TOKENS_PATH, {}, (t) => {
+                delete t[id];
+            });
+            console.log(`パスワード再設定完了（顧客担当者）: ${id}`);
+            const user = await customerUserService.findCustomerUserByLoginId(id);
+            if (user && user.email) {
+                const customer = await customerService.getCustomerById(user.customerId);
+                mailService
+                    .sendPasswordChangedNotification(
+                        {
+                            customerId: user.userId,
+                            customerName: user.contactName || (customer && customer.customerName) || user.userId,
+                            email: user.email
+                        },
+                        { sentByContactName: user.contactName || user.userId }
+                    )
+                    .catch((err) => console.error("[setup] 担当者変更完了通知送信失敗:", err));
             }
             return res.json({ success: true, message: "パスワードを変更しました。ログインしてください。" });
         }

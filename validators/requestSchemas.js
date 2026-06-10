@@ -275,12 +275,14 @@ const announcementSchema = z
     })
     .strict();
 
+const staffLoginIdSchema = z.preprocess(
+    (v) => (typeof v === "string" ? v.trim() : v),
+    z.string().min(1).max(50).regex(/^[A-Za-z0-9._-]+$/, "IDは英数字・ピリオド・アンダースコア・ハイフンのみ使用できます")
+);
+
 const adminAccountUpdateSchema = z
     .object({
-        adminId: z.preprocess(
-            (v) => (typeof v === "string" ? v.trim() : v),
-            z.string().min(1).max(50).regex(/^[A-Za-z0-9._-]+$/, "管理者IDは英数字・ピリオド・アンダースコア・ハイフンのみ使用できます")
-        ),
+        adminId: staffLoginIdSchema,
         name: z.preprocess(
             (v) => (typeof v === "string" ? v.trim() : v),
             z.string().max(100)
@@ -290,6 +292,52 @@ const adminAccountUpdateSchema = z
             (v) => (typeof v === "string" ? v.trim() : v),
             z.union([z.literal(""), z.string().email().max(254)]).optional()
         )
+    })
+    .strict();
+
+const adminAccountItemSchema = z
+    .object({
+        adminId: staffLoginIdSchema,
+        name: z.preprocess(
+            (v) => (typeof v === "string" ? v.trim() : v),
+            z.string().max(100)
+        ).optional(),
+        password: z.string().min(0).max(200).optional(),
+        email: z.preprocess(
+            (v) => (typeof v === "string" ? v.trim() : v),
+            z.union([z.literal(""), z.string().email().max(254)]).optional()
+        )
+    })
+    .strict();
+
+const adminAccountsSaveSchema = z
+    .object({
+        accounts: z.array(adminAccountItemSchema).max(100)
+    })
+    .strict();
+
+const customerUserItemSchema = z
+    .object({
+        userId: staffLoginIdSchema,
+        contactName: z.preprocess(
+            (v) => (typeof v === "string" ? v.trim() : v),
+            z.string().max(100)
+        ).optional(),
+        customerId: z.preprocess(
+            (v) => (typeof v === "string" ? v.trim() : v),
+            z.string().min(1).max(50)
+        ),
+        password: z.string().min(0).max(200).optional(),
+        email: z.preprocess(
+            (v) => (typeof v === "string" ? v.trim() : v),
+            z.union([z.literal(""), z.string().email().max(254)]).optional()
+        )
+    })
+    .strict();
+
+const customerUsersSaveSchema = z
+    .object({
+        users: z.array(customerUserItemSchema).max(500)
     })
     .strict();
 
@@ -316,6 +364,28 @@ const adminSettingsUpdateSchema = z
     })
     .strict();
 
+/** 顧客本人: アカウント設定（担当者・会社共通で現在PW必須） */
+const updateAccountProfileSchema = z
+    .object({
+        contactName: optionalTrimmedString(100),
+        email: z.preprocess(
+            (v) => (typeof v === "string" ? v.trim() : v),
+            z.union([z.literal(""), z.string().email().max(254)]).optional()
+        ),
+        currentPassword: z.string().min(1).max(200),
+        password: z.string().min(0).max(200).optional()
+    })
+    .strict()
+    .superRefine((val, ctx) => {
+        if (val.password && val.password.length > 0 && val.password.length < 4) {
+            ctx.addIssue({
+                code: "custom",
+                message: "新しいパスワードは4文字以上にしてください",
+                path: ["password"]
+            });
+        }
+    });
+
 /** 顧客本人: 既定納品先の更新 */
 const updateAccountDeliverySchema = z
     .object({
@@ -335,7 +405,11 @@ module.exports = {
     adminRevertItemShipmentSchema,
     addCustomerSchema,
     updateCustomerSchema,
+    updateAccountProfileSchema,
     updateAccountDeliverySchema,
     adminAccountUpdateSchema,
+    adminAccountsSaveSchema,
+    customerUserItemSchema,
+    customerUsersSaveSchema,
     adminSettingsUpdateSchema
 };

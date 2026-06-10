@@ -61,6 +61,9 @@ describe("Sランク: パスワード変更完了通知の失敗分岐", () => {
                 customerId: "TEST001",
                 customerName: "テスト顧客",
                 email: "test001@example.com"
+            }),
+            expect.objectContaining({
+                sentByCustomerName: "テスト顧客"
             })
         );
 

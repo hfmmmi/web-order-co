@@ -12,6 +12,7 @@ jest.mock("../../services/mailService", () => ({
 
 const path = require("path");
 const fs = require("fs").promises;
+const bcrypt = require("bcryptjs");
 const request = require("supertest");
 const { app } = require("../../server");
 const { DATA_ROOT } = require("../../dbPaths");
@@ -167,6 +168,68 @@ describe("Aランク: auth-api カバレッジ", () => {
         const getRes = await agent.get("/api/account/delivery");
         expect(getRes.body.delivery.deliveryName).toBe("テスト納品先");
         expect(getRes.body.delivery.deliveryZip).toBe("1000001");
+    });
+
+    test("GET /api/account/profile 未ログインは 401", async () => {
+        const res = await request(app).get("/api/account/profile");
+        expect(res.statusCode).toBe(401);
+    });
+
+    test("GET /api/account/profile 会社IDログインなら accountType company", async () => {
+        const agent = request.agent(app);
+        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        const res = await agent.get("/api/account/profile");
+        expect(res.statusCode).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.accountType).toBe("company");
+        expect(res.body.customerId).toBe("TEST001");
+    });
+
+    test("PUT /api/account/profile 現在PW不正は 400", async () => {
+        const agent = request.agent(app);
+        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        const res = await agent.put("/api/account/profile").send({
+            currentPassword: "wrong-password",
+            password: "NewPass1234!"
+        });
+        expect(res.statusCode).toBe(400);
+        expect(res.body.success).toBe(false);
+    });
+
+    test("担当者ログインで GET/PUT /api/account/profile が staff として動作する", async () => {
+        const hash = await bcrypt.hash("StaffPass123!", 10);
+        await writeJson("customer_users.json", [
+            {
+                userId: "TEST_STAFF",
+                contactName: "テスト担当",
+                customerId: "TEST001",
+                email: "staff@example.com",
+                password: hash
+            }
+        ]);
+        try {
+            const agent = request.agent(app);
+            await agent.post("/api/login").send({ id: "TEST_STAFF", pass: "StaffPass123!" });
+            const getRes = await agent.get("/api/account/profile");
+            expect(getRes.statusCode).toBe(200);
+            expect(getRes.body.accountType).toBe("staff");
+            expect(getRes.body.userId).toBe("TEST_STAFF");
+
+            const putRes = await agent.put("/api/account/profile").send({
+                contactName: "更新担当",
+                email: "updated@example.com",
+                currentPassword: "StaffPass123!"
+            });
+            expect(putRes.statusCode).toBe(200);
+            expect(putRes.body.success).toBe(true);
+            expect(putRes.body.contactName).toBe("更新担当");
+
+            const getRes2 = await agent.get("/api/account/profile");
+            expect(getRes2.body.contactName).toBe("更新担当");
+            expect(getRes2.body.email).toBe("updated@example.com");
+        } finally {
+            await writeJson("customer_users.json", []);
+        }
     });
 
     test("admins.json が不正JSONのとき管理者ログインは「管理者DBエラー」", async () => {

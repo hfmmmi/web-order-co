@@ -414,6 +414,53 @@
             vertical-align: middle;
         }
 
+        .orders-list-table thead th.col-export {
+            text-align: center;
+        }
+
+        .orders-list-table thead th.col-numeric {
+            text-align: right;
+        }
+
+        .orders-sort-link {
+            display: inline;
+            margin: 0;
+            padding: 0;
+            border: none;
+            background: none;
+            font: inherit;
+            font-weight: 600;
+            color: inherit;
+            text-decoration: underline;
+            text-underline-offset: 0.12em;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .orders-sort-link:hover {
+            color: inherit;
+            text-decoration: underline;
+        }
+
+        .orders-sort-link.is-active {
+            color: inherit;
+        }
+
+        .orders-sort-indicator {
+            font-size: 0.75em;
+            text-decoration: none;
+        }
+
+        .orders-list-table th.col-numeric .orders-sort-link {
+            text-align: right;
+        }
+
+        .orders-list-table th.col-export .orders-sort-link {
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+        }
+
         .orders-list-table tbody td {
             padding: 8px 10px;
             border-bottom: 1px solid #e5e7eb;
@@ -812,6 +859,7 @@
 
     <script src="../js/admin-icons.js"></script>
     <script src="../js/admin-common.js"></script>
+    <script src="../js/audit-record-footer.js"></script>
     <script src="../js/admin-orders-view.js?v=8.7.0"></script>
     <script src="../js/admin-orders.js?v=8.19"></script>
 </body>

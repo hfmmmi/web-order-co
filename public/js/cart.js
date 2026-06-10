@@ -308,6 +308,22 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     applyCartDeliveryDraftFromSession();
+    applyContactNameFromSession();
+
+    async function applyContactNameFromSession() {
+        try {
+            const res = await fetch("/api/session", { credentials: "same-origin" });
+            if (!res.ok) return;
+            const data = await res.json();
+            if (!data.loggedIn || !data.contactName) return;
+            const contactInput = document.querySelector("#contact-name");
+            if (contactInput && !String(contactInput.value || "").trim()) {
+                contactInput.value = data.contactName;
+            }
+        } catch (e) {
+            /* ignore */
+        }
+    }
 
     function applyCartDeliveryDraftFromSession() {
         const raw = sessionStorage.getItem("cartDeliveryDraft");

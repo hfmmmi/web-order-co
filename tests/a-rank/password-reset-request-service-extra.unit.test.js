@@ -252,7 +252,8 @@ describe("passwordResetRequestService 追加分岐", () => {
             expect.objectContaining({ customerName: "NONAME" }),
             expect.stringMatching(/^http:\/\/localhost\//),
             "",
-            true
+            true,
+            { actorLabel: "システム（自動）" }
         );
     });
 

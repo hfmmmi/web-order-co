@@ -45,6 +45,15 @@ document.addEventListener("DOMContentLoaded", function () {
     let lastFilteredOrders = [];
     let ordersCurrentPage = 1;
     const ORDERS_PAGE_SIZE = 25;
+    /** 一覧の並び替え（null のときは API 取得順を維持） */
+    let ordersSortKey = null;
+    let ordersSortDirection = "asc";
+
+    const ORDER_STATUS_SORT_RANK = {
+        "未発送": 0,
+        "一部発送": 1,
+        "発送済": 2
+    };
     /** 一覧でチェックした注文ID（ページをまたいで保持） */
     const selectedOrderIds = new Set();
 
@@ -858,6 +867,158 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    function getOrderSortRawValue(order, key) {
+        if (!order) return null;
+        switch (key) {
+            case "orderId":
+                return order.orderId != null ? String(order.orderId) : "";
+            case "orderDate":
+                return order.orderDate || "";
+            case "status":
+                return order.status || "未発送";
+            case "customer":
+                return order.customerName || "";
+            case "delivery":
+                return (order.deliveryInfo && order.deliveryInfo.name) || "";
+            case "totalAmount":
+                return Number(order.totalAmount) || 0;
+            case "export":
+                return order.exported_at ? 1 : 0;
+            default:
+                return null;
+        }
+    }
+
+    function compareOrderSortValues(aVal, bVal, key) {
+        if (aVal == null && bVal == null) return 0;
+        if (aVal == null || aVal === "") return 1;
+        if (bVal == null || bVal === "") return -1;
+
+        if (key === "orderDate") {
+            const ta = new Date(aVal).getTime();
+            const tb = new Date(bVal).getTime();
+            const na = Number.isNaN(ta) ? 0 : ta;
+            const nb = Number.isNaN(tb) ? 0 : tb;
+            return na - nb;
+        }
+
+        if (key === "orderId") {
+            const na = Number(aVal);
+            const nb = Number(bVal);
+            if (!Number.isNaN(na) && !Number.isNaN(nb) && String(aVal).trim() !== "" && String(bVal).trim() !== "") {
+                return na - nb;
+            }
+            return String(aVal).localeCompare(String(bVal), "ja", { numeric: true });
+        }
+
+        if (key === "status") {
+            const ra = Object.prototype.hasOwnProperty.call(ORDER_STATUS_SORT_RANK, aVal)
+                ? ORDER_STATUS_SORT_RANK[aVal]
+                : 99;
+            const rb = Object.prototype.hasOwnProperty.call(ORDER_STATUS_SORT_RANK, bVal)
+                ? ORDER_STATUS_SORT_RANK[bVal]
+                : 99;
+            if (ra !== rb) return ra - rb;
+            return String(aVal).localeCompare(String(bVal), "ja");
+        }
+
+        if (key === "totalAmount" || key === "export") {
+            return Number(aVal) - Number(bVal);
+        }
+
+        return String(aVal).localeCompare(String(bVal), "ja", { sensitivity: "base" });
+    }
+
+    function sortOrdersList(orders) {
+        if (!ordersSortKey || !Array.isArray(orders)) return orders;
+        const dir = ordersSortDirection === "desc" ? -1 : 1;
+        const key = ordersSortKey;
+        return [...orders].sort(function (a, b) {
+            const cmp = compareOrderSortValues(
+                getOrderSortRawValue(a, key),
+                getOrderSortRawValue(b, key),
+                key
+            );
+            if (cmp !== 0) return cmp * dir;
+            const idA = getOrderSortRawValue(a, "orderId");
+            const idB = getOrderSortRawValue(b, "orderId");
+            return compareOrderSortValues(idA, idB, "orderId") * dir;
+        });
+    }
+
+    function handleOrdersSortHeaderClick(key) {
+        if (ordersSortKey === key) {
+            ordersSortDirection = ordersSortDirection === "asc" ? "desc" : "asc";
+        } else {
+            ordersSortKey = key;
+            ordersSortDirection = "asc";
+        }
+        ordersCurrentPage = 1;
+        displayOrders(lastFilteredOrders);
+    }
+
+    function createOrdersSortHeaderCell(key, label, className) {
+        const th = document.createElement("th");
+        th.scope = "col";
+        if (className) th.className = className;
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "orders-sort-link";
+        btn.textContent = label;
+
+        if (ordersSortKey === key) {
+            btn.classList.add("is-active");
+            btn.setAttribute(
+                "aria-sort",
+                ordersSortDirection === "asc" ? "ascending" : "descending"
+            );
+            const indicator = document.createElement("span");
+            indicator.className = "orders-sort-indicator";
+            indicator.setAttribute("aria-hidden", "true");
+            indicator.textContent = ordersSortDirection === "asc" ? " ▲" : " ▼";
+            btn.appendChild(indicator);
+        } else {
+            btn.setAttribute("aria-sort", "none");
+        }
+
+        btn.addEventListener("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            handleOrdersSortHeaderClick(key);
+        });
+
+        th.appendChild(btn);
+        return th;
+    }
+
+    function buildOrdersTableHeadRow() {
+        const tr = document.createElement("tr");
+
+        const thSelect = document.createElement("th");
+        thSelect.scope = "col";
+        thSelect.className = "col-select";
+        thSelect.innerHTML =
+            '<input type="checkbox" class="order-select-all" title="このページを全選択" aria-label="このページの注文をすべて選択">';
+        tr.appendChild(thSelect);
+
+        tr.appendChild(createOrdersSortHeaderCell("orderId", "注文ID", "col-id"));
+        tr.appendChild(createOrdersSortHeaderCell("orderDate", "注文日", "col-date"));
+        tr.appendChild(createOrdersSortHeaderCell("status", "ステータス", "col-status"));
+        tr.appendChild(createOrdersSortHeaderCell("customer", "得意先", "col-party"));
+        tr.appendChild(createOrdersSortHeaderCell("delivery", "納品先", "col-product"));
+        tr.appendChild(createOrdersSortHeaderCell("totalAmount", "合計金額", "col-numeric"));
+        tr.appendChild(createOrdersSortHeaderCell("export", "連携", "col-export"));
+
+        const thAction = document.createElement("th");
+        thAction.scope = "col";
+        thAction.className = "col-action";
+        thAction.textContent = "操作";
+        tr.appendChild(thAction);
+
+        return tr;
+    }
+
     function buildPageNumberItems(totalPages, current) {
         if (totalPages <= 1) return [];
         const nums = new Set([1, totalPages, current]);
@@ -1550,11 +1711,13 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        const totalPages = Math.max(1, Math.ceil(orders.length / ORDERS_PAGE_SIZE));
+        const sortedOrders = sortOrdersList(orders);
+
+        const totalPages = Math.max(1, Math.ceil(sortedOrders.length / ORDERS_PAGE_SIZE));
         if (ordersCurrentPage > totalPages) ordersCurrentPage = totalPages;
         const page = ordersCurrentPage;
         const startIdx = (page - 1) * ORDERS_PAGE_SIZE;
-        const limitedOrders = orders.slice(startIdx, startIdx + ORDERS_PAGE_SIZE);
+        const limitedOrders = sortedOrders.slice(startIdx, startIdx + ORDERS_PAGE_SIZE);
         const fromN = startIdx + 1;
         const toN = startIdx + limitedOrders.length;
 
@@ -1565,11 +1728,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (totalPages > 1) {
             resultInfo.innerHTML =
-                `該当：<strong>${orders.length}</strong> 件 · <strong>${fromN}</strong>〜<strong>${toN}</strong> 件を表示` +
+                `該当：<strong>${sortedOrders.length}</strong> 件 · <strong>${fromN}</strong>〜<strong>${toN}</strong> 件を表示` +
                 ' <span class="orders-selection-count" style="margin-left:12px;color:#2563eb;font-weight:600;"></span>';
         } else {
             resultInfo.innerHTML =
-                `該当：<strong>${orders.length}</strong> 件` +
+                `該当：<strong>${sortedOrders.length}</strong> 件` +
                 ' <span class="orders-selection-count" style="margin-left:12px;color:#2563eb;font-weight:600;"></span>';
         }
         orderListContainer.appendChild(resultInfo);
@@ -1581,20 +1744,10 @@ document.addEventListener("DOMContentLoaded", function () {
         const table = document.createElement("table");
         table.className = "orders-list-table";
         table.setAttribute("role", "grid");
-        table.innerHTML =
-            "<thead><tr>" +
-            '<th scope="col" class="col-select">' +
-            '<input type="checkbox" class="order-select-all" title="このページを全選択" aria-label="このページの注文をすべて選択">' +
-            "</th>" +
-            '<th scope="col">注文ID</th>' +
-            '<th scope="col">注文日</th>' +
-            '<th scope="col">ステータス</th>' +
-            '<th scope="col">得意先</th>' +
-            '<th scope="col">納品先</th>' +
-            '<th scope="col" class="col-numeric">合計金額</th>' +
-            '<th scope="col" class="col-export">連携</th>' +
-            '<th scope="col" class="col-action">操作</th>' +
-            "</tr></thead>";
+
+        const thead = document.createElement("thead");
+        thead.appendChild(buildOrdersTableHeadRow());
+        table.appendChild(thead);
 
         const tbody = document.createElement("tbody");
         table.appendChild(tbody);

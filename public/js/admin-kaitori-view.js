@@ -58,6 +58,7 @@ class KaitoriView {
         this.mStatusSelect = document.getElementById("m-status-select");
         this.mAdminNote = document.getElementById("m-admin-note");
         this.mCustomerNote = document.getElementById("m-customer-note"); // 存在確認済
+        this.mAuditFooter = document.getElementById("m-audit-footer");
 
         // マスタ編集モーダル要素
         this.masterModal = document.getElementById("kaitori-master-modal");
@@ -154,6 +155,13 @@ class KaitoriView {
 
         this.renderEditableItems(req, onCalculate, onDeleteItem);
         this.updateTotalDisplay(req);
+
+        if (this.mAuditFooter && window.AuditRecordFooter) {
+            AuditRecordFooter.setAuditRecordFooterElement(this.mAuditFooter, req, {
+                fallbackDateFields: ["requestDate"],
+                fallbackBy: req.customerName || "—"
+            });
+        }
         
         this.reqModal.style.display = "flex";
     }

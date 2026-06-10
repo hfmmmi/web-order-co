@@ -11,6 +11,8 @@ const mailService = require("../services/mailService");
 const csvService = require("../services/csvService");
 const settingsService = require("../services/settingsService");
 const { validateBody } = require("../middlewares/validate");
+const { mailLogMetaFromSession } = require("../utils/mailLogMeta");
+const { getActorNameFromSession } = require("../utils/auditMeta");
 const { placeOrderSchema, adminDeleteOrderSchema } = require("../validators/requestSchemas");
 
 const upload = multer({ storage: multer.memoryStorage() });
@@ -28,8 +30,10 @@ router.post("/place-order", validateBody(placeOrderSchema), async (req, res) => 
     const { customerId, customerName, priceRank } = req.session;
 
     try {
-        const newOrder = await orderService.placeOrder(customerId, cart, deliveryInfo, priceRank || "");
-        mailService.sendOrderConfirmation(newOrder, customerName).catch(e => console.error(e));
+        const newOrder = await orderService.placeOrder(customerId, cart, deliveryInfo, priceRank || "", undefined, getActorNameFromSession(req.session));
+        mailService
+            .sendOrderConfirmation(newOrder, customerName, mailLogMetaFromSession(req.session))
+            .catch((e) => console.error(e));
         res.json({ success: true, orderId: newOrder.orderId });
     } catch (error) {
         console.error("注文保存エラー", error);
@@ -370,7 +374,10 @@ router.post("/api/reset-export-status", async (req, res) => {
 router.post("/api/update-order-status", async (req, res) => {
     if (!req.session.isAdmin && !req.session.customerId) return res.status(401).json({ message: "権限なし" });
     try {
-        await orderService.updateOrderStatus(req.body.orderId, req.body);
+        await orderService.updateOrderStatus(req.body.orderId, {
+            ...req.body,
+            auditActor: getActorNameFromSession(req.session)
+        });
         res.json({ success: true });
     } catch (error) {
         res.status(500).json({ message: "保存失敗" });
@@ -388,7 +395,7 @@ router.post("/api/register-shipment", async (req, res) => {
             trackingNumber,
             deliveryDate,
             deliveryDateUnknown
-        }]);
+        }], getActorNameFromSession(req.session));
         res.json({ success: true, newStatus });
     } catch (error) {
         res.status(500).json({ message: "処理に失敗しました" });
@@ -400,7 +407,7 @@ router.post("/api/register-shipment", async (req, res) => {
 router.post("/api/register-shipment-batch", async (req, res) => {
     if (!req.session.isAdmin && !req.session.customerId) return res.status(401).json({ message: "権限なし" });
     try {
-        const newStatus = await orderService.registerShipment(req.body.orderId, req.body.shipmentsPayload);
+        const newStatus = await orderService.registerShipment(req.body.orderId, req.body.shipmentsPayload, getActorNameFromSession(req.session));
         res.json({ success: true, newStatus });
     } catch (error) {
         res.status(500).json({ message: "一括処理に失敗しました" });
@@ -411,7 +418,7 @@ router.post("/api/register-shipment-batch", async (req, res) => {
 router.post("/api/update-shipment-info", async (req, res) => {
     if (!req.session.isAdmin && !req.session.customerId) return res.status(401).json({ message: "権限なし" });
     try {
-        await orderService.updateShipment(req.body.orderId, req.body.shipmentId, req.body);
+        await orderService.updateShipment(req.body.orderId, req.body.shipmentId, req.body, getActorNameFromSession(req.session));
         res.json({ success: true });
     } catch (error) {
         res.status(500).json({ message: "保存失敗" });

@@ -6,11 +6,13 @@ const { dbPath } = require("../dbPaths");
 const { runWithJsonFileWriteLock } = require("../utils/jsonWriteQueue");
 const mailService = require("./mailService");
 const settingsService = require("./settingsService");
+const customerUserService = require("./customerUserService");
 
 const CUSTOMERS_DB_PATH = dbPath("customers.json");
 const ADMINS_DB_PATH = dbPath("admins.json");
 const RESET_TOKENS_PATH = dbPath("reset_tokens.json");
 const ADMIN_RESET_TOKENS_PATH = dbPath("admin_reset_tokens.json");
+const CUSTOMER_USER_RESET_TOKENS_PATH = dbPath("customer_user_reset_tokens.json");
 const RESET_RATE_LIMIT_PATH = dbPath("reset_rate_limit.json");
 const RESET_EXPIRY_HOURS = 24;
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
@@ -96,7 +98,9 @@ async function requestPasswordReset(opts) {
                 customerName: customer.customerName || customerId,
                 email: customer.email.trim()
             };
-            const sent = await mailService.sendInviteEmail(mailPayload, inviteUrl, "", true);
+            const sent = await mailService.sendInviteEmail(mailPayload, inviteUrl, "", true, {
+                actorLabel: "システム（自動）"
+            });
 
             if (!sent.success) {
                 await runWithJsonFileWriteLock(RESET_TOKENS_PATH, async () => {
@@ -111,6 +115,60 @@ async function requestPasswordReset(opts) {
                 console.error("[request-password-reset] Mail send failed:", sent.message);
             } else {
                 console.log(`[request-password-reset] Sent reset link to ${customerId}`);
+            }
+            return { success: true, message: safeMessage };
+        }
+
+        const customerUser = isEmailInput
+            ? await customerUserService.findCustomerUserByEmail(trimId)
+            : await customerUserService.findCustomerUserByLoginId(trimId);
+
+        if (customerUser && (customerUser.email || "").trim()) {
+            const userId = customerUser.userId;
+            const token = crypto.randomBytes(24).toString("hex");
+            const expiresAt = Date.now() + RESET_EXPIRY_HOURS * 60 * 60 * 1000;
+
+            await runWithJsonFileWriteLock(CUSTOMER_USER_RESET_TOKENS_PATH, async () => {
+                let userResetTokens = {};
+                try {
+                    const raw = await fs.readFile(CUSTOMER_USER_RESET_TOKENS_PATH, "utf-8");
+                    userResetTokens = JSON.parse(raw);
+                } catch (e) {
+                    userResetTokens = {};
+                }
+                userResetTokens[userId] = { token, expiresAt };
+                await fs.writeFile(CUSTOMER_USER_RESET_TOKENS_PATH, JSON.stringify(userResetTokens, null, 2));
+            });
+
+            const baseUrl = (protocol || "http") + "://" + (host || "localhost");
+            const inviteUrl = `${baseUrl}/setup.html?id=${encodeURIComponent(userId)}&key=${token}`;
+            const mailPayload = {
+                customerId: userId,
+                customerName: customerUser.contactName || userId,
+                email: customerUser.email.trim()
+            };
+            const sent = await mailService.sendInviteEmail(mailPayload, inviteUrl, "", true, {
+                actorLabel: "システム（自動）"
+            });
+
+            if (!sent.success) {
+                await runWithJsonFileWriteLock(CUSTOMER_USER_RESET_TOKENS_PATH, async () => {
+                    let userResetTokens = {};
+                    try {
+                        const raw = await fs.readFile(CUSTOMER_USER_RESET_TOKENS_PATH, "utf-8");
+                        userResetTokens = JSON.parse(raw);
+                    } catch (e) {
+                        userResetTokens = {};
+                    }
+                    delete userResetTokens[userId];
+                    await fs.writeFile(
+                        CUSTOMER_USER_RESET_TOKENS_PATH,
+                        JSON.stringify(userResetTokens, null, 2)
+                    );
+                });
+                console.error("[request-password-reset] Customer user mail send failed:", sent.message);
+            } else {
+                console.log(`[request-password-reset] Sent user reset link to ${userId}`);
             }
             return { success: true, message: safeMessage };
         }
@@ -153,7 +211,9 @@ async function requestPasswordReset(opts) {
                     customerName: admin.name || admin.adminId,
                     email: toEmail
                 };
-                const sent = await mailService.sendInviteEmail(mailPayload, inviteUrl, "", true);
+                const sent = await mailService.sendInviteEmail(mailPayload, inviteUrl, "", true, {
+                actorLabel: "システム（自動）"
+            });
                 if (!sent.success) {
                     await runWithJsonFileWriteLock(ADMIN_RESET_TOKENS_PATH, async () => {
                         let adminResetTokens = {};

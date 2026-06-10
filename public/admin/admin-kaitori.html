@@ -520,6 +520,41 @@
             white-space: nowrap;
         }
 
+        .orders-sort-link {
+            display: inline;
+            margin: 0;
+            padding: 0;
+            border: none;
+            background: none;
+            font: inherit;
+            font-weight: 600;
+            color: inherit;
+            text-decoration: underline;
+            text-underline-offset: 0.12em;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .orders-sort-link:hover {
+            color: inherit;
+            text-decoration: underline;
+        }
+
+        .orders-sort-link.is-active {
+            color: inherit;
+        }
+
+        .orders-sort-indicator {
+            font-size: 0.75em;
+            text-decoration: none;
+        }
+
+        .kaitori-data-table thead th.kaitori-th-numeric .orders-sort-link {
+            display: inline-block;
+            width: 100%;
+            text-align: right;
+        }
+
         .kaitori-data-table tbody td {
             padding: 10px 12px;
             border-bottom: 1px solid #e5e7eb;
@@ -832,14 +867,7 @@
                     <div class="kaitori-table-wrap">
                         <table class="kaitori-data-table" style="min-width: 600px;">
                             <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>申請日時</th>
-                                    <th>顧客名</th>
-                                    <th>状態</th>
-                                    <th class="kaitori-th-numeric">点数</th>
-                                    <th class="kaitori-th-numeric">査定合計</th>
-                                </tr>
+                                <tr id="kaitori-table-head-row"></tr>
                             </thead>
                             <tbody id="kaitori-list-body"></tbody>
                         </table>
@@ -966,6 +994,7 @@
                     <input type="text" id="m-admin-note" placeholder="管理者メモ (顧客には見えません)"
                         style="width:100%; margin-top:10px; padding:8px 10px; box-sizing:border-box; border:1px solid #e5e7eb; border-radius:8px;">
                 </div>
+                <p id="m-audit-footer" class="audit-record-footer" hidden></p>
             </div>
         </div>
     </div>
@@ -1017,6 +1046,7 @@
 
     <script src="../js/admin-icons.js"></script>
     <script src="../js/admin-common.js"></script>
+    <script src="../js/audit-record-footer.js"></script>
 
     <script>
         function switchKaitoriSub(subId, btnElement) {

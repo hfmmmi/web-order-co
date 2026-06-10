@@ -238,7 +238,15 @@
             "</div>"
         ].join("");
 
-        return deliveryHTML + trackingHtml + tableHTML + actionHtml;
+        const auditHtml =
+            typeof global.AuditRecordFooter !== "undefined" &&
+            global.AuditRecordFooter.buildAuditRecordFooterHtml
+                ? global.AuditRecordFooter.buildAuditRecordFooterHtml(order, {
+                      fallbackDateFields: ["orderDate"]
+                  })
+                : "";
+
+        return deliveryHTML + trackingHtml + tableHTML + actionHtml + auditHtml;
     }
 
     /**

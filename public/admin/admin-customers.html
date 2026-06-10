@@ -255,6 +255,45 @@
             font-weight: 600;
             color: #374151;
         }
+
+        #cust-list-area .cust-table thead th.cust-col-rank {
+            text-align: center;
+        }
+
+        .orders-sort-link {
+            display: inline;
+            margin: 0;
+            padding: 0;
+            border: none;
+            background: none;
+            font: inherit;
+            font-weight: 600;
+            color: inherit;
+            text-decoration: underline;
+            text-underline-offset: 0.12em;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .orders-sort-link:hover {
+            color: inherit;
+            text-decoration: underline;
+        }
+
+        .orders-sort-link.is-active {
+            color: inherit;
+        }
+
+        .orders-sort-indicator {
+            font-size: 0.75em;
+            text-decoration: none;
+        }
+
+        #cust-list-area .cust-table th.cust-col-rank .orders-sort-link {
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+        }
         #cust-list-area .cust-table th,
         #cust-list-area .cust-table td {
             padding: 8px 10px;
@@ -352,16 +391,7 @@
                 <div id="cust-list-area">
                     <table class="cust-table">
                         <thead>
-                            <tr>
-                                <th scope="col" class="cust-col-check">
-                                    <input type="checkbox" class="cust-select-all" title="このページを全選択" aria-label="このページの顧客をすべて選択">
-                                </th>
-                                <th scope="col">顧客ID</th>
-                                <th scope="col">顧客名</th>
-                                <th scope="col">メール</th>
-                                <th scope="col" class="cust-col-rank">ランク</th>
-                                <th scope="col" class="cust-col-actions">操作</th>
-                            </tr>
+                            <tr id="cust-table-head-row"></tr>
                         </thead>
                         <tbody id="cust-table-body"></tbody>
                     </table>
@@ -417,6 +447,8 @@
                     <input type="text" id="cm-delivery-address" maxlength="300" style="width:100%; padding:8px; margin-bottom:10px; box-sizing: border-box;">
                     <label for="cm-delivery-tel" style="display:block; font-weight:bold; margin-bottom:5px;">電話</label>
                     <input type="text" id="cm-delivery-tel" maxlength="30" style="width:100%; padding:8px; margin-bottom:20px; box-sizing: border-box;">
+
+                    <p id="cm-audit-footer" class="audit-record-footer" hidden></p>
 
                     <button type="submit" id="cm-btn-save">保存</button>
                 </form>
@@ -478,6 +510,7 @@
 
     <script src="../js/admin-icons.js"></script>
     <script src="../js/admin-common.js"></script>
+    <script src="../js/audit-record-footer.js"></script>
     <script src="../js/admin-customers.js?v=7.7"></script>
 </body>
 </html>

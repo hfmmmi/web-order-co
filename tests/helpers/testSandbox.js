@@ -16,6 +16,8 @@ if (DATA_ROOT === PROJECT_ROOT && process.env.ALLOW_REAL_DB_FOR_TESTS !== "1") {
 
 const DB_FILES = [
     "admins.json",
+    "customer_users.json",
+    "customer_user_reset_tokens.json",
     "customers.json",
     "orders.json",
     "settings.json",
@@ -36,6 +38,7 @@ const DB_FILES = [
     "config/stocks-adapters.json",
     "logs/admin-auth.json",
     "logs/customer-auth.json",
+    "logs/mail-history.json",
     "logs/stocks-history.json"
 ];
 
@@ -204,6 +207,8 @@ async function seedBaseData() {
     await fs.writeFile(abs("reset_rate_limit.json"), JSON.stringify({}, null, 2), "utf-8");
     await fs.writeFile(abs("reset_tokens.json"), JSON.stringify({}, null, 2), "utf-8");
     await fs.writeFile(abs("admin_reset_tokens.json"), JSON.stringify({}, null, 2), "utf-8");
+    await fs.writeFile(abs("customer_users.json"), JSON.stringify([], null, 2), "utf-8");
+    await fs.writeFile(abs("customer_user_reset_tokens.json"), JSON.stringify({}, null, 2), "utf-8");
     await fs.writeFile(abs("invite_tokens.json"), JSON.stringify({}, null, 2), "utf-8");
     await fs.writeFile(abs("proxy_requests.json"), JSON.stringify({}, null, 2), "utf-8");
     await fs.writeFile(abs("kaitori_requests.json"), JSON.stringify([], null, 2), "utf-8");
@@ -227,6 +232,7 @@ async function seedBaseData() {
     await fs.mkdir(abs("logs"), { recursive: true });
     await fs.writeFile(abs("logs/admin-auth.json"), JSON.stringify([], null, 2), "utf-8");
     await fs.writeFile(abs("logs/customer-auth.json"), JSON.stringify([], null, 2), "utf-8");
+    await fs.writeFile(abs("logs/mail-history.json"), JSON.stringify([], null, 2), "utf-8");
     await fs.writeFile(abs("logs/stocks-history.json"), JSON.stringify([], null, 2), "utf-8");
 
     const { invalidateSettingsCache } = require("../../services/settingsService");

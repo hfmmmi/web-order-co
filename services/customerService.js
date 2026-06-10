@@ -7,6 +7,7 @@ const { parse } = require("csv-parse/sync");
 const { readToRowArrays } = require("../utils/excelReader");
 const { dbPath } = require("../dbPaths");
 const { runWithJsonFileWriteLock } = require("../utils/jsonWriteQueue");
+const { applyAuditOnCreate, applyAuditOnUpdate, pickAuditFields } = require("../utils/auditMeta");
 const { INTEGRATION_SNAPSHOT_MAX_LIMIT } = require("../utils/integrationSnapshotLimit");
 
 // DBパス設定
@@ -14,6 +15,57 @@ const CUSTOMERS_DB_PATH = dbPath("customers.json");
 
 /** 管理画面・顧客一覧APIの既定ページサイズ（受注管理の 25 件に合わせる） */
 const DEFAULT_CUSTOMER_PAGE_SIZE = 25;
+
+const VALID_CUSTOMER_SORT_KEYS = new Set(["customerId", "customerName", "priceRank"]);
+
+function compareCustomerSort(a, b, sortBy, sortDirection) {
+    const dir = sortDirection === "desc" ? -1 : 1;
+    let cmp = 0;
+
+    if (sortBy === "customerId") {
+        const va = a.customerId != null ? String(a.customerId) : "";
+        const vb = b.customerId != null ? String(b.customerId) : "";
+        const na = Number(va);
+        const nb = Number(vb);
+        if (!Number.isNaN(na) && !Number.isNaN(nb) && va.trim() !== "" && vb.trim() !== "") {
+            cmp = na - nb;
+        } else {
+            cmp = va.localeCompare(vb, "ja", { numeric: true });
+        }
+    } else if (sortBy === "customerName") {
+        cmp = String(a.customerName || "").localeCompare(String(b.customerName || ""), "ja", {
+            sensitivity: "base"
+        });
+    } else if (sortBy === "priceRank") {
+        cmp = String(a.priceRank || "").localeCompare(String(b.priceRank || ""), "ja", {
+            sensitivity: "base"
+        });
+    }
+
+    if (cmp !== 0) return cmp * dir;
+
+    const idA = a.customerId != null ? String(a.customerId) : "";
+    const idB = b.customerId != null ? String(b.customerId) : "";
+    return idA.localeCompare(idB, "ja", { numeric: true }) * dir;
+}
+
+function toSafeCustomerRow(c) {
+    return {
+        customerId: c.customerId,
+        customerName: c.customerName,
+        priceRank: c.priceRank || "",
+        email: c.email || "",
+        allowProxyLogin: c.allowProxyLogin === true,
+        deliveryName: c.deliveryName || "",
+        deliveryZip: c.deliveryZip || "",
+        deliveryAddress: c.deliveryAddress || "",
+        deliveryTel: c.deliveryTel || "",
+        createdBy: c.createdBy || "",
+        createdAt: c.createdAt || "",
+        updatedBy: c.updatedBy || "",
+        updatedAt: c.updatedAt || ""
+    };
+}
 
 /** xlsx は ZIP 形式のため先頭が PK。それ以外は CSV として扱う（商品マスタ取込と同じ判定） */
 function isExcelBuffer(buf) {
@@ -53,72 +105,45 @@ class CustomerService {
 
     // ★追加: 全顧客取得（API互換性のため）
     // admin-api.js から呼ばれるショートカット
-    async getAllCustomers(keyword = "", page = 1) {
-        return await this.searchCustomers(keyword, page, DEFAULT_CUSTOMER_PAGE_SIZE);
+    async getAllCustomers(keyword = "", page = 1, sortBy = null, sortDirection = "asc") {
+        return await this.searchCustomers(keyword, page, DEFAULT_CUSTOMER_PAGE_SIZE, sortBy, sortDirection);
     }
 
     // 3. 顧客検索（ページネーション対応）
-    async searchCustomers(keyword = "", page = 1, limit = DEFAULT_CUSTOMER_PAGE_SIZE) {
+    async searchCustomers(keyword = "", page = 1, limit = DEFAULT_CUSTOMER_PAGE_SIZE, sortBy = null, sortDirection = "asc") {
         const { normalizeSearchKey } = require("../utils/searchNormalize");
         const list = await this._loadAll();
         const safeKeyword = normalizeSearchKey(keyword);
-        if (!safeKeyword) {
-            const startIndex = (page - 1) * limit;
-            const paginatedItems = list.slice(startIndex, startIndex + limit);
-            const safeList = paginatedItems.map((c) => ({
-                customerId: c.customerId,
-                customerName: c.customerName,
-                priceRank: c.priceRank || "",
-                email: c.email || "",
-                allowProxyLogin: c.allowProxyLogin === true,
-                deliveryName: c.deliveryName || "",
-                deliveryZip: c.deliveryZip || "",
-                deliveryAddress: c.deliveryAddress || "",
-                deliveryTel: c.deliveryTel || ""
-            }));
-            return {
-                customers: safeList,
-                totalCount: list.length,
-                currentPage: Number(page),
-                totalPages: Math.ceil(list.length / limit) || 1,
-                pageSize: limit
-            };
+
+        let working = list;
+        if (safeKeyword) {
+            working = list.filter((c) => {
+                const id = normalizeSearchKey(c.customerId);
+                const name = normalizeSearchKey(c.customerName);
+                return id.includes(safeKeyword) || name.includes(safeKeyword);
+            });
         }
 
-        const filtered = list.filter((c) => {
-            const id = normalizeSearchKey(c.customerId);
-            const name = normalizeSearchKey(c.customerName);
-            return id.includes(safeKeyword) || name.includes(safeKeyword);
-        });
+        const validSort = VALID_CUSTOMER_SORT_KEYS.has(sortBy) ? sortBy : null;
+        if (validSort) {
+            working = [...working].sort((a, b) => compareCustomerSort(a, b, validSort, sortDirection));
+        }
 
         const startIndex = (page - 1) * limit;
-        const endIndex = startIndex + limit;
-        const paginatedItems = filtered.slice(startIndex, endIndex);
-
-        // セキュリティのためパスワードを除外して返す（代理ログイン許可は管理画面表示用）
-        const safeList = paginatedItems.map(c => ({
-            customerId: c.customerId,
-            customerName: c.customerName,
-            priceRank: c.priceRank || "",
-            email: c.email || "",
-            allowProxyLogin: c.allowProxyLogin === true,
-            deliveryName: c.deliveryName || "",
-            deliveryZip: c.deliveryZip || "",
-            deliveryAddress: c.deliveryAddress || "",
-            deliveryTel: c.deliveryTel || ""
-        }));
+        const paginatedItems = working.slice(startIndex, startIndex + limit);
+        const safeList = paginatedItems.map(toSafeCustomerRow);
 
         return {
             customers: safeList,
-            totalCount: filtered.length,
+            totalCount: working.length,
             currentPage: Number(page),
-            totalPages: Math.ceil(filtered.length / limit) || 1,
+            totalPages: Math.ceil(working.length / limit) || 1,
             pageSize: limit
         };
     }
 
     // 4. 顧客追加
-    async addCustomer({ customerId, customerName, password, priceRank, email, deliveryName, deliveryZip, deliveryAddress, deliveryTel }) {
+    async addCustomer({ customerId, customerName, password, priceRank, email, deliveryName, deliveryZip, deliveryAddress, deliveryTel }, auditActor) {
         return runWithJsonFileWriteLock(CUSTOMERS_DB_PATH, async () => {
             const list = await this._loadAll();
 
@@ -128,7 +153,7 @@ class CustomerService {
 
             const hashedPassword = await bcrypt.hash(password, 10);
 
-            const newList = [...list, {
+            const row = {
                 customerId: String(customerId).trim(),
                 customerName: String(customerName).trim(),
                 password: hashedPassword,
@@ -138,15 +163,18 @@ class CustomerService {
                 deliveryZip: deliveryZip != null ? String(deliveryZip).trim() : "",
                 deliveryAddress: deliveryAddress != null ? String(deliveryAddress).trim() : "",
                 deliveryTel: deliveryTel != null ? String(deliveryTel).trim() : ""
-            }];
+            };
+            applyAuditOnCreate(row, auditActor);
+
+            const newList = [...list, row];
 
             await fs.writeFile(CUSTOMERS_DB_PATH, JSON.stringify(newList, null, 2));
-            return { success: true, message: "顧客を登録しました" };
+            return { success: true, message: "顧客を登録しました", audit: pickAuditFields(row) };
         });
     }
 
     // 5. 顧客更新
-    async updateCustomer({ customerId, customerName, password, priceRank, email, deliveryName, deliveryZip, deliveryAddress, deliveryTel }) {
+    async updateCustomer({ customerId, customerName, password, priceRank, email, deliveryName, deliveryZip, deliveryAddress, deliveryTel }, auditActor) {
         return runWithJsonFileWriteLock(CUSTOMERS_DB_PATH, async () => {
             const list = await this._loadAll();
             const index = list.findIndex(c => c.customerId === customerId);
@@ -168,8 +196,10 @@ class CustomerService {
                 list[index].password = await bcrypt.hash(String(password).trim(), 10);
             }
 
+            applyAuditOnUpdate(list[index], auditActor);
+
             await fs.writeFile(CUSTOMERS_DB_PATH, JSON.stringify(list, null, 2));
-            return { success: true, message: "顧客情報を更新しました" };
+            return { success: true, message: "顧客情報を更新しました", audit: pickAuditFields(list[index]) };
         });
     }
 
@@ -269,6 +299,16 @@ class CustomerService {
             throw new Error("ファイルにデータがありません。Excel(.xlsx/.xls) または CSV 形式を確認してください。");
         }
         return await this._applyCustomerImportRows(jsonData);
+    }
+
+    async verifyCustomerPassword(customerId, plainPassword) {
+        const list = await this._loadAll();
+        const customer = list.find((c) => c.customerId === customerId);
+        if (!customer || !customer.password) return false;
+        if (String(customer.password).startsWith("$2")) {
+            return bcrypt.compare(String(plainPassword || ""), customer.password);
+        }
+        return customer.password === plainPassword;
     }
 
     // ★New: 7. パスワード更新専用（ユーザー初期設定用）

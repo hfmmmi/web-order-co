@@ -9,6 +9,7 @@ const { calculateFinalPrice } = require("../utils/priceCalc"); // 価格計算
 const stockService = require("./stockService");
 const settingsService = require("./settingsService");
 const { runWithJsonFileWriteLock } = require("../utils/jsonWriteQueue");
+const { applyAuditOnCreate, applyAuditOnUpdate } = require("../utils/auditMeta");
 const { INTEGRATION_SNAPSHOT_MAX_LIMIT } = require("../utils/integrationSnapshotLimit");
 
 /** 物流CSVの1行から、候補列名のうち最初に値があるものを返す */
@@ -94,7 +95,7 @@ class OrderService {
     }
 
     // 新規注文作成（orderDateYmd: 管理画面など YYYY-MM-DD を渡すとその日の JST 0時を orderDate に保存）
-    async placeOrder(customerId, cart, deliveryInfo, myRank, orderDateYmd) {
+    async placeOrder(customerId, cart, deliveryInfo, myRank, orderDateYmd, auditActor) {
         return await runWithJsonFileWriteLock(ORDERS_DB, async () => {
             const [productMaster, priceList, rankPriceMap, orders] = await Promise.all([
                 this._loadJson(PRODUCTS_DB),
@@ -151,6 +152,8 @@ class OrderService {
                 exported_at: null,
                 stockSnapshot: null
             };
+
+            applyAuditOnCreate(newOrder, auditActor);
 
             orders.push(newOrder);
             await fs.writeFile(ORDERS_DB, JSON.stringify(orders, null, 2));
@@ -307,6 +310,10 @@ class OrderService {
 
     // ステータス・配送情報更新
     async updateOrderStatus(orderId, updates) {
+        const auditActor = updates && updates.auditActor;
+        const cleanUpdates = { ...(updates || {}) };
+        delete cleanUpdates.auditActor;
+
         return await runWithJsonFileWriteLock(ORDERS_DB, async () => {
             const orders = await this._loadJson(ORDERS_DB);
             const targetIndex = orders.findIndex(o => String(o.orderId) === String(orderId));
@@ -314,14 +321,14 @@ class OrderService {
             if (targetIndex === -1) throw new Error("Order not found");
 
             const order = orders[targetIndex];
-            if (updates.status) {
-                order.status = updates.status;
-                const normalized = (updates.status || "").toLowerCase();
+            if (cleanUpdates.status) {
+                order.status = cleanUpdates.status;
+                const normalized = (cleanUpdates.status || "").toLowerCase();
                 if (normalized.includes("キャンセル") || normalized.includes("取消")) {
                     if (order.stockSnapshot && !order.stockSnapshot.released && Array.isArray(order.stockSnapshot.reservedItems)) {
                         try {
                             await stockService.release(order.stockSnapshot.reservedItems, {
-                                userId: updates.performedBy || "admin"
+                                userId: cleanUpdates.performedBy || "admin"
                             });
                             order.stockSnapshot.released = true;
                             order.stockSnapshot.releasedAt = new Date().toISOString();
@@ -331,13 +338,15 @@ class OrderService {
                     }
                 }
             }
-            if (updates.deliveryCompany !== undefined) order.deliveryCompany = updates.deliveryCompany;
-            if (updates.trackingNumber !== undefined) order.trackingNumber = updates.trackingNumber;
+            if (cleanUpdates.deliveryCompany !== undefined) order.deliveryCompany = cleanUpdates.deliveryCompany;
+            if (cleanUpdates.trackingNumber !== undefined) order.trackingNumber = cleanUpdates.trackingNumber;
 
             if (!order.deliveryInfo) order.deliveryInfo = {};
-            if (updates.deliveryDate !== undefined) order.deliveryInfo.date = updates.deliveryDate;
-            if (updates.deliveryDateUnknown !== undefined) order.deliveryInfo.dateUnknown = updates.deliveryDateUnknown;
-            if (updates.deliveryEstimate !== undefined) order.deliveryInfo.estimateMessage = updates.deliveryEstimate;
+            if (cleanUpdates.deliveryDate !== undefined) order.deliveryInfo.date = cleanUpdates.deliveryDate;
+            if (cleanUpdates.deliveryDateUnknown !== undefined) order.deliveryInfo.dateUnknown = cleanUpdates.deliveryDateUnknown;
+            if (cleanUpdates.deliveryEstimate !== undefined) order.deliveryInfo.estimateMessage = cleanUpdates.deliveryEstimate;
+
+            applyAuditOnUpdate(order, auditActor);
 
             await fs.writeFile(ORDERS_DB, JSON.stringify(orders, null, 2));
             return true;
@@ -348,7 +357,7 @@ class OrderService {
      * 管理者用: 納品先・備考・荷主・明細など注文の表示用詳細を更新（出荷履歴・ステータスは変更しない）
      */
     async updateAdminOrderDetails(orderId, opts) {
-        const { deliveryInfo: di, items } = opts || {};
+        const { deliveryInfo: di, items, auditActor } = opts || {};
         return await runWithJsonFileWriteLock(ORDERS_DB, async () => {
             const orders = await this._loadJson(ORDERS_DB);
             const targetIndex = orders.findIndex((o) => String(o.orderId) === String(orderId));
@@ -373,6 +382,8 @@ class OrderService {
                     quantity: Math.round(Number(it.quantity)) || 1
                 }));
             }
+
+            applyAuditOnUpdate(order, auditActor);
 
             await fs.writeFile(ORDERS_DB, JSON.stringify(orders, null, 2));
             return true;
@@ -408,7 +419,7 @@ class OrderService {
     }
 
     // 出荷登録
-    async registerShipment(orderId, shipmentDataArray) {
+    async registerShipment(orderId, shipmentDataArray, auditActor) {
         return await runWithJsonFileWriteLock(ORDERS_DB, async () => {
             const orders = await this._loadJson(ORDERS_DB);
             const targetIndex = orders.findIndex(o => String(o.orderId) === String(orderId));
@@ -432,6 +443,8 @@ class OrderService {
             const lastShipment = shipmentDataArray[shipmentDataArray.length - 1];
             order.deliveryCompany = lastShipment.deliveryCompany;
             order.trackingNumber = lastShipment.trackingNumber;
+
+            applyAuditOnUpdate(order, auditActor);
 
             await fs.writeFile(ORDERS_DB, JSON.stringify(orders, null, 2));
             return newStatus;
@@ -475,7 +488,7 @@ class OrderService {
     }
 
     // 出荷修正
-    async updateShipment(orderId, shipmentId, updates) {
+    async updateShipment(orderId, shipmentId, updates, auditActor) {
         return await runWithJsonFileWriteLock(ORDERS_DB, async () => {
             const orders = await this._loadJson(ORDERS_DB);
             const targetIndex = orders.findIndex(o => String(o.orderId) === String(orderId));
@@ -493,6 +506,8 @@ class OrderService {
                 if (updates.deliveryCompany) order.deliveryCompany = updates.deliveryCompany;
                 if (updates.trackingNumber) order.trackingNumber = updates.trackingNumber;
             }
+
+            applyAuditOnUpdate(order, auditActor);
 
             await fs.writeFile(ORDERS_DB, JSON.stringify(orders, null, 2));
             return true;

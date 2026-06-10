@@ -4,10 +4,11 @@ const express = require("express");
 const router = express.Router();
 const productService = require("../../services/productService");
 const { requireAdmin } = require("./requireAdmin");
+const { getActorNameFromSession } = require("../../utils/auditMeta");
 
 router.post("/add-product", requireAdmin, async (req, res) => {
     try {
-        const result = await productService.addProduct(req.body);
+        const result = await productService.addProduct(req.body, getActorNameFromSession(req.session));
         res.json(result);
     } catch (e) { res.status(500).json({ message: e.message }); }
 });
@@ -21,7 +22,7 @@ router.get("/admin/products", requireAdmin, async (req, res) => {
 
 router.post("/update-product", requireAdmin, async (req, res) => {
     try {
-        const result = await productService.updateProduct(req.body);
+        const result = await productService.updateProduct(req.body, getActorNameFromSession(req.session));
         res.json(result);
     } catch (e) { res.status(500).json({ message: e.message }); }
 });

@@ -12,11 +12,17 @@ document.addEventListener("DOMContentLoaded", function () {
     const purchasePriceInput = document.querySelector("#np-product-purchase-price");
     const stockSelect = document.querySelector("#np-product-stock");
     const activeSelect = document.querySelector("#np-product-active");
+    const stockTotalInput = document.querySelector("#np-stock-total-qty");
+    const stockReservedInput = document.querySelector("#np-stock-reserved-qty");
+    const stockPublishSelect = document.querySelector("#np-stock-publish");
+    const stockHiddenMessageInput = document.querySelector("#np-stock-hidden-message");
+    const stockManualLockCheckbox = document.querySelector("#np-stock-manual-lock");
     const saveToolBtn = document.querySelector("#np-tool-save");
     const newToolBtn = document.querySelector("#np-tool-new");
     const copyToolBtn = document.querySelector("#np-tool-copy");
     const deleteToolBtn = document.querySelector("#np-tool-delete");
     const tabLabel = document.querySelector("#np-reg-tab-label");
+    const auditFooterEl = document.getElementById("np-audit-footer");
 
     const urlParams = new URLSearchParams(window.location.search);
     const editRaw = urlParams.get("edit");
@@ -33,11 +39,32 @@ document.addEventListener("DOMContentLoaded", function () {
         if (tabLabel) tabLabel.textContent = text;
     }
 
+    function updateProductAuditFooter(product) {
+        if (!auditFooterEl || !window.AuditRecordFooter) return;
+        if (!isEditMode || !product) {
+            auditFooterEl.hidden = true;
+            auditFooterEl.textContent = "";
+            return;
+        }
+        AuditRecordFooter.setAuditRecordFooterElement(auditFooterEl, product, {
+            fallbackDateFields: []
+        });
+    }
+
+    function resetStockFields() {
+        if (stockTotalInput) stockTotalInput.value = "0";
+        if (stockReservedInput) stockReservedInput.value = "0";
+        if (stockPublishSelect) stockPublishSelect.value = "true";
+        if (stockHiddenMessageInput) stockHiddenMessageInput.value = "";
+        if (stockManualLockCheckbox) stockManualLockCheckbox.checked = false;
+    }
+
     function resetFormDefaults() {
         if (!form) return;
         form.reset();
         if (stockSelect) stockSelect.selectedIndex = 0;
         if (activeSelect) activeSelect.value = "true";
+        resetStockFields();
         if (codeInput) {
             codeInput.readOnly = false;
             codeInput.style.backgroundColor = "";
@@ -52,6 +79,7 @@ document.addEventListener("DOMContentLoaded", function () {
         setTabLabel("商品登録");
         document.title = TITLE_NEW;
         resetFormDefaults();
+        updateProductAuditFooter(null);
         try {
             window.history.replaceState({}, "", "admin-products-new.html");
         } catch (e) {
@@ -107,7 +135,70 @@ document.addEventListener("DOMContentLoaded", function () {
         toastSuccess("商品コード以外をコピーしました。新しい商品コードを入力してください", 3500);
     }
 
-    function applyEditProduct(product) {
+    function applyStockData(stock) {
+        if (!stock) {
+            resetStockFields();
+            return;
+        }
+        if (stockTotalInput) stockTotalInput.value = stock.totalQty != null ? stock.totalQty : 0;
+        if (stockReservedInput) stockReservedInput.value = stock.reservedQty != null ? stock.reservedQty : 0;
+        if (stockPublishSelect) stockPublishSelect.value = stock.publish === false ? "false" : "true";
+        if (stockHiddenMessageInput) stockHiddenMessageInput.value = stock.hiddenMessage || "";
+        if (stockManualLockCheckbox) stockManualLockCheckbox.checked = !!stock.manualLock;
+    }
+
+    async function loadStockForProductCode(productCode) {
+        if (!productCode) {
+            resetStockFields();
+            return;
+        }
+        try {
+            const response = await adminApiFetch(
+                "/api/admin/stocks/" + encodeURIComponent(productCode)
+            );
+            if (response.status === 404) {
+                resetStockFields();
+                return;
+            }
+            if (!response.ok) throw new Error("在庫データの取得に失敗しました");
+            const data = await response.json();
+            if (data.success && data.stock) {
+                applyStockData(data.stock);
+            } else {
+                resetStockFields();
+            }
+        } catch (e) {
+            console.error(e);
+            resetStockFields();
+        }
+    }
+
+    function getStockFormData(productCode) {
+        return {
+            productCode: productCode,
+            totalQty: parseInt(stockTotalInput ? stockTotalInput.value : "0", 10) || 0,
+            reservedQty: parseInt(stockReservedInput ? stockReservedInput.value : "0", 10) || 0,
+            publish: stockPublishSelect ? stockPublishSelect.value === "true" : true,
+            hiddenMessage: stockHiddenMessageInput ? stockHiddenMessageInput.value.trim() : "",
+            manualLock: stockManualLockCheckbox ? stockManualLockCheckbox.checked : false,
+            warehouses: []
+        };
+    }
+
+    async function saveStockForProduct(productCode) {
+        const payload = getStockFormData(productCode);
+        const response = await adminApiFetch("/api/admin/stocks/manual-adjust", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        if (!data.success) {
+            throw new Error(data.message || "在庫の保存に失敗しました");
+        }
+    }
+
+    async function applyEditProduct(product) {
         if (!codeInput || !nameInput) return;
         codeInput.value = product.productCode || "";
         applyFormDataExceptCode({
@@ -127,15 +218,17 @@ document.addEventListener("DOMContentLoaded", function () {
         if (deleteToolBtn) deleteToolBtn.style.display = "inline-flex";
         setTabLabel("商品登録（編集）");
         document.title = TITLE_EDIT;
+        await loadStockForProductCode(product.productCode);
+        updateProductAuditFooter(product);
         if (nameInput) nameInput.focus();
     }
 
-    function tryApplyEditModeAfterFetch() {
+    async function tryApplyEditModeAfterFetch() {
         if (!editProductCode || isEditMode) return;
         const want = String(editProductCode);
         const p = allProducts.find((x) => String(x.productCode) === want);
         if (p) {
-            applyEditProduct(p);
+            await applyEditProduct(p);
         } else {
             toastError("商品が見つかりません: " + want);
             editProductCode = null;
@@ -168,7 +261,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (response.status === 401) return;
             if (!response.ok) throw new Error("fetch failed");
             allProducts = await response.json();
-            tryApplyEditModeAfterFetch();
+            await tryApplyEditModeAfterFetch();
         } catch (e) {
             console.error(e);
             if (editProductCode) {
@@ -258,9 +351,28 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
                 const data = await response.json();
                 if (data.success) {
+                    try {
+                        await saveStockForProduct(payload.productCode);
+                    } catch (stockErr) {
+                        console.error(stockErr);
+                        toastWarning(
+                            "商品は保存しましたが、在庫の保存に失敗しました: " + (stockErr.message || "")
+                        );
+                        await fetchProductList();
+                        return;
+                    }
                     toastSuccess(isEditMode ? "更新しました" : "保存しました");
                     if (!isEditMode) {
                         resetFormDefaults();
+                    } else {
+                        await loadStockForProductCode(payload.productCode);
+                        if (data.audit && auditFooterEl && window.AuditRecordFooter) {
+                            AuditRecordFooter.setAuditRecordFooterElement(
+                                auditFooterEl,
+                                data.audit,
+                                { fallbackDateFields: [] }
+                            );
+                        }
                     }
                     await fetchProductList();
                 } else {

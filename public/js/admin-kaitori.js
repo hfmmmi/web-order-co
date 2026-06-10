@@ -13,6 +13,33 @@ document.addEventListener("DOMContentLoaded", function () {
     let allMasterData = [];
     let currentReqData = null; // 編集中の依頼データ
     let currentFilterType = "active"; // active | closed
+    let kaitoriSortKey = null;
+    let kaitoriSortDirection = "asc";
+
+    const KAITORI_STATUS_SORT_RANK = {
+        "未対応": 0,
+        "査定中": 1,
+        "保留": 2,
+        "成立": 3,
+        "キャンセル(返却)": 4,
+        "キャンセル(廃棄)": 5
+    };
+
+    function normalizeKaitoriListStatus(s) {
+        return s && String(s).trim() !== "" ? String(s).trim() : "未対応";
+    }
+
+    function kaitoriListItemCount(req) {
+        return (req.items || []).reduce(function (sum, item) {
+            return sum + (item.qty || 0);
+        }, 0);
+    }
+
+    function kaitoriListTotalAmount(req) {
+        return (req.items || []).reduce(function (sum, item) {
+            return sum + (item.subtotal || 0);
+        }, 0);
+    }
 
     // =========================================
     // 0. 初期化・イベントリスナー設定
@@ -69,6 +96,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // 認証完了シグナル待ち
     document.addEventListener("admin-ready", function() {
         console.log("🚀 Kaitori: Auth Signal Received.");
+        renderKaitoriTableHead();
         loadKaitoriList(); // 初期表示
 
         fetch("/api/admin/settings")
@@ -157,6 +185,141 @@ document.addEventListener("DOMContentLoaded", function () {
         inactive.style.border = "1px solid #ccc";
     }
 
+    function getKaitoriSortRawValue(req, key) {
+        if (!req) return null;
+        switch (key) {
+            case "id":
+                return typeof kaitoriDisplayId === "function" ? kaitoriDisplayId(req) : String(req.requestId || "");
+            case "requestDate":
+                return req.requestDate || "";
+            case "customerName":
+                return req.customerName || "";
+            case "status":
+                return normalizeKaitoriListStatus(req.status);
+            case "itemCount":
+                return kaitoriListItemCount(req);
+            case "totalAmount":
+                return kaitoriListTotalAmount(req);
+            default:
+                return null;
+        }
+    }
+
+    function compareKaitoriSortValues(aVal, bVal, key) {
+        if (aVal == null && bVal == null) return 0;
+        if (aVal == null || aVal === "") return 1;
+        if (bVal == null || bVal === "") return -1;
+
+        if (key === "requestDate") {
+            const ta = new Date(aVal).getTime();
+            const tb = new Date(bVal).getTime();
+            const na = Number.isNaN(ta) ? 0 : ta;
+            const nb = Number.isNaN(tb) ? 0 : tb;
+            return na - nb;
+        }
+
+        if (key === "id") {
+            const na = Number(aVal);
+            const nb = Number(bVal);
+            if (!Number.isNaN(na) && !Number.isNaN(nb) && String(aVal).trim() !== "" && String(bVal).trim() !== "") {
+                return na - nb;
+            }
+            return String(aVal).localeCompare(String(bVal), "ja", { numeric: true });
+        }
+
+        if (key === "status") {
+            const ra = Object.prototype.hasOwnProperty.call(KAITORI_STATUS_SORT_RANK, aVal)
+                ? KAITORI_STATUS_SORT_RANK[aVal]
+                : 99;
+            const rb = Object.prototype.hasOwnProperty.call(KAITORI_STATUS_SORT_RANK, bVal)
+                ? KAITORI_STATUS_SORT_RANK[bVal]
+                : 99;
+            if (ra !== rb) return ra - rb;
+            return String(aVal).localeCompare(String(bVal), "ja");
+        }
+
+        if (key === "itemCount" || key === "totalAmount") {
+            return Number(aVal) - Number(bVal);
+        }
+
+        return String(aVal).localeCompare(String(bVal), "ja", { sensitivity: "base" });
+    }
+
+    function sortKaitoriRequests(list) {
+        if (!kaitoriSortKey || !Array.isArray(list)) return list;
+        const dir = kaitoriSortDirection === "desc" ? -1 : 1;
+        const key = kaitoriSortKey;
+        return [...list].sort(function (a, b) {
+            const cmp = compareKaitoriSortValues(
+                getKaitoriSortRawValue(a, key),
+                getKaitoriSortRawValue(b, key),
+                key
+            );
+            if (cmp !== 0) return cmp * dir;
+            const idA = getKaitoriSortRawValue(a, "id");
+            const idB = getKaitoriSortRawValue(b, "id");
+            return compareKaitoriSortValues(idA, idB, "id") * dir;
+        });
+    }
+
+    function handleKaitoriSortHeaderClick(key) {
+        if (kaitoriSortKey === key) {
+            kaitoriSortDirection = kaitoriSortDirection === "asc" ? "desc" : "asc";
+        } else {
+            kaitoriSortKey = key;
+            kaitoriSortDirection = "asc";
+        }
+        renderKaitoriTableHead();
+        renderListFiltered();
+    }
+
+    function createKaitoriSortHeaderCell(key, label, className) {
+        const th = document.createElement("th");
+        th.scope = "col";
+        if (className) th.className = className;
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "orders-sort-link";
+        btn.textContent = label;
+
+        if (kaitoriSortKey === key) {
+            btn.classList.add("is-active");
+            btn.setAttribute(
+                "aria-sort",
+                kaitoriSortDirection === "asc" ? "ascending" : "descending"
+            );
+            const indicator = document.createElement("span");
+            indicator.className = "orders-sort-indicator";
+            indicator.setAttribute("aria-hidden", "true");
+            indicator.textContent = kaitoriSortDirection === "asc" ? " ▲" : " ▼";
+            btn.appendChild(indicator);
+        } else {
+            btn.setAttribute("aria-sort", "none");
+        }
+
+        btn.addEventListener("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            handleKaitoriSortHeaderClick(key);
+        });
+
+        th.appendChild(btn);
+        return th;
+    }
+
+    function renderKaitoriTableHead() {
+        const headRow = document.getElementById("kaitori-table-head-row");
+        if (!headRow) return;
+        headRow.innerHTML = "";
+        headRow.appendChild(createKaitoriSortHeaderCell("id", "ID", "kaitori-col-id"));
+        headRow.appendChild(createKaitoriSortHeaderCell("requestDate", "申請日時"));
+        headRow.appendChild(createKaitoriSortHeaderCell("customerName", "顧客名"));
+        headRow.appendChild(createKaitoriSortHeaderCell("status", "状態"));
+        headRow.appendChild(createKaitoriSortHeaderCell("itemCount", "点数", "kaitori-th-numeric"));
+        headRow.appendChild(createKaitoriSortHeaderCell("totalAmount", "査定合計", "kaitori-th-numeric"));
+    }
+
     function renderListFiltered() {
         const normalizeStatus = (s) => (s && s.trim() !== "") ? s : "未対応";
         let filtered = [];
@@ -172,8 +335,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 return s.includes("成立") || s.includes("キャンセル");
             });
         }
-        
-        view.renderRequestList(filtered);
+
+        view.renderRequestList(sortKaitoriRequests(filtered));
     }
 
     // =========================================

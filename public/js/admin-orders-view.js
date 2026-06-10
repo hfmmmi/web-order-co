@@ -179,6 +179,11 @@
             </div>
             ${tableHTML}
             ${noteSectionHtml}
+            ${
+                typeof AuditRecordFooter !== "undefined" && AuditRecordFooter.buildAuditRecordFooterHtml
+                    ? AuditRecordFooter.buildAuditRecordFooterHtml(order, { fallbackDateFields: ["orderDate"] })
+                    : ""
+            }
         `;
 
         return { summaryCellsHtml: summaryCellsHtml, detailContent: detailContent };

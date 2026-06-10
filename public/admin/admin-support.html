@@ -187,6 +187,35 @@
             white-space: nowrap;
         }
 
+        .orders-sort-link {
+            display: inline;
+            margin: 0;
+            padding: 0;
+            border: none;
+            background: none;
+            font: inherit;
+            font-weight: 600;
+            color: inherit;
+            text-decoration: underline;
+            text-underline-offset: 0.12em;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .orders-sort-link:hover {
+            color: inherit;
+            text-decoration: underline;
+        }
+
+        .orders-sort-link.is-active {
+            color: inherit;
+        }
+
+        .orders-sort-indicator {
+            font-size: 0.75em;
+            text-decoration: none;
+        }
+
         .support-data-table tbody td {
             padding: 10px 12px;
             border-bottom: 1px solid #e5e7eb;
@@ -435,12 +464,7 @@
                 <div class="support-table-wrap">
                     <table class="support-data-table">
                         <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>申請日時</th>
-                                <th>顧客名</th>
-                                <th>状態</th>
-                            </tr>
+                            <tr id="support-table-head-row"></tr>
                         </thead>
                         <tbody id="support-ticket-list-body">
                             <tr><td colspan="4" class="support-table-empty">読み込み中...</td></tr>
@@ -533,12 +557,14 @@
                         <button type="button" id="btn-support-update">更新・履歴追加</button>
                     </div>
                 </div>
+                <p id="support-m-audit-footer" class="audit-record-footer" hidden></p>
             </div>
         </div>
     </div>
 
     <script src="../js/admin-icons.js"></script>
     <script src="../js/admin-common.js"></script>
+    <script src="../js/audit-record-footer.js"></script>
     <script src="../js/admin-support.js?v=8.0"></script>
 </body>
 </html>

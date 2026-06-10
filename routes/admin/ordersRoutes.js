@@ -9,6 +9,7 @@ const settingsService = require("../../services/settingsService");
 const { requireAdmin } = require("./requireAdmin");
 const orderListExport = require("../../utils/orderListExport");
 const customerService = require("../../services/customerService");
+const { getActorNameFromSession } = require("../../utils/auditMeta");
 const { validateBody } = require("../../middlewares/validate");
 const {
     adminCreateOrderSchema,
@@ -19,7 +20,10 @@ const {
 
 router.post("/update-order-status", (req, res, next) => {
     if (!req.session.isAdmin && !req.session.customerId) return res.status(401).json({ message: "権限なし" });
-    orderService.updateOrderStatus(req.body.orderId, req.body)
+    orderService.updateOrderStatus(req.body.orderId, {
+        ...req.body,
+        auditActor: getActorNameFromSession(req.session)
+    })
         .then(() => res.json({ success: true }))
         .catch(err => res.status(500).json({ success: false, message: "保存失敗" }));
 });
@@ -61,7 +65,8 @@ router.post("/admin/orders-create", requireAdmin, validateBody(adminCreateOrderS
             cart,
             deliveryInfo,
             customer.priceRank || "",
-            orderDate
+            orderDate,
+            getActorNameFromSession(req.session)
         );
         return res.json({ success: true, orderId: newOrder.orderId });
     } catch (e) {
@@ -100,7 +105,8 @@ router.post("/admin/update-order-details", requireAdmin, validateBody(adminUpdat
     try {
         await orderService.updateAdminOrderDetails(req.body.orderId, {
             deliveryInfo: req.body.deliveryInfo,
-            items: req.body.items
+            items: req.body.items,
+            auditActor: getActorNameFromSession(req.session)
         });
         return res.json({ success: true });
     } catch (e) {

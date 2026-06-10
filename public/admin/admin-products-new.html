@@ -312,8 +312,41 @@
                             </div>
                         </div>
 
+                        <div class="product-reg-row product-reg-row--shade" style="border-top:2px solid #e5e7eb;">
+                            <div class="product-reg-label" style="align-self:start; padding-top:6px;">在庫（発注画面）</div>
+                            <div class="product-reg-field">
+                                <p style="margin:0 0 10px; font-size:0.82rem; color:#6b7280;">顧客向け商品一覧の在庫表示と連携します。表示のON/OFFはシステム設定の「在庫・表示」で変更できます。</p>
+                                <div style="display:flex; flex-wrap:wrap; gap:10px; max-width:520px;">
+                                    <div style="flex:1; min-width:140px;">
+                                        <label for="np-stock-total-qty" style="display:block; font-size:0.82rem; color:#555; margin-bottom:4px;">合計在庫数</label>
+                                        <input type="number" id="np-stock-total-qty" class="form-control" min="0" value="0">
+                                    </div>
+                                    <div style="flex:1; min-width:140px;">
+                                        <label for="np-stock-reserved-qty" style="display:block; font-size:0.82rem; color:#555; margin-bottom:4px;">引当済み</label>
+                                        <input type="number" id="np-stock-reserved-qty" class="form-control" min="0" value="0">
+                                    </div>
+                                </div>
+                                <div style="margin-top:10px; max-width:520px;">
+                                    <label for="np-stock-publish" style="display:block; font-size:0.82rem; color:#555; margin-bottom:4px;">顧客への在庫公開</label>
+                                    <select id="np-stock-publish" class="form-control">
+                                        <option value="true">在庫を表示する</option>
+                                        <option value="false">非公開（文言表示）</option>
+                                    </select>
+                                </div>
+                                <div style="margin-top:10px; max-width:520px;">
+                                    <label for="np-stock-hidden-message" style="display:block; font-size:0.82rem; color:#555; margin-bottom:4px;">非公開時メッセージ</label>
+                                    <input type="text" id="np-stock-hidden-message" class="form-control" placeholder="例: 仕入先直送">
+                                </div>
+                                <label style="display:flex; align-items:center; gap:8px; margin-top:10px; font-size:0.88rem;">
+                                    <input type="checkbox" id="np-stock-manual-lock">
+                                    手動ロック（自動同期で上書きしない）
+                                </label>
+                            </div>
+                        </div>
+
                         <button type="submit" id="np-add-btn" tabindex="-1" aria-hidden="true" style="position:absolute;clip:rect(0,0,0,0);width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;">submit</button>
                     </form>
+                    <p id="np-audit-footer" class="audit-record-footer" hidden></p>
                 </div>
                 <div class="product-reg-footer">
                     <button type="button" id="np-tool-save" class="reg-tool-btn" title="マスタに保存">
@@ -326,6 +359,7 @@
 
     <script src="../js/admin-icons.js"></script>
     <script src="../js/admin-common.js"></script>
+    <script src="../js/audit-record-footer.js"></script>
     <script src="../js/admin-products-new.js"></script>
 </body>
 

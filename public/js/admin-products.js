@@ -114,10 +114,18 @@ document.addEventListener("DOMContentLoaded", function () {
     let allProducts = [];
     /** @type {{ id: string, name: string }[]} */
     let rankListMeta = [];
+    /** @type {Map<string, object>} */
+    let adminStockMap = new Map();
+    /** @type {object} */
+    let stockUiConfig = { enabled: false, hiddenMessage: "", stocklessLabel: "", showStocklessLabel: true };
+
+    const SPC = window.StockPresentationClient;
 
     const PRODUCTS_PAGE_SIZE = 25;
     let lastFilteredProducts = [];
     let productsCurrentPage = 1;
+    let productsSortKey = null;
+    let productsSortDirection = "asc";
 
     function escHtml(s) {
         return String(s ?? "")
@@ -133,6 +141,131 @@ document.addEventListener("DOMContentLoaded", function () {
         fetchProductList();
     });
 
+    function getProductStockInfo(productCode) {
+        if (!SPC) return { visible: false, message: "" };
+        return SPC.buildStockInfo(productCode, adminStockMap, stockUiConfig);
+    }
+
+    function getProductSortRawValue(product, key) {
+        if (!product) return "";
+        switch (key) {
+            case "productCode":
+                return product.productCode != null ? String(product.productCode) : "";
+            case "category":
+                return stripLeadingManufacturerFromCategory(product.manufacturer, product.category);
+            case "name":
+                return product.name != null ? String(product.name) : "";
+            case "basePrice":
+                return Number(product.basePrice) || 0;
+            case "stock":
+                return SPC
+                    ? SPC.getStockSortValue(getProductStockInfo(product.productCode), stockUiConfig)
+                    : 0;
+            default:
+                return "";
+        }
+    }
+
+    function compareProductSortValues(aVal, bVal, key) {
+        if (key === "basePrice" || key === "stock") {
+            return Number(aVal) - Number(bVal);
+        }
+        return String(aVal).localeCompare(String(bVal), "ja", { numeric: true, sensitivity: "base" });
+    }
+
+    function sortProductList(products) {
+        if (!productsSortKey || !Array.isArray(products)) return products;
+        const dir = productsSortDirection === "desc" ? -1 : 1;
+        const key = productsSortKey;
+        return [...products].sort(function (a, b) {
+            const cmp = compareProductSortValues(
+                getProductSortRawValue(a, key),
+                getProductSortRawValue(b, key),
+                key
+            );
+            if (cmp !== 0) return cmp * dir;
+            return compareProductSortValues(
+                getProductSortRawValue(a, "productCode"),
+                getProductSortRawValue(b, "productCode"),
+                "productCode"
+            ) * dir;
+        });
+    }
+
+    function handleProductsSortHeaderClick(key) {
+        if (productsSortKey === key) {
+            productsSortDirection = productsSortDirection === "asc" ? "desc" : "asc";
+        } else {
+            productsSortKey = key;
+            productsSortDirection = "asc";
+        }
+        productsCurrentPage = 1;
+        renderProductListPage();
+    }
+
+    function createProductSortHeaderCell(key, label, className) {
+        const cell = document.createElement("div");
+        if (className) cell.className = className;
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "orders-sort-link";
+        btn.textContent = label;
+
+        if (productsSortKey === key) {
+            btn.classList.add("is-active");
+            btn.setAttribute(
+                "aria-sort",
+                productsSortDirection === "asc" ? "ascending" : "descending"
+            );
+            const indicator = document.createElement("span");
+            indicator.className = "orders-sort-indicator";
+            indicator.setAttribute("aria-hidden", "true");
+            indicator.textContent = productsSortDirection === "asc" ? " ▲" : " ▼";
+            btn.appendChild(indicator);
+        } else {
+            btn.setAttribute("aria-sort", "none");
+        }
+
+        btn.addEventListener("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            handleProductsSortHeaderClick(key);
+        });
+
+        cell.appendChild(btn);
+        return cell;
+    }
+
+    function renderProductListHeader(parent) {
+        const header = document.createElement("div");
+        header.className = "admin-product-list-header";
+        header.setAttribute("role", "row");
+
+        const grid = document.createElement("div");
+        grid.className = "admin-product-list-header-grid";
+
+        const colSelect = document.createElement("div");
+        colSelect.className = "admin-product-col-select";
+        colSelect.setAttribute("aria-hidden", "true");
+        grid.appendChild(colSelect);
+
+        grid.appendChild(createProductSortHeaderCell("productCode", "商品コード"));
+        grid.appendChild(createProductSortHeaderCell("category", "仕様", "admin-product-col-badge"));
+        grid.appendChild(createProductSortHeaderCell("name", "商品名", "admin-product-col-name"));
+        grid.appendChild(createProductSortHeaderCell("basePrice", "定価", "admin-product-col-price"));
+        grid.appendChild(createProductSortHeaderCell("stock", "在庫", "admin-product-col-stock-header"));
+
+        header.appendChild(grid);
+
+        const colActions = document.createElement("div");
+        colActions.className = "admin-product-header-actions";
+        colActions.textContent = "ランク";
+        header.appendChild(colActions);
+
+        parent.appendChild(header);
+    }
+
     async function fetchProductList() {
         if (!productListContainer) return;
 
@@ -140,9 +273,11 @@ document.addEventListener("DOMContentLoaded", function () {
         if (productListSummary) productListSummary.innerHTML = "";
 
         try {
-            const [response, rankRes] = await Promise.all([
+            const [response, rankRes, stockSettingsRes, stocksRes] = await Promise.all([
                 adminApiFetch("/api/admin/products"),
-                adminApiFetch("/api/admin/rank-list")
+                adminApiFetch("/api/admin/rank-list"),
+                adminApiFetch("/api/admin/stocks/settings"),
+                adminApiFetch("/api/admin/stocks")
             ]);
 
             if (response.status === 401) {
@@ -157,6 +292,23 @@ document.addEventListener("DOMContentLoaded", function () {
                 rankListMeta = await rankRes.json();
             } else {
                 rankListMeta = [];
+            }
+
+            if (stockSettingsRes.ok) {
+                const stockSettingsData = await stockSettingsRes.json();
+                if (stockSettingsData.success && stockSettingsData.display && SPC) {
+                    stockUiConfig = SPC.buildStockUiConfig(stockSettingsData.display);
+                }
+            }
+            if (stocksRes.ok) {
+                const stocksData = await stocksRes.json();
+                if (stocksData.success && Array.isArray(stocksData.stocks) && SPC) {
+                    adminStockMap = SPC.buildStockMap(stocksData.stocks);
+                } else {
+                    adminStockMap = new Map();
+                }
+            } else {
+                adminStockMap = new Map();
             }
 
             setupSearchBox();
@@ -352,14 +504,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const categoryLabel = stripLeadingManufacturerFromCategory(product.manufacturer, product.category);
         const catTag = categoryLabel ? `<span class="badge badge-secondary">${escHtml(categoryLabel)}</span>` : "";
         const statusTag = product.active === false ? "<span style='color:red; font-weight:bold;'>[非表示]</span>" : "";
-        const remarksRaw = product.remarks != null ? String(product.remarks).trim() : "";
-        const remarksCell =
-            remarksRaw !== ""
-                ? `<span class="admin-product-col-remarks" title="${escHtml(remarksRaw)}"><span class="admin-product-remarks-label">備考:</span> ${escHtml(
-                      remarksRaw
-                  )}</span>`
-                : `<span class="admin-product-col-remarks"></span>`;
-
         const rankBtnHtml = hasRank
             ? `<button type="button" class="btn-product-rank-toggle" aria-expanded="false">ランク</button>`
             : "";
@@ -381,14 +525,20 @@ document.addEventListener("DOMContentLoaded", function () {
                   )}</a>`
                 : `<span class="admin-product-col-code">${escHtml(codeRaw)}</span>`;
 
+        const stockInfo = getProductStockInfo(codeRaw);
+        const stockCell =
+            SPC != null
+                ? SPC.buildAdminProductStockCell(stockInfo, stockUiConfig, escHtml)
+                : { html: '<span class="admin-product-col-stock">—</span>' };
+
         row.innerHTML = `
                 <div class="admin-product-row-grid">
                     ${selectCellHtml}
                     ${codeCellHtml}
                     <span class="admin-product-col-badge">${catTag}</span>
                     <span class="admin-product-col-name">${statusTag} ${escHtml(product.name)}</span>
-                    <span class="admin-product-col-price">定価: ¥${(product.basePrice || 0).toLocaleString()}</span>
-                    ${remarksCell}
+                    <span class="admin-product-col-price">¥${(product.basePrice || 0).toLocaleString()}</span>
+                    ${stockCell.html}
                 </div>
                 <div class="admin-product-row-actions">
                     ${rankBtnHtml}
@@ -430,7 +580,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function renderProductListPage() {
         if (!productListContainer) return;
 
-        const products = lastFilteredProducts;
+        const products = sortProductList(lastFilteredProducts);
         productListContainer.innerHTML = "";
         if (productListSummary) productListSummary.innerHTML = "";
 
@@ -460,6 +610,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const itemsWrap = document.createElement("div");
         itemsWrap.className = "admin-product-list-items";
+        renderProductListHeader(itemsWrap);
         limited.forEach((product) => appendProductRow(itemsWrap, product));
         productListContainer.appendChild(itemsWrap);
 
