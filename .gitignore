@@ -24,6 +24,9 @@ admin_reset_tokens.json
 customer_users.json
 customer_user_reset_tokens.json
 
+# 管理者ユーザー（メールログイン・パスワードハッシュ）
+admin_users.json
+
 # パスワード再設定のレート制限用（IP別・15分窓）
 reset_rate_limit.json
 
