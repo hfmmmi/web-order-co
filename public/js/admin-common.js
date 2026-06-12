@@ -213,7 +213,8 @@ async function initAuthSystem() {
                 <h2 style="margin-top:0; color:#333;">🛡️ System Command</h2>
                 <p style="color:#666; font-size:0.9rem; margin-bottom:20px;">Authorized Personnel Only</p>
                 <form id="admin-login-form">
-                    <input type="text" id="admin-id-input" placeholder="Admin ID" autocomplete="off" style="width:100%; padding:10px; margin-bottom:10px; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;">
+                    <label style="display:block; margin-bottom:5px; font-weight:bold;">メールアドレス</label>
+                    <input type="email" id="admin-id-input" placeholder="admin@example.com" autocomplete="username" style="width:100%; padding:10px; margin-bottom:10px; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;">
                     <input type="password" id="admin-pass-input" placeholder="Password" style="width:100%; padding:10px; margin-bottom:20px; box-sizing:border-box; border:1px solid #ddd; border-radius:4px;">
                     <button type="submit" style="width:100%; padding:10px; background:#007bff; color:white; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">LOGIN</button>
                 </form>

@@ -4,6 +4,7 @@ const express = require("express");
 const router = express.Router();
 
 router.use(require("./auth/customerSessionRoutes"));
+router.use(require("./auth/customerUserAccountRoutes"));
 router.use(require("./auth/adminSessionRoutes"));
 
 module.exports = router;

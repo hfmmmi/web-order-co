@@ -46,7 +46,7 @@ describe("Aランク: 代理ログイン申請の競合ケース", () => {
         const admin1 = request.agent(app);
         const admin2 = request.agent(app);
 
-        await admin1.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin1.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const login2 = await admin2.post("/api/admin/login").send({ id: "test-admin-2", pass: "Admin2Pass123!" });
         expect(login2.statusCode).toBe(200);
 
@@ -72,8 +72,8 @@ describe("Aランク: 代理ログイン申請の競合ケース", () => {
         const admin = request.agent(app);
         const customer = request.agent(app);
 
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
-        await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
+        await customer.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
 
         await admin.post("/api/admin/proxy-request").send({ customerId: "TEST001" });
         const approve = await customer.post("/api/account/proxy-request/approve").send({});

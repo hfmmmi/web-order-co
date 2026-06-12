@@ -31,7 +31,7 @@ describe("Bランク: 商品・カート・お知らせAPI", () => {
 
     test("products はページネーションと stockUi を返す", async () => {
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
 
         const res = await agent.get("/products?page=1&limit=1");
         expect(res.statusCode).toBe(200);
@@ -44,7 +44,7 @@ describe("Bランク: 商品・カート・お知らせAPI", () => {
 
     test("cart-details は最新価格を反映して返す", async () => {
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
 
         const res = await agent
             .post("/cart-details")
@@ -60,7 +60,7 @@ describe("Bランク: 商品・カート・お知らせAPI", () => {
 
     test("cart-details は code のみのカート行も解決する", async () => {
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
 
         const res = await agent
             .post("/cart-details")

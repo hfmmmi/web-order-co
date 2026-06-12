@@ -36,7 +36,7 @@ describe("Sランク: 認証セキュリティAPI", () => {
         for (let i = 0; i < 5; i += 1) {
             const res = await request(app)
                 .post("/api/login")
-                .send({ id: "TEST001", pass: "WrongPassword!" });
+                .send({ id: "test001@example.com", pass: "WrongPassword!" });
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(false);
             expect(res.body.message).toContain("IDまたはPASS");
@@ -44,7 +44,7 @@ describe("Sランク: 認証セキュリティAPI", () => {
 
         const locked = await request(app)
             .post("/api/login")
-            .send({ id: "TEST001", pass: "WrongPassword!" });
+            .send({ id: "test001@example.com", pass: "WrongPassword!" });
 
         expect(locked.statusCode).toBe(200);
         expect(locked.body.success).toBe(false);
@@ -55,14 +55,14 @@ describe("Sランク: 認証セキュリティAPI", () => {
         for (let i = 0; i < 5; i += 1) {
             const res = await request(app)
                 .post("/api/admin/login")
-                .send({ id: "test-admin", pass: "WrongPassword!" });
+                .send({ id: "test-admin@example.com", pass: "WrongPassword!" });
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(false);
         }
 
         const locked = await request(app)
             .post("/api/admin/login")
-            .send({ id: "test-admin", pass: "WrongPassword!" });
+            .send({ id: "test-admin@example.com", pass: "WrongPassword!" });
 
         expect(locked.statusCode).toBe(200);
         expect(locked.body.success).toBe(false);
@@ -71,7 +71,7 @@ describe("Sランク: 認証セキュリティAPI", () => {
 
     test("失敗2回後はcaptchaRequired=trueが返る（secretKey設定時）", async () => {
         const adminAgent = request.agent(app);
-        await adminAgent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await adminAgent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const saveRecaptcha = await adminAgent.put("/api/admin/settings").send({
             recaptcha: {
                 siteKey: "site-key-test",
@@ -81,12 +81,12 @@ describe("Sランク: 認証セキュリティAPI", () => {
         expect(saveRecaptcha.statusCode).toBe(200);
         expect(saveRecaptcha.body.success).toBe(true);
 
-        await request(app).post("/api/login").send({ id: "TEST002", pass: "WrongPassword!" });
-        await request(app).post("/api/login").send({ id: "TEST002", pass: "WrongPassword!" });
+        await request(app).post("/api/login").send({ id: "test002@example.com", pass: "WrongPassword!" });
+        await request(app).post("/api/login").send({ id: "test002@example.com", pass: "WrongPassword!" });
 
         const third = await request(app)
             .post("/api/login")
-            .send({ id: "TEST002", pass: "WrongPassword!" });
+            .send({ id: "test002@example.com", pass: "WrongPassword!" });
 
         expect(third.statusCode).toBe(200);
         expect(third.body.success).toBe(false);

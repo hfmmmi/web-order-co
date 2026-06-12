@@ -49,7 +49,7 @@ describe("branch coverage 90: support attachment download", () => {
         await fs.writeFile(SUPPORT_DB_PATH, JSON.stringify(tickets, null, 2), "utf-8");
         try {
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.get(`/support/attachment/${ticketId}/${storedName}`);
             expect(res.statusCode).toBe(200);
         } finally {

@@ -16,6 +16,7 @@ if (DATA_ROOT === PROJECT_ROOT && process.env.ALLOW_REAL_DB_FOR_TESTS !== "1") {
 
 const DB_FILES = [
     "admins.json",
+    "admin_users.json",
     "customer_users.json",
     "customer_user_reset_tokens.json",
     "customers.json",
@@ -95,30 +96,77 @@ async function seedBaseData() {
         {
             adminId: "test-admin",
             password: adminPassword,
-            name: "テスト管理者"
+            name: "テスト管理者",
+            email: "test-admin@example.com"
+        }
+    ];
+
+    const adminUsers = [
+        {
+            userId: "AU-TEST-ADMIN",
+            email: "test-admin@example.com",
+            displayName: "テスト管理者",
+            role: "admin",
+            password: adminPassword,
+            active: true,
+            createdAt: new Date().toISOString(),
+            lastLoginAt: null
         }
     ];
 
     const customers = [
         {
             customerId: "TEST001",
-            password: customerPassword,
             customerName: "テスト顧客",
             priceRank: "A",
-            email: "test001@example.com"
+            email: "company001@example.com"
         },
         {
             customerId: "TEST002",
-            password: customerPassword,
             customerName: "テスト顧客2",
             priceRank: "B",
-            email: "test002@example.com"
+            email: "company002@example.com"
         },
         {
             customerId: "TEST003",
-            password: customerPassword,
             customerName: "ランク未設定顧客",
-            email: "test003@example.com"
+            email: "company003@example.com"
+        }
+    ];
+
+    const customerUsers = [
+        {
+            userId: "CU-TEST001-ADMIN",
+            customerId: "TEST001",
+            email: "test001@example.com",
+            displayName: "テスト担当1",
+            role: "admin",
+            password: customerPassword,
+            active: true,
+            createdAt: new Date().toISOString(),
+            lastLoginAt: null
+        },
+        {
+            userId: "CU-TEST002-ADMIN",
+            customerId: "TEST002",
+            email: "test002@example.com",
+            displayName: "テスト担当2",
+            role: "admin",
+            password: customerPassword,
+            active: true,
+            createdAt: new Date().toISOString(),
+            lastLoginAt: null
+        },
+        {
+            userId: "CU-TEST003-USER",
+            customerId: "TEST003",
+            email: "test003@example.com",
+            displayName: "テスト担当3",
+            role: "user",
+            password: customerPassword,
+            active: true,
+            createdAt: new Date().toISOString(),
+            lastLoginAt: null
         }
     ];
 
@@ -195,7 +243,9 @@ async function seedBaseData() {
     };
 
     await fs.writeFile(abs("admins.json"), JSON.stringify(admins, null, 2), "utf-8");
+    await fs.writeFile(abs("admin_users.json"), JSON.stringify(adminUsers, null, 2), "utf-8");
     await fs.writeFile(abs("customers.json"), JSON.stringify(customers, null, 2), "utf-8");
+    await fs.writeFile(abs("customer_users.json"), JSON.stringify(customerUsers, null, 2), "utf-8");
     await fs.writeFile(abs("orders.json"), JSON.stringify([], null, 2), "utf-8");
     await fs.writeFile(abs("settings.json"), JSON.stringify(settings, null, 2), "utf-8");
     await fs.writeFile(abs("products.json"), JSON.stringify(products, null, 2), "utf-8");

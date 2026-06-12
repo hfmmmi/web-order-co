@@ -39,7 +39,7 @@ describe("Aランク: JSON破損時の復旧耐性", () => {
 
         const failed = await request(app)
             .post("/api/login")
-            .send({ id: "TEST001", pass: "WrongPassword!" });
+            .send({ id: "test001@example.com", pass: "WrongPassword!" });
 
         expect(failed.statusCode).toBe(200);
         expect(failed.body.success).toBe(false);
@@ -76,7 +76,7 @@ describe("Aランク: JSON破損時の復旧耐性", () => {
         const admin = request.agent(app);
         const adminLogin = await admin
             .post("/api/admin/login")
-            .send({ id: "test-admin", pass: "AdminPass123!" });
+            .send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         expect(adminLogin.statusCode).toBe(200);
         expect(adminLogin.body.success).toBe(true);
 

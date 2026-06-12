@@ -33,7 +33,7 @@ describe("Aランク: セキュリティ境界", () => {
 
     test("代理ログイン申請は10分を超えると無効化される", async () => {
         const adminAgent = request.agent(app);
-        await adminAgent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await adminAgent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
 
         const reqRes = await adminAgent.post("/api/admin/proxy-request").send({ customerId: "TEST001" });
         expect(reqRes.statusCode).toBe(200);
@@ -53,7 +53,7 @@ describe("Aランク: セキュリティ境界", () => {
 
     test("招待メール送信APIはtokenを保存し成功応答を返す", async () => {
         const adminAgent = request.agent(app);
-        await adminAgent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await adminAgent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
 
         const res = await adminAgent
             .post("/api/admin/send-invite-email")
@@ -69,7 +69,7 @@ describe("Aランク: セキュリティ境界", () => {
 
     test("settings/public は secretKey を公開しない", async () => {
         const adminAgent = request.agent(app);
-        await adminAgent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await adminAgent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         await adminAgent.put("/api/admin/settings").send({
             recaptcha: {
                 siteKey: "public-site-key",

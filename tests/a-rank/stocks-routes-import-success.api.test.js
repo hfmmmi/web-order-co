@@ -35,7 +35,7 @@ describe("Aランク: stocks import 成功系", () => {
             "product_code,total_qty,warehouse_code,warehouse_qty,timestamp,publish,hidden_message\n" +
             "P001,10,本社,10,2025-02-01T09:00:00+09:00,1,\n";
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.post("/api/admin/stocks/import").attach("stockFile", Buffer.from(csv, "utf-8"), "stock.csv");
         expect(res.statusCode).toBe(200);
         expect(res.body.success).toBe(true);

@@ -33,7 +33,7 @@ describe("Aランク: 代理ログイン申請の10分期限切れ詳細", () =>
 
     test("期限切れ後の status は none になり、申請データが削除される", async () => {
         const adminAgent = request.agent(app);
-        await adminAgent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await adminAgent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         await adminAgent.post("/api/admin/proxy-request").send({ customerId: "TEST001" });
 
         const requests = await readJson("proxy_requests.json");
@@ -52,8 +52,8 @@ describe("Aランク: 代理ログイン申請の10分期限切れ詳細", () =>
         const adminAgent = request.agent(app);
         const customerAgent = request.agent(app);
 
-        await adminAgent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
-        await customerAgent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await adminAgent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
+        await customerAgent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         await adminAgent.post("/api/admin/proxy-request").send({ customerId: "TEST001" });
 
         const requests = await readJson("proxy_requests.json");
@@ -71,7 +71,7 @@ describe("Aランク: 代理ログイン申請の10分期限切れ詳細", () =>
 
     test("期限切れ後の proxy-login 実行は拒否される", async () => {
         const adminAgent = request.agent(app);
-        await adminAgent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await adminAgent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         await adminAgent.post("/api/admin/proxy-request").send({ customerId: "TEST001" });
 
         const requests = await readJson("proxy_requests.json");

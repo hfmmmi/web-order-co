@@ -33,7 +33,7 @@ describe("分岐90向け: catalog 価格表・頻度・カート", () => {
 
     test("GET /download-my-pricelist はログインで CSV", async () => {
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/download-my-pricelist");
         expect(res.status).toBe(200);
         expect(String(res.headers["content-type"] || "")).toMatch(/csv/);
@@ -42,7 +42,7 @@ describe("分岐90向け: catalog 価格表・頻度・カート", () => {
 
     test("GET /my-pricelist-data はログインで rows を返す", async () => {
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/my-pricelist-data");
         expect(res.status).toBe(200);
         expect(Array.isArray(res.body.rows)).toBe(true);
@@ -58,7 +58,7 @@ describe("分岐90向け: catalog 価格表・頻度・カート", () => {
             return origRead(p, enc);
         });
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/download-my-pricelist");
         expect(res.status).toBe(500);
     });
@@ -73,7 +73,7 @@ describe("分岐90向け: catalog 価格表・頻度・カート", () => {
         });
         await writeJson("orders.json", orders);
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/products/frequent").query({ limit: 5 });
         expect(res.status).toBe(200);
         expect(Array.isArray(res.body.items)).toBe(true);
@@ -90,7 +90,7 @@ describe("分岐90向け: catalog 価格表・頻度・カート", () => {
             return origRead(p, enc);
         });
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/products/frequent");
         expect(res.status).toBe(500);
     });
@@ -105,7 +105,7 @@ describe("分岐90向け: catalog 価格表・頻度・カート", () => {
             return origRead(p, enc);
         });
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.post("/cart-details").send({
             cart: [{ productCode: "P001", quantity: 1 }]
         });
@@ -127,7 +127,7 @@ describe("分岐90向け: catalog 価格表・頻度・カート", () => {
         estimates.push(row);
         await writeJson("estimates.json", estimates);
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/products/estimate").query({ estimateId: "EST-GAP90" });
         expect(res.status).toBe(200);
         expect(res.body.items.length).toBeGreaterThanOrEqual(1);
@@ -164,7 +164,7 @@ describe("分岐90向け: catalog 価格表・頻度・カート", () => {
         });
         await writeJson("estimates.json", estimates);
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/products/estimate").query({ estimateId: "EST-MINFLD" });
         expect(res.status).toBe(200);
         expect(res.body.items[0].manufacturer).toBe("見積品");
@@ -186,7 +186,7 @@ describe("分岐90向け: catalog 価格表・頻度・カート", () => {
         rp.PNOSTK = { A: 120, B: 130 };
         await writeJson("rank_prices.json", rp);
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.post("/cart-details").send({
             cart: [{ productCode: "PNOSTK", quantity: 1 }]
         });
@@ -204,7 +204,7 @@ describe("分岐90向け: catalog 価格表・頻度・カート", () => {
         });
         await writeJson("orders.json", orders);
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/products/frequent").query({ limit: 10 });
         expect(res.status).toBe(200);
         const p2 = res.body.items.find((x) => x.productCode === "P002");
@@ -222,7 +222,7 @@ describe("分岐90向け: catalog 価格表・頻度・カート", () => {
         });
         await writeJson("orders.json", orders);
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/products/frequent").query({ limit: 20 });
         expect(res.status).toBe(200);
         const p1 = res.body.items.find((x) => x.productCode === "P001");
@@ -240,7 +240,7 @@ describe("分岐90向け: catalog 価格表・頻度・カート", () => {
         });
         await writeJson("orders.json", orders);
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/products/frequent").query({ limit: 15 });
         expect(res.status).toBe(200);
         const p2 = res.body.items.find((x) => x.productCode === "P002");
@@ -261,7 +261,7 @@ describe("分岐90向け: catalog 価格表・頻度・カート", () => {
         });
         await writeJson("estimates.json", estimates);
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/products/estimate").query({ estimateId: "EST-HASMASTER" });
         expect(res.status).toBe(200);
         expect(res.body.items[0].name).toBe("テストトナーA");
@@ -278,7 +278,7 @@ describe("分岐90向け: catalog 価格表・頻度・カート", () => {
             return origRead(p, enc);
         });
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/products/frequent");
         expect(res.status).toBe(200);
         expect(res.body.items).toEqual([]);
@@ -300,7 +300,7 @@ describe("分岐90向け: catalog 価格表・頻度・カート", () => {
         });
         await writeJson("orders.json", orders);
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/products/frequent").query({ limit: 20 });
         expect(res.status).toBe(200);
         expect(res.body.items.every((x) => x.productCode !== "P002")).toBe(true);
@@ -321,7 +321,7 @@ describe("分岐90向け: catalog 価格表・頻度・カート", () => {
         rp.PNOFIELD = { A: 400, B: 450 };
         await writeJson("rank_prices.json", rp);
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/download-my-pricelist");
         expect(res.status).toBe(200);
         expect(res.text).toContain("PNOFIELD");
@@ -388,7 +388,7 @@ describe("分岐90向け: catalog 価格表・頻度・カート", () => {
         rp.PNOCAT = { A: 250, B: 260 };
         await writeJson("rank_prices.json", rp);
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/download-my-pricelist");
         expect(res.status).toBe(200);
         expect(res.text).toContain("PNOCAT");
@@ -407,7 +407,7 @@ describe("分岐90向け: catalog 価格表・頻度・カート", () => {
         });
         await writeJson("orders.json", orders);
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/products/frequent").query({ limit: 25 });
         expect(res.status).toBe(200);
         const p1 = res.body.items.find((x) => x.productCode === "P001");
@@ -433,7 +433,7 @@ describe("分岐90向け: catalog 価格表・頻度・カート", () => {
         prices.push({ customerId: "TEST001", productCode: "PZERO", specialPrice: 0 });
         await writeJson("prices.json", prices);
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/download-my-pricelist");
         expect(res.status).toBe(200);
         expect(res.text).not.toContain("PZERO");

@@ -44,11 +44,11 @@ describe("Aランク: 管理者表示名サニタイズ", () => {
         await writeJson("admins.json", admins);
 
         const adminAgent = request.agent(app);
-        await adminAgent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await adminAgent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         await adminAgent.post("/api/admin/proxy-request").send({ customerId: "TEST001" });
 
         const customerAgent = request.agent(app);
-        await customerAgent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await customerAgent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const proxy = await customerAgent.get("/api/account/proxy-request");
         expect(proxy.statusCode).toBe(200);
         expect(proxy.body.pending).toBe(true);

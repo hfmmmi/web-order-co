@@ -55,7 +55,7 @@ describe("Aランク: download-csv キーワード分岐", () => {
 
     test("keyword=(顧客ID) で該当注文のみ CSV に含まれる", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/api/download-csv").query({ keyword: "(TEST001)" });
         expect(res.statusCode).toBe(200);
         expect(res.text).toContain("501");
@@ -64,7 +64,7 @@ describe("Aランク: download-csv キーワード分岐", () => {
 
     test("keyword=(商品コード) で該当明細の注文が含まれる", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/api/download-csv").query({ keyword: "(PX99)" });
         expect(res.statusCode).toBe(200);
         expect(res.text).toContain("501");
@@ -72,7 +72,7 @@ describe("Aランク: download-csv キーワード分岐", () => {
 
     test("keyword=(一致しないコード) では行が除外される", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/api/download-csv").query({ keyword: "(NO_SUCH)" });
         expect(res.statusCode).toBe(200);
         expect(res.text).not.toContain("501");
@@ -81,7 +81,7 @@ describe("Aランク: download-csv キーワード分岐", () => {
 
     test("keyword が通常文字列のとき社名の部分一致で含まれる", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/api/download-csv").query({ keyword: "キーワード" });
         expect(res.statusCode).toBe(200);
         expect(res.text).toContain("501");
@@ -89,7 +89,7 @@ describe("Aランク: download-csv キーワード分岐", () => {
 
     test("keyword が注文IDの一部にマッチする", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/api/download-csv").query({ keyword: "501" });
         expect(res.statusCode).toBe(200);
         expect(res.text).toContain("501");
@@ -97,7 +97,7 @@ describe("Aランク: download-csv キーワード分岐", () => {
 
     test("start/end で日付範囲外の注文は CSV から除外", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin
             .get("/api/download-csv")
             .query({ start: "2030-01-01", end: "2030-12-31" });
@@ -107,7 +107,7 @@ describe("Aランク: download-csv キーワード分岐", () => {
 
     test("status クエリで一致しない注文は除外", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/api/download-csv").query({ status: "発送済" });
         expect(res.statusCode).toBe(200);
         expect(res.text).not.toContain("501");
@@ -137,7 +137,7 @@ describe("Aランク: download-csv キーワード分岐", () => {
             }
         ]);
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/api/download-csv").query({ mode: "unexported" });
         expect(res.statusCode).toBe(200);
         expect(res.text).toContain("602");
@@ -158,7 +158,7 @@ describe("Aランク: download-csv キーワード分岐", () => {
             }
         ]);
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/api/download-csv").query({ start: "1969-01-01", end: "1970-12-31" });
         expect(res.statusCode).toBe(200);
         expect(res.text).toContain("701");
@@ -166,7 +166,7 @@ describe("Aランク: download-csv キーワード分岐", () => {
 
     test("status が空文字のとき全ステータスが対象", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/api/download-csv").query({ status: "" });
         expect(res.statusCode).toBe(200);
         expect(res.text).toContain("501");
@@ -174,7 +174,7 @@ describe("Aランク: download-csv キーワード分岐", () => {
 
     test("status クエリ省略時は matchStatus の undefined 枝", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/api/download-csv");
         expect(res.statusCode).toBe(200);
         expect(res.text).toContain("501");
@@ -182,7 +182,7 @@ describe("Aランク: download-csv キーワード分岐", () => {
 
     test("end のみ指定でも日付フィルタが動く", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/api/download-csv").query({ end: "2099-12-31" });
         expect(res.statusCode).toBe(200);
         expect(res.text).toContain("501");
@@ -190,7 +190,7 @@ describe("Aランク: download-csv キーワード分岐", () => {
 
     test("start のみ指定でも日付フィルタが動く", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/api/download-csv").query({ start: "2025-01-01" });
         expect(res.statusCode).toBe(200);
         expect(res.text).toContain("501");
@@ -199,7 +199,7 @@ describe("Aランク: download-csv キーワード分岐", () => {
     test("mode=unexported で1件以上なら markOrdersAsExported が呼ばれる", async () => {
         const spy = jest.spyOn(orderService, "markOrdersAsExported").mockResolvedValue(undefined);
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/api/download-csv").query({ mode: "unexported" });
         expect(res.statusCode).toBe(200);
         expect(spy).toHaveBeenCalled();

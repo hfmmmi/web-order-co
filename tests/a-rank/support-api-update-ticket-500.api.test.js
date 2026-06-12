@@ -42,7 +42,7 @@ describe("Aランク: support-api update-ticket エラー経路", () => {
             return origRead(p, enc);
         });
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.post("/admin/update-ticket").send({
             ticketId: "T-ERR500",
             status: "resolved"

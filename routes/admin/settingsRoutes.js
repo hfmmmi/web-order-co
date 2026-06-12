@@ -5,6 +5,7 @@ const router = express.Router();
 const settingsService = require("../../services/settingsService");
 const mailService = require("../../services/mailService");
 const adminAccountService = require("../../services/adminAccountService");
+const adminUserService = require("../../services/adminUserService");
 const customerUserService = require("../../services/customerUserService");
 const mailHistoryService = require("../../services/mailHistoryService");
 const { validateBody } = require("../../middlewares/validate");
@@ -12,7 +13,8 @@ const {
     adminSettingsUpdateSchema,
     adminAccountUpdateSchema,
     adminAccountsSaveSchema,
-    customerUsersSaveSchema
+    customerUsersSaveSchema,
+    updateAdminUserSchema
 } = require("../../validators/requestSchemas");
 const { requireAdmin } = require("./requireAdmin");
 
@@ -163,42 +165,49 @@ router.get("/admin/mail-history", requireAdmin, async (req, res) => {
 /** @deprecated 先頭1件のみ（後方互換） */
 router.get("/admin/account", requireAdmin, async (req, res) => {
     try {
-        const accounts = await adminAccountService.getAdminAccountsPublic();
-        if (!accounts.length) {
-            return res.json({ adminId: "", name: "", passwordSet: false, email: "" });
+        const userId = req.session.adminUserId;
+        if (!userId) {
+            return res.json({ userId: "", email: "", displayName: "", role: "user", passwordSet: false });
         }
-        const admin = accounts[0];
+        const user = await adminUserService.getUserById(userId);
         res.json({
-            adminId: admin.adminId || "",
-            name: admin.name || "",
-            passwordSet: !!admin.passwordSet,
-            email: admin.email || ""
+            userId,
+            email: (user && user.email) || req.session.adminEmail || "",
+            displayName: (user && user.displayName) || req.session.adminDisplayName || "",
+            role: (user && user.role) || req.session.adminRole || "admin",
+            passwordSet: !!user
         });
     } catch (e) {
         res.status(500).json({ message: "管理者アカウントの取得に失敗しました" });
     }
 });
 
-/** @deprecated 先頭1件のみ更新（後方互換・テスト用） */
-router.put("/admin/account", requireAdmin, validateBody(adminAccountUpdateSchema), async (req, res) => {
+router.put("/admin/account", requireAdmin, validateBody(updateAdminUserSchema), async (req, res) => {
     try {
-        const { adminId, name, password, email } = req.body;
-        const existing = await adminAccountService.getAdminAccountsPublic();
-        const rest = existing.slice(1).map((a) => ({
-            adminId: a.adminId,
-            name: a.name,
-            email: a.email
-        }));
-        const accounts = [
-            {
-                adminId,
-                name: name !== undefined ? name : "",
-                email: email !== undefined ? email : "",
-                ...(password && String(password).trim() ? { password: String(password).trim() } : {})
-            },
-            ...rest
-        ];
-        await adminAccountService.saveAdminAccounts(accounts);
+        const userId = req.session.adminUserId;
+        if (!userId) {
+            return res.status(400).json({ message: "ログイン中の管理者ユーザーが特定できません" });
+        }
+        if (req.body.active === false) {
+            return res.status(400).json({ message: "ログイン中の自分自身は無効化できません" });
+        }
+        const result = await adminUserService.updateUser({
+            userId,
+            ...req.body
+        });
+        if (!result.success) {
+            return res.status(400).json({ message: result.message || "更新に失敗しました" });
+        }
+        if (req.body.displayName !== undefined) {
+            req.session.adminDisplayName = result.user.displayName;
+            req.session.adminName = require("../auth/sanitizeAdminName").sanitizeAdminName(result.user.displayName) || "Admin";
+        }
+        if (req.body.email !== undefined) {
+            req.session.adminEmail = result.user.email;
+        }
+        await new Promise((resolve, reject) => {
+            req.session.save((err) => (err ? reject(err) : resolve()));
+        });
         res.json({ success: true, message: "管理者アカウントを保存しました" });
     } catch (e) {
         const status = /初回|4文字|1件以上|重複/.test(String(e.message || "")) ? 400 : 500;

@@ -42,7 +42,7 @@ describe("Aランク: 招待/再設定メール失敗時の分岐", () => {
         const adminAgent = request.agent(app);
         const login = await adminAgent
             .post("/api/admin/login")
-            .send({ id: "test-admin", pass: "AdminPass123!" });
+            .send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         expect(login.statusCode).toBe(200);
         expect(login.body.success).toBe(true);
 

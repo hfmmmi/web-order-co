@@ -43,7 +43,7 @@ describe("Bランク: ステップ3 性能監視", () => {
     test("認証APIでも X-Response-Time が付与される", async () => {
         const res = await request(app)
             .post("/api/login")
-            .send({ id: "TEST001", pass: "WrongPassword!" });
+            .send({ id: "test001@example.com", pass: "WrongPassword!" });
         expect(res.statusCode).toBe(200);
         expect(res.headers["x-response-time"]).toBeDefined();
     });

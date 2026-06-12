@@ -34,7 +34,7 @@ describe("分岐90向け: catalog / customers / 管理者平文パス不一致",
 
     test("GET /api/products は keyword でメーカー名も検索", async () => {
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/products").query({ keyword: "TestMaker", page: 1, limit: 5 });
         expect(res.statusCode).toBe(200);
         expect(res.body.items).toBeDefined();
@@ -49,7 +49,7 @@ describe("分岐90向け: catalog / customers / 管理者平文パス不一致",
             return orig(p, enc);
         });
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/products");
         expect(res.statusCode).toBe(500);
         spy.mockRestore();
@@ -57,7 +57,7 @@ describe("分岐90向け: catalog / customers / 管理者平文パス不一致",
 
     test("GET /api/products/estimate は見積なしメッセージ", async () => {
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/products/estimate").query({ estimateId: "NO-SUCH-EST" });
         expect(res.statusCode).toBe(200);
         expect(res.body.items).toEqual([]);
@@ -84,14 +84,14 @@ describe("分岐90向け: catalog / customers / 管理者平文パス不一致",
             return orig(p, enc);
         });
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/products/estimate").query({ estimateId: "EST500" });
         expect(res.statusCode).toBe(500);
     });
 
     test("POST /api/cart-details は配列でなければ 400", async () => {
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.post("/cart-details").send({ cart: {} });
         expect(res.statusCode).toBe(400);
     });
@@ -99,7 +99,7 @@ describe("分岐90向け: catalog / customers / 管理者平文パス不一致",
     test("GET /api/products/frequent は履歴ゼロでメッセージ", async () => {
         await writeJson("orders.json", []);
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/products/frequent").query({ limit: 5 });
         expect(res.statusCode).toBe(200);
         expect(res.body.items).toEqual([]);
@@ -108,14 +108,14 @@ describe("分岐90向け: catalog / customers / 管理者平文パス不一致",
     test("GET /api/admin/customers は一覧取得失敗で 500", async () => {
         jest.spyOn(customerService, "getAllCustomers").mockRejectedValueOnce(new Error("db"));
         const agent = request.agent(app);
-        await agent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await agent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await agent.get("/api/admin/customers");
         expect(res.statusCode).toBe(500);
     });
 
     test("POST /api/admin/send-invite-email は顧客IDなし", async () => {
         const agent = request.agent(app);
-        await agent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await agent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await agent.post("/api/admin/send-invite-email").send({});
         expect(res.body.success).toBe(false);
     });
@@ -131,7 +131,7 @@ describe("分岐90向け: catalog / customers / 管理者平文パス不一致",
             }
         ]);
         const agent = request.agent(app);
-        await agent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await agent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await agent.post("/api/admin/send-invite-email").send({ customerId: "NOML" });
         expect(res.body.success).toBe(false);
         expect(String(res.body.message)).toContain("メール");
@@ -140,7 +140,7 @@ describe("分岐90向け: catalog / customers / 管理者平文パス不一致",
     test("POST /api/admin/send-invite-email は送信失敗メッセージ", async () => {
         mailService.sendInviteEmail.mockResolvedValueOnce({ success: false, message: "SMTP" });
         const agent = request.agent(app);
-        await agent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await agent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await agent.post("/api/admin/send-invite-email").send({ customerId: "TEST001" });
         expect(res.body.success).toBe(false);
     });

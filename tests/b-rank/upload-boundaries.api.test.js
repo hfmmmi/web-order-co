@@ -33,7 +33,7 @@ describe("Bランク: ファイルアップロード境界", () => {
         const admin = request.agent(app);
         const login = await admin
             .post("/api/admin/login")
-            .send({ id: "test-admin", pass: "AdminPass123!" });
+            .send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         expect(login.statusCode).toBe(200);
         expect(login.body.success).toBe(true);
 
@@ -58,7 +58,7 @@ describe("Bランク: ファイルアップロード境界", () => {
 
     test("買取Excel解析は不正バイナリを受け取っても500で安全に失敗する", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
 
         const badBuffer = Buffer.from("not-an-excel-file", "utf-8");
         const res = await admin
@@ -72,7 +72,7 @@ describe("Bランク: ファイルアップロード境界", () => {
 
     test("見積取込は不正ファイル形式でも500ではなく400で扱える", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
 
         const badBuffer = Buffer.from("this,is,not,valid,estimate\nx,y,z", "utf-8");
         const res = await admin

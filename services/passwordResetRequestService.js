@@ -7,12 +7,10 @@ const { runWithJsonFileWriteLock } = require("../utils/jsonWriteQueue");
 const mailService = require("./mailService");
 const settingsService = require("./settingsService");
 const customerUserService = require("./customerUserService");
+const adminUserService = require("./adminUserService");
 
-const CUSTOMERS_DB_PATH = dbPath("customers.json");
-const ADMINS_DB_PATH = dbPath("admins.json");
 const RESET_TOKENS_PATH = dbPath("reset_tokens.json");
 const ADMIN_RESET_TOKENS_PATH = dbPath("admin_reset_tokens.json");
-const CUSTOMER_USER_RESET_TOKENS_PATH = dbPath("customer_user_reset_tokens.json");
 const RESET_RATE_LIMIT_PATH = dbPath("reset_rate_limit.json");
 const RESET_EXPIRY_HOURS = 24;
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
@@ -68,15 +66,16 @@ async function requestPasswordReset(opts) {
             return { success: true, message: safeMessage };
         }
 
-        const data = await fs.readFile(CUSTOMERS_DB_PATH, "utf-8");
-        const customerList = JSON.parse(data);
         const isEmailInput = trimId.includes("@");
-        const customer = isEmailInput
-            ? customerList.find(c => (c.email || "").trim().toLowerCase() === trimId.toLowerCase())
-            : customerList.find(c => c.customerId === trimId);
+        if (!isEmailInput) {
+            return { success: true, message: safeMessage };
+        }
 
-        if (customer && (customer.email || "").trim()) {
-            const customerId = customer.customerId;
+        const found = await customerUserService.findByEmail(trimId);
+        if (found && found.user && found.user.email) {
+            const user = found.user;
+            const customer = found.customer;
+            const userId = user.userId;
             const token = crypto.randomBytes(24).toString("hex");
             const expiresAt = Date.now() + RESET_EXPIRY_HOURS * 60 * 60 * 1000;
 
@@ -86,17 +85,17 @@ async function requestPasswordReset(opts) {
                     const resetData = await fs.readFile(RESET_TOKENS_PATH, "utf-8");
                     resetTokens = JSON.parse(resetData);
                 } catch (e) { resetTokens = {}; }
-                resetTokens[customerId] = { token, expiresAt };
+                resetTokens[userId] = { token, expiresAt };
                 await fs.writeFile(RESET_TOKENS_PATH, JSON.stringify(resetTokens, null, 2));
             });
 
             const baseUrl = (protocol || "http") + "://" + (host || "localhost");
-            const inviteUrl = `${baseUrl}/setup.html?id=${encodeURIComponent(customerId)}&key=${token}`;
+            const inviteUrl = `${baseUrl}/setup.html?id=${encodeURIComponent(userId)}&key=${token}`;
 
             const mailPayload = {
                 customerId: customer.customerId,
-                customerName: customer.customerName || customerId,
-                email: customer.email.trim()
+                customerName: customer.customerName || customer.customerId,
+                email: user.email
             };
             const sent = await mailService.sendInviteEmail(mailPayload, inviteUrl, "", true, {
                 actorLabel: "システム（自動）"
@@ -109,125 +108,54 @@ async function requestPasswordReset(opts) {
                         const resetData = await fs.readFile(RESET_TOKENS_PATH, "utf-8");
                         resetTokens = JSON.parse(resetData);
                     } catch (e) { resetTokens = {}; }
-                    delete resetTokens[customerId];
+                    delete resetTokens[userId];
                     await fs.writeFile(RESET_TOKENS_PATH, JSON.stringify(resetTokens, null, 2));
                 });
                 console.error("[request-password-reset] Mail send failed:", sent.message);
             } else {
-                console.log(`[request-password-reset] Sent reset link to ${customerId}`);
+                console.log(`[request-password-reset] Sent reset link to ${user.email}`);
             }
             return { success: true, message: safeMessage };
         }
 
-        const customerUser = isEmailInput
-            ? await customerUserService.findCustomerUserByEmail(trimId)
-            : await customerUserService.findCustomerUserByLoginId(trimId);
-
-        if (customerUser && (customerUser.email || "").trim()) {
-            const userId = customerUser.userId;
+        const adminUser = await adminUserService.findByEmail(trimId);
+        if (adminUser && adminUser.email) {
+            const userId = adminUser.userId;
             const token = crypto.randomBytes(24).toString("hex");
             const expiresAt = Date.now() + RESET_EXPIRY_HOURS * 60 * 60 * 1000;
-
-            await runWithJsonFileWriteLock(CUSTOMER_USER_RESET_TOKENS_PATH, async () => {
-                let userResetTokens = {};
+            await runWithJsonFileWriteLock(ADMIN_RESET_TOKENS_PATH, async () => {
+                let adminResetTokens = {};
                 try {
-                    const raw = await fs.readFile(CUSTOMER_USER_RESET_TOKENS_PATH, "utf-8");
-                    userResetTokens = JSON.parse(raw);
-                } catch (e) {
-                    userResetTokens = {};
-                }
-                userResetTokens[userId] = { token, expiresAt };
-                await fs.writeFile(CUSTOMER_USER_RESET_TOKENS_PATH, JSON.stringify(userResetTokens, null, 2));
+                    const adminResetData = await fs.readFile(ADMIN_RESET_TOKENS_PATH, "utf-8");
+                    adminResetTokens = JSON.parse(adminResetData);
+                } catch (e) { adminResetTokens = {}; }
+                adminResetTokens[userId] = { token, expiresAt };
+                await fs.writeFile(ADMIN_RESET_TOKENS_PATH, JSON.stringify(adminResetTokens, null, 2));
             });
 
             const baseUrl = (protocol || "http") + "://" + (host || "localhost");
             const inviteUrl = `${baseUrl}/setup.html?id=${encodeURIComponent(userId)}&key=${token}`;
             const mailPayload = {
                 customerId: userId,
-                customerName: customerUser.contactName || userId,
-                email: customerUser.email.trim()
+                customerName: adminUser.displayName || adminUser.email,
+                email: adminUser.email
             };
             const sent = await mailService.sendInviteEmail(mailPayload, inviteUrl, "", true, {
                 actorLabel: "システム（自動）"
             });
-
             if (!sent.success) {
-                await runWithJsonFileWriteLock(CUSTOMER_USER_RESET_TOKENS_PATH, async () => {
-                    let userResetTokens = {};
-                    try {
-                        const raw = await fs.readFile(CUSTOMER_USER_RESET_TOKENS_PATH, "utf-8");
-                        userResetTokens = JSON.parse(raw);
-                    } catch (e) {
-                        userResetTokens = {};
-                    }
-                    delete userResetTokens[userId];
-                    await fs.writeFile(
-                        CUSTOMER_USER_RESET_TOKENS_PATH,
-                        JSON.stringify(userResetTokens, null, 2)
-                    );
-                });
-                console.error("[request-password-reset] Customer user mail send failed:", sent.message);
-            } else {
-                console.log(`[request-password-reset] Sent user reset link to ${userId}`);
-            }
-            return { success: true, message: safeMessage };
-        }
-
-        let adminList = [];
-        try {
-            const adminData = await fs.readFile(ADMINS_DB_PATH, "utf-8");
-            adminList = JSON.parse(adminData);
-        } catch (e) { adminList = []; }
-        if (!Array.isArray(adminList)) adminList = [];
-        const admin = isEmailInput
-            ? adminList.find(a => (a.email || "").trim().toLowerCase() === trimId.toLowerCase())
-            : adminList.find(a => a.adminId === trimId);
-
-        if (admin) {
-            const settings = await settingsService.getSettings();
-            const mail = settings.mail || {};
-            const toEmail = (admin.email && String(admin.email).trim())
-                ? String(admin.email).trim()
-                : (mail.supportNotifyTo && String(mail.supportNotifyTo).trim())
-                    ? String(mail.supportNotifyTo).trim()
-                    : "";
-            if (toEmail) {
-                const token = crypto.randomBytes(24).toString("hex");
-                const expiresAt = Date.now() + RESET_EXPIRY_HOURS * 60 * 60 * 1000;
                 await runWithJsonFileWriteLock(ADMIN_RESET_TOKENS_PATH, async () => {
                     let adminResetTokens = {};
                     try {
                         const adminResetData = await fs.readFile(ADMIN_RESET_TOKENS_PATH, "utf-8");
                         adminResetTokens = JSON.parse(adminResetData);
                     } catch (e) { adminResetTokens = {}; }
-                    adminResetTokens[admin.adminId] = { token, expiresAt };
+                    delete adminResetTokens[userId];
                     await fs.writeFile(ADMIN_RESET_TOKENS_PATH, JSON.stringify(adminResetTokens, null, 2));
                 });
-
-                const baseUrl = (protocol || "http") + "://" + (host || "localhost");
-                const inviteUrl = `${baseUrl}/setup.html?id=${encodeURIComponent(admin.adminId)}&key=${token}`;
-                const mailPayload = {
-                    customerId: admin.adminId,
-                    customerName: admin.name || admin.adminId,
-                    email: toEmail
-                };
-                const sent = await mailService.sendInviteEmail(mailPayload, inviteUrl, "", true, {
-                actorLabel: "システム（自動）"
-            });
-                if (!sent.success) {
-                    await runWithJsonFileWriteLock(ADMIN_RESET_TOKENS_PATH, async () => {
-                        let adminResetTokens = {};
-                        try {
-                            const adminResetData = await fs.readFile(ADMIN_RESET_TOKENS_PATH, "utf-8");
-                            adminResetTokens = JSON.parse(adminResetData);
-                        } catch (e) { adminResetTokens = {}; }
-                        delete adminResetTokens[admin.adminId];
-                        await fs.writeFile(ADMIN_RESET_TOKENS_PATH, JSON.stringify(adminResetTokens, null, 2));
-                    });
-                    console.error("[request-password-reset] Admin mail send failed:", sent.message);
-                } else {
-                    console.log(`[request-password-reset] Sent admin reset link to ${admin.adminId}`);
-                }
+                console.error("[request-password-reset] Admin mail send failed:", sent.message);
+            } else {
+                console.log(`[request-password-reset] Sent admin reset link to ${adminUser.email}`);
             }
         }
 

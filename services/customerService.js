@@ -143,7 +143,7 @@ class CustomerService {
     }
 
     // 4. 顧客追加
-    async addCustomer({ customerId, customerName, password, priceRank, email, deliveryName, deliveryZip, deliveryAddress, deliveryTel }, auditActor) {
+    async addCustomer({ customerId, customerName, priceRank, email, deliveryName, deliveryZip, deliveryAddress, deliveryTel }, auditActor) {
         return runWithJsonFileWriteLock(CUSTOMERS_DB_PATH, async () => {
             const list = await this._loadAll();
 
@@ -151,12 +151,9 @@ class CustomerService {
                 return { success: false, message: "このIDは既に使用されています" };
             }
 
-            const hashedPassword = await bcrypt.hash(password, 10);
-
             const row = {
                 customerId: String(customerId).trim(),
                 customerName: String(customerName).trim(),
-                password: hashedPassword,
                 priceRank: priceRank ? String(priceRank).trim().toUpperCase() : "",
                 email: email ? String(email).trim() : "",
                 deliveryName: deliveryName != null ? String(deliveryName).trim() : "",
@@ -174,7 +171,7 @@ class CustomerService {
     }
 
     // 5. 顧客更新
-    async updateCustomer({ customerId, customerName, password, priceRank, email, deliveryName, deliveryZip, deliveryAddress, deliveryTel }, auditActor) {
+    async updateCustomer({ customerId, customerName, priceRank, email, deliveryName, deliveryZip, deliveryAddress, deliveryTel }, auditActor) {
         return runWithJsonFileWriteLock(CUSTOMERS_DB_PATH, async () => {
             const list = await this._loadAll();
             const index = list.findIndex(c => c.customerId === customerId);
@@ -191,10 +188,6 @@ class CustomerService {
             if (deliveryZip !== undefined) list[index].deliveryZip = String(deliveryZip || "").trim();
             if (deliveryAddress !== undefined) list[index].deliveryAddress = String(deliveryAddress || "").trim();
             if (deliveryTel !== undefined) list[index].deliveryTel = String(deliveryTel || "").trim();
-
-            if (password && String(password).trim() !== "") {
-                list[index].password = await bcrypt.hash(String(password).trim(), 10);
-            }
 
             applyAuditOnUpdate(list[index], auditActor);
 
@@ -225,9 +218,6 @@ class CustomerService {
                 const idx = customerList.findIndex(c => c.customerId === inputId);
 
                 if (idx !== -1) {
-                    if (inputPass) {
-                        customerList[idx].password = await bcrypt.hash(inputPass, 10);
-                    }
                     customerList[idx].customerName = inputName;
                     customerList[idx].priceRank = inputRank;
                     if (inputEmail) customerList[idx].email = inputEmail;
@@ -245,12 +235,8 @@ class CustomerService {
                     }
                     updateCount++;
                 } else {
-                    if (!inputPass) continue;
-
-                    const hashedPassword = await bcrypt.hash(inputPass, 10);
                     customerList.push({
                         customerId: inputId,
-                        password: hashedPassword,
                         customerName: inputName,
                         priceRank: inputRank,
                         email: inputEmail,

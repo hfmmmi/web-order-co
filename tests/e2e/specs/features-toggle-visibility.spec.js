@@ -2,7 +2,7 @@ const { test, expect } = require("@playwright/test");
 
 async function updateFeatures(request, features) {
     const login = await request.post("/api/admin/login", {
-        data: { id: "test-admin", pass: "AdminPass123!" }
+        data: { id: "test-admin@example.com", pass: "AdminPass123!" }
     });
     expect(login.ok()).toBeTruthy();
 

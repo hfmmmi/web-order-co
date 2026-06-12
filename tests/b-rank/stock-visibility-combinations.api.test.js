@@ -90,7 +90,7 @@ describe("Bランク: 在庫表示組合せAPI", () => {
         ]);
 
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/products?page=1&limit=10");
 
         expect(res.statusCode).toBe(200);
@@ -141,7 +141,7 @@ describe("Bランク: 在庫表示組合せAPI", () => {
         ]);
 
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/products?page=1&limit=10");
         expect(res.statusCode).toBe(200);
         expect(res.body.stockUi.enabled).toBe(false);
@@ -200,7 +200,7 @@ describe("Bランク: 在庫表示組合せAPI", () => {
         ]);
 
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/products?page=1&limit=10");
 
         expect(res.statusCode).toBe(200);

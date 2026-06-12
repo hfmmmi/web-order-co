@@ -53,7 +53,7 @@ describe("Aランク: support-api 分岐80%向け", () => {
             "utf-8"
         );
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.post("/admin/update-ticket").send({
             ticketId: "T-FULLUPD",
             status: "closed",
@@ -75,7 +75,7 @@ describe("Aランク: support-api 分岐80%向け", () => {
     test("POST /admin/update-ticket は tickets が配列でなければ空配列から更新する", async () => {
         await fs.writeFile(SUPPORT, JSON.stringify({ legacy: true }), "utf-8");
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.post("/admin/update-ticket").send({
             ticketId: "T-NEWONLY",
             status: "open"
@@ -85,7 +85,7 @@ describe("Aランク: support-api 分岐80%向け", () => {
 
     test("POST /admin/update-ticket は存在しない ticketId で404", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.post("/admin/update-ticket").send({
             ticketId: "T-NONEXIST999",
             status: "open"
@@ -112,7 +112,7 @@ describe("Aランク: support-api 分岐80%向け", () => {
             "utf-8"
         );
         const cust = request.agent(app);
-        await cust.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await cust.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await cust.get("/support/my-tickets");
         expect(res.statusCode).toBe(200);
         const t = res.body.tickets.find((x) => x.ticketId === "T-SZ");
@@ -121,7 +121,7 @@ describe("Aランク: support-api 分岐80%向け", () => {
 
     test("GET /support/my-tickets は一覧整形中に例外で500", async () => {
         const cust = request.agent(app);
-        await cust.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await cust.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const sortSpy = jest.spyOn(Array.prototype, "sort").mockImplementationOnce(() => {
             throw new Error("forced sort");
         });
@@ -136,7 +136,7 @@ describe("Aランク: support-api 分岐80%向け", () => {
     test("POST /admin/update-ticket は support JSON 破損で500", async () => {
         await fs.writeFile(SUPPORT, "{not-json", "utf-8");
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.post("/admin/update-ticket").send({
             ticketId: "T-ANY",
             status: "closed"
@@ -146,7 +146,7 @@ describe("Aランク: support-api 分岐80%向け", () => {
 
     test("GET /support/attachment は存在しないチケットで404", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/support/attachment/T-NOTFOUND/0_1_aabbccdd.pdf");
         expect(res.statusCode).toBe(404);
     });
@@ -168,7 +168,7 @@ describe("Aランク: support-api 分岐80%向け", () => {
             "utf-8"
         );
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/support/attachment/T-NOMATCH/0_1_aabbccdd.pdf");
         expect(res.statusCode).toBe(404);
     });

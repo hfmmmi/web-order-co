@@ -34,7 +34,7 @@ describe("Aランク: 注文同時実行の整合性", () => {
         const customer = request.agent(app);
         const login = await customer
             .post("/api/login")
-            .send({ id: "TEST001", pass: "CustPass123!" });
+            .send({ id: "test001@example.com", pass: "CustPass123!" });
         expect(login.statusCode).toBe(200);
         expect(login.body.success).toBe(true);
 

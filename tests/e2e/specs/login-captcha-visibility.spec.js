@@ -4,7 +4,7 @@ const path = require("path");
 
 async function saveRecaptchaSettings(request, recaptcha) {
     const login = await request.post("/api/admin/login", {
-        data: { id: "test-admin", pass: "AdminPass123!" }
+        data: { id: "test-admin@example.com", pass: "AdminPass123!" }
     });
     expect(login.ok()).toBeTruthy();
 
@@ -15,7 +15,7 @@ async function saveRecaptchaSettings(request, recaptcha) {
 async function primeCustomerLoginFailures(request, count = 2) {
     for (let i = 0; i < count; i += 1) {
         const r = await request.post("/api/login", {
-            data: { id: "TEST001", pass: "WrongPassword!" }
+            data: { id: "test001@example.com", pass: "WrongPassword!" }
         });
         expect(r.ok()).toBeTruthy();
         const body = await r.json();

@@ -36,7 +36,7 @@ describe("Aランク: 管理者ログイン saveSession 失敗（分岐80%・隔
         }));
         const { app } = require("../../server");
         const res = await request(app).post("/api/admin/login").send({
-            id: "test-admin",
+            id: "test-admin@example.com",
             pass: "AdminPass123!"
         });
         expect(res.body.success).toBe(false);

@@ -36,7 +36,7 @@ describe("Sランク: ログアウト時のCookieクリア", () => {
 
     test("顧客のみログイン時の /api/logout は weborder.sid を失効させる", async () => {
         const agent = request.agent(app);
-        const login = await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        const login = await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         expect(login.statusCode).toBe(200);
         expect(login.body.success).toBe(true);
 
@@ -51,7 +51,7 @@ describe("Sランク: ログアウト時のCookieクリア", () => {
 
     test("管理者のみログイン時の /api/admin/logout は weborder.sid を失効させる", async () => {
         const agent = request.agent(app);
-        const login = await agent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        const login = await agent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         expect(login.statusCode).toBe(200);
         expect(login.body.success).toBe(true);
 

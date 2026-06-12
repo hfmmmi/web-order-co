@@ -37,7 +37,7 @@ describe("Sランク: 顧客登録/更新API", () => {
 
         const login = await agent
             .post("/api/admin/login")
-            .send({ id: "test-admin", pass: "AdminPass123!" });
+            .send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         expect(login.body.success).toBe(true);
 
         const addRes = await agent

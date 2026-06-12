@@ -42,7 +42,7 @@ describe("Aランク: 外部受注CSV取込の同時実行", () => {
 
     test("異なるorderIdを同時取込しても両方保存される", async () => {
         const admin = request.agent(app);
-        const login = await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        const login = await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         expect(login.statusCode).toBe(200);
         expect(login.body.success).toBe(true);
 
@@ -65,7 +65,7 @@ describe("Aランク: 外部受注CSV取込の同時実行", () => {
 
     test("同一orderIdを同時取込しても重複登録されない", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
 
         const [a, b] = await Promise.all([
             admin.post("/api/import-orders-csv").attach("file", buildExternalCsv("EXT-2001", "P001"), "c.csv"),

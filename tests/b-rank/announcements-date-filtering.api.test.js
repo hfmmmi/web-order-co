@@ -51,7 +51,7 @@ describe("Bランク: お知らせの日付境界フィルタ", () => {
 
     test("start/end の境界とタイムゾーン付き日時を正しく評価する", async () => {
         const adminAgent = request.agent(app);
-        await adminAgent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await adminAgent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
 
         const save = await adminAgent.put("/api/admin/settings").send({
             announcements: [

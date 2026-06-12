@@ -16,10 +16,8 @@ const request = require("supertest");
 const { app } = require("../../server");
 const settingsService = require("../../services/settingsService");
 const fs = require("fs").promises;
-const { dbPath } = require("../../dbPaths");
-const { backupDbFiles, restoreDbFiles, seedBaseData } = require("../helpers/testSandbox");
-
-const ADMINS = dbPath("admins.json");
+const { backupDbFiles, restoreDbFiles, seedBaseData, readJson } = require("../helpers/testSandbox");
+const adminUserService = require("../../services/adminUserService");
 
 describe("Aランク: settingsRoutes 管理API 分岐80%向け", () => {
     let backup;
@@ -49,7 +47,7 @@ describe("Aランク: settingsRoutes 管理API 分岐80%向け", () => {
 
     test("GET /api/admin/settings は getSettings 失敗で500", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         jest.spyOn(settingsService, "getSettings").mockRejectedValueOnce(new Error("s"));
         const res = await admin.get("/api/admin/settings");
         expect(res.statusCode).toBe(500);
@@ -61,7 +59,7 @@ describe("Aランク: settingsRoutes 管理API 分岐80%向け", () => {
         delete mailService.clearTransporterCache;
         try {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.put("/api/admin/settings").send({ features: { orders: true } });
             expect(res.statusCode).toBe(200);
         } finally {
@@ -71,7 +69,7 @@ describe("Aランク: settingsRoutes 管理API 分岐80%向け", () => {
 
     test("GET /api/admin/settings は rankCount null なら既定10", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         jest.spyOn(settingsService, "getSettings").mockResolvedValueOnce({
             mail: { smtp: {}, from: "" },
             recaptcha: {},
@@ -93,7 +91,7 @@ describe("Aランク: settingsRoutes 管理API 分岐80%向け", () => {
 
     test("GET /api/admin/settings は smtp.auth.user を user にフォールバック", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         jest.spyOn(settingsService, "getSettings").mockResolvedValueOnce({
             mail: {
                 smtp: { service: "x", auth: { user: "fromauth" }, password: "" },
@@ -118,7 +116,7 @@ describe("Aランク: settingsRoutes 管理API 分岐80%向け", () => {
 
     test("GET /api/admin/settings は recaptcha.secretKey ありなら secretKeySet", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         jest.spyOn(settingsService, "getSettings").mockResolvedValueOnce({
             mail: { smtp: {}, from: "" },
             recaptcha: { siteKey: "s", secretKey: "sec" },
@@ -140,51 +138,38 @@ describe("Aランク: settingsRoutes 管理API 分岐80%向け", () => {
 
     test("PUT /api/admin/settings は updateSettings 失敗で500", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         jest.spyOn(settingsService, "updateSettings").mockRejectedValueOnce(new Error("write fail"));
         const res = await admin.put("/api/admin/settings").send({ features: { orders: true } });
         expect(res.statusCode).toBe(500);
     });
 
-    test("GET /api/admin/account は admins 読込がENOENT以外で500", async () => {
-        const orig = fs.readFile.bind(fs);
-        let adminsRead = 0;
-        jest.spyOn(fs, "readFile").mockImplementation(async (p, enc) => {
-            if (String(p).replace(/\\/g, "/").includes("admins.json")) {
-                adminsRead += 1;
-                if (adminsRead >= 2) {
-                    const e = new Error("io");
-                    e.code = "EIO";
-                    throw e;
-                }
-            }
-            return orig(p, enc);
-        });
+    test("GET /api/admin/account は getUserById 失敗で500", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
+        jest.spyOn(adminUserService, "getUserById").mockRejectedValueOnce(new Error("io"));
         const res = await admin.get("/api/admin/account");
         expect(res.statusCode).toBe(500);
     });
 
-    test("GET /api/admin/account は空配列なら空の管理者情報", async () => {
+    test("GET /api/admin/account は getUserById が null でもセッションからプロフィールを返す", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
-        await fs.writeFile(ADMINS, JSON.stringify([], null, 2), "utf-8");
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
+        jest.spyOn(adminUserService, "getUserById").mockResolvedValueOnce(null);
         const res = await admin.get("/api/admin/account");
         expect(res.statusCode).toBe(200);
-        expect(res.body.adminId).toBe("");
+        expect(res.body.userId).toBe("AU-TEST-ADMIN");
+        expect(res.body.email).toBe("test-admin@example.com");
+        expect(res.body.displayName).toBe("テスト管理者");
         expect(res.body.passwordSet).toBe(false);
     });
 
-    test("PUT /api/admin/account は初回でパスワード4文字未満なら400", async () => {
+    test("PUT /api/admin/account はパスワード4文字未満なら400", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
-        await fs.writeFile(ADMINS, JSON.stringify([], null, 2), "utf-8");
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.put("/api/admin/account").send({
-            adminId: "new-adm",
-            name: "N",
-            password: "abc",
-            email: ""
+            displayName: "N",
+            password: "abc"
         });
         expect(res.statusCode).toBe(400);
     });
@@ -283,7 +268,7 @@ describe("Aランク: settingsRoutes 管理API 分岐80%向け", () => {
         process.env.MAIL_PASSWORD = "x";
         try {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/settings");
             expect(res.statusCode).toBe(200);
             expect(res.body.mail.smtp.passwordManagedByEnv).toBe(true);
@@ -301,7 +286,7 @@ describe("Aランク: settingsRoutes 管理API 分岐80%向け", () => {
         delete process.env.MAIL_PASSWORD;
         try {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/settings");
             expect(res.statusCode).toBe(200);
             expect(res.body.mail.smtp.passwordManagedByEnv).toBe(true);
@@ -317,7 +302,7 @@ describe("Aランク: settingsRoutes 管理API 分岐80%向け", () => {
         process.env.NODE_ENV = "development";
         try {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             jest.spyOn(settingsService, "getSettings").mockResolvedValueOnce({
                 mail: {
                     smtp: { service: "gmail", user: "u", password: "p" },
@@ -344,64 +329,40 @@ describe("Aランク: settingsRoutes 管理API 分岐80%向け", () => {
         }
     });
 
-    test("PUT /api/admin/account は admins がオブジェクトのみなら空配列から補正して保存", async () => {
+    test("PUT /api/admin/account は displayName と email を更新できる", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
-        await fs.writeFile(ADMINS, "{}", "utf-8");
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.put("/api/admin/account").send({
-            adminId: "test-admin",
-            name: "テスト管理者",
-            password: "AdminPass123!",
-            email: "keep@test.com"
+            displayName: "更新後管理者",
+            email: "updated-admin@example.com"
         });
         expect(res.statusCode).toBe(200);
-        const list = JSON.parse(await fs.readFile(ADMINS, "utf-8"));
-        expect(Array.isArray(list)).toBe(true);
-        expect(list[0].adminId).toBe("test-admin");
+        const list = await readJson("admin_users.json");
+        const me = list.find((u) => u.userId === "AU-TEST-ADMIN");
+        expect(me.displayName).toBe("更新後管理者");
+        expect(me.email).toBe("updated-admin@example.com");
     });
 
-    test("PUT /api/admin/account は email 空文字で undefined に正規化して保存", async () => {
+    test("PUT /api/admin/account は displayName のみ更新できる", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.put("/api/admin/account").send({
-            adminId: "test-admin",
-            name: "テスト管理者",
-            password: "",
-            email: ""
+            displayName: "表示名のみ変更"
         });
         expect(res.statusCode).toBe(200);
-        const raw = await fs.readFile(ADMINS, "utf-8");
-        const list = JSON.parse(raw);
-        expect(list[0].email).toBeUndefined();
+        const list = await readJson("admin_users.json");
+        expect(list.find((u) => u.userId === "AU-TEST-ADMIN").displayName).toBe("表示名のみ変更");
     });
 
-    test("PUT /api/admin/account は admins 読込が ENOENT 以外で再スローされ500", async () => {
+    test("PUT /api/admin/account は updateUser 失敗で500", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
-        const orig = fs.readFile.bind(fs);
-        let adminsReads = 0;
-        const spy = jest.spyOn(fs, "readFile").mockImplementation(async (p, enc) => {
-            if (String(p).replace(/\\/g, "/").includes("admins.json")) {
-                adminsReads += 1;
-                if (adminsReads === 1) {
-                    const e = new Error("corrupt");
-                    e.code = "EACCES";
-                    throw e;
-                }
-            }
-            return orig(p, enc);
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
+        jest.spyOn(adminUserService, "updateUser").mockRejectedValueOnce(new Error("corrupt"));
+        const res = await admin.put("/api/admin/account").send({
+            displayName: "テスト管理者",
+            email: "x@y.com"
         });
-        try {
-            const res = await admin.put("/api/admin/account").send({
-                adminId: "test-admin",
-                name: "テスト管理者",
-                password: "",
-                email: "x@y.com"
-            });
-            expect(res.statusCode).toBe(500);
-        } finally {
-            spy.mockRestore();
-        }
+        expect(res.statusCode).toBe(500);
     });
 
     test("GET /api/settings/public は getPublicBranding 失敗で500", async () => {
@@ -426,7 +387,7 @@ describe("Aランク: settingsRoutes 管理API 分岐80%向け", () => {
 
     test("GET /api/admin/settings は rankCount が不正文字列なら既定10", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         jest.spyOn(settingsService, "getSettings").mockResolvedValueOnce({
             mail: { smtp: {}, from: "" },
             recaptcha: {},
@@ -448,7 +409,7 @@ describe("Aランク: settingsRoutes 管理API 分岐80%向け", () => {
 
     test("GET /api/admin/settings は rankCount が上限を超えれば26に丸める", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         jest.spyOn(settingsService, "getSettings").mockResolvedValueOnce({
             mail: { smtp: {}, from: "" },
             recaptcha: {},
@@ -510,49 +471,28 @@ describe("Aランク: settingsRoutes 管理API 分岐80%向け", () => {
         expect(res.body.cartShippingNotice).toBe("");
     });
 
-    test("GET /api/admin/account は admins.json が無ければ空情報", async () => {
-        const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
-        await fs.unlink(ADMINS);
-        const res = await admin.get("/api/admin/account");
-        expect(res.statusCode).toBe(200);
-        expect(res.body.adminId).toBe("");
-        expect(res.body.passwordSet).toBe(false);
-    });
-
-    test("GET /api/admin/account は password 無し管理者なら passwordSet false", async () => {
-        const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
-        await fs.writeFile(
-            ADMINS,
-            JSON.stringify([{ adminId: "nopw", name: "N" }], null, 2),
-            "utf-8"
-        );
-        const res = await admin.get("/api/admin/account");
-        expect(res.statusCode).toBe(200);
-        expect(res.body.passwordSet).toBe(false);
-        expect(res.body.adminId).toBe("nopw");
+    test("GET /api/admin/account は未ログインなら401", async () => {
+        const res = await request(app).get("/api/admin/account");
+        expect(res.statusCode).toBe(401);
     });
 
     test("PUT /api/admin/account は password 省略時はハッシュを更新しない", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
-        const before = JSON.parse(await fs.readFile(ADMINS, "utf-8"));
-        const prevHash = before[0].password;
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
+        const before = await readJson("admin_users.json");
+        const prevHash = before.find((u) => u.userId === "AU-TEST-ADMIN").password;
         const res = await admin.put("/api/admin/account").send({
-            adminId: "test-admin",
-            name: "改名のみ",
-            email: "a@b.com"
+            displayName: "改名のみ"
         });
         expect(res.statusCode).toBe(200);
-        const after = JSON.parse(await fs.readFile(ADMINS, "utf-8"));
-        expect(after[0].password).toBe(prevHash);
-        expect(after[0].name).toBe("改名のみ");
+        const after = await readJson("admin_users.json");
+        expect(after.find((u) => u.userId === "AU-TEST-ADMIN").password).toBe(prevHash);
+        expect(after.find((u) => u.userId === "AU-TEST-ADMIN").displayName).toBe("改名のみ");
     });
 
     test("GET /api/admin/settings は mail.templates 未定義でも空オブジェクト", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         jest.spyOn(settingsService, "getSettings").mockResolvedValueOnce({
             mail: { smtp: {}, from: "a@b.com" },
             recaptcha: {},
@@ -574,7 +514,7 @@ describe("Aランク: settingsRoutes 管理API 分岐80%向け", () => {
 
     test("GET /api/admin/settings は blockedManufacturers 未定義でも配列", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         jest.spyOn(settingsService, "getSettings").mockResolvedValueOnce({
             mail: { smtp: {}, from: "" },
             recaptcha: {},
@@ -594,21 +534,19 @@ describe("Aランク: settingsRoutes 管理API 分岐80%向け", () => {
         expect(res.body.blockedManufacturers).toEqual([]);
     });
 
-    test("PUT /api/admin/account は admins.json への writeFile 失敗で500", async () => {
+    test("PUT /api/admin/account は admin_users.json への writeFile 失敗で500", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const origW = fs.writeFile.bind(fs);
         const spy = jest.spyOn(fs, "writeFile").mockImplementation(async (p, ...args) => {
-            if (String(p).replace(/\\/g, "/").includes("admins.json")) {
+            if (String(p).replace(/\\/g, "/").includes("admin_users.json")) {
                 throw new Error("disk");
             }
             return origW(p, ...args);
         });
         try {
             const res = await admin.put("/api/admin/account").send({
-                adminId: "test-admin",
-                name: "テスト管理者",
-                password: "",
+                displayName: "テスト管理者",
                 email: "a@test.com"
             });
             expect(res.statusCode).toBe(500);
@@ -633,7 +571,7 @@ describe("Aランク: settingsRoutes 管理API 分岐80%向け", () => {
         });
 
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/api/admin/mail-history");
         expect(res.statusCode).toBe(200);
         expect(res.body.success).toBe(true);

@@ -54,7 +54,7 @@ describe("Sランク: 監査ログ破損時の耐性", () => {
 
         const login = await request(app)
             .post("/api/admin/login")
-            .send({ id: "test-admin", pass: "AdminPass123!" });
+            .send({ id: "test-admin@example.com", pass: "AdminPass123!" });
 
         expect(login.statusCode).toBe(200);
         expect(login.body.success).toBe(true);
@@ -76,7 +76,7 @@ describe("Sランク: 監査ログ破損時の耐性", () => {
 
         const failed = await request(app)
             .post("/api/login")
-            .send({ id: "TEST001", pass: "WrongPassword!" });
+            .send({ id: "test001@example.com", pass: "WrongPassword!" });
 
         expect(failed.statusCode).toBe(200);
         expect(failed.body.success).toBe(false);

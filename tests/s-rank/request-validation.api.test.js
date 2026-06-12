@@ -32,7 +32,7 @@ describe("Sランク: 入力検証統一", () => {
     test("POST /api/login は unknown key を 400 で拒否する", async () => {
         const res = await request(app)
             .post("/api/login")
-            .send({ id: "TEST001", pass: "CustPass123!", unknownKey: "x" });
+            .send({ id: "test001@example.com", pass: "CustPass123!", unknownKey: "x" });
 
         expect(res.statusCode).toBe(400);
         expect(res.body.success).toBe(false);
@@ -44,7 +44,7 @@ describe("Sランク: 入力検証統一", () => {
     test("POST /api/admin/login は型不正を 400 で返す", async () => {
         const res = await request(app)
             .post("/api/admin/login")
-            .send({ id: "test-admin", pass: 12345 });
+            .send({ id: "test-admin@example.com", pass: 12345 });
 
         expect(res.statusCode).toBe(400);
         expect(res.body.success).toBe(false);
@@ -53,7 +53,7 @@ describe("Sランク: 入力検証統一", () => {
 
     test("POST /place-order は strict 検証で unknown key を拒否する", async () => {
         const agent = request.agent(app);
-        const login = await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        const login = await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         expect(login.body.success).toBe(true);
 
         const res = await agent
@@ -70,7 +70,7 @@ describe("Sランク: 入力検証統一", () => {
 
     test("POST /api/add-customer は unknown key を 400 で拒否する", async () => {
         const admin = request.agent(app);
-        const login = await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        const login = await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         expect(login.body.success).toBe(true);
 
         const res = await admin
@@ -90,7 +90,7 @@ describe("Sランク: 入力検証統一", () => {
 
     test("POST /api/update-customer は形式不正 customerId を拒否する", async () => {
         const admin = request.agent(app);
-        const login = await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        const login = await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         expect(login.body.success).toBe(true);
 
         const res = await admin
@@ -107,7 +107,7 @@ describe("Sランク: 入力検証統一", () => {
 
     test("PUT /api/admin/settings は strict 検証エラーフォーマットを返す", async () => {
         const admin = request.agent(app);
-        const login = await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        const login = await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         expect(login.body.success).toBe(true);
 
         const res = await admin

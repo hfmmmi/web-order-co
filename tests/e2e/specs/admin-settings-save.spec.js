@@ -34,7 +34,7 @@ test("管理E2E: 設定保存後に再読込しても状態を維持する", asy
     test.setTimeout(90_000);
 
     await page.goto("/admin/admin-dashboard.html");
-    await page.fill("#admin-id-input", "test-admin");
+    await page.fill("#admin-id-input", "test-admin@example.com");
     await page.fill("#admin-pass-input", "AdminPass123!");
     await page.getByRole("button", { name: "LOGIN" }).click();
     await expect(page.locator("#admin-login-overlay")).toBeHidden();

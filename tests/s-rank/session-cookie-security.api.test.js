@@ -41,7 +41,7 @@ describe("Sランク: セッションCookieセキュリティ属性", () => {
         const app = loadAppWithEnv({ NODE_ENV: "test" });
         const login = await request(app)
             .post("/api/login")
-            .send({ id: "TEST001", pass: "CustPass123!" });
+            .send({ id: "test001@example.com", pass: "CustPass123!" });
 
         expect(login.statusCode).toBe(200);
         expect(login.body.success).toBe(true);
@@ -66,7 +66,7 @@ describe("Sランク: セッションCookieセキュリティ属性", () => {
         const login = await request(app)
             .post("/api/login")
             .set("X-Forwarded-Proto", "https")
-            .send({ id: "TEST001", pass: "CustPass123!" });
+            .send({ id: "test001@example.com", pass: "CustPass123!" });
 
         expect(login.statusCode).toBe(200);
         expect(login.body.success).toBe(true);

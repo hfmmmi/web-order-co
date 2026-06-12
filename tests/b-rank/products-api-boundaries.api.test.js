@@ -42,7 +42,7 @@ describe("Bランク: 商品API境界", () => {
 
     test("products/estimate はestimateId未指定で400", async () => {
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
 
         const res = await agent.get("/products/estimate");
         expect(res.statusCode).toBe(400);
@@ -51,7 +51,7 @@ describe("Bランク: 商品API境界", () => {
 
     test("products/estimate は該当なしで空itemsとメッセージを返す", async () => {
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
 
         const res = await agent.get("/products/estimate?estimateId=NOEXIST123");
         expect(res.statusCode).toBe(200);
@@ -62,7 +62,7 @@ describe("Bランク: 商品API境界", () => {
 
     test("GET /products は keyword で検索できる", async () => {
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/products?page=1&limit=10&keyword=トナー");
         expect(res.statusCode).toBe(200);
         expect(res.body.items).toBeDefined();
@@ -72,7 +72,7 @@ describe("Bランク: 商品API境界", () => {
 
     test("GET /products/frequent はログイン顧客でよく注文する商品を返す", async () => {
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/products/frequent");
         expect(res.statusCode).toBe(200);
         expect(res.body.items).toBeDefined();
@@ -86,7 +86,7 @@ describe("Bランク: 商品API境界", () => {
 
     test("GET /cart-details はログイン顧客でカート詳細を返す", async () => {
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.post("/cart-details").send({ cart: [{ productCode: "P001", quantity: 1 }] });
         expect(res.statusCode).toBe(200);
         expect(res.body).toHaveProperty("cartDetails");
@@ -95,7 +95,7 @@ describe("Bランク: 商品API境界", () => {
 
     test("GET /products は keyword で0件でも 200 と items/pagination を返す", async () => {
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/products?page=1&limit=10&keyword=存在しない商品名xyz999");
         expect(res.statusCode).toBe(200);
         expect(res.body.items).toBeDefined();
@@ -106,7 +106,7 @@ describe("Bランク: 商品API境界", () => {
 
     test("POST /cart-details は不正 productCode でも 200 で cartDetails を返す（該当なしはマスタから補完）", async () => {
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.post("/cart-details").send({ cart: [{ productCode: "INVALID_CODE_999", quantity: 1 }] });
         expect(res.statusCode).toBe(200);
         expect(res.body).toHaveProperty("cartDetails");
@@ -120,7 +120,7 @@ describe("Bランク: 商品API境界", () => {
         try {
             await fs.writeFile(rankPath, "{invalid", "utf-8");
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.get("/products?page=1&limit=10");
             expect(res.statusCode).toBe(500);
             expect(res.body.message).toContain("読み込みに失敗");
@@ -131,7 +131,7 @@ describe("Bランク: 商品API境界", () => {
 
     test("GET /products/frequent は limit パラメータで件数制限する", async () => {
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/products/frequent?limit=5");
         expect(res.statusCode).toBe(200);
         expect(res.body.items).toBeDefined();
@@ -141,7 +141,7 @@ describe("Bランク: 商品API境界", () => {
 
     test("POST /cart-details は cart が配列でない場合 400 を返す", async () => {
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.post("/cart-details").send({ cart: "not-array" });
         expect(res.statusCode).toBe(400);
         expect(res.body.success).toBe(false);
@@ -155,7 +155,7 @@ describe("Bランク: 商品API境界", () => {
         const inactive = { productCode: "P-INACTIVE", name: "非表示商品", manufacturer: "Test", category: "テスト", basePrice: 0, stockStatus: "取寄", active: false };
         await writeJson("products.json", [...products, inactive]);
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/products?page=1&limit=50");
         expect(res.statusCode).toBe(200);
         const found = (res.body.items || []).find((p) => p.productCode === "P-INACTIVE");
@@ -164,7 +164,7 @@ describe("Bランク: 商品API境界", () => {
 
     test("GET /products は keyword なしで全件検索（フィルタなし分岐）", async () => {
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/products?page=1&limit=10");
         expect(res.statusCode).toBe(200);
         expect(res.body.items).toBeDefined();
@@ -180,7 +180,7 @@ describe("Bランク: 商品API境界", () => {
             const content = await fs.readFile(productsPath, "utf-8");
             expect(content).toBe("{invalid");
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.get("/products?page=1&limit=10");
             expect(res.statusCode).toBe(500);
             expect(res.body.message).toContain("読み込みに失敗");
@@ -194,7 +194,7 @@ describe("Bランク: 商品API境界", () => {
         const stockService = require("../../services/stockService");
         jest.spyOn(stockService, "getAllStocks").mockRejectedValueOnce(new Error("在庫読込失敗"));
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/products?page=1&limit=10");
         expect(res.statusCode).toBe(500);
         expect(res.body.message).toContain("読み込みに失敗");
@@ -205,7 +205,7 @@ describe("Bランク: 商品API境界", () => {
         const stockService = require("../../services/stockService");
         jest.spyOn(stockService, "getDisplaySettings").mockRejectedValueOnce(new Error("設定読込失敗"));
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/products?page=1&limit=10");
         expect(res.statusCode).toBe(500);
         expect(res.body.message).toContain("読み込みに失敗");
@@ -224,7 +224,7 @@ describe("Bランク: 商品API境界", () => {
         });
         try {
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.get("/products?page=1&limit=10");
             expect(res.statusCode).toBe(200);
             expect(res.body.items).toBeDefined();
@@ -243,7 +243,7 @@ describe("Bランク: 商品API境界", () => {
         const rankPrices = await readJson("rank_prices.json");
         await writeJson("rank_prices.json", { ...rankPrices, "": { A: 0 } });
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/products?page=1&limit=50");
         expect(res.statusCode).toBe(200);
         const emptyItem = (res.body.items || []).find((p) => p.productCode === "");
@@ -262,7 +262,7 @@ describe("Bランク: 商品API境界", () => {
             allowOrderingWhenZero: true, highlightThresholdMinutes: 180, warehousePresets: []
         });
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/products?page=1&limit=10");
         expect(res.statusCode).toBe(200);
         const p001 = (res.body.items || []).find((p) => p.productCode === "P001");
@@ -279,7 +279,7 @@ describe("Bランク: 商品API境界", () => {
             allowOrderingWhenZero: false, highlightThresholdMinutes: 120, warehousePresets: []
         });
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/products?page=1&limit=10");
         expect(res.statusCode).toBe(200);
         expect(res.body.stockUi).toBeDefined();
@@ -297,7 +297,7 @@ describe("Bランク: 商品API境界", () => {
             allowOrderingWhenZero: true, highlightThresholdMinutes: 180, warehousePresets: []
         });
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/products?page=1&limit=10");
         expect(res.statusCode).toBe(200);
         const p001 = (res.body.items || []).find((p) => p.productCode === "P001");
@@ -309,7 +309,7 @@ describe("Bランク: 商品API境界", () => {
 
     test("GET /products/frequent は注文履歴がまだない場合に空itemsとメッセージを返す", async () => {
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const ordersPath = path.join(DATA_ROOT, "orders.json");
         const origOrders = await fs.readFile(ordersPath, "utf-8").catch(() => "[]");
         try {
@@ -334,7 +334,7 @@ describe("Bランク: 商品API境界", () => {
         const spy = jest.spyOn(stockService, "getDisplaySettings").mockRejectedValueOnce(new Error("DB"));
         try {
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.get("/products/frequent");
             expect(res.statusCode).toBe(500);
             expect(res.body.message).toContain("データの取得に失敗");
@@ -353,7 +353,7 @@ describe("Bランク: 商品API境界", () => {
         const productsPath = path.join(DATA_ROOT, "products.json");
         const orig = await fs.readFile(productsPath, "utf-8").catch(() => "[]");
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         try {
             await fs.writeFile(productsPath, "{invalid", "utf-8");
             const res = await agent.get("/download-my-pricelist");
@@ -367,7 +367,7 @@ describe("Bランク: 商品API境界", () => {
         const productsPath = path.join(DATA_ROOT, "products.json");
         const orig = await fs.readFile(productsPath, "utf-8").catch(() => "[]");
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         try {
             await fs.writeFile(productsPath, "{invalid", "utf-8");
             const res = await agent.post("/cart-details").send({ cart: [{ productCode: "P001", quantity: 1 }] });
@@ -396,7 +396,7 @@ describe("Bランク: 商品API境界", () => {
             }], null, 2), "utf-8");
             await fs.writeFile(productsPath, "{invalid", "utf-8");
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.get("/products/estimate?estimateId=EST500");
             expect(res.statusCode).toBe(500);
             expect(res.body.message).toContain("エラーが発生");

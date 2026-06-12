@@ -6,9 +6,8 @@
 let announcementsData = [];
 
 document.addEventListener("DOMContentLoaded", async function () {
-    await loadSettings();
-    await loadStaffAccounts();
-    initStaffAccountsUi();
+    await loadAdminAccount();
+    document.dispatchEvent(new CustomEvent("admin-settings-ready"));
     initTabs();
     initSettingsLinkboxes();
     activateSettingsTabFromQuery();
@@ -325,197 +324,16 @@ function renderRankNamesList(container, count, rankNamesData) {
     });
 }
 
-function escStaffAttr(value) {
-    return String(value ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/"/g, "&quot;")
-        .replace(/</g, "&lt;");
-}
-
-function appendAdminAccountRow(data = {}) {
-    const list = document.getElementById("admin-accounts-list");
-    if (!list) return;
-    const row = document.createElement("div");
-    row.className = "staff-account-row";
-    const passwordHint = data.passwordSet ? "変更時のみ入力" : "4文字以上・必須";
-    row.innerHTML = `
-        <div class="form-group">
-            <label>ログインID</label>
-            <input type="text" class="form-control staff-admin-id" placeholder="例: admin" value="${escStaffAttr(data.adminId)}" autocomplete="off">
-        </div>
-        <div class="form-group">
-            <label>担当名（表示名）</label>
-            <input type="text" class="form-control staff-admin-name" placeholder="例: 山田" value="${escStaffAttr(data.name)}">
-        </div>
-        <div class="form-group">
-            <label>メール（再設定用）</label>
-            <input type="email" class="form-control staff-admin-email" placeholder="任意" value="${escStaffAttr(data.email)}">
-        </div>
-        <div class="form-group">
-            <label>パスワード</label>
-            <input type="password" class="form-control staff-admin-password" placeholder="${passwordHint}" autocomplete="new-password">
-        </div>
-        <button type="button" class="staff-account-remove">削除</button>
-    `;
-    row.querySelector(".staff-account-remove").addEventListener("click", () => row.remove());
-    list.appendChild(row);
-}
-
-function appendCustomerUserRow(data = {}) {
-    const list = document.getElementById("customer-users-list");
-    if (!list) return;
-    const row = document.createElement("div");
-    row.className = "staff-account-row staff-account-row--customer";
-    const passwordHint = data.passwordSet ? "変更時のみ入力" : "4文字以上・必須";
-    row.innerHTML = `
-        <div class="form-group">
-            <label>ログインID</label>
-            <input type="text" class="form-control staff-user-id" placeholder="例: tanaka" value="${escStaffAttr(data.userId)}" autocomplete="off">
-        </div>
-        <div class="form-group">
-            <label>担当名</label>
-            <input type="text" class="form-control staff-user-contact" placeholder="例: 田中太郎" value="${escStaffAttr(data.contactName)}">
-        </div>
-        <div class="form-group">
-            <label>顧客ID（会社）</label>
-            <input type="text" class="form-control staff-user-customer-id" placeholder="例: A001" value="${escStaffAttr(data.customerId)}">
-        </div>
-        <div class="form-group">
-            <label>メール（再設定用）</label>
-            <input type="email" class="form-control staff-user-email" placeholder="任意" value="${escStaffAttr(data.email)}">
-        </div>
-        <div class="form-group">
-            <label>パスワード</label>
-            <input type="password" class="form-control staff-user-password" placeholder="${passwordHint}" autocomplete="new-password">
-        </div>
-        <button type="button" class="staff-account-remove">削除</button>
-    `;
-    row.querySelector(".staff-account-remove").addEventListener("click", () => row.remove());
-    list.appendChild(row);
-}
-
-function collectAdminAccountsFromForm() {
-    const rows = document.querySelectorAll("#admin-accounts-list .staff-account-row");
-    return Array.from(rows)
-        .map((row) => {
-            const adminId = (row.querySelector(".staff-admin-id")?.value || "").trim();
-            if (!adminId) return null;
-            const item = {
-                adminId,
-                name: (row.querySelector(".staff-admin-name")?.value || "").trim(),
-                email: (row.querySelector(".staff-admin-email")?.value || "").trim()
-            };
-            const password = row.querySelector(".staff-admin-password")?.value || "";
-            if (password.trim()) item.password = password;
-            return item;
-        })
-        .filter(Boolean);
-}
-
-function collectCustomerUsersFromForm() {
-    const rows = document.querySelectorAll("#customer-users-list .staff-account-row");
-    return Array.from(rows)
-        .map((row) => {
-            const userId = (row.querySelector(".staff-user-id")?.value || "").trim();
-            if (!userId) return null;
-            const item = {
-                userId,
-                contactName: (row.querySelector(".staff-user-contact")?.value || "").trim(),
-                customerId: (row.querySelector(".staff-user-customer-id")?.value || "").trim(),
-                email: (row.querySelector(".staff-user-email")?.value || "").trim()
-            };
-            const password = row.querySelector(".staff-user-password")?.value || "";
-            if (password.trim()) item.password = password;
-            return item;
-        })
-        .filter(Boolean);
-}
-
-async function loadStaffAccounts() {
-    const adminList = document.getElementById("admin-accounts-list");
-    const userList = document.getElementById("customer-users-list");
-    if (!adminList && !userList) return;
-
-    try {
-        const [adminRes, userRes] = await Promise.all([
-            fetch("/api/admin/accounts"),
-            fetch("/api/admin/customer-users")
-        ]);
-
-        if (adminList) {
-            adminList.innerHTML = "";
-            if (adminRes.ok) {
-                const adminData = await adminRes.json();
-                const accounts = Array.isArray(adminData.accounts) ? adminData.accounts : [];
-                if (accounts.length) {
-                    accounts.forEach((a) => appendAdminAccountRow(a));
-                } else {
-                    appendAdminAccountRow();
-                }
-            } else {
-                appendAdminAccountRow();
-            }
-        }
-
-        if (userList) {
-            userList.innerHTML = "";
-            if (userRes.ok) {
-                const userData = await userRes.json();
-                const users = Array.isArray(userData.users) ? userData.users : [];
-                users.forEach((u) => appendCustomerUserRow(u));
-            }
-        }
-    } catch (e) {
-        console.error("loadStaffAccounts:", e);
+async function loadAdminAccount() {
+    if (window.AdminSettingsUsers && window.AdminSettingsUsers.refreshAll) {
+        await window.AdminSettingsUsers.refreshAll();
     }
 }
 
-function initStaffAccountsUi() {
-    const addAdminBtn = document.getElementById("btn-add-admin-account");
-    const addUserBtn = document.getElementById("btn-add-customer-user");
-    const saveBtn = document.getElementById("btn-save-staff-accounts");
-    const statusEl = document.getElementById("staff-accounts-status");
-
-    if (addAdminBtn) {
-        addAdminBtn.addEventListener("click", () => appendAdminAccountRow());
-    }
-    if (addUserBtn) {
-        addUserBtn.addEventListener("click", () => appendCustomerUserRow());
-    }
-    if (saveBtn) {
-        saveBtn.addEventListener("click", async () => {
-            saveBtn.disabled = true;
-            if (statusEl) statusEl.textContent = "保存中...";
-            try {
-                const accounts = collectAdminAccountsFromForm();
-                const users = collectCustomerUsersFromForm();
-                const [adminRes, userRes] = await Promise.all([
-                    fetch("/api/admin/accounts", {
-                        method: "PUT",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ accounts })
-                    }),
-                    fetch("/api/admin/customer-users", {
-                        method: "PUT",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ users })
-                    })
-                ]);
-                const adminJson = await adminRes.json();
-                const userJson = await userRes.json();
-                if (!adminRes.ok) throw new Error(adminJson.message || "管理者アカウントの保存に失敗しました");
-                if (!userRes.ok) throw new Error(userJson.message || "担当者アカウントの保存に失敗しました");
-                if (typeof toastSuccess === "function") toastSuccess("担当者アカウントを保存しました");
-                if (statusEl) statusEl.textContent = "保存しました";
-                await loadStaffAccounts();
-            } catch (err) {
-                console.error(err);
-                if (typeof toastError === "function") toastError(err.message || "保存に失敗しました");
-                if (statusEl) statusEl.textContent = err.message || "保存に失敗しました";
-            } finally {
-                saveBtn.disabled = false;
-            }
-        });
+/** 「設定を保存」と同時に呼ぶ。管理者アカウント欄が無い画面では何もしない */
+async function persistAdminAccountFromForm() {
+    if (window.AdminSettingsUsers && window.AdminSettingsUsers.persistSelfAccountFromForm) {
+        await window.AdminSettingsUsers.persistSelfAccountFromForm();
     }
 }
 

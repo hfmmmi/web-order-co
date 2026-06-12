@@ -32,7 +32,7 @@ describe("Aランク: 主要フローAPI", () => {
 
         const login = await customerAgent
             .post("/api/login")
-            .send({ id: "TEST001", pass: "CustPass123!" });
+            .send({ id: "test001@example.com", pass: "CustPass123!" });
         expect(login.body.success).toBe(true);
 
         const placeOrder = await customerAgent
@@ -59,7 +59,7 @@ describe("Aランク: 主要フローAPI", () => {
 
         const login = await adminAgent
             .post("/api/admin/login")
-            .send({ id: "test-admin", pass: "AdminPass123!" });
+            .send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         expect(login.body.success).toBe(true);
 
         const add = await adminAgent

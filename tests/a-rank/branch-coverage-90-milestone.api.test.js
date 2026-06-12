@@ -34,7 +34,7 @@ describe("branch coverage 90 milestone: session & orders-api", () => {
 
     test("place-order: priceRank 未設定顧客で priceRank||空文字の右辺を通す", async () => {
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST003", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test003@example.com", pass: "CustPass123!" });
         const res = await agent.post("/place-order").send({
             cart: [{ productCode: "P001", quantity: 1 }],
             deliveryInfo: { name: "a", tel: "1", address: "東京都" }
@@ -45,7 +45,7 @@ describe("branch coverage 90 milestone: session & orders-api", () => {
 
     test("GET /orders: 管理者は isAdmin で一覧取得", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/orders");
         expect(res.statusCode).toBe(200);
         expect(res.body.success).toBe(true);
@@ -55,7 +55,7 @@ describe("branch coverage 90 milestone: session & orders-api", () => {
     test("GET /order-history: searchOrders 失敗時 catch", async () => {
         jest.spyOn(orderService, "searchOrders").mockRejectedValueOnce(new Error("boom"));
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/order-history");
         expect(res.body.success).toBe(false);
         orderService.searchOrders.mockRestore();
@@ -64,7 +64,7 @@ describe("branch coverage 90 milestone: session & orders-api", () => {
     test("GET /delivery-history: searchOrders 失敗時 catch", async () => {
         jest.spyOn(orderService, "searchOrders").mockRejectedValueOnce(new Error("boom"));
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/delivery-history");
         expect(res.body.success).toBe(false);
         orderService.searchOrders.mockRestore();
@@ -81,7 +81,7 @@ describe("branch coverage 90 milestone: session & orders-api", () => {
             }
         ]);
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/shipper-history").query({ keyword: "存在しないZZZ" });
         expect(res.body.success).toBe(true);
         expect(res.body.list.length).toBe(0);
@@ -91,7 +91,7 @@ describe("branch coverage 90 milestone: session & orders-api", () => {
     test("POST /api/update-order-status: 顧客セッションでも更新可能", async () => {
         jest.spyOn(orderService, "updateOrderStatus").mockResolvedValueOnce(undefined);
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.post("/api/update-order-status").send({ orderId: "X1", status: "未発送" });
         expect(res.statusCode).toBe(200);
         expect(res.body.success).toBe(true);
@@ -101,7 +101,7 @@ describe("branch coverage 90 milestone: session & orders-api", () => {
     test("POST /api/update-order-status: updateOrderStatus 失敗で500", async () => {
         jest.spyOn(orderService, "updateOrderStatus").mockRejectedValueOnce(new Error("save"));
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.post("/api/update-order-status").send({ orderId: "X1" });
         expect(res.statusCode).toBe(500);
         orderService.updateOrderStatus.mockRestore();
@@ -119,7 +119,7 @@ describe("branch coverage 90 milestone: session & orders-api", () => {
             }
         ]);
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/delivery-history");
         expect(res.body.success).toBe(true);
         expect(res.body.list.length).toBe(1);
@@ -138,7 +138,7 @@ describe("branch coverage 90 milestone: session & orders-api", () => {
             }
         ]);
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/delivery-history");
         expect(res.body.list.length).toBe(2);
         orderService.searchOrders.mockRestore();
@@ -150,7 +150,7 @@ describe("branch coverage 90 milestone: session & orders-api", () => {
             { orderId: "D1", deliveryInfo: { address: "福岡", name: "C", tel: "3" } }
         ]);
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/delivery-history");
         expect(res.body.list.length).toBe(1);
         expect(res.body.list[0].address).toBe("福岡");
@@ -163,7 +163,7 @@ describe("branch coverage 90 milestone: session & orders-api", () => {
             { orderId: "D2", deliveryInfo: { address: "大阪府", name: "Y", tel: "2" } }
         ]);
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/delivery-history").query({ keyword: "名古屋" });
         expect(res.body.list.length).toBe(1);
         orderService.searchOrders.mockRestore();
@@ -181,7 +181,7 @@ describe("branch coverage 90 milestone: session & orders-api", () => {
             }
         ]);
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/shipper-history");
         expect(res.body.list.length).toBe(1);
         orderService.searchOrders.mockRestore();
@@ -193,7 +193,7 @@ describe("branch coverage 90 milestone: session & orders-api", () => {
             { orderId: "S2", deliveryInfo: { shipper: { name: "荷主2", address: "b", tel: "2" } } }
         ]);
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/shipper-history");
         expect(res.body.list.length).toBe(2);
         orderService.searchOrders.mockRestore();
@@ -205,7 +205,7 @@ describe("branch coverage 90 milestone: session & orders-api", () => {
             { orderId: "S1", deliveryInfo: { shipper: { name: "正式名", address: "c", tel: "9" } } }
         ]);
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/shipper-history");
         expect(res.body.list.length).toBe(1);
         orderService.searchOrders.mockRestore();

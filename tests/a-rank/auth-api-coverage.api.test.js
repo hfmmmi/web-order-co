@@ -52,7 +52,7 @@ describe("Aランク: auth-api カバレッジ", () => {
 
         const res = await request(app)
             .post("/api/setup")
-            .send({ id: "test-admin", key: token, newPass: "NewAdmin123!" });
+            .send({ id: "test-admin@example.com", key: token, newPass: "NewAdmin123!" });
         expect(res.statusCode).toBe(200);
         if (res.body.success) {
             expect(res.body.message).toContain("管理者ログイン画面からログインしてください");
@@ -71,7 +71,7 @@ describe("Aランク: auth-api カバレッジ", () => {
 
         const res = await request(app)
             .post("/api/setup")
-            .send({ id: "test-admin", key: token, newPass: "NewAdmin123!" });
+            .send({ id: "test-admin@example.com", key: token, newPass: "NewAdmin123!" });
         expect(res.statusCode).toBe(200);
         expect(res.body.success).toBe(false);
         expect(res.body.message).toContain("有効期限");
@@ -113,7 +113,7 @@ describe("Aランク: auth-api カバレッジ", () => {
     test("GET /api/account/settings ログイン済みで顧客がDBにいない場合は 404", async () => {
         const bcrypt = require("bcryptjs");
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         await writeJson("customers.json", [
             { customerId: "TEST002", password: await bcrypt.hash("CustPass123!", 10), customerName: "他", priceRank: "B", email: "t2@ex.com" }
         ]);
@@ -129,7 +129,7 @@ describe("Aランク: auth-api カバレッジ", () => {
 
     test("GET /api/account/settings ログイン済みなら allowProxyLogin を返す", async () => {
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/api/account/settings");
         expect(res.statusCode).toBe(200);
         expect(res.body).toHaveProperty("allowProxyLogin");
@@ -142,7 +142,7 @@ describe("Aランク: auth-api カバレッジ", () => {
 
     test("GET /api/account/delivery ログイン済みなら納品先を返す", async () => {
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/api/account/delivery");
         expect(res.statusCode).toBe(200);
         expect(res.body.success).toBe(true);
@@ -156,7 +156,7 @@ describe("Aランク: auth-api カバレッジ", () => {
 
     test("PUT /api/account/delivery で既定納品先を保存できる", async () => {
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.put("/api/account/delivery").send({
             deliveryName: "テスト納品先",
             deliveryZip: "1000001",
@@ -236,7 +236,7 @@ describe("Aランク: auth-api カバレッジ", () => {
         await fs.writeFile(path.join(DATA_ROOT, "admins.json"), "{ invalid json }", "utf-8");
         const res = await request(app)
             .post("/api/admin/login")
-            .send({ id: "test-admin", pass: "AdminPass123!" });
+            .send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         expect(res.statusCode).toBe(200);
         expect(res.body.success).toBe(false);
         expect(res.body.message).toBe("管理者DBエラー");
@@ -248,7 +248,7 @@ describe("Aランク: auth-api カバレッジ", () => {
         ]);
         const res = await request(app)
             .post("/api/admin/login")
-            .send({ id: "test-admin", pass: "PlainPass123" });
+            .send({ id: "test-admin@example.com", pass: "PlainPass123" });
         expect(res.statusCode).toBe(200);
         expect(res.body.success).toBe(true);
         const admins = await readJson("admins.json");
@@ -261,7 +261,7 @@ describe("Aランク: auth-api カバレッジ", () => {
         ]);
         const res = await request(app)
             .post("/api/request-password-reset")
-            .send({ id: "test-admin" });
+            .send({ id: "test-admin@example.com" });
         expect(res.statusCode).toBe(200);
         expect(res.body.success).toBe(true);
         expect(res.body.message).toContain("送信しました");

@@ -44,7 +44,7 @@ describe("Sランク: 注文確定API", () => {
 
         const login = await agent
             .post("/api/login")
-            .send({ id: "TEST001", pass: "CustPass123!" });
+            .send({ id: "test001@example.com", pass: "CustPass123!" });
         expect(login.body.success).toBe(true);
 
         const res = await agent

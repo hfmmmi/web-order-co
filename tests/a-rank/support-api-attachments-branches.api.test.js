@@ -35,7 +35,7 @@ describe("Aランク: support-api 添付・DL 分岐", () => {
 
     test("POST /request-support は 10MB 超の添付で400（FILE_TOO_LARGE）", async () => {
         const customer = request.agent(app);
-        await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await customer.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const oversized = Buffer.alloc(10 * 1024 * 1024 + 1);
         const res = await customer
             .post("/request-support")
@@ -49,7 +49,7 @@ describe("Aランク: support-api 添付・DL 分岐", () => {
 
     test("POST /request-support は非許可拡張子をスキップし申請は成功", async () => {
         const customer = request.agent(app);
-        await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await customer.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await customer
             .post("/request-support")
             .field("category", "support")
@@ -65,7 +65,7 @@ describe("Aランク: support-api 添付・DL 分岐", () => {
         try {
             await fs.writeFile(p, JSON.stringify({ notArray: true }), "utf-8");
             const customer = request.agent(app);
-            await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await customer.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await customer.get("/support/attachment/T-ABC12345/0_1234567890_abcd1234.pdf");
             expect(res.statusCode).toBe(404);
         } finally {
@@ -75,7 +75,7 @@ describe("Aランク: support-api 添付・DL 分岐", () => {
 
     test("POST /request-support は support_tickets 書込失敗で500", async () => {
         const customer = request.agent(app);
-        await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await customer.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const orig = fs.writeFile.bind(fs);
         const spy = jest.spyOn(fs, "writeFile").mockImplementation(async (target, ...args) => {
             if (String(target).replace(/\\/g, "/").includes("support_tickets.json")) {
@@ -102,7 +102,7 @@ describe("Aランク: support-api 添付・DL 分岐", () => {
         try {
             await fs.writeFile(p, "{broken-json", "utf-8");
             const customer = request.agent(app);
-            await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await customer.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await customer.get("/support/attachment/T-ABC12345/0_1234567890_abcd1234.pdf");
             expect(res.statusCode).toBe(500);
             expect(String(res.text || "")).toContain("サーバー");

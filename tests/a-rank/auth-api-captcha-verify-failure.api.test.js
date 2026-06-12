@@ -58,7 +58,7 @@ describe("Aランク: auth-api CAPTCHA検証失敗分岐", () => {
 
     test("失敗2回後、不正なcaptchaToken送信時はLOGIN_CAPTCHA_FAILED_MESSAGEを返す", async () => {
         const adminAgent = request.agent(app);
-        await adminAgent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await adminAgent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         await adminAgent.put("/api/admin/settings").send({
             recaptcha: {
                 siteKey: "site-key-test",
@@ -66,8 +66,8 @@ describe("Aランク: auth-api CAPTCHA検証失敗分岐", () => {
             }
         });
 
-        await request(app).post("/api/login").send({ id: "TEST002", pass: "WrongPassword!" });
-        await request(app).post("/api/login").send({ id: "TEST002", pass: "WrongPassword!" });
+        await request(app).post("/api/login").send({ id: "test002@example.com", pass: "WrongPassword!" });
+        await request(app).post("/api/login").send({ id: "test002@example.com", pass: "WrongPassword!" });
 
         const third = await request(app).post("/api/login").send({
             id: "TEST002",

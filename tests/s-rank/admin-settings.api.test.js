@@ -31,7 +31,7 @@ describe("Sランク: 管理設定更新API", () => {
         const agent = request.agent(app);
         const login = await agent
             .post("/api/admin/login")
-            .send({ id: "test-admin", pass: "AdminPass123!" });
+            .send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         expect(login.body.success).toBe(true);
 
         const res = await agent
@@ -50,7 +50,7 @@ describe("Sランク: 管理設定更新API", () => {
         const agent = request.agent(app);
         const login = await agent
             .post("/api/admin/login")
-            .send({ id: "test-admin", pass: "AdminPass123!" });
+            .send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         expect(login.body.success).toBe(true);
 
         const res = await agent

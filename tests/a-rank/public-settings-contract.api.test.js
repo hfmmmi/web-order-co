@@ -31,7 +31,7 @@ describe("Aランク: /api/settings/public レスポンス契約", () => {
 
     test("public settings は契約フィールドのみを返し型が安定している", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         await admin.put("/api/admin/settings").send({
             features: {
                 orders: true,

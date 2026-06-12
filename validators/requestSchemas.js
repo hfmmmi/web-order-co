@@ -19,13 +19,29 @@ const customerIdSchema = z.preprocess(
     z.string().min(1).max(50).regex(/^[A-Za-z0-9._-]+$/, "顧客IDの形式が不正です")
 );
 
-const loginSchema = z
+const emailSchema = z.preprocess(
+    (v) => (typeof v === "string" ? v.trim().toLowerCase() : v),
+    z.string().email("メールアドレスの形式が不正です").max(254)
+);
+
+const customerLoginSchema = z
     .object({
-        id: trimmedString(1, 100),
+        id: emailSchema,
         pass: z.string().min(1).max(200),
         captchaToken: optionalTrimmedString(4000)
     })
     .strict();
+
+const adminLoginSchema = z
+    .object({
+        id: emailSchema,
+        pass: z.string().min(1).max(200),
+        captchaToken: optionalTrimmedString(4000)
+    })
+    .strict();
+
+/** @deprecated 顧客ログインは customerLoginSchema を使用 */
+const loginSchema = customerLoginSchema;
 
 const cartItemSchema = z
     .object({
@@ -163,7 +179,6 @@ const addCustomerSchema = z
     .object({
         customerId: customerIdSchema,
         customerName: trimmedString(1, 100),
-        password: z.string().min(1).max(200),
         priceRank: z.preprocess(
             (v) => (typeof v === "string" ? v.trim().toUpperCase() : v),
             z.string().max(20).optional()
@@ -183,10 +198,6 @@ const updateCustomerSchema = z
     .object({
         customerId: customerIdSchema,
         customerName: trimmedString(1, 100),
-        password: z.preprocess(
-            (v) => (typeof v === "string" ? v.trim() : v),
-            z.string().max(200).optional()
-        ),
         priceRank: z.preprocess(
             (v) => (typeof v === "string" ? v.trim().toUpperCase() : v),
             z.string().max(20).optional()
@@ -396,8 +407,73 @@ const updateAccountDeliverySchema = z
     })
     .strict();
 
+const customerUserRoleSchema = z.preprocess(
+    (v) => (typeof v === "string" ? v.trim().toLowerCase() : v),
+    z.enum(["admin", "user"]).optional()
+);
+
+const addCustomerUserSchema = z
+    .object({
+        customerId: customerIdSchema.optional(),
+        email: emailSchema,
+        displayName: optionalTrimmedString(100),
+        role: customerUserRoleSchema,
+        password: z.string().min(4).max(200),
+        active: z.boolean().optional()
+    })
+    .strict();
+
+const updateCustomerUserSchema = z
+    .object({
+        email: emailSchema.optional(),
+        displayName: optionalTrimmedString(100),
+        role: customerUserRoleSchema,
+        password: z.preprocess(
+            (v) => (typeof v === "string" ? v.trim() : v),
+            z.string().min(4).max(200).optional()
+        ),
+        active: z.boolean().optional()
+    })
+    .strict();
+
+const customerUserInviteSchema = z
+    .object({
+        userId: z.preprocess(
+            (v) => (typeof v === "string" ? v.trim() : v),
+            z.string().min(1).max(80)
+        )
+    })
+    .strict();
+
+const addAdminUserSchema = z
+    .object({
+        email: emailSchema,
+        displayName: optionalTrimmedString(100),
+        role: customerUserRoleSchema,
+        password: z.string().min(4).max(200),
+        active: z.boolean().optional()
+    })
+    .strict();
+
+const updateAdminUserSchema = z
+    .object({
+        email: emailSchema.optional(),
+        displayName: optionalTrimmedString(100),
+        role: customerUserRoleSchema,
+        password: z.preprocess(
+            (v) => (typeof v === "string" ? v.trim() : v),
+            z.string().min(4).max(200).optional()
+        ),
+        active: z.boolean().optional()
+    })
+    .strict();
+
+const adminUserInviteSchema = customerUserInviteSchema;
+
 module.exports = {
     loginSchema,
+    customerLoginSchema,
+    adminLoginSchema,
     placeOrderSchema,
     adminCreateOrderSchema,
     adminDeleteOrderSchema,
@@ -406,6 +482,12 @@ module.exports = {
     addCustomerSchema,
     updateCustomerSchema,
     updateAccountProfileSchema,
+    addCustomerUserSchema,
+    updateCustomerUserSchema,
+    customerUserInviteSchema,
+    addAdminUserSchema,
+    updateAdminUserSchema,
+    adminUserInviteSchema,
     updateAccountDeliverySchema,
     adminAccountUpdateSchema,
     adminAccountsSaveSchema,

@@ -37,7 +37,7 @@ describe("Bランク: 納期目安 更新→顧客履歴で一致", () => {
 
     test("管理で deliveryEstimate を更新すると顧客 order-history に反映される", async () => {
         const customerAgent = request.agent(app);
-        await customerAgent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await customerAgent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const placeRes = await customerAgent.post("/place-order").send({
             cart: [{ code: "P001", name: "テストトナーA", price: 1000, quantity: 1 }],
             deliveryInfo: {
@@ -53,7 +53,7 @@ describe("Bランク: 納期目安 更新→顧客履歴で一致", () => {
         const orderId = placeRes.body.orderId;
 
         const adminAgent = request.agent(app);
-        await adminAgent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await adminAgent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const updateRes = await adminAgent
             .post("/api/update-order-status")
             .send({ orderId, deliveryEstimate: "翌週水曜日お届け予定" });

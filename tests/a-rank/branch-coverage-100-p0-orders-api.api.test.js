@@ -71,7 +71,7 @@ describe("branch coverage 100 P0: orders-api", () => {
     test("POST /api/reset-export-status は管理者で JSON 応答", async () => {
         await writeJson("orders.json", [{ orderId: 88001, customerId: "TEST001", items: [], status: "未発送" }]);
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.post("/api/reset-export-status").send({ orderId: 88001 });
         expect(res.body).toHaveProperty("success");
     });

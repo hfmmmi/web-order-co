@@ -33,7 +33,7 @@ describe("Aランク: CAPTCHA要求レスポンス", () => {
 
     test("失敗2回後、secretKeyありならcaptchaRequired=trueが返る", async () => {
         const adminAgent = request.agent(app);
-        await adminAgent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await adminAgent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         await adminAgent.put("/api/admin/settings").send({
             recaptcha: {
                 siteKey: "site-key-test",
@@ -41,10 +41,10 @@ describe("Aランク: CAPTCHA要求レスポンス", () => {
             }
         });
 
-        await request(app).post("/api/login").send({ id: "TEST002", pass: "WrongPassword!" });
-        await request(app).post("/api/login").send({ id: "TEST002", pass: "WrongPassword!" });
+        await request(app).post("/api/login").send({ id: "test002@example.com", pass: "WrongPassword!" });
+        await request(app).post("/api/login").send({ id: "test002@example.com", pass: "WrongPassword!" });
 
-        const third = await request(app).post("/api/login").send({ id: "TEST002", pass: "WrongPassword!" });
+        const third = await request(app).post("/api/login").send({ id: "test002@example.com", pass: "WrongPassword!" });
         expect(third.statusCode).toBe(200);
         expect(third.body.success).toBe(false);
         expect(third.body.captchaRequired).toBe(true);
@@ -52,7 +52,7 @@ describe("Aランク: CAPTCHA要求レスポンス", () => {
 
     test("siteKey/secretKey が空なら失敗3回目でもcaptchaRequiredは返らない", async () => {
         const adminAgent = request.agent(app);
-        await adminAgent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await adminAgent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         await adminAgent.put("/api/admin/settings").send({
             recaptcha: {
                 siteKey: "",
@@ -60,9 +60,9 @@ describe("Aランク: CAPTCHA要求レスポンス", () => {
             }
         });
 
-        await request(app).post("/api/login").send({ id: "TEST002", pass: "WrongPassword!" });
-        await request(app).post("/api/login").send({ id: "TEST002", pass: "WrongPassword!" });
-        const third = await request(app).post("/api/login").send({ id: "TEST002", pass: "WrongPassword!" });
+        await request(app).post("/api/login").send({ id: "test002@example.com", pass: "WrongPassword!" });
+        await request(app).post("/api/login").send({ id: "test002@example.com", pass: "WrongPassword!" });
+        const third = await request(app).post("/api/login").send({ id: "test002@example.com", pass: "WrongPassword!" });
 
         expect(third.statusCode).toBe(200);
         expect(third.body.success).toBe(false);

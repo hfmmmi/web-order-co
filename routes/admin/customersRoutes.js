@@ -6,6 +6,7 @@ const fs = require("fs").promises;
 const crypto = require("crypto");
 const { dbPath } = require("../../dbPaths");
 const customerService = require("../../services/customerService");
+const customerUserService = require("../../services/customerUserService");
 const mailService = require("../../services/mailService");
 const { mailLogMetaFromSession } = require("../../utils/mailLogMeta");
 const { getActorNameFromSession } = require("../../utils/auditMeta");
@@ -77,38 +78,50 @@ router.post("/upload-customer-data", requireAdmin, async (req, res) => {
 });
 
 router.post("/admin/send-invite-email", requireAdmin, async (req, res) => {
-    const { customerId, isPasswordReset } = req.body;
-    if (!customerId) {
-        return res.json({ success: false, message: "顧客IDが指定されていません" });
+    const { customerId, userId, isPasswordReset } = req.body;
+    if (!customerId && !userId) {
+        return res.json({ success: false, message: "顧客IDまたはユーザーIDが指定されていません" });
     }
 
     try {
-        const customer = await customerService.getCustomerById(customerId);
-        if (!customer) {
-            return res.json({ success: false, message: "顧客が見つかりません" });
+        let user;
+        if (userId) {
+            user = await customerUserService.getUserRecordById(userId);
+        } else {
+            const users = await customerUserService.getUsersByCustomerId(customerId);
+            user = users.find((u) => u.active !== false && u.email);
+            if (user) {
+                user = await customerUserService.getUserRecordById(user.userId);
+            }
         }
-        if (!customer.email || !customer.email.trim()) {
-            return res.json({ success: false, message: "顧客のメールアドレスが登録されていません。顧客編集でメールアドレスを登録してください。" });
+        if (!user || user.active === false) {
+            return res.json({ success: false, message: "招待対象のユーザーが見つかりません。先にユーザーアカウントを登録してください。" });
+        }
+        if (!user.email || !user.email.trim()) {
+            return res.json({ success: false, message: "ユーザーのメールアドレスが登録されていません。" });
         }
 
         const tempPassword = crypto.randomBytes(4).toString("hex");
-        const result = await customerService.updateCustomerPassword(customerId, tempPassword);
+        const result = await customerUserService.updateUserPassword(user.userId, tempPassword);
         if (!result.success) {
             return res.json({ success: false, message: result.message });
         }
 
-        let tokens = {};
-        try {
-            const data = await fs.readFile(INVITE_TOKENS_PATH, "utf-8");
-            tokens = JSON.parse(data);
-        } catch (e) { tokens = {}; }
-        tokens[customerId] = Date.now() + INVITE_EXPIRY_HOURS * 60 * 60 * 1000;
-        await fs.writeFile(INVITE_TOKENS_PATH, JSON.stringify(tokens, null, 2));
+        const expiryMs = Date.now() + INVITE_EXPIRY_HOURS * 60 * 60 * 1000;
+        await require("../../services/authTokenStore").mutateJsonFile(INVITE_TOKENS_PATH, {}, (tokens) => {
+            tokens[user.userId] = expiryMs;
+        });
 
         const baseUrl = `${req.protocol}://${req.get("host")}`;
-        const inviteUrl = `${baseUrl}/setup.html?id=${encodeURIComponent(customerId)}&key=${encodeURIComponent(tempPassword)}`;
+        const inviteUrl = `${baseUrl}/setup.html?id=${encodeURIComponent(user.userId)}&key=${encodeURIComponent(tempPassword)}`;
+        const customer = await customerService.getCustomerById(user.customerId);
+        const mailPayload = {
+            customerId: user.customerId,
+            customerName: customer ? customer.customerName : user.customerId,
+            email: user.email
+        };
         const mailResult = await mailService.sendInviteEmail(
-            customer,
+            mailPayload,
             inviteUrl,
             tempPassword,
             !!isPasswordReset,
@@ -116,7 +129,7 @@ router.post("/admin/send-invite-email", requireAdmin, async (req, res) => {
         );
 
         if (mailResult.success) {
-            res.json({ success: true, message: `${customer.email} 宛に招待メールを送信しました` });
+            res.json({ success: true, message: `${user.email} 宛に招待メールを送信しました` });
         } else {
             res.json({ success: false, message: mailResult.message || "メール送信に失敗しました" });
         }
@@ -243,6 +256,10 @@ router.post("/admin/proxy-login", requireAdmin, async (req, res) => {
         req.session.customerId = customer.customerId;
         req.session.customerName = customer.customerName || customer.customerId;
         req.session.priceRank = customer.priceRank || "";
+        req.session.userId = null;
+        req.session.userEmail = null;
+        req.session.userDisplayName = "（代理ログイン）";
+        req.session.isCustomerUserAdmin = false;
         req.session.lastActivity = Date.now();
         try {
             await require("../../utils/sessionAsync").saveSession(req);
@@ -287,32 +304,27 @@ router.post("/admin/proxy-logout", (req, res) => {
 });
 
 router.post("/admin/send-invite-email-with-token", requireAdmin, async (req, res) => {
-    const { customerId, tempPassword, isPasswordReset } = req.body;
-    if (!customerId || !tempPassword) {
-        return res.json({ success: false, message: "顧客IDと一時パスワードが必要です" });
+    const { userId, tempPassword, isPasswordReset } = req.body;
+    if (!userId || !tempPassword) {
+        return res.json({ success: false, message: "ユーザーIDと一時パスワードが必要です" });
     }
 
     try {
-        const customer = await customerService.getCustomerById(customerId);
-        if (!customer) {
-            return res.json({ success: false, message: "顧客が見つかりません" });
+        const user = await customerUserService.getUserRecordById(userId);
+        if (!user || !user.email) {
+            return res.json({ success: false, message: "ユーザーが見つかりません" });
         }
-        if (!customer.email || !customer.email.trim()) {
-            return res.json({ success: false, message: "顧客のメールアドレスが登録されていません" });
-        }
-
+        const customer = await customerService.getCustomerById(user.customerId);
         const baseUrl = `${req.protocol}://${req.get("host")}`;
-        const inviteUrl = `${baseUrl}/setup.html?id=${encodeURIComponent(customerId)}&key=${encodeURIComponent(tempPassword)}`;
-        const mailResult = await mailService.sendInviteEmail(
-            customer,
-            inviteUrl,
-            tempPassword,
-            !!isPasswordReset,
-            mailLogMetaFromSession(req.session)
-        );
+        const inviteUrl = `${baseUrl}/setup.html?id=${encodeURIComponent(userId)}&key=${encodeURIComponent(tempPassword)}`;
+        const mailResult = await mailService.sendInviteEmail({
+            customerId: user.customerId,
+            customerName: customer ? customer.customerName : user.customerId,
+            email: user.email
+        }, inviteUrl, tempPassword, !!isPasswordReset, mailLogMetaFromSession(req.session));
 
         if (mailResult.success) {
-            res.json({ success: true, message: `${customer.email} 宛に招待メールを送信しました` });
+            res.json({ success: true, message: `${user.email} 宛に招待メールを送信しました` });
         } else {
             res.json({ success: false, message: mailResult.message || "メール送信に失敗しました" });
         }

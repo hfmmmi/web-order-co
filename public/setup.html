@@ -11,18 +11,18 @@
             <h1 id="page-title">パスワード初期設定</h1>
             
             <p id="page-desc" style="font-size: 0.9em; margin-bottom: 20px;">
-                管理者から配布されたIDとパスワードを入力し、<br>
+                招待またはパスワード再設定リンクからお越しの方は、<br>
                 新しいパスワードを設定してください。
             </p>
             
-            <div id="wrapper-id">
-                <label>ログインID:</label>
-                <input type="text" id="setup-id" placeholder="配布されたID">
+            <div id="wrapper-id" style="display:none;">
+                <label>ユーザーID:</label>
+                <input type="text" id="setup-id" placeholder="">
             </div>
             
-            <div id="wrapper-current">
-                <label>現在のパスワード:</label>
-                <input type="password" id="setup-current-pass" placeholder="配布されたパスワード">
+            <div id="wrapper-current" style="display:none;">
+                <label>確認コード:</label>
+                <input type="password" id="setup-current-pass" placeholder="">
             </div>
 
             <hr style="border: 0; border-top: 1px solid #ccc; margin: 15px 0;">
@@ -73,7 +73,7 @@
                     // 案内文を親切に変更（inviteId は URL 由来のため XSS 対策でエスケープ）
                     pageTitle.innerText = "ようこそ";
                     const esc = (s) => (s == null ? '' : String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'));
-                    pageDesc.innerHTML = 'ID: <b>' + esc(inviteId) + '</b> 様<br>新しいパスワードを設定してください。（招待またはパスワード再設定リンクからお越しの方）';
+                    pageDesc.innerHTML = '新しいパスワードを設定してください。（招待またはパスワード再設定リンクからお越しの方）';
                     
                     // 新しいパスワード欄にフォーカス
                     newPassInput.focus();

@@ -47,7 +47,7 @@ describe("リスク駆動: 管理APIの認可直アクセス回帰", () => {
         const customer = request.agent(app);
         const login = await customer
             .post("/api/login")
-            .send({ id: "TEST001", pass: "CustPass123!" });
+            .send({ id: "test001@example.com", pass: "CustPass123!" });
         expect(login.statusCode).toBe(200);
         expect(login.body.success).toBe(true);
 

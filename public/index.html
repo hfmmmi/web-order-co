@@ -16,8 +16,8 @@
             </div>
             
             <div>
-                <label>ID:</label>
-                <input type="text" id="username-input">
+                <label>メールアドレス:</label>
+                <input type="email" id="username-input" autocomplete="username">
             </div>
             
             <div>
@@ -44,9 +44,9 @@
                     <button type="button" class="modal-close-btn" id="forgot-password-close" aria-label="閉じる">×</button>
                 </div>
                 <div class="modal-body">
-                    <p style="margin-bottom: 12px; font-size: 0.9em;">ご登録のログインIDまたはメールアドレスを入力してください。パスワード再設定用のリンクをお送りします。</p>
-                    <label for="forgot-password-input">ログインID または メールアドレス</label>
-                    <input type="text" id="forgot-password-input" placeholder="例: customer01 または mail@example.com" autocomplete="username">
+                    <p style="margin-bottom: 12px; font-size: 0.9em;">ご登録のメールアドレスを入力してください。パスワード再設定用のリンクをお送りします。</p>
+                    <label for="forgot-password-input">メールアドレス</label>
+                    <input type="email" id="forgot-password-input" placeholder="例: user@example.com" autocomplete="username">
                     <button type="button" id="forgot-password-submit" style="margin-top: 12px;">送信する</button>
                 </div>
             </div>

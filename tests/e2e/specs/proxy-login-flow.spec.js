@@ -12,7 +12,7 @@ test("代理ログイン: 申請→顧客許可→実行で顧客画面に遷移
 
     try {
         await adminPage.goto("/admin/admin-dashboard.html");
-        await adminPage.fill("#admin-id-input", "test-admin");
+        await adminPage.fill("#admin-id-input", "test-admin@example.com");
         await adminPage.fill("#admin-pass-input", "AdminPass123!");
         await adminPage.getByRole("button", { name: "LOGIN" }).click();
         await expect(adminPage.locator("#admin-login-overlay")).toBeHidden();

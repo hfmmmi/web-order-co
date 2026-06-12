@@ -32,7 +32,7 @@ describe("branch coverage 90: admin productsRoutes", () => {
     test("GET /api/admin/product-master/template は失敗時500", async () => {
         jest.spyOn(productService, "getProductTemplateBuffer").mockRejectedValueOnce(new Error("tpl"));
         const agent = request.agent(app);
-        await agent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await agent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await agent.get("/api/admin/product-master/template");
         expect(res.statusCode).toBe(500);
     });
@@ -40,7 +40,7 @@ describe("branch coverage 90: admin productsRoutes", () => {
     test("GET /api/admin/product-master/export は失敗時500", async () => {
         jest.spyOn(productService, "getProductMasterExportBuffer").mockRejectedValueOnce(new Error("exp"));
         const agent = request.agent(app);
-        await agent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await agent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await agent.get("/api/admin/product-master/export");
         expect(res.statusCode).toBe(500);
     });
@@ -48,7 +48,7 @@ describe("branch coverage 90: admin productsRoutes", () => {
     test("POST /api/upload-product-data は importProductCsv 失敗を JSON で返す", async () => {
         jest.spyOn(productService, "importProductCsv").mockRejectedValueOnce(new Error("csv bad"));
         const agent = request.agent(app);
-        await agent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await agent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await agent.post("/api/upload-product-data").send({ fileData: "a" });
         expect(res.body.success).toBe(false);
         expect(String(res.body.message || "")).toContain("csv bad");
@@ -57,7 +57,7 @@ describe("branch coverage 90: admin productsRoutes", () => {
     test("GET /api/admin/products は getAllProductsForAdmin 失敗時500", async () => {
         jest.spyOn(productService, "getAllProductsForAdmin").mockRejectedValueOnce(new Error("read"));
         const agent = request.agent(app);
-        await agent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await agent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await agent.get("/api/admin/products");
         expect(res.statusCode).toBe(500);
     });

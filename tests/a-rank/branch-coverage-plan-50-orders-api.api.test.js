@@ -62,7 +62,7 @@ describe("Aランク: orders-api 分岐50 追加分岐", () => {
     test("GET /orders は searchOrders 例外時に success false", async () => {
         jest.spyOn(orderService, "searchOrders").mockRejectedValueOnce(new Error("db fail"));
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/orders");
         expect(res.body.success).toBe(false);
         expect(res.body.message).toMatch(/読み込み/);
@@ -70,7 +70,7 @@ describe("Aランク: orders-api 分岐50 追加分岐", () => {
 
     test("POST /api/import-shipping-csv はファイルなしで 400", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.post("/api/import-shipping-csv");
         expect(res.statusCode).toBe(400);
     });

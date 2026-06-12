@@ -11,6 +11,7 @@ const bcrypt = require("bcryptjs");
 
 const customerService = require("../../services/customerService");
 const customerUserService = require("../../services/customerUserService");
+const adminUserService = require("../../services/adminUserService");
 const mailService = require("../../services/mailService");
 const settingsService = require("../../services/settingsService");
 const { requestPasswordReset } = require("../../services/passwordResetRequestService");
@@ -22,7 +23,7 @@ const {
 } = require("../../services/authTokenStore");
 const { validateBody } = require("../../middlewares/validate");
 const { mailLogMetaFromSession } = require("../../utils/mailLogMeta");
-const { loginSchema, updateAccountDeliverySchema, updateAccountProfileSchema } = require("../../validators/requestSchemas");
+const { customerLoginSchema, updateAccountDeliverySchema, updateAccountProfileSchema } = require("../../validators/requestSchemas");
 const {
     LOGIN_LOCK_MESSAGE,
     LOGIN_CAPTCHA_REQUIRED_MESSAGE,
@@ -34,14 +35,47 @@ const {
     getLoginFailureCount
 } = require("./loginRateLimit");
 const { sanitizeAdminName } = require("./sanitizeAdminName");
+const { applyAdminUserSession, performAdminLogin } = require("./adminSessionHelpers");
 
 const CUSTOMERS_DB_PATH = dbPath("customers.json");
 const CUSTOMER_USER_RESET_TOKENS_PATH = dbPath("customer_user_reset_tokens.json");
 const INVITE_EXPIRY_HOURS = 24;
 
-router.post("/login", validateBody(loginSchema), async (req, res) => {
+function applyCustomerUserSession(req, user, customer, preservedAdminState) {
+    req.session.isAdmin = preservedAdminState.isAdmin;
+    req.session.adminName = preservedAdminState.adminName;
+    req.session.customerId = customer.customerId;
+    req.session.customerName = customer.customerName;
+    req.session.priceRank = customer.priceRank || "";
+    req.session.userId = user.userId;
+    req.session.userEmail = user.email;
+    req.session.userDisplayName = user.displayName || user.email;
+    req.session.customerUserId = user.userId;
+    req.session.contactName = user.displayName || user.email;
+    req.session.isCustomerUserAdmin = user.role === "admin";
+    req.session.proxyByAdmin = null;
+    req.session.proxySavedCustomerId = null;
+    req.session.proxySavedCustomerName = null;
+    req.session.proxySavedPriceRank = null;
+    req.session.lastActivity = Date.now();
+}
+
+function clearCustomerUserSession(req) {
+    req.session.customerId = null;
+    req.session.customerName = null;
+    req.session.priceRank = null;
+    req.session.customerUserId = null;
+    req.session.contactName = null;
+    req.session.userId = null;
+    req.session.userEmail = null;
+    req.session.userDisplayName = null;
+    req.session.isCustomerUserAdmin = false;
+}
+
+router.post("/login", validateBody(customerLoginSchema), async (req, res) => {
     const { id, pass, captchaToken } = req.body;
-    const accountKey = "customer:" + String(id ?? "").trim();
+    const email = String(id ?? "").trim().toLowerCase();
+    const accountKey = "customer:" + email;
 
     try {
         if (await isLoginLocked(accountKey)) {
@@ -61,130 +95,82 @@ router.post("/login", validateBody(loginSchema), async (req, res) => {
             }
         }
 
-        const userAuth = await customerUserService.authenticateCustomerUser(id, pass);
-        if (userAuth && userAuth.user) {
-            if (!userAuth.ok) {
-                await recordLoginFailure(accountKey);
-                appendCustomerAuthLog({
-                    action: "failed_login",
-                    customerId: userAuth.user.customerId || id,
-                    customerName: userAuth.user.contactName || null,
-                    ip: req.ip
-                }).catch(() => {});
-                return res.json({ success: false, message: "IDまたはPASSが間違っています" });
+        const customerFound = await customerUserService.findByEmail(email);
+        const adminFound = await adminUserService.findByEmail(email);
+
+        if (customerFound) {
+            const auth = await customerUserService.authenticate(email, pass);
+            if (!auth.success) {
+                const r = await recordLoginFailure(accountKey);
+                if (auth.user && auth.customer && r.justHitFive) {
+                    mailService.sendLoginFailureAlert({
+                        type: "customer",
+                        customer: { ...auth.customer, email: auth.user.email },
+                        count: 5
+                    }).catch(() => {});
+                }
+                if (auth.user && auth.customer) {
+                    appendCustomerAuthLog({
+                        action: "failed_login",
+                        customerId: auth.customer.customerId,
+                        customerName: auth.customer.customerName || null,
+                        userId: auth.user.userId,
+                        userEmail: auth.user.email,
+                        ip: req.ip
+                    }).catch(() => {});
+                } else {
+                    appendCustomerAuthLog({
+                        action: "failed_login",
+                        userEmail: email,
+                        ip: req.ip
+                    }).catch(() => {});
+                }
+                return res.json({ success: false, message: auth.message });
             }
 
-            const customer = userAuth.customer;
-            const user = userAuth.user;
+            const { user, customer } = auth;
             await clearLoginFailures(accountKey);
             const preservedAdminState = {
                 isAdmin: !!req.session.isAdmin,
                 adminName: req.session.adminName || null
             };
             await regenerateSession(req);
-
-            req.session.isAdmin = preservedAdminState.isAdmin;
-            req.session.adminName = preservedAdminState.adminName;
-            req.session.customerId = customer.customerId;
-            req.session.customerName = customer.customerName;
+            applyCustomerUserSession(req, user, customer, preservedAdminState);
             req.session.customerUserId = user.userId;
-            req.session.contactName = user.contactName || "";
-            req.session.priceRank = customer.priceRank || "";
-            req.session.proxyByAdmin = null;
-            req.session.proxySavedCustomerId = null;
-            req.session.proxySavedCustomerName = null;
-            req.session.proxySavedPriceRank = null;
-            req.session.proxySavedCustomerUserId = null;
-            req.session.proxySavedContactName = null;
+            req.session.contactName = user.displayName || user.email || "";
 
-            req.session.lastActivity = Date.now();
             appendCustomerAuthLog({
                 action: "login",
                 customerId: customer.customerId,
                 customerName: customer.customerName || null,
-                contactName: user.contactName || null,
-                customerUserId: user.userId,
+                userId: user.userId,
+                userEmail: user.email,
                 ip: req.ip
             }).catch(() => {});
+            customerUserService.touchLastLogin(user.userId).catch(() => {});
 
-            console.log(
-                `顧客担当者ログイン成功: ${user.userId} → ${customer.customerId} (AdminStatus: ${req.session.isAdmin})`
-            );
+            console.log(`顧客ログイン成功: ${user.email} @ ${customer.customerId} (AdminStatus: ${req.session.isAdmin})`);
 
             try {
                 await require("../../utils/sessionAsync").saveSession(req);
-                res.json({ success: true, redirectUrl: "home.html" });
+                return res.json({ success: true, redirectUrl: "home.html" });
             } catch (err) {
                 console.error("Session Save Error:", err);
                 return res.json({ success: false, message: "セッション保存失敗" });
             }
         }
 
-        const data = await fs.readFile(CUSTOMERS_DB_PATH, "utf-8");
-        const customerList = JSON.parse(data);
-        const customer = customerList.find(c => c.customerId === id);
-
-        if (!customer) {
-            await recordLoginFailure(accountKey);
-            appendCustomerAuthLog({ action: "failed_login", customerId: id, ip: req.ip }).catch(() => {});
-            return res.json({ success: false, message: "IDまたはPASSが間違っています" });
+        if (adminFound) {
+            return performAdminLogin(req, res, email, pass);
         }
 
-        const isMatch = await bcrypt.compare(pass, customer.password);
-
-        if (isMatch) {
-            await clearLoginFailures(accountKey);
-            const preservedAdminState = {
-                isAdmin: !!req.session.isAdmin,
-                adminName: req.session.adminName || null
-            };
-            await regenerateSession(req);
-
-            req.session.isAdmin = preservedAdminState.isAdmin;
-            req.session.adminName = preservedAdminState.adminName;
-            req.session.customerId = customer.customerId;
-            req.session.customerName = customer.customerName;
-            req.session.customerUserId = null;
-            req.session.contactName = null;
-            req.session.priceRank = customer.priceRank || "";
-            req.session.proxyByAdmin = null;
-            req.session.proxySavedCustomerId = null;
-            req.session.proxySavedCustomerName = null;
-            req.session.proxySavedPriceRank = null;
-            req.session.proxySavedCustomerUserId = null;
-            req.session.proxySavedContactName = null;
-
-            req.session.lastActivity = Date.now();
-            appendCustomerAuthLog({
-                action: "login",
-                customerId: customer.customerId,
-                customerName: customer.customerName || null,
-                ip: req.ip
-            }).catch(() => {});
-
-            console.log(`顧客ログイン成功: ${req.session.customerId} (AdminStatus: ${req.session.isAdmin})`);
-
-            try {
-                await require("../../utils/sessionAsync").saveSession(req);
-                res.json({ success: true, redirectUrl: "home.html" });
-            } catch (err) {
-                console.error("Session Save Error:", err);
-                return res.json({ success: false, message: "セッション保存失敗" });
-            }
-        } else {
-            const r = await recordLoginFailure(accountKey);
-            if (r.justHitFive && (customer.email || "").trim()) {
-                mailService.sendLoginFailureAlert({ type: "customer", customer, count: 5 }).catch(() => {});
-            }
-            appendCustomerAuthLog({
-                action: "failed_login",
-                customerId: customer.customerId,
-                customerName: customer.customerName || null,
-                ip: req.ip
-            }).catch(() => {});
-            console.log("ログイン失敗:", id);
-            res.json({ success: false, message: "IDまたはPASSが間違っています" });
-        }
+        await recordLoginFailure(accountKey);
+        appendCustomerAuthLog({
+            action: "failed_login",
+            userEmail: email,
+            ip: req.ip
+        }).catch(() => {});
+        return res.json({ success: false, message: "メールアドレスまたはパスワードが間違っています" });
     } catch (error) {
         console.error("顧客ログインエラー", error);
         res.json({ success: false, message: "システムエラー" });
@@ -197,8 +183,12 @@ router.get("/session", (req, res) => {
         loggedIn,
         customerId: req.session.customerId || null,
         customerName: req.session.customerName || null,
-        customerUserId: req.session.customerUserId || null,
-        contactName: req.session.contactName || null,
+        customerUserId: req.session.userId || req.session.customerUserId || null,
+        contactName: req.session.userDisplayName || req.session.contactName || null,
+        userId: req.session.userId || null,
+        userEmail: req.session.userEmail || null,
+        userDisplayName: req.session.userDisplayName || null,
+        isCustomerUserAdmin: !!req.session.isCustomerUserAdmin,
         proxyByAdmin: req.session.proxyByAdmin || null
     });
 });
@@ -275,8 +265,9 @@ router.get("/account/profile", async (req, res) => {
             return res.status(404).json({ success: false, message: "顧客が見つかりません" });
         }
 
-        if (req.session.customerUserId) {
-            const user = await customerUserService.findCustomerUserByLoginId(req.session.customerUserId);
+        if (req.session.customerUserId || req.session.userId) {
+            const sessionUserId = req.session.userId || req.session.customerUserId;
+            const user = await customerUserService.getUserRecordById(sessionUserId);
             if (!user || user.customerId !== req.session.customerId) {
                 return res.status(404).json({ success: false, message: "担当者アカウントが見つかりません" });
             }
@@ -285,11 +276,14 @@ router.get("/account/profile", async (req, res) => {
                 success: true,
                 accountType: "staff",
                 userId: publicUser.userId,
-                contactName: publicUser.contactName,
+                contactName: publicUser.displayName || publicUser.contactName || "",
                 customerId: customer.customerId,
                 customerName: customer.customerName || customer.customerId,
                 email: publicUser.email || "",
-                passwordSet: !!publicUser.passwordSet
+                passwordSet: !!publicUser.passwordSet,
+                isCustomerUserAdmin: user.role === "admin",
+                proxyByAdmin: req.session.proxyByAdmin || null,
+                isAdmin: !!req.session.isAdmin
             });
         }
 
@@ -299,7 +293,10 @@ router.get("/account/profile", async (req, res) => {
             customerId: customer.customerId,
             customerName: customer.customerName || customer.customerId,
             email: (customer.email && String(customer.email).trim()) || "",
-            passwordSet: true
+            passwordSet: true,
+            isCustomerUserAdmin: false,
+            proxyByAdmin: req.session.proxyByAdmin || null,
+            isAdmin: !!req.session.isAdmin
         });
     } catch (err) {
         console.error("Account profile get error:", err);
@@ -317,8 +314,9 @@ router.put("/account/profile", validateBody(updateAccountProfileSchema), async (
     const newPassword = body.password && String(body.password).trim() ? body.password : "";
 
     try {
-        if (req.session.customerUserId) {
-            const result = await customerUserService.updateCustomerUserProfile(req.session.customerUserId, {
+        if (req.session.customerUserId || req.session.userId) {
+            const sessionUserId = req.session.userId || req.session.customerUserId;
+            const result = await customerUserService.updateCustomerUserProfile(sessionUserId, {
                 contactName: body.contactName,
                 email: body.email,
                 currentPassword,
@@ -327,8 +325,14 @@ router.put("/account/profile", validateBody(updateAccountProfileSchema), async (
             if (!result.success) {
                 return res.status(400).json(result);
             }
-            if (result.user && result.user.contactName !== undefined) {
-                req.session.contactName = result.user.contactName;
+            if (result.user) {
+                if (result.user.displayName !== undefined) {
+                    req.session.userDisplayName = result.user.displayName;
+                    req.session.contactName = result.user.displayName;
+                }
+                if (result.user.email !== undefined) {
+                    req.session.userEmail = result.user.email;
+                }
                 await require("../../utils/sessionAsync").saveSession(req);
             }
             if (newPassword && result.user && result.user.email) {
@@ -336,7 +340,7 @@ router.put("/account/profile", validateBody(updateAccountProfileSchema), async (
                     .sendPasswordChangedNotification(
                         {
                             customerId: result.user.userId,
-                            customerName: result.user.contactName || result.user.userId,
+                            customerName: result.user.displayName || result.user.userId,
                             email: result.user.email
                         },
                         mailLogMetaFromSession(req.session)
@@ -346,7 +350,7 @@ router.put("/account/profile", validateBody(updateAccountProfileSchema), async (
             return res.json({
                 success: true,
                 message: result.message,
-                contactName: result.user ? result.user.contactName : req.session.contactName
+                contactName: result.user ? (result.user.displayName || result.user.contactName) : req.session.contactName
             });
         }
 
@@ -452,18 +456,16 @@ router.put("/account/delivery", validateBody(updateAccountDeliverySchema), (req,
 });
 
 router.post("/logout", (req, res) => {
-    if (req.session.customerId) {
+    if (req.session.customerId || req.session.userId) {
         appendCustomerAuthLog({
             action: "logout",
-            customerId: req.session.customerId,
+            customerId: req.session.customerId || null,
             customerName: req.session.customerName || null,
+            userId: req.session.userId || null,
+            userEmail: req.session.userEmail || null,
             ip: req.ip
         }).catch(() => {});
-        req.session.customerId = null;
-        req.session.customerName = null;
-        req.session.customerUserId = null;
-        req.session.contactName = null;
-        req.session.priceRank = null;
+        clearCustomerUserSession(req);
 
         if (!req.session.isAdmin) {
             return req.session.destroy(() => {
@@ -510,67 +512,25 @@ router.post("/setup", async (req, res) => {
         }
 
         if (resetKind === "valid_customer_reset") {
-            const result = await customerService.updateCustomerPassword(id, newPass);
+            const result = await customerUserService.updateUserPassword(id, newPass);
             if (!result.success) {
                 return res.json(result);
             }
             await require("../../services/authTokenStore").mutateJsonFile(RESET_TOKENS_PATH, {}, (t) => { delete t[id]; });
-            console.log(`パスワード再設定完了（顧客申込）: ${id}`);
-            const customer = await customerService.getCustomerById(id);
-            if (customer && customer.email) {
-                mailService
-                    .sendPasswordChangedNotification(customer, {
-                        sentByCustomerName: customer.customerName || customer.customerId
-                    })
-                    .catch((err) =>
-                        console.error("[request-password-reset] 変更完了通知送信失敗:", err)
-                    );
-            }
-            return res.json({ success: true, message: "パスワードを変更しました。ログインしてください。" });
-        }
-
-        const userResetKind = await require("../../services/authTokenStore").mutateJsonFile(
-            CUSTOMER_USER_RESET_TOKENS_PATH,
-            {},
-            async (userResetTokens) => {
-                if (!userResetTokens[id] || userResetTokens[id].token !== tokenOrPass) return "none";
-                if (Date.now() > userResetTokens[id].expiresAt) {
-                    delete userResetTokens[id];
-                    return "expired_user_reset";
-                }
-                return "valid_user_reset";
-            }
-        );
-
-        if (userResetKind === "expired_user_reset") {
-            return res.json({
-                success: false,
-                message: "このリンクの有効期限（24時間）が切れています。再度「パスワードをお忘れの方」から申請してください。"
-            });
-        }
-
-        if (userResetKind === "valid_user_reset") {
-            const result = await customerUserService.updateCustomerUserPassword(id, newPass);
-            if (!result.success) {
-                return res.json(result);
-            }
-            await require("../../services/authTokenStore").mutateJsonFile(CUSTOMER_USER_RESET_TOKENS_PATH, {}, (t) => {
-                delete t[id];
-            });
-            console.log(`パスワード再設定完了（顧客担当者）: ${id}`);
-            const user = await customerUserService.findCustomerUserByLoginId(id);
+            console.log(`パスワード再設定完了（顧客ユーザー）: ${id}`);
+            const user = await customerUserService.getUserRecordById(id);
             if (user && user.email) {
                 const customer = await customerService.getCustomerById(user.customerId);
                 mailService
                     .sendPasswordChangedNotification(
                         {
-                            customerId: user.userId,
-                            customerName: user.contactName || (customer && customer.customerName) || user.userId,
+                            customerId: user.customerId,
+                            customerName: customer ? customer.customerName : user.customerId,
                             email: user.email
                         },
-                        { sentByContactName: user.contactName || user.userId }
+                        { actorLabel: "システム（自動）" }
                     )
-                    .catch((err) => console.error("[setup] 担当者変更完了通知送信失敗:", err));
+                    .catch((err) => console.error("[setup] 変更完了通知送信失敗:", err));
             }
             return res.json({ success: true, message: "パスワードを変更しました。ログインしてください。" });
         }
@@ -592,20 +552,14 @@ router.post("/setup", async (req, res) => {
         }
 
         if (adminResetKind === "valid_admin_reset") {
-            const hashedPassword = await bcrypt.hash(newPass, 10);
-            const adminUpdate = await require("../../services/authTokenStore").mutateJsonFile(ADMINS_DB_PATH, [], async (adminList) => {
-                const admin = adminList.find(a => a.adminId === id);
-                if (!admin) return { ok: false };
-                admin.password = hashedPassword;
-                return { ok: true };
-            });
-            if (!adminUpdate.ok) {
+            const result = await adminUserService.updateUserPassword(id, newPass);
+            if (!result.success) {
                 await require("../../services/authTokenStore").mutateJsonFile(ADMIN_RESET_TOKENS_PATH, {}, (t) => { delete t[id]; });
-                return res.json({ success: false, message: "管理者が見つかりません" });
+                return res.json(result);
             }
             await require("../../services/authTokenStore").mutateJsonFile(ADMIN_RESET_TOKENS_PATH, {}, (t) => { delete t[id]; });
-            console.log(`パスワード再設定完了（管理者）: ${id}`);
-            return res.json({ success: true, message: "パスワードを変更しました。管理者ログイン画面からログインしてください。" });
+            console.log(`パスワード再設定完了（管理者ユーザー）: ${id}`);
+            return res.json({ success: true, message: "パスワードを変更しました。ログインしてください。" });
         }
 
         const inviteState = await require("../../services/authTokenStore").mutateJsonFile(INVITE_TOKENS_PATH, {}, async (tokens) => {
@@ -624,27 +578,29 @@ router.post("/setup", async (req, res) => {
             });
         }
 
-        const data = await fs.readFile(CUSTOMERS_DB_PATH, "utf-8");
-        const customerList = JSON.parse(data);
-        const customer = customerList.find(c => c.customerId === id);
-
-        if (!customer) {
-            return res.json({ success: false, message: "IDまたはパスワードが間違っています" });
+        const adminUser = await adminUserService.getUserRecordById(id);
+        const user = await customerUserService.getUserRecordById(id);
+        const accountUser = adminUser || user;
+        if (!accountUser || accountUser.active === false) {
+            return res.json({ success: false, message: "ユーザーが見つかりません" });
         }
 
-        const isMatch = await bcrypt.compare(tokenOrPass, customer.password);
+        const isMatch = await bcrypt.compare(tokenOrPass, accountUser.password);
 
         if (!isMatch) {
-            return res.json({ success: false, message: "IDまたはパスワードが間違っています" });
+            return res.json({ success: false, message: "リンクが無効か、パスワードが間違っています" });
         }
 
-        const result = await customerService.updateCustomerPassword(id, newPass);
+        const updatePassword = adminUser
+            ? () => adminUserService.updateUserPassword(id, newPass)
+            : () => customerUserService.updateUserPassword(id, newPass);
+        const result = await updatePassword();
 
         if (result.success) {
             if (inviteState.hasInvite && !inviteState.expired) {
                 await require("../../services/authTokenStore").mutateJsonFile(INVITE_TOKENS_PATH, {}, (tokens) => { delete tokens[id]; });
             }
-            console.log(`パスワード初期設定完了: ${id}`);
+            console.log(`パスワード初期設定完了: ${accountUser.email}`);
             res.json({ success: true, message: "設定が完了しました。ログインしてください。" });
         } else {
             res.json(result);

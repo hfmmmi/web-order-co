@@ -37,7 +37,7 @@ describe("Aランク: orders-api import catch 500", () => {
             throw new Error("parse ship");
         });
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.post("/api/import-shipping-csv").attach("file", Buffer.from("x"), "s.csv");
         expect(res.statusCode).toBe(500);
         expect(String(res.body.message || "")).toContain("parse ship");
@@ -48,7 +48,7 @@ describe("Aランク: orders-api import catch 500", () => {
             throw new Error("parse ext");
         });
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.post("/api/import-orders-csv").attach("file", Buffer.from("x"), "o.csv");
         expect(res.statusCode).toBe(500);
         expect(res.body.success).toBe(false);

@@ -1151,27 +1151,45 @@
 
                 <!-- アカウントタブ -->
                 <div id="tab-admin-account" class="tab-panel">
-                    <div class="admin-section staff-accounts-section">
-                        <p class="settings-muted-block" style="margin-top:0;">
-                            受注システム（管理者）と発注システム（顧客担当者）のログインアカウントを、担当者ごとに管理します。
-                            ID・パスワード・担当名（表示名）を設定してください。
-                        </p>
-
-                        <h3 class="staff-accounts-heading">受注システム（管理者）</h3>
-                        <p class="settings-muted-block">受注管理画面へのログインに使用します。</p>
-                        <div id="admin-accounts-list" class="staff-accounts-list"></div>
-                        <button type="button" id="btn-add-admin-account" class="btn-small settings-btn-announcement-add" style="margin-top:8px;">＋ 管理者を追加</button>
-
-                        <h3 class="staff-accounts-heading" style="margin-top:28px;">発注システム（顧客担当者）</h3>
-                        <p class="settings-muted-block">
-                            顧客向け発注画面へのログインに使用します。ログインIDは顧客ID（会社ID）とは別に設定します。
-                            担当者でログインした場合、カートの担当者名欄に担当名が自動入力されます。
-                        </p>
-                        <div id="customer-users-list" class="staff-accounts-list"></div>
-                        <button type="button" id="btn-add-customer-user" class="btn-small settings-btn-announcement-add" style="margin-top:8px;">＋ 担当者を追加</button>
-
-                        <div style="display:flex; justify-content:flex-end; margin-top:20px;">
-                            <button type="button" id="btn-save-staff-accounts" class="btn-primary" style="background:#8cc4dc; color:#111827; border:none; padding:8px 16px; font-weight:400;">担当者アカウントを保存</button>
+                    <div class="admin-section" data-settings-tab="admin-account">
+                        <p class="settings-muted-block" style="margin-top:0;">管理者はメールアドレスでログインします。操作はログイン中の管理者ごとに記録されます。</p>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
+                            <button type="button" id="btn-admin-user-template" class="page-header-toolbar-btn page-header-action-plain">ユーザーテンプレートDL</button>
+                            <button type="button" id="btn-admin-user-upload" class="page-header-toolbar-btn page-header-action-plain">ユーザー一括登録</button>
+                        </div>
+                        <input type="file" id="admin-user-csv-file-input" class="customer-csv-input-hidden" accept=".csv,.xlsx,.xls" tabindex="-1" aria-hidden="true">
+                        <div id="admin-users-list-wrap" style="margin-bottom:16px; max-height:260px; overflow:auto;"></div>
+                        <h4 style="margin:0 0 8px 0; font-size:1rem;">管理者ユーザー追加</h4>
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:8px;">
+                            <input type="email" id="au-admin-email" placeholder="メール（ログインID）" class="form-control">
+                            <input type="text" id="au-admin-display-name" placeholder="表示名" class="form-control">
+                            <select id="au-admin-role" class="form-control" aria-label="権限">
+                                <option value="user">一般</option>
+                                <option value="admin">管理者</option>
+                            </select>
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr auto; gap:8px; margin-bottom:20px;">
+                            <input type="text" id="au-admin-password" placeholder="初期パスワード（4文字以上）" class="form-control">
+                            <button type="button" id="au-admin-add-btn" class="page-header-toolbar-btn page-header-action-plain">追加</button>
+                        </div>
+                        <h4 style="margin:0 0 8px 0; font-size:1rem;">ログイン中のアカウント（自分）</h4>
+                        <div class="form-group">
+                            <label for="admin-account-email">メールアドレス</label>
+                            <input type="email" id="admin-account-email" class="form-control" autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label for="admin-account-name">表示名</label>
+                            <input type="text" id="admin-account-name" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="admin-account-role">権限</label>
+                            <input type="text" id="admin-account-role" class="form-control" readonly tabindex="-1" aria-readonly="true">
+                            <span class="hint">権限の変更は他の管理者ユーザーから行います。</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="admin-account-password">パスワード</label>
+                            <input type="password" id="admin-account-password" class="form-control" placeholder="変更する場合のみ入力（4文字以上）" autocomplete="new-password">
+                            <span class="hint" id="admin-account-password-hint">空欄のまま保存すると既存のパスワードを維持します。</span>
                         </div>
                         <div id="staff-accounts-status" class="hint" style="margin-top:10px;"></div>
                     </div>
@@ -1635,6 +1653,7 @@
     <script src="../js/admin-common.js"></script>
     <script src="../js/admin-settings-dataformats.js"></script>
     <script src="../js/admin-settings.js"></script>
+    <script src="../js/admin-settings-users.js?v=1.0"></script>
     <script src="../js/admin-products-stock.js"></script>
     <script src="../js/searchNormalize.js"></script>
     <script src="../js/admin-settings-prices.js"></script>

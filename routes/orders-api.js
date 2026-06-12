@@ -27,10 +27,18 @@ router.post("/place-order", validateBody(placeOrderSchema), async (req, res) => 
     if (!req.session.customerId) return res.json({ success: false, message: "ログインが必要です" });
 
     const { cart, deliveryInfo } = req.body;
-    const { customerId, customerName, priceRank } = req.session;
+    const { customerId, customerName, priceRank, userId, userEmail, userDisplayName } = req.session;
 
     try {
-        const newOrder = await orderService.placeOrder(customerId, cart, deliveryInfo, priceRank || "", undefined, getActorNameFromSession(req.session));
+        const newOrder = await orderService.placeOrder(
+            customerId,
+            cart,
+            deliveryInfo,
+            priceRank || "",
+            undefined,
+            getActorNameFromSession(req.session),
+            { userId, userEmail, userDisplayName }
+        );
         mailService
             .sendOrderConfirmation(newOrder, customerName, mailLogMetaFromSession(req.session))
             .catch((e) => console.error(e));

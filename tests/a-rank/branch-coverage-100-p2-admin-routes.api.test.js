@@ -50,7 +50,7 @@ describe("branch coverage 100 P2: admin stocks/settings 401", () => {
     });
 
     test("POST /api/login は不正パスワードで失敗", async () => {
-        const res = await request(app).post("/api/login").send({ id: "TEST001", pass: "WrongPass!!!" });
+        const res = await request(app).post("/api/login").send({ id: "test001@example.com", pass: "WrongPass!!!" });
         expect(res.body.success === false || res.statusCode >= 400).toBe(true);
     });
 });

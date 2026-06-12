@@ -39,7 +39,7 @@ describe("Aランク: catalogRoutes rank 欠落フォールバック", () => {
         try {
             await fs.unlink(rankPath);
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.post("/cart-details").send({ cart: [{ productCode: "P001", quantity: 1 }] });
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(true);
@@ -54,7 +54,7 @@ describe("Aランク: catalogRoutes rank 欠落フォールバック", () => {
         try {
             await fs.unlink(rankPath);
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.get("/products/frequent?limit=5");
             expect(res.statusCode).toBe(200);
             expect(Array.isArray(res.body.items)).toBe(true);
@@ -69,7 +69,7 @@ describe("Aランク: catalogRoutes rank 欠落フォールバック", () => {
         try {
             await fs.unlink(rankPath);
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.get("/download-my-pricelist");
             expect(res.statusCode).toBe(200);
             expect(String(res.text || "")).toContain("商品コード");

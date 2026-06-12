@@ -52,7 +52,7 @@ describe("Sランク: セッション固定化対策とレート制限境界", (
 
         const customerLogin = await agent
             .post("/api/login")
-            .send({ id: "TEST001", pass: "CustPass123!" });
+            .send({ id: "test001@example.com", pass: "CustPass123!" });
         expect(customerLogin.statusCode).toBe(200);
         expect(customerLogin.body.success).toBe(true);
         const sidAfterCustomerLogin = extractSid(customerLogin.headers["set-cookie"]);
@@ -60,7 +60,7 @@ describe("Sランク: セッション固定化対策とレート制限境界", (
 
         const adminLogin = await agent
             .post("/api/admin/login")
-            .send({ id: "test-admin", pass: "AdminPass123!" });
+            .send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         expect(adminLogin.statusCode).toBe(200);
         expect(adminLogin.body.success).toBe(true);
         const sidAfterAdminLogin = extractSid(adminLogin.headers["set-cookie"]);
@@ -82,7 +82,7 @@ describe("Sランク: セッション固定化対策とレート制限境界", (
 
         const adminLogin = await agent
             .post("/api/admin/login")
-            .send({ id: "test-admin", pass: "AdminPass123!" });
+            .send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         expect(adminLogin.statusCode).toBe(200);
         expect(adminLogin.body.success).toBe(true);
         const sidAfterAdminLogin = extractSid(adminLogin.headers["set-cookie"]);
@@ -90,7 +90,7 @@ describe("Sランク: セッション固定化対策とレート制限境界", (
 
         const customerLogin = await agent
             .post("/api/login")
-            .send({ id: "TEST001", pass: "CustPass123!" });
+            .send({ id: "test001@example.com", pass: "CustPass123!" });
         expect(customerLogin.statusCode).toBe(200);
         expect(customerLogin.body.success).toBe(true);
         const sidAfterCustomerLogin = extractSid(customerLogin.headers["set-cookie"]);
@@ -113,13 +113,13 @@ describe("Sランク: セッション固定化対策とレート制限境界", (
 
         const adminLogin = await adminAgent
             .post("/api/admin/login")
-            .send({ id: "test-admin", pass: "AdminPass123!" });
+            .send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         expect(adminLogin.statusCode).toBe(200);
         expect(adminLogin.body.success).toBe(true);
         const sidAfterAdminLogin = extractSid(adminLogin.headers["set-cookie"]);
         expect(sidAfterAdminLogin).toContain("weborder.sid=");
 
-        await customerAgent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await customerAgent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         await adminAgent.post("/api/admin/proxy-request").send({ customerId: "TEST001" });
         await customerAgent.post("/api/account/proxy-request/approve").send({});
 
@@ -143,7 +143,7 @@ describe("Sランク: セッション固定化対策とレート制限境界", (
         for (let i = 0; i < 5; i += 1) {
             const fail = await request(app)
                 .post("/api/login")
-                .send({ id: "TEST001", pass: "WrongPassword!" });
+                .send({ id: "test001@example.com", pass: "WrongPassword!" });
             expect(fail.statusCode).toBe(200);
             expect(fail.body.success).toBe(false);
         }
@@ -151,7 +151,7 @@ describe("Sランク: セッション固定化対策とレート制限境界", (
         fakeNow += (15 * 60 * 1000) - 1000;
         const stillLocked = await request(app)
             .post("/api/login")
-            .send({ id: "TEST001", pass: "CustPass123!" });
+            .send({ id: "test001@example.com", pass: "CustPass123!" });
         expect(stillLocked.statusCode).toBe(200);
         expect(stillLocked.body.success).toBe(false);
         expect(stillLocked.body.message).toContain("15分後");
@@ -159,7 +159,7 @@ describe("Sランク: セッション固定化対策とレート制限境界", (
         fakeNow += 1000;
         const unlocked = await request(app)
             .post("/api/login")
-            .send({ id: "TEST001", pass: "CustPass123!" });
+            .send({ id: "test001@example.com", pass: "CustPass123!" });
         expect(unlocked.statusCode).toBe(200);
         expect(unlocked.body.success).toBe(true);
     });

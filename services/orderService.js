@@ -95,7 +95,7 @@ class OrderService {
     }
 
     // 新規注文作成（orderDateYmd: 管理画面など YYYY-MM-DD を渡すとその日の JST 0時を orderDate に保存）
-    async placeOrder(customerId, cart, deliveryInfo, myRank, orderDateYmd, auditActor) {
+    async placeOrder(customerId, cart, deliveryInfo, myRank, orderDateYmd, auditActor, actor) {
         return await runWithJsonFileWriteLock(ORDERS_DB, async () => {
             const [productMaster, priceList, rankPriceMap, orders] = await Promise.all([
                 this._loadJson(PRODUCTS_DB),
@@ -150,7 +150,10 @@ class OrderService {
                 status: "未発送",
                 shipments: [],
                 exported_at: null,
-                stockSnapshot: null
+                stockSnapshot: null,
+                placedByUserId: actor && actor.userId ? actor.userId : null,
+                placedByEmail: actor && actor.userEmail ? actor.userEmail : null,
+                placedByName: actor && (actor.userDisplayName || actor.contactName) ? (actor.userDisplayName || actor.contactName) : null
             };
 
             applyAuditOnCreate(newOrder, auditActor);

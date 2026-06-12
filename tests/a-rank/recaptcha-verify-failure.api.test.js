@@ -81,7 +81,7 @@ describe("Aランク: reCAPTCHA検証API障害時の安全側動作", () => {
 
         const adminLogin = await adminAgent
             .post("/api/admin/login")
-            .send({ id: "test-admin", pass: "AdminPass123!" });
+            .send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         expect(adminLogin.statusCode).toBe(200);
         expect(adminLogin.body.success).toBe(true);
 
@@ -94,12 +94,12 @@ describe("Aランク: reCAPTCHA検証API障害時の安全側動作", () => {
         expect(saveRecaptcha.statusCode).toBe(200);
         expect(saveRecaptcha.body.success).toBe(true);
 
-        await request(app).post("/api/login").send({ id: "TEST001", pass: "WrongPassword!" });
-        await request(app).post("/api/login").send({ id: "TEST001", pass: "WrongPassword!" });
+        await request(app).post("/api/login").send({ id: "test001@example.com", pass: "WrongPassword!" });
+        await request(app).post("/api/login").send({ id: "test001@example.com", pass: "WrongPassword!" });
 
         const third = await request(app)
             .post("/api/login")
-            .send({ id: "TEST001", pass: "WrongPassword!", captchaToken: "dummy-token" });
+            .send({ id: "test001@example.com", pass: "WrongPassword!", captchaToken: "dummy-token" });
 
         expect(third.statusCode).toBe(200);
         expect(third.body.success).toBe(false);

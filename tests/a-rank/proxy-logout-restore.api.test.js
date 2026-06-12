@@ -33,10 +33,10 @@ describe("Aランク: proxy-logout 復元挙動", () => {
         const adminAgent = request.agent(app);
         const targetCustomerAgent = request.agent(app);
 
-        await adminAgent.post("/api/login").send({ id: "TEST002", pass: "CustPass123!" });
-        await adminAgent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await adminAgent.post("/api/login").send({ id: "test002@example.com", pass: "CustPass123!" });
+        await adminAgent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
 
-        await targetCustomerAgent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await targetCustomerAgent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         await adminAgent.post("/api/admin/proxy-request").send({ customerId: "TEST001" });
         await targetCustomerAgent.post("/api/account/proxy-request/approve").send({});
 
@@ -69,8 +69,8 @@ describe("Aランク: proxy-logout 復元挙動", () => {
         const adminAgent = request.agent(app);
         const targetCustomerAgent = request.agent(app);
 
-        await adminAgent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
-        await targetCustomerAgent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await adminAgent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
+        await targetCustomerAgent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         await adminAgent.post("/api/admin/proxy-request").send({ customerId: "TEST001" });
         await targetCustomerAgent.post("/api/account/proxy-request/approve").send({});
 

@@ -17,7 +17,7 @@ describe("Sランク: 認証API", () => {
     test("顧客ログインが成功する", async () => {
         const res = await request(app)
             .post("/api/login")
-            .send({ id: "TEST001", pass: "CustPass123!" });
+            .send({ id: "test001@example.com", pass: "CustPass123!" });
 
         expect(res.statusCode).toBe(200);
         expect(res.body.success).toBe(true);
@@ -27,7 +27,7 @@ describe("Sランク: 認証API", () => {
     test("管理者ログインが成功する", async () => {
         const res = await request(app)
             .post("/api/admin/login")
-            .send({ id: "test-admin", pass: "AdminPass123!" });
+            .send({ id: "test-admin@example.com", pass: "AdminPass123!" });
 
         expect(res.statusCode).toBe(200);
         expect(res.body.success).toBe(true);

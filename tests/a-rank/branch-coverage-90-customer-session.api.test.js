@@ -50,8 +50,8 @@ describe("分岐90向け: customerSessionRoutes", () => {
         });
         jest.spyOn(recaptcha, "verifyRecaptcha").mockResolvedValue(true);
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "wrong" });
-        await agent.post("/api/login").send({ id: "TEST001", pass: "wrong" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "wrong" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "wrong" });
         const res = await agent.post("/api/login").send({
             id: "TEST001",
             pass: "CustPass123!",
@@ -65,9 +65,9 @@ describe("分岐90向け: customerSessionRoutes", () => {
             recaptcha: { siteKey: "site", secretKey: "secret-for-captcha-req" }
         });
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "wrong" });
-        await agent.post("/api/login").send({ id: "TEST001", pass: "wrong" });
-        const res = await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "wrong" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "wrong" });
+        const res = await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         expect(res.body.success).toBe(false);
         expect(res.body.captchaRequired).toBe(true);
     });
@@ -78,8 +78,8 @@ describe("分岐90向け: customerSessionRoutes", () => {
         });
         jest.spyOn(recaptcha, "verifyRecaptcha").mockResolvedValue(false);
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "wrong" });
-        await agent.post("/api/login").send({ id: "TEST001", pass: "wrong" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "wrong" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "wrong" });
         const res = await agent.post("/api/login").send({
             id: "TEST001",
             pass: "CustPass123!",
@@ -92,15 +92,15 @@ describe("分岐90向け: customerSessionRoutes", () => {
     test("顧客5回失敗かつメールありでログイン失敗アラート", async () => {
         const agent = request.agent(app);
         for (let i = 0; i < 5; i++) {
-            await agent.post("/api/login").send({ id: "TEST001", pass: "wrong" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "wrong" });
         }
         expect(mailService.sendLoginFailureAlert.mock.calls.length).toBeGreaterThanOrEqual(1);
     });
 
     test("顧客ログイン後に管理者ログインし、顧客ログアウトでセッション破棄しない", async () => {
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
-        await agent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
+        await agent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const out = await agent.post("/api/logout").send({});
         expect(out.body.success).toBe(true);
         const chk = await agent.get("/api/admin/check");
@@ -109,7 +109,7 @@ describe("分岐90向け: customerSessionRoutes", () => {
 
     test("GET /api/account/proxy-request は申請なしで pending false", async () => {
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/api/account/proxy-request");
         expect(res.body.pending).toBe(false);
     });
@@ -120,7 +120,7 @@ describe("分岐90向け: customerSessionRoutes", () => {
             TEST001: { requestedAt: now, approved: false, adminName: "Mgr" }
         });
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/api/account/proxy-request");
         expect(res.body.pending).toBe(true);
         expect(res.body.adminName).toBeTruthy();
@@ -132,7 +132,7 @@ describe("分岐90向け: customerSessionRoutes", () => {
             TEST001: { requestedAt: old, approved: false, adminName: "Mgr" }
         });
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/api/account/proxy-request");
         expect(res.body.pending).toBe(false);
         const pr = await readJson("proxy_requests.json");
@@ -144,7 +144,7 @@ describe("分岐90向け: customerSessionRoutes", () => {
             TEST001: { requestedAt: Date.now(), approved: true, adminName: "Mgr" }
         });
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/api/account/proxy-request");
         expect(res.body.pending).toBe(false);
     });
@@ -155,7 +155,7 @@ describe("分岐90向け: customerSessionRoutes", () => {
             TEST001: { requestedAt: old, approved: false, adminName: "Mgr" }
         });
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.post("/api/account/proxy-request/approve").send({});
         expect(res.body.success).toBe(false);
         expect(String(res.body.message || "")).toMatch(/期限/);
@@ -164,7 +164,7 @@ describe("分岐90向け: customerSessionRoutes", () => {
     test("GET /api/account/settings は顧客が存在しなければ 404", async () => {
         jest.spyOn(customerService, "getCustomerById").mockResolvedValueOnce(null);
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/api/account/settings");
         expect(res.status).toBe(404);
     });
@@ -175,7 +175,7 @@ describe("分岐90向け: customerSessionRoutes", () => {
             message: "NG"
         });
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.put("/api/account/settings").send({ allowProxyLogin: true });
         expect(res.status).toBe(400);
     });
@@ -228,7 +228,7 @@ describe("分岐90向け: customerSessionRoutes", () => {
     test("GET /api/account/proxy-request は mutate 失敗時 pending false", async () => {
         jest.spyOn(proxyRequestsStore, "mutateProxyRequests").mockRejectedValueOnce(new Error("proxy io"));
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/api/account/proxy-request");
         expect(res.body.pending).toBe(false);
     });
@@ -238,7 +238,7 @@ describe("分岐90向け: customerSessionRoutes", () => {
             TEST001: { requestedAt: Date.now(), approved: false, adminName: "" }
         });
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/api/account/proxy-request");
         expect(res.body.pending).toBe(true);
         expect(res.body.adminName).toBe("管理者");
@@ -253,7 +253,7 @@ describe("分岐90向け: customerSessionRoutes", () => {
         const agent = request.agent(app);
         const before = mailService.sendLoginFailureAlert.mock.calls.length;
         for (let i = 0; i < 5; i++) {
-            await agent.post("/api/login").send({ id: "TEST001", pass: "wrong" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "wrong" });
         }
         expect(mailService.sendLoginFailureAlert.mock.calls.length).toBe(before);
     });
@@ -261,7 +261,7 @@ describe("分岐90向け: customerSessionRoutes", () => {
     test("GET /api/account/settings は取得例外で 500", async () => {
         jest.spyOn(customerService, "getCustomerById").mockRejectedValueOnce(new Error("db"));
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.get("/api/account/settings");
         expect(res.status).toBe(500);
     });
@@ -269,21 +269,21 @@ describe("分岐90向け: customerSessionRoutes", () => {
     test("PUT /api/account/settings は保存例外で 500", async () => {
         jest.spyOn(customerService, "updateCustomerAllowProxy").mockRejectedValueOnce(new Error("db"));
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.put("/api/account/settings").send({ allowProxyLogin: false });
         expect(res.status).toBe(500);
     });
 
     test("顧客ログインは設定取得失敗でシステムエラー", async () => {
         jest.spyOn(settingsService, "getSettings").mockRejectedValueOnce(new Error("boom"));
-        const res = await request(app).post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        const res = await request(app).post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         expect(res.body.success).toBe(false);
         expect(String(res.body.message || "")).toContain("システム");
     });
 
     test("顧客ログインはセッション保存失敗で失敗メッセージ", async () => {
         jest.spyOn(sessionAsync, "saveSession").mockRejectedValueOnce(new Error("sess"));
-        const res = await request(app).post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        const res = await request(app).post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         expect(res.body.success).toBe(false);
         expect(String(res.body.message || "")).toMatch(/セッション/);
     });
@@ -293,7 +293,7 @@ describe("分岐90向け: customerSessionRoutes", () => {
             TEST001: { requestedAt: Date.now(), approved: false, adminName: "Mgr" }
         });
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.post("/api/account/proxy-request/approve").send({});
         expect(res.body.success).toBe(true);
     });
@@ -301,7 +301,7 @@ describe("分岐90向け: customerSessionRoutes", () => {
     test("POST /api/account/proxy-request/reject は mutate 失敗で500", async () => {
         jest.spyOn(proxyRequestsStore, "mutateProxyRequests").mockRejectedValueOnce(new Error("rej"));
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await agent.post("/api/account/proxy-request/reject").send({});
         expect(res.status).toBe(500);
     });

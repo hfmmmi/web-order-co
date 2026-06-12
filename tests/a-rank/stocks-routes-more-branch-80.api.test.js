@@ -38,7 +38,7 @@ describe("Aランク: stocksRoutes 分岐80%向け（追加）", () => {
         jest.spyOn(stockService, "getAdapterConfig").mockResolvedValueOnce({ display: { enabled: true } });
         jest.spyOn(stockService, "getDisplaySettings").mockResolvedValueOnce({ enabled: true });
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/api/admin/stocks/settings");
         expect(res.statusCode).toBe(200);
         expect(res.body.adapters).toEqual([]);
@@ -52,7 +52,7 @@ describe("Aランク: stocksRoutes 分岐80%向け（追加）", () => {
         });
         const saveSpy = jest.spyOn(stockService, "saveAdapterConfig").mockImplementation(async (c) => c);
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.put("/api/admin/stocks/settings").send({ adapters: incoming });
         expect(res.statusCode).toBe(200);
         expect(saveSpy.mock.calls[0][0].adapters).toEqual(incoming);
@@ -66,7 +66,7 @@ describe("Aランク: stocksRoutes 分岐80%向け（追加）", () => {
         });
         const saveSpy = jest.spyOn(stockService, "saveAdapterConfig").mockImplementation(async (c) => c);
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.put("/api/admin/stocks/settings").send({ adapters: [] });
         expect(res.statusCode).toBe(200);
         expect(saveSpy.mock.calls[0][0].display.hiddenMessage).toBe("keep");
@@ -80,7 +80,7 @@ describe("Aランク: stocksRoutes 分岐80%向け（追加）", () => {
         });
         const saveSpy = jest.spyOn(stockService, "saveAdapterConfig").mockImplementation(async (c) => c);
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.put("/api/admin/stocks/settings").send({ display: {}, adapters: "nope" });
         expect(res.statusCode).toBe(200);
         expect(saveSpy).toHaveBeenCalled();
@@ -93,7 +93,7 @@ describe("Aランク: stocksRoutes 分岐80%向け（追加）", () => {
     test("GET /api/admin/stocks/settings は取得失敗で500", async () => {
         jest.spyOn(stockService, "getAdapterConfig").mockRejectedValueOnce(new Error("cfg"));
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/api/admin/stocks/settings");
         expect(res.statusCode).toBe(500);
     });
@@ -102,7 +102,7 @@ describe("Aランク: stocksRoutes 分岐80%向け（追加）", () => {
         jest.spyOn(stockService, "getAdapterConfig").mockResolvedValueOnce({ display: {}, adapters: [] });
         jest.spyOn(stockService, "saveAdapterConfig").mockRejectedValueOnce(new Error("save"));
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.put("/api/admin/stocks/settings").send({ display: {} });
         expect(res.statusCode).toBe(500);
     });
@@ -110,14 +110,14 @@ describe("Aランク: stocksRoutes 分岐80%向け（追加）", () => {
     test("GET /api/admin/stocks は一覧取得失敗で500", async () => {
         jest.spyOn(stockService, "getAllStocks").mockRejectedValueOnce(new Error("list"));
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/api/admin/stocks");
         expect(res.statusCode).toBe(500);
     });
 
     test("POST /api/admin/stocks/import はファイル無しで400", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.post("/api/admin/stocks/import");
         expect(res.statusCode).toBe(400);
     });
@@ -125,7 +125,7 @@ describe("Aランク: stocksRoutes 分岐80%向け（追加）", () => {
     test("POST /api/admin/stocks/import は adapter.run 失敗で500", async () => {
         jest.spyOn(CsvAdapter.prototype, "run").mockRejectedValueOnce(new Error("csv bad"));
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const csv = Buffer.from("productCode,totalQty\nX,1", "utf-8");
         const res = await admin.post("/api/admin/stocks/import").attach("stockFile", csv, "s.csv");
         expect(res.statusCode).toBe(500);
@@ -140,7 +140,7 @@ describe("Aランク: stocksRoutes 分岐80%向け（追加）", () => {
         }
         jest.spyOn(excelReader.ExcelJS, "Workbook").mockImplementationOnce(FailingWorkbook);
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/api/admin/stocks/template");
         expect(res.statusCode).toBe(500);
     });
@@ -148,14 +148,14 @@ describe("Aランク: stocksRoutes 分岐80%向け（追加）", () => {
     test("GET /api/admin/stocks/history は失敗で500", async () => {
         jest.spyOn(stockService, "getHistory").mockRejectedValueOnce(new Error("hist"));
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/api/admin/stocks/history");
         expect(res.statusCode).toBe(500);
     });
 
     test("POST /api/admin/stocks/manual-adjust は productCode 無しで400", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.post("/api/admin/stocks/manual-adjust").send({ totalQty: 1 });
         expect(res.statusCode).toBe(400);
     });
@@ -163,7 +163,7 @@ describe("Aランク: stocksRoutes 分岐80%向け（追加）", () => {
     test("POST /api/admin/stocks/manual-adjust は saveStock 失敗で500", async () => {
         jest.spyOn(stockService, "saveStock").mockRejectedValueOnce(new Error("save"));
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.post("/api/admin/stocks/manual-adjust").send({ productCode: "P001" });
         expect(res.statusCode).toBe(500);
     });
@@ -171,7 +171,7 @@ describe("Aランク: stocksRoutes 分岐80%向け（追加）", () => {
     test("POST /api/admin/stocks/manual-adjust は publish false を保存する", async () => {
         const saveSpy = jest.spyOn(stockService, "saveStock").mockResolvedValueOnce(undefined);
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin
             .post("/api/admin/stocks/manual-adjust")
             .send({ productCode: "P001", publish: false });
@@ -183,7 +183,7 @@ describe("Aランク: stocksRoutes 分岐80%向け（追加）", () => {
 
     test("POST /api/admin/stocks/manual-reserve は items 空で400", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.post("/api/admin/stocks/manual-reserve").send({ items: [] });
         expect(res.statusCode).toBe(400);
     });
@@ -191,7 +191,7 @@ describe("Aランク: stocksRoutes 分岐80%向け（追加）", () => {
     test("POST /api/admin/stocks/manual-reserve は失敗で400", async () => {
         jest.spyOn(stockService, "reserve").mockRejectedValueOnce(new Error("no stock"));
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.post("/api/admin/stocks/manual-reserve").send({
             items: [{ productCode: "P001", quantity: 99999 }]
         });
@@ -201,7 +201,7 @@ describe("Aランク: stocksRoutes 分岐80%向け（追加）", () => {
     test("POST /api/admin/stocks/manual-release は release 失敗で500", async () => {
         jest.spyOn(stockService, "release").mockRejectedValueOnce(new Error("release fail"));
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.post("/api/admin/stocks/manual-release").send({
             items: [{ productCode: "P001", quantity: 1 }]
         });
@@ -211,7 +211,7 @@ describe("Aランク: stocksRoutes 分岐80%向け（追加）", () => {
     test("POST /api/admin/kaitori/parse-excel は読込例外で500", async () => {
         jest.spyOn(excelReader, "readToObjects").mockRejectedValueOnce(new Error("bad xlsx"));
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const buf = Buffer.from([0x50, 0x4b, 3, 4]);
         const res = await admin.post("/api/admin/kaitori/parse-excel").attach("excelFile", buf, "x.xlsx");
         expect(res.statusCode).toBe(500);
@@ -220,7 +220,7 @@ describe("Aランク: stocksRoutes 分岐80%向け（追加）", () => {
     test("POST /api/admin/kaitori/parse-excel は message 無し例外でも500", async () => {
         jest.spyOn(excelReader, "readToObjects").mockRejectedValueOnce(new Error(""));
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const buf = Buffer.from([0x50, 0x4b, 3, 4]);
         const res = await admin.post("/api/admin/kaitori/parse-excel").attach("excelFile", buf, "y.xlsx");
         expect(res.statusCode).toBe(500);
@@ -229,7 +229,7 @@ describe("Aランク: stocksRoutes 分岐80%向け（追加）", () => {
     test("GET /api/admin/stocks/:productCode は無い商品で404", async () => {
         jest.spyOn(stockService, "getStock").mockResolvedValueOnce(null);
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/api/admin/stocks/NOPE");
         expect(res.statusCode).toBe(404);
     });
@@ -237,7 +237,7 @@ describe("Aランク: stocksRoutes 分岐80%向け（追加）", () => {
     test("GET /api/admin/stocks/:productCode は取得例外で500", async () => {
         jest.spyOn(stockService, "getStock").mockRejectedValueOnce(new Error("db"));
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/api/admin/stocks/P001");
         expect(res.statusCode).toBe(500);
     });

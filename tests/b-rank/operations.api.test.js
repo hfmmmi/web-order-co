@@ -31,7 +31,7 @@ describe("Bランク: 周辺業務API", () => {
 
     test("products/frequent は注文回数順で返す", async () => {
         const customerAgent = request.agent(app);
-        await customerAgent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await customerAgent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
 
         const makeOrder = (cart) => customerAgent.post("/place-order").send({
             cart,
@@ -58,7 +58,7 @@ describe("Bランク: 周辺業務API", () => {
 
     test("support/my-tickets は本人チケットのみ返す", async () => {
         const customerAgent = request.agent(app);
-        await customerAgent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await customerAgent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
 
         const create = await customerAgent.post("/request-support").send({
             category: "bug",
@@ -89,7 +89,7 @@ describe("Bランク: 周辺業務API", () => {
 
     test("delivery-history / shipper-history が履歴を返す", async () => {
         const customerAgent = request.agent(app);
-        await customerAgent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await customerAgent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
 
         const placed = await customerAgent.post("/place-order").send({
             cart: [{ code: "P001", quantity: 1 }],
@@ -123,7 +123,7 @@ describe("Bランク: 周辺業務API", () => {
 
     test("管理者向けCSVと在庫テンプレートが取得できる", async () => {
         const adminAgent = request.agent(app);
-        await adminAgent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await adminAgent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
 
         const csv = await adminAgent.get("/api/download-csv");
         expect(csv.statusCode).toBe(200);
@@ -136,7 +136,7 @@ describe("Bランク: 周辺業務API", () => {
 
     test("買取Excel解析APIがExcelファイルを受け付ける", async () => {
         const adminAgent = request.agent(app);
-        await adminAgent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await adminAgent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
 
         const workbook = new ExcelJS.Workbook();
         const sheet = workbook.addWorksheet("Sheet1");

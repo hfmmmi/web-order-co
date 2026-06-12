@@ -36,7 +36,7 @@ describe("Aランク: stocksRoutes 分岐82%向け", () => {
     test("POST /api/admin/kaitori/parse-excel は readToObjects 失敗で500", async () => {
         jest.spyOn(excelReader, "readToObjects").mockRejectedValueOnce(new Error("bad xlsx"));
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const pk = Buffer.from([0x50, 0x4b, 3, 4]);
         const res = await admin.post("/api/admin/kaitori/parse-excel").attach("excelFile", pk, "bad.xlsx");
         expect(res.statusCode).toBe(500);
@@ -46,7 +46,7 @@ describe("Aランク: stocksRoutes 分岐82%向け", () => {
 
     test("PUT /api/admin/stocks/settings は adapters が配列でないとき既存を維持する", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const cur = await admin.get("/api/admin/stocks/settings");
         expect(cur.statusCode).toBe(200);
         const adaptersBefore = cur.body.adapters;
@@ -64,7 +64,7 @@ describe("Aランク: stocksRoutes 分岐82%向け", () => {
 
     test("POST /api/admin/stocks/manual-adjust は publish=false と warehouses を反映する", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.post("/api/admin/stocks/manual-adjust").send({
             productCode: "P001",
             totalQty: 3,
@@ -81,7 +81,7 @@ describe("Aランク: stocksRoutes 分岐82%向け", () => {
     test("POST /api/admin/stocks/manual-release は stockService.release 失敗で500", async () => {
         jest.spyOn(stockService, "release").mockRejectedValueOnce(new Error("release failed"));
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.post("/api/admin/stocks/manual-release").send({
             items: [{ productCode: "P001", quantity: 1 }]
         });

@@ -36,7 +36,7 @@ describe("Aランク: admin pricesRoutes 分岐", () => {
     test("POST /api/admin/save-rank-prices は保存失敗で500", async () => {
         jest.spyOn(priceService, "saveRankPrices").mockRejectedValueOnce(new Error("disk full"));
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.post("/api/admin/save-rank-prices").send({ rows: [] });
         expect(res.statusCode).toBe(500);
     });
@@ -44,7 +44,7 @@ describe("Aランク: admin pricesRoutes 分岐", () => {
     test("GET /api/admin/rank-prices-list は取得失敗で500", async () => {
         jest.spyOn(priceService, "getRankPrices").mockRejectedValueOnce(new Error("read fail"));
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/api/admin/rank-prices-list");
         expect(res.statusCode).toBe(500);
     });
@@ -52,7 +52,7 @@ describe("Aランク: admin pricesRoutes 分岐", () => {
     test("GET /api/admin/special-prices-list は取得失敗で500", async () => {
         jest.spyOn(priceService, "getAllSpecialPrices").mockRejectedValueOnce(new Error("read"));
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/api/admin/special-prices-list");
         expect(res.statusCode).toBe(500);
     });
@@ -60,14 +60,14 @@ describe("Aランク: admin pricesRoutes 分岐", () => {
     test("GET /api/admin/download-pricelist-by-rank/:rank は CSV 生成失敗で500", async () => {
         jest.spyOn(priceService, "getPricelistCsvForRank").mockRejectedValueOnce(new Error("csv"));
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/api/admin/download-pricelist-by-rank/A");
         expect(res.statusCode).toBe(500);
     });
 
     test("GET /api/admin/download-pricelist-by-rank は rank パラメータを正規化する", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/api/admin/download-pricelist-by-rank/b1");
         expect(res.statusCode).toBe(200);
         expect(res.headers["content-type"]).toContain("text/csv");
@@ -76,14 +76,14 @@ describe("Aランク: admin pricesRoutes 分岐", () => {
     test("GET /api/admin/rank-list は getRankList 失敗で500（settings）", async () => {
         jest.spyOn(settingsService, "getRankList").mockRejectedValueOnce(new Error("rank"));
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/api/admin/rank-list");
         expect(res.statusCode).toBe(500);
     });
 
     test("GET /api/admin/rank-list は成功時にランク一覧JSONを返す", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/api/admin/rank-list");
         expect(res.statusCode).toBe(200);
         expect(Array.isArray(res.body)).toBe(true);
@@ -92,7 +92,7 @@ describe("Aランク: admin pricesRoutes 分岐", () => {
     test("GET /api/admin/customer-price-list は取得失敗時に空配列", async () => {
         jest.spyOn(priceService, "getCustomerPriceList").mockRejectedValueOnce(new Error("db"));
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/api/admin/customer-price-list?customerId=TEST001");
         expect(res.statusCode).toBe(200);
         expect(Array.isArray(res.body)).toBe(true);
@@ -101,7 +101,7 @@ describe("Aランク: admin pricesRoutes 分岐", () => {
 
     test("GET /api/admin/download-pricelist-excel-by-rank は Excel を返す", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/api/admin/download-pricelist-excel-by-rank/b");
         expect(res.statusCode).toBe(200);
         expect(res.headers["content-type"] || "").toContain("spreadsheet");
@@ -109,7 +109,7 @@ describe("Aランク: admin pricesRoutes 分岐", () => {
 
     test("GET /api/admin/download-pricelist-excel-by-rank は記号のみ rank を A に正規化", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const spy = jest.spyOn(priceService, "getPricelistExcelForRank").mockResolvedValueOnce({
             buffer: Buffer.from([1, 2]),
             filename: "f.xlsx"
@@ -123,14 +123,14 @@ describe("Aランク: admin pricesRoutes 分岐", () => {
     test("GET /api/admin/download-pricelist-excel-by-rank は生成失敗で500", async () => {
         jest.spyOn(priceService, "getPricelistExcelForRank").mockRejectedValueOnce(new Error("xlsx"));
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/api/admin/download-pricelist-excel-by-rank/A");
         expect(res.statusCode).toBe(500);
     });
 
     test("GET /api/admin/download-pricelist-by-rank は数字のみの rank を A に正規化する", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const spy = jest.spyOn(priceService, "getPricelistCsvForRank").mockResolvedValueOnce({
             csv: "ok",
             filename: "f.csv"
@@ -143,7 +143,7 @@ describe("Aランク: admin pricesRoutes 分岐", () => {
 
     test("GET /api/admin/download-pricelist-by-rank は記号のみ rank を A に正規化する", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const spy = jest.spyOn(priceService, "getPricelistCsvForRank").mockResolvedValueOnce({
             csv: "ok",
             filename: "f.csv"
@@ -156,7 +156,7 @@ describe("Aランク: admin pricesRoutes 分岐", () => {
 
     test("GET /api/admin/download-pricelist-excel-by-rank は数字のみ rank を A に正規化する", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const spy = jest.spyOn(priceService, "getPricelistExcelForRank").mockResolvedValueOnce({
             buffer: Buffer.from([1, 2]),
             filename: "f.xlsx"

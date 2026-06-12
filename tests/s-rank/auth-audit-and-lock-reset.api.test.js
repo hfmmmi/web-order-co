@@ -33,8 +33,8 @@ describe("Sランク: ログイン失敗管理", () => {
     });
 
     test("ログイン成功時に login_rate_limit がクリアされる", async () => {
-        await request(app).post("/api/login").send({ id: "TEST001", pass: "WrongPassword!" });
-        await request(app).post("/api/login").send({ id: "TEST001", pass: "WrongPassword!" });
+        await request(app).post("/api/login").send({ id: "test001@example.com", pass: "WrongPassword!" });
+        await request(app).post("/api/login").send({ id: "test001@example.com", pass: "WrongPassword!" });
 
         const before = await readJson("login_rate_limit.json");
         expect(Array.isArray(before["customer:TEST001"]?.attempts)).toBe(true);
@@ -42,7 +42,7 @@ describe("Sランク: ログイン失敗管理", () => {
 
         const success = await request(app)
             .post("/api/login")
-            .send({ id: "TEST001", pass: "CustPass123!" });
+            .send({ id: "test001@example.com", pass: "CustPass123!" });
         expect(success.statusCode).toBe(200);
         expect(success.body.success).toBe(true);
 

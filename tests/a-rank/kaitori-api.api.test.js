@@ -49,7 +49,7 @@ describe("Aランク: 買取API", () => {
 
         test("顧客ログイン後は申請成功", async () => {
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.post("/kaitori-request").send({
                 items: [{ name: "テスト品", quantity: 2 }],
                 note: "テスト備考"
@@ -80,7 +80,7 @@ describe("Aランク: 買取API", () => {
                 { requestId: 1, customerId: "TEST001", status: "未対応", requestDate: new Date().toISOString() }
             ]);
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/admin/kaitori-list");
             expect(res.statusCode).toBe(200);
             expect(Array.isArray(res.body)).toBe(true);
@@ -91,7 +91,7 @@ describe("Aランク: 買取API", () => {
         test("DB読込失敗時は空配列", async () => {
             await writeJson("kaitori_requests.json", "{ invalid");
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/admin/kaitori-list");
             expect(res.statusCode).toBe(200);
             expect(Array.isArray(res.body)).toBe(true);
@@ -107,7 +107,7 @@ describe("Aランク: 買取API", () => {
 
         test("存在しないrequestIdで404", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/admin/kaitori-update").send({
                 requestId: 999999,
                 status: "対応済"
@@ -122,7 +122,7 @@ describe("Aランク: 買取API", () => {
                 { requestId: 100, customerId: "TEST001", status: "未対応", internalMemo: "", customerNote: "", requestDate: new Date().toISOString() }
             ]);
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/admin/kaitori-update").send({
                 requestId: 100,
                 status: "対応済",
@@ -150,7 +150,7 @@ describe("Aランク: 買取API", () => {
                 }
             ]);
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/admin/kaitori-update").send({
                 requestId: 200,
                 items: [{ name: "新アイテム", quantity: 3 }]
@@ -174,7 +174,7 @@ describe("Aランク: 買取API", () => {
                 { id: "EX2", maker: "EPSON", name: "品B", type: "不問", price: 100, destination: "大阪", status: "買取終了" }
             ]);
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/admin/kaitori-master/export");
             expect(res.statusCode).toBe(200);
             expect(String(res.headers["content-type"])).toContain("spreadsheetml");
@@ -193,7 +193,7 @@ describe("Aランク: 買取API", () => {
             const masterPath = path.join(DATA_ROOT, "kaitori_master.json");
             await fs.writeFile(masterPath, JSON.stringify([{ id: "K1", maker: "メーカー", name: "品名", type: "タイプ", price: 100, destination: "大阪" }], null, 2), "utf-8");
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.get("/kaitori-master");
             expect(res.statusCode).toBe(200);
             expect(Array.isArray(res.body)).toBe(true);
@@ -204,7 +204,7 @@ describe("Aランク: 買取API", () => {
         test("管理者ログインでマスタ取得", async () => {
             await writeJson("kaitori_master.json", []);
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/kaitori-master");
             expect(res.statusCode).toBe(200);
             expect(res.body).toEqual([]);
@@ -213,7 +213,7 @@ describe("Aランク: 買取API", () => {
         test("読込失敗時は空配列", async () => {
             await fs.writeFile(abs("kaitori_master.json"), "{ broken", "utf-8");
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.get("/kaitori-master");
             expect(res.statusCode).toBe(200);
             expect(Array.isArray(res.body)).toBe(true);
@@ -229,7 +229,7 @@ describe("Aランク: 買取API", () => {
 
         test("masterDataが配列でないと400", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/admin/kaitori-master/import").send({ masterData: "not-array" });
             expect(res.statusCode).toBe(400);
             expect(res.body.message).toContain("形式");
@@ -237,7 +237,7 @@ describe("Aランク: 買取API", () => {
 
         test("管理者はマスタ一括更新できる", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/admin/kaitori-master/import").send({
                 masterData: [
                     { maker: "M1", name: "品1", type: "T1", price: 100 },
@@ -268,7 +268,7 @@ describe("Aランク: 買取API", () => {
                 return origWrite(p, ...args);
             });
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/admin/kaitori-master/import").send({
                 masterData: [{ maker: "M", name: "N", price: 1 }]
             });
@@ -286,7 +286,7 @@ describe("Aランク: 買取API", () => {
 
         test("管理者は1件追加できる", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/admin/kaitori-master/add").send({
                 maker: "追加メーカー",
                 name: "追加品",
@@ -311,7 +311,7 @@ describe("Aランク: 買取API", () => {
 
         test("存在しないidで404", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/admin/kaitori-master/edit").send({ id: "NOEXIST", name: "x" });
             expect(res.statusCode).toBe(404);
             expect(res.body.success).toBe(false);
@@ -320,7 +320,7 @@ describe("Aランク: 買取API", () => {
         test("管理者は編集できる", async () => {
             await writeJson("kaitori_master.json", [{ id: "E1", maker: "M", name: "N", type: "T", price: 100, destination: "大阪" }]);
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/admin/kaitori-master/edit").send({ id: "E1", name: "変更後", price: 200 });
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(true);
@@ -340,7 +340,7 @@ describe("Aランク: 買取API", () => {
         test("存在しないidで404", async () => {
             await writeJson("kaitori_master.json", [{ id: "X1", maker: "M", name: "N", type: "T", price: 0, destination: "大阪" }]);
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/admin/kaitori-master/delete").send({ id: "NOEXIST" });
             expect(res.statusCode).toBe(404);
             expect(res.body.success).toBe(false);
@@ -352,7 +352,7 @@ describe("Aランク: 買取API", () => {
                 { id: "D2", maker: "M2", name: "N2", type: "T", price: 0, destination: "大阪" }
             ]);
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/admin/kaitori-master/delete").send({ id: "D1" });
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(true);
@@ -375,7 +375,7 @@ describe("Aランク: 買取API", () => {
                 { requestId: 2, customerId: "TEST002", status: "未対応", requestDate: new Date().toISOString() }
             ]);
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.get("/my-kaitori-history");
             expect(res.statusCode).toBe(200);
             expect(Array.isArray(res.body)).toBe(true);
@@ -386,7 +386,7 @@ describe("Aランク: 買取API", () => {
         test("読込失敗時は空配列", async () => {
             await fs.writeFile(abs("kaitori_requests.json"), "not json", "utf-8");
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.get("/my-kaitori-history");
             expect(res.statusCode).toBe(200);
             expect(Array.isArray(res.body)).toBe(true);
@@ -396,7 +396,7 @@ describe("Aランク: 買取API", () => {
         test("JSONが配列でなければ空配列", async () => {
             await writeJson("kaitori_requests.json", { x: 1 });
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.get("/my-kaitori-history");
             expect(res.statusCode).toBe(200);
             expect(res.body).toEqual([]);
@@ -407,7 +407,7 @@ describe("Aランク: 買取API", () => {
         test("POST /kaitori-request は既存がオブジェクトでも配列に正規化して追記", async () => {
             await fs.writeFile(abs("kaitori_requests.json"), "{}", "utf-8");
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.post("/kaitori-request").send({ items: [{ name: "x", quantity: 1 }] });
             expect(res.statusCode).toBe(200);
             const list = await readJson("kaitori_requests.json");
@@ -418,7 +418,7 @@ describe("Aランク: 買取API", () => {
         test("POST /kaitori-request は壊JSONでも新規配列として続行", async () => {
             await fs.writeFile(abs("kaitori_requests.json"), "{bad", "utf-8");
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.post("/kaitori-request").send({ items: [{ name: "y", quantity: 1 }] });
             expect(res.statusCode).toBe(200);
             const list = await readJson("kaitori_requests.json");
@@ -428,7 +428,7 @@ describe("Aランク: 買取API", () => {
         test("POST /admin/kaitori-update はDBがオブジェクトでも配列化して404", async () => {
             await fs.writeFile(abs("kaitori_requests.json"), "{}", "utf-8");
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/admin/kaitori-update").send({ requestId: "nope", status: "対応済" });
             expect(res.statusCode).toBe(404);
         });
@@ -448,7 +448,7 @@ describe("Aランク: 買取API", () => {
             expect(seeded.find((x) => x && x.requestId == 300)).toBeTruthy();
 
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/admin/kaitori-update").send({
                 requestId: 300,
                 items: "not-array",
@@ -464,7 +464,7 @@ describe("Aランク: 買取API", () => {
         test("POST /admin/kaitori-master/add はマスタがオブジェクトでも配列化", async () => {
             await fs.writeFile(abs("kaitori_master.json"), "{}", "utf-8");
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/admin/kaitori-master/add").send({
                 id: "preset-k",
                 maker: "M",
@@ -483,7 +483,7 @@ describe("Aランク: 買取API", () => {
         test("POST /admin/kaitori-master/add は壊JSONでも空配列から追加", async () => {
             await fs.writeFile(abs("kaitori_master.json"), "{bad", "utf-8");
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/admin/kaitori-master/add").send({ maker: "M2", name: "N2", price: 1 });
             expect(res.statusCode).toBe(200);
             const master = await readJson("kaitori_master.json");
@@ -492,7 +492,7 @@ describe("Aランク: 買取API", () => {
 
         test("POST /admin/kaitori-master/import で id・destination 等が揃っている項目はそのまま使う", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/admin/kaitori-master/import").send({
                 masterData: [
                     {
@@ -515,7 +515,7 @@ describe("Aランク: 買取API", () => {
         test("POST /admin/kaitori-master/edit はマスタがオブジェクトなら404", async () => {
             await fs.writeFile(abs("kaitori_master.json"), "{}", "utf-8");
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/admin/kaitori-master/edit").send({ id: "ANY", name: "x" });
             expect(res.statusCode).toBe(404);
         });
@@ -523,7 +523,7 @@ describe("Aランク: 買取API", () => {
         test("POST /admin/kaitori-master/delete はマスタがオブジェクトなら削除対象なし", async () => {
             await fs.writeFile(abs("kaitori_master.json"), "{}", "utf-8");
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/admin/kaitori-master/delete").send({ id: "X" });
             expect(res.statusCode).toBe(404);
         });
@@ -540,7 +540,7 @@ describe("Aランク: 買取API", () => {
                 return origWrite(p, ...args);
             });
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.post("/kaitori-request").send({ items: [{ name: "a", quantity: 1 }] });
             expect(res.statusCode).toBe(500);
             jest.restoreAllMocks();
@@ -559,7 +559,7 @@ describe("Aランク: 買取API", () => {
                 return origRead(p, enc);
             });
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/admin/kaitori-update").send({ requestId: "U500", status: "対応済" });
             expect(res.statusCode).toBe(500);
             jest.restoreAllMocks();
@@ -575,7 +575,7 @@ describe("Aランク: 買取API", () => {
                 return origWrite(p, ...args);
             });
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/admin/kaitori-master/add").send({ maker: "M", name: "N" });
             expect(res.statusCode).toBe(500);
             jest.restoreAllMocks();
@@ -591,7 +591,7 @@ describe("Aランク: 買取API", () => {
                 return origRead(p, enc);
             });
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/admin/kaitori-master/edit").send({ id: "E1", name: "x" });
             expect(res.statusCode).toBe(500);
             jest.restoreAllMocks();
@@ -607,7 +607,7 @@ describe("Aランク: 買取API", () => {
                 return origRead(p, enc);
             });
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/admin/kaitori-master/delete").send({ id: "D1" });
             expect(res.statusCode).toBe(500);
             jest.restoreAllMocks();

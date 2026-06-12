@@ -32,7 +32,7 @@ describe("リスク駆動: feature表示制御の回帰", () => {
 
     test("support/announcements を false 保存すると public settings と settings.json に反映される", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
 
         const save = await admin.put("/api/admin/settings").send({
             features: {
@@ -56,7 +56,7 @@ describe("リスク駆動: feature表示制御の回帰", () => {
 
     test("未認証での直アクセスAPIは feature設定に関係なく拒否される", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         await admin.put("/api/admin/settings").send({
             features: {
                 support: false,
@@ -73,7 +73,7 @@ describe("リスク駆動: feature表示制御の回帰", () => {
 
     test("feature OFF時の直アクセスでも応答形式が崩れず、一貫したHTTPステータスを返す", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         await admin.put("/api/admin/settings").send({
             features: {
                 support: false,
@@ -83,7 +83,7 @@ describe("リスク駆動: feature表示制御の回帰", () => {
         });
 
         const customer = request.agent(app);
-        const login = await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        const login = await customer.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         expect(login.statusCode).toBe(200);
         expect(login.body.success).toBe(true);
 

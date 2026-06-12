@@ -42,7 +42,7 @@ describe("Sランク: セッション120分タイムアウト", () => {
 
         const login = await agent
             .post("/api/login")
-            .send({ id: "TEST001", pass: "CustPass123!" });
+            .send({ id: "test001@example.com", pass: "CustPass123!" });
         expect(login.statusCode).toBe(200);
         expect(login.body.success).toBe(true);
 
@@ -72,7 +72,7 @@ describe("Sランク: セッション120分タイムアウト", () => {
 
         const login = await agent
             .post("/api/login")
-            .send({ id: "TEST001", pass: "CustPass123!" });
+            .send({ id: "test001@example.com", pass: "CustPass123!" });
         expect(login.statusCode).toBe(200);
 
         fakeNow += (120 * 60 * 1000) + 1;
@@ -87,13 +87,13 @@ describe("Sランク: セッション120分タイムアウト", () => {
 
         const customerLogin = await agent
             .post("/api/login")
-            .send({ id: "TEST001", pass: "CustPass123!" });
+            .send({ id: "test001@example.com", pass: "CustPass123!" });
         expect(customerLogin.statusCode).toBe(200);
         expect(customerLogin.body.success).toBe(true);
 
         const adminLogin = await agent
             .post("/api/admin/login")
-            .send({ id: "test-admin", pass: "AdminPass123!" });
+            .send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         expect(adminLogin.statusCode).toBe(200);
         expect(adminLogin.body.success).toBe(true);
 
@@ -125,7 +125,7 @@ describe("Sランク: セッション120分タイムアウト", () => {
         // 失効後に顧客として再ログインしても管理者状態が復活しない
         const relogin = await agent
             .post("/api/login")
-            .send({ id: "TEST001", pass: "CustPass123!" });
+            .send({ id: "test001@example.com", pass: "CustPass123!" });
         expect(relogin.statusCode).toBe(200);
         expect(relogin.body.success).toBe(true);
 

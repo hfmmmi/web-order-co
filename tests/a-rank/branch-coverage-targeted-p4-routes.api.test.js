@@ -119,7 +119,7 @@ describe("branch-coverage-targeted-p4: orders & support routes", () => {
 
     test("GET /orders 管理者 200", async () => {
         const a = request.agent(app);
-        await a.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await a.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await a.get("/orders");
         expect(res.statusCode).toBe(200);
         expect(res.body.success).toBe(true);
@@ -127,7 +127,7 @@ describe("branch-coverage-targeted-p4: orders & support routes", () => {
 
     test("GET /orders 顧客 200", async () => {
         const c = request.agent(app);
-        await c.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await c.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await c.get("/orders");
         expect(res.body.success).toBe(true);
     });
@@ -135,7 +135,7 @@ describe("branch-coverage-targeted-p4: orders & support routes", () => {
     test("GET /orders 管理者 status クエリ", async () => {
         await writeJson("orders.json", [sampleOrder()]);
         const a = request.agent(app);
-        await a.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await a.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await a.get("/orders").query({ status: "未発送" });
         expect(res.body.orders.length).toBeGreaterThanOrEqual(1);
     });
@@ -143,7 +143,7 @@ describe("branch-coverage-targeted-p4: orders & support routes", () => {
     test("GET /orders keyword 絞り込み", async () => {
         await writeJson("orders.json", [sampleOrder()]);
         const a = request.agent(app);
-        await a.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await a.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await a.get("/orders").query({ keyword: "test001" });
         expect(res.body.orders.some((o) => String(o.orderId).includes("ORD-P4"))).toBe(true);
     });
@@ -151,7 +151,7 @@ describe("branch-coverage-targeted-p4: orders & support routes", () => {
     test("GET /orders start end 日付", async () => {
         await writeJson("orders.json", [sampleOrder()]);
         const a = request.agent(app);
-        await a.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await a.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await a.get("/orders").query({ start: "2026-01-01", end: "2026-12-31" });
         expect(res.body.success).toBe(true);
     });
@@ -163,7 +163,7 @@ describe("branch-coverage-targeted-p4: orders & support routes", () => {
 
     test("GET /order-history 顧客 200", async () => {
         const c = request.agent(app);
-        await c.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await c.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await c.get("/order-history");
         expect(res.body.success).toBe(true);
     });
@@ -176,7 +176,7 @@ describe("branch-coverage-targeted-p4: orders & support routes", () => {
     test("GET /delivery-history 住所ユニーク化", async () => {
         await writeJson("orders.json", [sampleOrder(), sampleOrder({ orderId: "ORD-P4-2" })]);
         const c = request.agent(app);
-        await c.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await c.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await c.get("/delivery-history");
         expect(res.body.success).toBe(true);
         expect(Array.isArray(res.body.list)).toBe(true);
@@ -185,7 +185,7 @@ describe("branch-coverage-targeted-p4: orders & support routes", () => {
     test("GET /delivery-history keyword フィルタ", async () => {
         await writeJson("orders.json", [sampleOrder()]);
         const c = request.agent(app);
-        await c.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await c.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await c.get("/delivery-history").query({ keyword: "千代田" });
         expect(res.body.list.length).toBeGreaterThanOrEqual(1);
     });
@@ -193,7 +193,7 @@ describe("branch-coverage-targeted-p4: orders & support routes", () => {
     test("GET /delivery-history keyword 不一致は空に近い", async () => {
         await writeJson("orders.json", [sampleOrder()]);
         const c = request.agent(app);
-        await c.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await c.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await c.get("/delivery-history").query({ keyword: "存在しない地名ZZ" });
         expect(res.body.list.length).toBe(0);
     });
@@ -206,7 +206,7 @@ describe("branch-coverage-targeted-p4: orders & support routes", () => {
     test("GET /shipper-history 荷主一覧", async () => {
         await writeJson("orders.json", [sampleOrder()]);
         const c = request.agent(app);
-        await c.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await c.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await c.get("/shipper-history");
         expect(res.body.list.some((x) => String(x.name || "").includes("荷主"))).toBe(true);
     });
@@ -214,7 +214,7 @@ describe("branch-coverage-targeted-p4: orders & support routes", () => {
     test("GET /shipper-history keyword", async () => {
         await writeJson("orders.json", [sampleOrder()]);
         const c = request.agent(app);
-        await c.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await c.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await c.get("/shipper-history").query({ keyword: "荷主" });
         expect(res.body.list.length).toBeGreaterThanOrEqual(1);
     });
@@ -227,7 +227,7 @@ describe("branch-coverage-targeted-p4: orders & support routes", () => {
     test("GET /api/download-csv 管理者", async () => {
         await writeJson("orders.json", [sampleOrder()]);
         const a = request.agent(app);
-        await a.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await a.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await a.get("/api/download-csv");
         expect(res.statusCode).toBe(200);
         expect(String(res.headers["content-type"] || "")).toContain("csv");
@@ -236,7 +236,7 @@ describe("branch-coverage-targeted-p4: orders & support routes", () => {
     test("GET /api/download-csv mode=unexported", async () => {
         await writeJson("orders.json", [sampleOrder({ exported_at: null, orderId: "ORD-UE-1" })]);
         const a = request.agent(app);
-        await a.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await a.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await a.get("/api/download-csv").query({ mode: "unexported" });
         expect(res.statusCode).toBe(200);
     });
@@ -248,14 +248,14 @@ describe("branch-coverage-targeted-p4: orders & support routes", () => {
 
     test("POST /api/import-shipping-csv ファイルなし 400", async () => {
         const a = request.agent(app);
-        await a.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await a.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await a.post("/api/import-shipping-csv");
         expect(res.statusCode).toBe(400);
     });
 
     test("POST /api/import-shipping-csv 空データ", async () => {
         const a = request.agent(app);
-        await a.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await a.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await a.post("/api/import-shipping-csv").attach("file", Buffer.from("a\n"), "x.csv");
         expect(res.body.success).toBe(false);
     });
@@ -273,7 +273,7 @@ describe("branch-coverage-targeted-p4: orders & support routes", () => {
         ]);
         const csv = "社内メモ,配送伝票番号,運送会社\nMEMO1,TRK99,ヤマト\n";
         const a = request.agent(app);
-        await a.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await a.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await a.post("/api/import-shipping-csv").attach("file", Buffer.from(csv), "s.csv");
         expect(res.statusCode).toBe(200);
     });
@@ -288,7 +288,7 @@ describe("branch-coverage-targeted-p4: orders & support routes", () => {
             "orderId,customerId,customerName,productCode,productName,price,quantity,orderDate\n" +
             `EXT-P4-${Date.now()},TEST001,顧客,PX99,品,10,1,2026-01-01\n`;
         const a = request.agent(app);
-        await a.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await a.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await a.post("/api/import-orders-csv").attach("file", Buffer.from(csv), "o.csv");
         expect(res.body.success).toBe(true);
     });
@@ -300,7 +300,7 @@ describe("branch-coverage-targeted-p4: orders & support routes", () => {
 
     test("POST /api/reset-export-status 存在しない注文", async () => {
         const a = request.agent(app);
-        await a.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await a.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await a.post("/api/reset-export-status").send({ orderId: "NOPE999" });
         expect(res.body.success).toBe(false);
     });
@@ -352,7 +352,7 @@ describe("branch-coverage-targeted-p4: orders & support routes", () => {
 
     test("GET /support/my-tickets 顧客", async () => {
         const c = request.agent(app);
-        await c.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await c.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await c.get("/support/my-tickets");
         expect(res.body.success).toBe(true);
     });
@@ -364,7 +364,7 @@ describe("branch-coverage-targeted-p4: orders & support routes", () => {
 
     test("GET /admin/support-tickets 管理者", async () => {
         const a = request.agent(app);
-        await a.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await a.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await a.get("/admin/support-tickets");
         expect(Array.isArray(res.body)).toBe(true);
     });
@@ -376,7 +376,7 @@ describe("branch-coverage-targeted-p4: orders & support routes", () => {
 
     test("POST /request-support JSON 成功", async () => {
         const c = request.agent(app);
-        await c.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await c.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await c.post("/request-support").send({ category: "support", detail: "p4テスト" });
         expect(res.body.success).toBe(true);
     });
@@ -403,7 +403,7 @@ describe("branch-coverage-targeted-p4: orders & support routes", () => {
 
     test("POST /admin/update-ticket 不正 ticketId は updated false", async () => {
         const a = request.agent(app);
-        await a.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await a.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await a.post("/admin/update-ticket").send({ ticketId: "T-NOPE99999", status: "open" });
         expect(res.statusCode).toBe(404);
         expect(res.body.success).toBe(false);

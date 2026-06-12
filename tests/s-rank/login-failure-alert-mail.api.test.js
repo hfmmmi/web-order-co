@@ -41,7 +41,7 @@ describe("Sランク: ログイン失敗5回通知メール", () => {
         for (let i = 0; i < 5; i += 1) {
             const res = await request(app)
                 .post("/api/login")
-                .send({ id: "TEST001", pass: "WrongPassword!" });
+                .send({ id: "test001@example.com", pass: "WrongPassword!" });
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(false);
         }
@@ -64,7 +64,7 @@ describe("Sランク: ログイン失敗5回通知メール", () => {
         for (let i = 0; i < 5; i += 1) {
             const res = await request(app)
                 .post("/api/admin/login")
-                .send({ id: "test-admin", pass: "WrongPassword!" });
+                .send({ id: "test-admin@example.com", pass: "WrongPassword!" });
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(false);
         }
@@ -86,14 +86,14 @@ describe("Sランク: ログイン失敗5回通知メール", () => {
         for (let i = 0; i < 5; i += 1) {
             const res = await request(app)
                 .post("/api/login")
-                .send({ id: "TEST001", pass: "WrongPassword!" });
+                .send({ id: "test001@example.com", pass: "WrongPassword!" });
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(false);
         }
 
         const locked = await request(app)
             .post("/api/login")
-            .send({ id: "TEST001", pass: "WrongPassword!" });
+            .send({ id: "test001@example.com", pass: "WrongPassword!" });
 
         expect(locked.statusCode).toBe(200);
         expect(locked.body.success).toBe(false);

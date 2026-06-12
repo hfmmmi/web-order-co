@@ -330,24 +330,13 @@ document.addEventListener("DOMContentLoaded", async function() {
                 try {
                     btn.disabled = true;
 
-                    // IDによって叩くAPIと行き先を変える
-                    let targetApi = "/api/login";       // デフォルト: 顧客用
-                    let successUrl = "home.html";   // デフォルト: ホーム（お知らせ・ショートカット）
-
-                    // IDが "admin" の場合のみ、管理者ルートへ切り替え
-                    if (id === "admin") {
-                        targetApi = "/api/admin/login";
-                        // ★修正: ファイル名変更(admin-dashboard.html)に対応
-                        successUrl = "admin/admin-dashboard.html"; 
-                    }
-
                     const body = { id: id, pass: pass };
                     if (recaptchaSiteKey && recaptchaWidgetId !== null && window.grecaptcha) {
                         const token = window.grecaptcha.getResponse(recaptchaWidgetId);
                         if (token) body.captchaToken = token;
                     }
 
-                    const response = await fetch(targetApi, {
+                    const response = await fetch("/api/login", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(body)
@@ -355,8 +344,7 @@ document.addEventListener("DOMContentLoaded", async function() {
                     const data = await response.json();
 
                     if (data.success) {
-                        // APIがredirectUrlを返してきたらそれを優先、なければsuccessUrlを使う
-                        window.location.href = data.redirectUrl || successUrl;
+                        window.location.href = data.redirectUrl || "home.html";
                     } else {
                         if (data.captchaRequired) {
                             await showRecaptchaAndRender();

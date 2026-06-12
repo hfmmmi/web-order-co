@@ -32,7 +32,7 @@ describe("リスク駆動: 回帰抑止テスト", () => {
 
     test("reCAPTCHA secretKey は空保存時に既存値を維持する", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         await admin.put("/api/admin/settings").send({
             recaptcha: { siteKey: "site-A", secretKey: "secret-A" }
         });
@@ -50,7 +50,7 @@ describe("リスク駆動: 回帰抑止テスト", () => {
 
     test("features false は public settings に反映される", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         await admin.put("/api/admin/settings").send({
             features: {
                 support: false,

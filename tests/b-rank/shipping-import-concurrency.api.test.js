@@ -46,8 +46,8 @@ describe("Bランク: 出荷CSV取込の同時実行", () => {
         const customer = request.agent(app);
         const admin = request.agent(app);
 
-        await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await customer.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
 
         const placed = await customer.post("/place-order").send({
             cart: [{ code: "P001", quantity: 2 }],

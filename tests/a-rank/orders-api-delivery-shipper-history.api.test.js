@@ -62,7 +62,7 @@ describe("Aランク: orders-api 配送・荷主履歴", () => {
                 }
             ]);
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
 
             const all = await agent.get("/delivery-history");
             expect(all.body.success).toBe(true);
@@ -102,7 +102,7 @@ describe("Aランク: orders-api 配送・荷主履歴", () => {
                 }
             ]);
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.get("/delivery-history");
             expect(res.body.list.length).toBe(1);
         });
@@ -110,7 +110,7 @@ describe("Aランク: orders-api 配送・荷主履歴", () => {
         test("searchOrders が例外のときエラーレスポンス", async () => {
             jest.spyOn(orderService, "searchOrders").mockRejectedValueOnce(new Error("db down"));
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.get("/delivery-history");
             expect(res.body.success).toBe(false);
             expect(res.body.message).toMatch(/エラー/);
@@ -145,7 +145,7 @@ describe("Aランク: orders-api 配送・荷主履歴", () => {
                 }
             ]);
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
 
             const all = await agent.get("/shipper-history");
             expect(all.body.success).toBe(true);
@@ -180,7 +180,7 @@ describe("Aランク: orders-api 配送・荷主履歴", () => {
                 }
             ]);
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.get("/shipper-history");
             expect(res.body.list.length).toBe(1);
         });
@@ -188,7 +188,7 @@ describe("Aランク: orders-api 配送・荷主履歴", () => {
         test("searchOrders が例外のときエラーレスポンス", async () => {
             jest.spyOn(orderService, "searchOrders").mockRejectedValueOnce(new Error("db down"));
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.get("/shipper-history");
             expect(res.body.success).toBe(false);
         });

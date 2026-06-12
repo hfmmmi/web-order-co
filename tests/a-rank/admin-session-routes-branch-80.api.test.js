@@ -44,7 +44,7 @@ describe("Aランク: adminSessionRoutes 分岐80%向け", () => {
             message: "IDが見つかりません"
         });
         const agent = request.agent(app);
-        await agent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await agent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await agent.post("/api/admin/invite-reset").send({ customerId: "GHOST" });
         expect(res.body.success).toBe(false);
     });
@@ -53,7 +53,7 @@ describe("Aランク: adminSessionRoutes 分岐80%向け", () => {
         jest.spyOn(settingsService, "getSettings").mockRejectedValueOnce(new Error("settings boom"));
         const agent = request.agent(app);
         const res = await agent.post("/api/admin/login").send({
-            id: "test-admin",
+            id: "test-admin@example.com",
             pass: "AdminPass123!"
         });
         expect(res.body.success).toBe(false);
@@ -65,10 +65,10 @@ describe("Aランク: adminSessionRoutes 分岐80%向け", () => {
             recaptcha: { siteKey: "site", secretKey: "secret-for-test" }
         });
         const agent = request.agent(app);
-        await agent.post("/api/admin/login").send({ id: "test-admin", pass: "wrong" });
-        await agent.post("/api/admin/login").send({ id: "test-admin", pass: "wrong" });
+        await agent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "wrong" });
+        await agent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "wrong" });
         const res = await agent.post("/api/admin/login").send({
-            id: "test-admin",
+            id: "test-admin@example.com",
             pass: "AdminPass123!"
         });
         expect(res.body.success).toBe(false);
@@ -80,10 +80,10 @@ describe("Aランク: adminSessionRoutes 分岐80%向け", () => {
             recaptcha: { siteKey: "site", secretKey: "secret-for-test" }
         });
         const agent = request.agent(app);
-        await agent.post("/api/admin/login").send({ id: "test-admin", pass: "wrong" });
-        await agent.post("/api/admin/login").send({ id: "test-admin", pass: "wrong" });
+        await agent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "wrong" });
+        await agent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "wrong" });
         const res = await agent.post("/api/admin/login").send({
-            id: "test-admin",
+            id: "test-admin@example.com",
             pass: "AdminPass123!",
             captchaToken: "invalid-token-for-google"
         });
@@ -97,10 +97,10 @@ describe("Aランク: adminSessionRoutes 分岐80%向け", () => {
         });
         jest.spyOn(recaptcha, "verifyRecaptcha").mockResolvedValue(true);
         const agent = request.agent(app);
-        await agent.post("/api/admin/login").send({ id: "test-admin", pass: "wrong" });
-        await agent.post("/api/admin/login").send({ id: "test-admin", pass: "wrong" });
+        await agent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "wrong" });
+        await agent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "wrong" });
         const res = await agent.post("/api/admin/login").send({
-            id: "test-admin",
+            id: "test-admin@example.com",
             pass: "AdminPass123!",
             captchaToken: "any-token"
         });
@@ -109,8 +109,8 @@ describe("Aランク: adminSessionRoutes 分岐80%向け", () => {
 
     test("顧客ログイン後に管理者ログインし、管理者ログアウトで顧客セッションは維持", async () => {
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
-        await agent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
+        await agent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const out = await agent.post("/api/admin/logout").send({});
         expect(out.body.success).toBe(true);
         const check = await agent.get("/api/session");
@@ -122,9 +122,9 @@ describe("Aランク: adminSessionRoutes 分岐80%向け", () => {
         const sendAlert = mailService.sendLoginFailureAlert;
         const agent = request.agent(app);
         for (let i = 0; i < 4; i++) {
-            await agent.post("/api/admin/login").send({ id: "test-admin", pass: "wrong-pass" });
+            await agent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "wrong-pass" });
         }
-        await agent.post("/api/admin/login").send({ id: "test-admin", pass: "wrong-pass" });
+        await agent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "wrong-pass" });
         expect(sendAlert.mock.calls.length).toBeGreaterThanOrEqual(1);
         const last = sendAlert.mock.calls[sendAlert.mock.calls.length - 1][0];
         expect(last.type).toBe("admin");

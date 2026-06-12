@@ -62,7 +62,7 @@ describe("Bランク: サポートAPI境界", () => {
 
     test("admin/create-ticket は管理者が顧客代理でチケットを作成できる", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
 
         const res = await admin.post("/admin/create-ticket").send({
             customerId: "TEST001",
@@ -89,7 +89,7 @@ describe("Bランク: サポートAPI境界", () => {
 
     test("admin/create-ticket は顧客未指定でも作成できる", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
 
         const res = await admin.post("/admin/create-ticket").send({
             type: "その他",
@@ -106,7 +106,7 @@ describe("Bランク: サポートAPI境界", () => {
 
     test("admin/update-ticket は存在しないticketIdで404", async () => {
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
 
         const res = await admin.post("/admin/update-ticket").send({
             ticketId: "T-NONEXISTENT",
@@ -119,8 +119,8 @@ describe("Bランク: サポートAPI境界", () => {
     test("admin/update-ticket はnewHistoryLogで履歴を追加する", async () => {
         const customer = request.agent(app);
         const admin = request.agent(app);
-        await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await customer.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
 
         await customer.post("/request-support").send({
             category: "support",
@@ -148,7 +148,7 @@ describe("Bランク: サポートAPI境界", () => {
         const path = require("path");
         await fs.writeFile(path.join(DATA_ROOT, "support_tickets.json"), "{invalid", "utf-8");
         const customer = request.agent(app);
-        await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await customer.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
 
         const res = await customer.get("/support/my-tickets");
         expect(res.statusCode).toBe(200);
@@ -165,7 +165,7 @@ describe("Bランク: サポートAPI境界", () => {
         try {
             await fs.writeFile(dbPath, "{}", "utf-8");
             const customer = request.agent(app);
-            await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await customer.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await customer.get("/support/my-tickets");
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(true);
@@ -180,7 +180,7 @@ describe("Bランク: サポートAPI境界", () => {
         const path = require("path");
         await fs.writeFile(path.join(DATA_ROOT, "support_tickets.json"), "not valid json", "utf-8");
         const admin = request.agent(app);
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         const res = await admin.get("/admin/support-tickets");
         expect(res.statusCode).toBe(200);
         expect(Array.isArray(res.body)).toBe(true);
@@ -191,7 +191,7 @@ describe("Bランク: サポートAPI境界", () => {
         const mailService = require("../../services/mailService");
         mailService.sendSupportNotification.mockRejectedValueOnce(new Error("SMTP Error"));
         const customer = request.agent(app);
-        await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await customer.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await customer.post("/request-support").send({
             category: "support",
             detail: "メール失敗テスト"
@@ -213,7 +213,7 @@ describe("Bランク: サポートAPI境界", () => {
         });
         try {
             const customer = request.agent(app);
-            await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await customer.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await customer.post("/request-support").send({
                 category: "support",
                 detail: "write失敗テスト"
@@ -228,7 +228,7 @@ describe("Bランク: サポートAPI境界", () => {
 
     test("support/my-tickets は複数件ある場合に履歴を返す", async () => {
         const customer = request.agent(app);
-        await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await customer.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         await customer.post("/request-support").send({ category: "bug", detail: "1件目" });
         await customer.post("/request-support").send({ category: "support", detail: "2件目" });
         const res = await customer.get("/support/my-tickets");
@@ -240,14 +240,14 @@ describe("Bランク: サポートAPI境界", () => {
     // 第2期Phase2: my-tickets で history が配列でないチケットは history: [] で返す分岐
     test("support/my-tickets は ticket.history が配列でない場合も 200 で history を空で返す", async () => {
         const agent = request.agent(app);
-        await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         await agent.post("/request-support").send({ category: "bug", detail: "history分岐用" });
         const tickets = await readJson("support_tickets.json");
         const t = tickets.find((x) => x.customerId === "TEST001");
         if (t) t.history = { not: "array" };
         await writeJson("support_tickets.json", tickets);
         const customerAgent = request.agent(app);
-        await customerAgent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await customerAgent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await customerAgent.get("/support/my-tickets");
         expect(res.statusCode).toBe(200);
         expect(res.body.success).toBe(true);
@@ -259,8 +259,8 @@ describe("Bランク: サポートAPI境界", () => {
     test("admin/update-ticket は internalOrderNo / desiredAction / collectionDate を更新できる", async () => {
         const customer = request.agent(app);
         const admin = request.agent(app);
-        await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await customer.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
 
         await customer.post("/request-support").send({ category: "support", detail: "internal更新テスト" });
         const tickets = await readJson("support_tickets.json");
@@ -288,8 +288,8 @@ describe("Bランク: サポートAPI境界", () => {
     test("admin/update-ticket は status のみ更新する場合も 200 を返す（newHistoryLog なし）", async () => {
         const customer = request.agent(app);
         const admin = request.agent(app);
-        await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
-        await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await customer.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
+        await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
 
         await customer.post("/request-support").send({ category: "bug", detail: "status only" });
         const tickets = await readJson("support_tickets.json");
@@ -316,7 +316,7 @@ describe("Bランク: サポートAPI境界", () => {
             history: [{ date: "", action: "対応", by: "" }, { date: null, action: "" }]
         }]);
         const customer = request.agent(app);
-        await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await customer.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await customer.get("/support/my-tickets");
         expect(res.statusCode).toBe(200);
         const t = res.body.tickets.find(x => x.ticketId === "T-H-BRANCH");
@@ -339,7 +339,7 @@ describe("Bランク: サポートAPI境界", () => {
             history: "not-array"
         }]);
         const customer = request.agent(app);
-        await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await customer.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await customer.get("/support/my-tickets");
         expect(res.statusCode).toBe(200);
         expect(res.body.success).toBe(true);
@@ -349,14 +349,14 @@ describe("Bランク: サポートAPI境界", () => {
 
     test("support/attachment は ticketId 不正で400", async () => {
         const customer = request.agent(app);
-        await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await customer.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await customer.get("/support/attachment/bad-id/0_1_aabbccdd.pdf");
         expect(res.statusCode).toBe(400);
     });
 
     test("support/attachment は storedName 不正で400", async () => {
         const customer = request.agent(app);
-        await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await customer.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await customer.get("/support/attachment/T-ABC/evil.pdf");
         expect(res.statusCode).toBe(400);
     });
@@ -387,7 +387,7 @@ describe("Bランク: サポートAPI境界", () => {
                 }
             ]);
             const customer = request.agent(app);
-            await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await customer.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await customer.get(`/support/attachment/${ticketId}/${storedName}`);
             expect(res.statusCode).toBe(200);
         } finally {
@@ -425,7 +425,7 @@ describe("Bランク: サポートAPI境界", () => {
                 }
             ]);
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get(`/support/attachment/${ticketId}/${storedName}`);
             expect(res.statusCode).toBe(200);
         } finally {
@@ -455,14 +455,14 @@ describe("Bランク: サポートAPI境界", () => {
             }
         ]);
         const customer = request.agent(app);
-        await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await customer.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await customer.get("/support/attachment/T-NOATT/0_3_deadbeef.pdf");
         expect(res.statusCode).toBe(404);
     });
 
     test("request-support は小さなPDF添付で申請成功", async () => {
         const customer = request.agent(app);
-        await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await customer.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await customer
             .post("/request-support")
             .field("category", "support")
@@ -485,7 +485,7 @@ describe("Bランク: サポートAPI境界", () => {
             }
         ]);
         const customer = request.agent(app);
-        await customer.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await customer.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         const res = await customer.get("/support/attachment/T-COV403X/0_1_aabbccdd.pdf");
         expect(res.statusCode).toBe(403);
     });
@@ -497,7 +497,7 @@ describe("Bランク: サポートAPI境界", () => {
         try {
             await fs.writeFile(dbPath, "{invalid", "utf-8");
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/admin/update-ticket").send({
                 ticketId: "T-DUMMY",
                 status: "resolved"

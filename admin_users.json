@@ -1,0 +1,52 @@
+[
+  {
+    "userId": "AU-MIG-admin",
+    "email": "irikura2@hifumi-m.com",
+    "displayName": "入倉　惇",
+    "password": "$2b$10$KAKHeisnzFPX500eGGXBruyHnqLG2/rRcmUwBLlcXMXN5itheyfpu",
+    "active": true,
+    "createdAt": "2026-06-11T20:47:41.050Z",
+    "lastLoginAt": "2026-06-12T00:25:38.850Z",
+    "legacyAdminId": "admin"
+  },
+  {
+    "userId": "AU-1781212198568-e77b7ea8",
+    "email": "hirabayashi@hifumi-m.com",
+    "displayName": "平林　みなと",
+    "password": "$2b$10$H5vAtKly56Sqyk1RAgI1Ze26vMJdiB1DY0D40HH4VwpUg1ZrZwocC",
+    "active": true,
+    "createdAt": "2026-06-11T21:09:58.568Z",
+    "lastLoginAt": null,
+    "role": "user"
+  },
+  {
+    "userId": "AU-1781212216380-0e5e8065",
+    "email": "agatsuma@hifumi-m.com",
+    "displayName": "吾妻　奈緒美",
+    "password": "$2b$10$JTxBOTk2Pl8QhIVvneDOw.1LtZWXhEuNePvXhFuykE2vpQCyohbgC",
+    "active": true,
+    "createdAt": "2026-06-11T21:10:16.380Z",
+    "lastLoginAt": null,
+    "role": "user"
+  },
+  {
+    "userId": "AU-1781212229093-1d42d58f",
+    "email": "tanaka@hifumi-m.com",
+    "displayName": "田中　菜月",
+    "password": "$2b$10$UTyrgP3pdu4JaCwxDub67O6YnbKrVH9XLtzfwN32KkjMfkel.wYhC",
+    "active": true,
+    "createdAt": "2026-06-11T21:10:29.093Z",
+    "lastLoginAt": null,
+    "role": "user"
+  },
+  {
+    "userId": "AU-1781223960985-82e7157d",
+    "email": "m.irikura@hifumi-m.com",
+    "displayName": "入倉　惇",
+    "password": "$2b$10$FW6OJ.uXXUKscCbM6zzqpuYavOFrCna4T4Q20Vnx9ik10vzkWArly",
+    "role": "admin",
+    "active": true,
+    "createdAt": "2026-06-12T00:26:00.985Z",
+    "lastLoginAt": null
+  }
+]

@@ -33,12 +33,12 @@ describe("Aランク: 代理ログインと公開設定API", () => {
 
         const adminLogin = await adminAgent
             .post("/api/admin/login")
-            .send({ id: "test-admin", pass: "AdminPass123!" });
+            .send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         expect(adminLogin.body.success).toBe(true);
 
         const customerLogin = await customerAgent
             .post("/api/login")
-            .send({ id: "TEST001", pass: "CustPass123!" });
+            .send({ id: "test001@example.com", pass: "CustPass123!" });
         expect(customerLogin.body.success).toBe(true);
 
         const reqRes = await adminAgent
@@ -78,8 +78,8 @@ describe("Aランク: 代理ログインと公開設定API", () => {
         const adminAgent = request.agent(app);
         const customerAgent = request.agent(app);
 
-        await adminAgent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
-        await customerAgent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        await adminAgent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
+        await customerAgent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
 
         await adminAgent.post("/api/admin/proxy-request").send({ customerId: "TEST001" });
         const reject = await customerAgent.post("/api/account/proxy-request/reject").send({});
@@ -93,7 +93,7 @@ describe("Aランク: 代理ログインと公開設定API", () => {
 
     test("settings/publicはfeaturesとcategory別announcementsを正しく返す", async () => {
         const adminAgent = request.agent(app);
-        await adminAgent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        await adminAgent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
 
         const now = Date.now();
         const payload = {

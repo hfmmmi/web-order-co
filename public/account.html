@@ -46,6 +46,104 @@
                 grid-template-columns: 1fr;
             }
         }
+        .account-users-panel {
+            margin-top: 28px;
+            padding: 20px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+        .account-users-panel h2 {
+            margin: 0 0 8px;
+            font-size: 1.05rem;
+            font-weight: normal;
+            color: #111827;
+        }
+        .account-users-panel .au-lead {
+            margin: 0 0 16px;
+            font-size: 0.9rem;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+        .account-users-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+            font-size: 0.9rem;
+        }
+        .account-users-table th,
+        .account-users-table td {
+            border: 1px solid #e5e7eb;
+            padding: 8px;
+            text-align: left;
+            background: #fff;
+        }
+        .account-users-table select {
+            width: 100%;
+            max-width: 7.5rem;
+            padding: 6px 8px;
+            font-size: 0.875rem;
+            box-sizing: border-box;
+        }
+        .account-users-form {
+            display: grid;
+            gap: 10px;
+            margin-top: 16px;
+            max-width: 520px;
+        }
+        .account-users-form label {
+            display: block;
+            font-size: 0.88rem;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+        .account-users-form input,
+        .account-users-form select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 0.95rem;
+        }
+        .account-users-form button {
+            justify-self: start;
+            padding: 10px 20px;
+            border: 1px solid #2563eb;
+            border-radius: 6px;
+            background: #2563eb;
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+        .account-users-form button:hover:not(:disabled) {
+            background: #1d4ed8;
+        }
+        .account-users-form button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .au-deactivate-btn {
+            padding: 4px 10px;
+            font-size: 0.82rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            background: #fff;
+            cursor: pointer;
+        }
+        .au-empty {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+        #au-denied {
+            margin-top: 20px;
+            padding: 14px;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            color: #991b1b;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
@@ -73,10 +171,46 @@
             <nav class="account-settings-links" aria-label="設定メニュー">
                 <a href="account-delivery.html" class="account-settings-link">納品先編集</a>
                 <a href="account-profile.html" class="account-settings-link">アカウント設定</a>
+                <a href="#account-users" class="account-settings-link" id="account-users-link" style="display:none;">ユーザーアカウント</a>
             </nav>
+
+            <p id="au-denied" hidden>ユーザーアカウントの追加・管理は、企業管理者（または代理ログイン中の受注管理者）のみ利用できます。</p>
+
+            <section id="account-users-section" class="account-users-panel" hidden>
+                <div id="au-content" hidden>
+                    <h2 id="account-users">ユーザーアカウント</h2>
+                    <p class="au-lead">同じ会社の発注担当者を追加できます。ログインIDはメールアドレスです。</p>
+                    <div id="au-list" aria-live="polite"></div>
+
+                    <h3 style="font-size:1rem; font-weight:normal; margin:24px 0 8px;">アカウント追加</h3>
+                    <div class="account-users-form">
+                        <div>
+                            <label for="au-email">メールアドレス（ログインID）<span style="color:#dc2626;">*</span></label>
+                            <input type="email" id="au-email" autocomplete="off" placeholder="例: tanaka@example.com">
+                        </div>
+                        <div>
+                            <label for="au-display-name">表示名</label>
+                            <input type="text" id="au-display-name" maxlength="100" placeholder="例: 田中 太郎">
+                        </div>
+                        <div>
+                            <label for="au-role">権限</label>
+                            <select id="au-role">
+                                <option value="user">一般（発注のみ）</option>
+                                <option value="admin">企業管理者（ユーザー追加可）</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="au-password">初期パスワード<span style="color:#dc2626;">*</span></label>
+                            <input type="text" id="au-password" autocomplete="new-password" placeholder="4文字以上">
+                        </div>
+                        <button type="button" id="au-add-btn">アカウントを追加</button>
+                    </div>
+                </div>
+            </section>
         </div>
     </div>
 
     <script src="script.js"></script>
+    <script src="js/account-users.js"></script>
 </body>
 </html>

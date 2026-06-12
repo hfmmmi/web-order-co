@@ -82,11 +82,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const cmTitle = document.getElementById("cm-modal-title");
     const cmId = document.getElementById("cm-id");
     const cmName = document.getElementById("cm-name");
-    const cmPass = document.getElementById("cm-password");
     const cmEmail = document.getElementById("cm-email");
     const cmRank = document.getElementById("cm-rank");
-    const cmPassNote = document.getElementById("cm-pass-note");
-    const cmPassRequiredStar = document.getElementById("cm-pass-required-star");
     const cmDeliveryName = document.getElementById("cm-delivery-name");
     const cmDeliveryZip = document.getElementById("cm-delivery-zip");
     const cmDeliveryAddress = document.getElementById("cm-delivery-address");
@@ -440,54 +437,21 @@ document.addEventListener("DOMContentLoaded", function () {
                 tr.querySelector(".btn-invite").addEventListener("click", async function () {
                     const id = this.dataset.id;
                     const name = this.dataset.name;
-                    const email = (this.dataset.email || "").trim();
-                    const hasEmail = !!email;
-
-                    const msg = hasEmail
-                        ? `${name} 様 (${email}) 宛に招待メールを送信しますか？\n\n※現在のパスワードはリセットされ、設定用リンクがメールで送信されます。`
-                        : `${name} 様の招待リンクを発行しますか？\n\n※メールアドレスが未登録のため、URLをコピーして手動で送信してください。\n現在のパスワードはリセットされます。`;
-                    if (!confirm(msg)) return;
-
-                    const originalText = this.textContent;
-                    this.textContent = hasEmail ? "送信中..." : "発行中...";
-                    this.disabled = true;
-
-                    try {
-                        if (hasEmail) {
-                            const res = await adminApiFetch("/api/admin/send-invite-email", {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ customerId: id })
-                            });
-                            const d = await res.json();
-                            if (d.success) {
-                                toastSuccess(d.message);
-                            } else {
-                                toastError(d.message || "送信に失敗しました");
-                            }
-                        } else {
-                            const res = await adminApiFetch("/api/admin/invite-reset", {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ customerId: id })
-                            });
-                            const d = await res.json();
-                            if (d.success) {
-                                const inviteUrl = `${window.location.origin}/setup.html?id=${encodeURIComponent(id)}&key=${encodeURIComponent(d.tempPassword)}`;
-                                inviteUrlInput.value = inviteUrl;
-                                inviteModal.style.display = "flex";
-                                inviteUrlInput.select();
-                            } else {
-                                toastError("エラー: " + d.message);
-                            }
-                        }
-                    } catch (err) {
-                        console.error(err);
-                        toastError("通信エラーが発生しました");
-                    } finally {
-                        this.textContent = originalText;
-                        this.disabled = false;
+                    if (window.AdminCustomersUsers && typeof window.AdminCustomersUsers.openUsersTab === "function") {
+                        openModal("edit", {
+                            id,
+                            name,
+                            rank: c.priceRank,
+                            email: c.email || "",
+                            deliveryName: c.deliveryName || "",
+                            deliveryZip: c.deliveryZip || "",
+                            deliveryAddress: c.deliveryAddress || "",
+                            deliveryTel: c.deliveryTel || ""
+                        });
+                        window.AdminCustomersUsers.openUsersTab(id, name);
+                        return;
                     }
+                    toastWarning("ユーザー管理画面を読み込めませんでした");
                 });
 
                 // 代理ログイン: 申請→顧客が許可→実行の流れ（誤操作防止のため確認ポップアップあり）
@@ -625,14 +589,9 @@ document.addEventListener("DOMContentLoaded", function () {
             cmTitle.textContent = "新規追加";
             cmId.readOnly = false;
             cmId.style.backgroundColor = "white";
-            if (cmPassRequiredStar) cmPassRequiredStar.style.display = "inline";
-            if (cmPassNote) {
-                cmPassNote.textContent = "";
-            }
 
             cmId.value = "";
             cmName.value = "";
-            cmPass.value = "";
             if (cmEmail) cmEmail.value = "";
             cmRank.value = "";
             if (cmDeliveryName) cmDeliveryName.value = "";
@@ -644,21 +603,19 @@ document.addEventListener("DOMContentLoaded", function () {
             cmTitle.textContent = "顧客情報編集";
             cmId.readOnly = true;
             cmId.style.backgroundColor = "#e9ecef";
-            if (cmPassRequiredStar) cmPassRequiredStar.style.display = "none";
-            if (cmPassNote) {
-                cmPassNote.textContent = "(空欄なら変更なし)";
-            }
 
             cmId.value = data.id;
             cmName.value = data.name;
             cmRank.value = data.rank;
             if (cmEmail) cmEmail.value = data.email || "";
-            cmPass.value = "";
             if (cmDeliveryName) cmDeliveryName.value = data.deliveryName || "";
             if (cmDeliveryZip) cmDeliveryZip.value = data.deliveryZip || "";
             if (cmDeliveryAddress) cmDeliveryAddress.value = data.deliveryAddress || "";
             if (cmDeliveryTel) cmDeliveryTel.value = data.deliveryTel || "";
             updateCustomerAuditFooter(data, "edit");
+        }
+        if (window.AdminCustomersUsers && typeof window.AdminCustomersUsers.onOpenModal === "function") {
+            window.AdminCustomersUsers.onOpenModal(mode, data);
         }
         custModal.style.display = "flex";
     }
@@ -672,7 +629,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const payload = {
                 customerId: cmId.value,
                 customerName: cmName.value,
-                password: cmPass.value,
                 priceRank: cmRank.value,
                 email: cmEmail ? cmEmail.value.trim() : "",
                 deliveryName: cmDeliveryName ? cmDeliveryName.value.trim() : "",
@@ -680,12 +636,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 deliveryAddress: cmDeliveryAddress ? cmDeliveryAddress.value.trim() : "",
                 deliveryTel: cmDeliveryTel ? cmDeliveryTel.value.trim() : ""
             };
-
-            // バリデーション
-            if (mode === "add" && !payload.password) {
-                toastWarning("新規登録時はパスワードを入力してください");
-                return;
-            }
 
             try {
                 const res = await adminApiFetch(endpoint, {

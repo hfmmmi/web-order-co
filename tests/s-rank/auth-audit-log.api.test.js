@@ -84,10 +84,10 @@ describe("Sランク: 認証監査ログ", () => {
     test("customer-auth.json は failed_login -> login -> logout の順序と必須項目を満たす", async () => {
         const agent = request.agent(app);
 
-        await request(app).post("/api/login").send({ id: "TEST001", pass: "WrongPassword!" });
+        await request(app).post("/api/login").send({ id: "test001@example.com", pass: "WrongPassword!" });
         await sleep(80);
 
-        const okLogin = await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+        const okLogin = await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
         expect(okLogin.statusCode).toBe(200);
         expect(okLogin.body.success).toBe(true);
         await sleep(80);
@@ -132,10 +132,10 @@ describe("Sランク: 認証監査ログ", () => {
 
         const agent = request.agent(app);
 
-        await request(app).post("/api/admin/login").send({ id: "test-admin", pass: "WrongPassword!" });
+        await request(app).post("/api/admin/login").send({ id: "test-admin@example.com", pass: "WrongPassword!" });
         await sleep(80);
 
-        const okLogin = await agent.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+        const okLogin = await agent.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
         expect(okLogin.statusCode).toBe(200);
         expect(okLogin.body.success).toBe(true);
         await sleep(80);
@@ -154,7 +154,11 @@ describe("Sランク: 認証監査ログ", () => {
         });
 
         expect(Array.isArray(entries)).toBe(true);
-        const chain = entries.filter(r => (r.adminId === "test-admin" || r.action === "logout") && ["failed_login", "login", "logout"].includes(r.action));
+        const chain = entries.filter(r => (
+            r.adminEmail === "test-admin@example.com"
+            || r.adminUserId === "AU-TEST-ADMIN"
+            || r.action === "logout"
+        ) && ["failed_login", "login", "logout"].includes(r.action));
         expectChronologicalActions(chain, ["failed_login", "login", "logout"]);
         const failed = chain.find(r => r.action === "failed_login");
         const login = chain.find(r => r.action === "login");
@@ -168,9 +172,9 @@ describe("Sランク: 認証監査ログ", () => {
             expect(isIsoString(row.at)).toBe(true);
             expectValidIpOrNull(row.ip);
         });
-        expect(failed.adminId).toBe("test-admin");
-        expect(login.adminId).toBe("test-admin");
-        expect(logoutRow.adminId === undefined || logoutRow.adminId === null).toBe(true);
+        expect(failed.adminEmail).toBe("test-admin@example.com");
+        expect(login.adminUserId).toBe("AU-TEST-ADMIN");
+        expect(logoutRow.adminUserId === undefined || logoutRow.adminUserId === null || logoutRow.adminUserId === "AU-TEST-ADMIN").toBe(true);
         expect(typeof logoutRow.adminName).toBe("string");
     });
 });

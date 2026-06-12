@@ -55,7 +55,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
     describe("auth-api", () => {
         test("GET /api/session は顧客ログイン済みで session を返す", async () => {
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.get("/api/session");
             expect(res.statusCode).toBe(200);
             expect(res.body.customerId).toBe("TEST001");
@@ -69,7 +69,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             try {
                 const res = await request(app)
                     .post("/api/admin/login")
-                    .send({ id: "test-admin", pass: "AdminPass123!" });
+                    .send({ id: "test-admin@example.com", pass: "AdminPass123!" });
                 expect(res.statusCode).toBe(200);
                 expect(res.body.success).toBe(false);
                 expect(res.body.message).toBe("管理者DBエラー");
@@ -92,7 +92,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             try {
                 const res = await request(app)
                     .post("/api/login")
-                    .send({ id: "TEST001", pass: "CustPass123!" });
+                    .send({ id: "test001@example.com", pass: "CustPass123!" });
                 expect(res.statusCode).toBe(200);
                 expect(res.body.success).toBe(false);
                 expect(res.body.message).toBe("システムエラー");
@@ -106,7 +106,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const customerService = require("../../services/customerService");
             jest.spyOn(customerService, "getCustomerById").mockRejectedValueOnce(new Error("DB Error"));
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.get("/api/account/settings");
             expect(res.statusCode).toBe(500);
             expect(res.body.message).toContain("取得に失敗");
@@ -118,7 +118,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const customerService = require("../../services/customerService");
             jest.spyOn(customerService, "getCustomerById").mockResolvedValueOnce(null);
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.get("/api/account/settings");
             expect(res.statusCode).toBe(404);
             expect(res.body.message).toBe("顧客が見つかりません");
@@ -130,7 +130,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const customerService = require("../../services/customerService");
             jest.spyOn(customerService, "updateCustomerAllowProxy").mockRejectedValueOnce(new Error("DB Error"));
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.put("/api/account/settings").send({ allowProxyLogin: true });
             expect(res.statusCode).toBe(500);
             expect(res.body.message).toContain("保存に失敗");
@@ -142,7 +142,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const customerService = require("../../services/customerService");
             jest.spyOn(customerService, "updateCustomerAllowProxy").mockResolvedValueOnce({ success: false, message: "更新できませんでした" });
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.put("/api/account/settings").send({ allowProxyLogin: true });
             expect(res.statusCode).toBe(400);
             expect(res.body.success).toBe(false);
@@ -152,9 +152,9 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
         // Phase1 分岐70%: proxy-request で adminName が空のとき sanitizeAdminName の結果が空なので「管理者」を返す
         test("GET /api/account/proxy-request は adminName が空のとき adminName に「管理者」を返す", async () => {
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             await admin.post("/api/admin/proxy-request").send({ customerId: "TEST001" });
             await writeJson("proxy_requests.json", {
                 TEST001: {
@@ -181,7 +181,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             });
             try {
                 const agent = request.agent(app);
-                await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+                await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
                 const res = await agent.get("/api/account/proxy-request");
                 expect(res.statusCode).toBe(200);
                 expect(res.body.pending).toBe(false);
@@ -193,7 +193,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
         // 第2期Phase1: proxy-request reject で save 失敗時は500を返す（auth-api catch分岐）
         test("proxy-request reject は save 失敗時500を返す", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             await admin.post("/api/admin/proxy-request").send({ customerId: "TEST001" });
             const fsMod = require("fs").promises;
             const origWrite = fsMod.writeFile.bind(fsMod);
@@ -205,7 +205,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             });
             try {
                 const agent = request.agent(app);
-                await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+                await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
                 const res = await agent.post("/api/account/proxy-request/reject");
                 expect(res.statusCode).toBe(500);
                 expect(res.body.message).toContain("処理に失敗");
@@ -230,7 +230,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             });
             try {
                 const agent = request.agent(app);
-                await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+                await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
                 const res = await agent.post("/api/account/proxy-request/approve");
                 expect(res.statusCode).toBe(500);
                 expect(res.body.message).toContain("処理に失敗");
@@ -278,7 +278,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             try {
                 const res = await request(app)
                     .post("/api/admin/login")
-                    .send({ id: "test-admin", pass: "AdminPass123!" });
+                    .send({ id: "test-admin@example.com", pass: "AdminPass123!" });
                 expect(res.statusCode).toBe(200);
                 expect(res.body.success).toBe(true);
             } finally {
@@ -299,7 +299,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             try {
                 const res = await request(app)
                     .post("/api/admin/login")
-                    .send({ id: "test-admin", pass: "AdminPass123!" });
+                    .send({ id: "test-admin@example.com", pass: "AdminPass123!" });
                 expect(res.statusCode).toBe(200);
                 expect(res.body.success).toBe(true);
             } finally {
@@ -316,7 +316,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             try {
                 const res = await request(app)
                     .post("/api/login")
-                    .send({ id: "TEST001", pass: "CustPass123!" });
+                    .send({ id: "test001@example.com", pass: "CustPass123!" });
                 expect(res.statusCode).toBe(200);
                 expect(res.body.success).toBe(true);
             } finally {
@@ -337,7 +337,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             try {
                 const res = await request(app)
                     .post("/api/login")
-                    .send({ id: "TEST001", pass: "CustPass123!" });
+                    .send({ id: "test001@example.com", pass: "CustPass123!" });
                 expect(res.statusCode).toBe(200);
                 expect(res.body.success).toBe(true);
             } finally {
@@ -357,7 +357,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const customerService = require("../../services/customerService");
             jest.spyOn(customerService, "updateCustomerPassword").mockRejectedValueOnce(new Error("DB Error"));
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/admin/invite-reset").send({ customerId: "TEST001" });
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(false);
@@ -372,7 +372,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             try {
                 await fs.writeFile(invitePath, "{ invalid json", "utf-8");
                 const admin = request.agent(app);
-                await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+                await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
                 const res = await admin.post("/api/admin/invite-reset").send({ customerId: "TEST001" });
                 expect(res.statusCode).toBe(200);
                 expect(res.body.success).toBe(true);
@@ -386,7 +386,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
     describe("orders-api", () => {
         test("GET /orders は管理者が取得できる", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/orders");
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(true);
@@ -395,7 +395,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("GET /orders は顧客が自分の注文のみ取得できる", async () => {
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             await agent.post("/place-order").send({
                 cart: [{ code: "P001", quantity: 1 }],
                 deliveryInfo: { name: "テスト", address: "東京都", tel: "03-1111-2222" }
@@ -408,7 +408,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("GET /order-history はログイン顧客が履歴取得できる", async () => {
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.get("/order-history");
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(true);
@@ -432,7 +432,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("GET /order/:orderId はログイン顧客が自注文を取得できる", async () => {
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const place = await agent.post("/place-order").send({
                 cart: [{ code: "P001", quantity: 1 }],
                 deliveryInfo: { name: "テスト", address: "東京都", tel: "03-1111-2222", zip: "1000001" }
@@ -448,7 +448,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("GET /order/:orderId は該当なしで404", async () => {
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.get("/order/99999999");
             expect(res.statusCode).toBe(404);
             expect(res.body.success).toBe(false);
@@ -470,7 +470,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const orderService = require("../../services/orderService");
             jest.spyOn(orderService, "searchOrders").mockRejectedValue(new Error("DB Error"));
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const r1 = await agent.get("/order-history");
             expect(r1.body.success).toBe(false);
             orderService.searchOrders.mockRestore();
@@ -480,7 +480,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const orderService = require("../../services/orderService");
             jest.spyOn(orderService, "searchOrders").mockRejectedValue(new Error("DB Error"));
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const r = await agent.get("/delivery-history");
             expect(r.body.success).toBe(false);
             orderService.searchOrders.mockRestore();
@@ -490,7 +490,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const orderService = require("../../services/orderService");
             jest.spyOn(orderService, "searchOrders").mockRejectedValue(new Error("DB Error"));
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const r = await agent.get("/shipper-history");
             expect(r.body.success).toBe(false);
             orderService.searchOrders.mockRestore();
@@ -500,7 +500,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const orderService = require("../../services/orderService");
             jest.spyOn(orderService, "searchOrders").mockRejectedValue(new Error("DB Error"));
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const r = await admin.get("/orders");
             expect(r.body.success).toBe(false);
             orderService.searchOrders.mockRestore();
@@ -508,7 +508,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("GET /delivery-history はキーワードでフィルタ可能", async () => {
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             await agent.post("/place-order").send({
                 cart: [{ code: "P001", quantity: 1 }],
                 deliveryInfo: { name: "配送先", address: "大阪府", tel: "06-1111-2222" }
@@ -521,7 +521,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("GET /delivery-history はキーワードなしでも返す", async () => {
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             await agent.post("/place-order").send({
                 cart: [{ code: "P001", quantity: 1 }],
                 deliveryInfo: { name: "配送先", address: "大阪府", tel: "06-1111-2222" }
@@ -534,7 +534,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("GET /shipper-history はキーワードでフィルタ可能", async () => {
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             await agent.post("/place-order").send({
                 cart: [{ code: "P001", quantity: 1 }],
                 deliveryInfo: {
@@ -552,7 +552,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("GET /shipper-history は荷主情報があれば返す", async () => {
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             await agent.post("/place-order").send({
                 cart: [{ code: "P001", quantity: 1 }],
                 deliveryInfo: {
@@ -575,7 +575,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             );
 
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.post("/place-order").send({
                 cart: [{ code: "P001", quantity: 9999 }],
                 deliveryInfo: { name: "テスト", address: "東京都", tel: "03-1111-2222" }
@@ -592,7 +592,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             jest.spyOn(orderService, "placeOrder").mockRejectedValueOnce(new Error("DB接続エラー"));
 
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.post("/place-order").send({
                 cart: [{ code: "P001", quantity: 1 }],
                 deliveryInfo: { name: "テスト", address: "東京都", tel: "03-1111-2222" }
@@ -608,7 +608,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const orderService = require("../../services/orderService");
             jest.spyOn(orderService, "resetExportStatus").mockRejectedValueOnce(new Error("DB Error"));
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const r = await admin.post("/api/reset-export-status").send({ orderId: "xxx" });
             expect(r.statusCode).toBe(500);
             orderService.resetExportStatus.mockRestore();
@@ -618,7 +618,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const orderService = require("../../services/orderService");
             jest.spyOn(orderService, "updateOrderStatus").mockRejectedValueOnce(new Error("DB Error"));
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const r = await admin.post("/api/update-order-status").send({ orderId: "xxx" });
             expect(r.statusCode).toBe(500);
             orderService.updateOrderStatus.mockRestore();
@@ -628,7 +628,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const orderService = require("../../services/orderService");
             jest.spyOn(orderService, "registerShipment").mockRejectedValueOnce(new Error("処理失敗"));
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const r = await admin.post("/api/register-shipment").send({
                 orderId: "xxx", shipItems: [], deliveryCompany: "x", trackingNumber: "1", deliveryDateUnknown: false
             });
@@ -641,7 +641,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const orderService = require("../../services/orderService");
             jest.spyOn(orderService, "registerShipment").mockRejectedValueOnce(new Error("Batch Error"));
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const r = await admin.post("/api/register-shipment-batch").send({ orderId: "xxx", shipmentsPayload: [] });
             expect(r.statusCode).toBe(500);
             expect(r.body.message).toContain("一括");
@@ -652,7 +652,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const orderService = require("../../services/orderService");
             jest.spyOn(orderService, "updateShipment").mockRejectedValueOnce(new Error("DB Error"));
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const r = await admin.post("/api/update-shipment-info").send({ orderId: "xxx", shipmentId: "s1" });
             expect(r.statusCode).toBe(500);
             orderService.updateShipment.mockRestore();
@@ -665,7 +665,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             try {
                 await fs.writeFile(rpPath, "{", "utf-8");
                 const agent = request.agent(app);
-                await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+                await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
                 const res = await agent.post("/place-order").send({
                     cart: [{ code: "P001", quantity: 1 }],
                     deliveryInfo: { name: "テスト", address: "東京都", tel: "03-1111-2222" }
@@ -683,7 +683,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
                 throw new Error("CSV生成失敗");
             });
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/download-csv");
             expect(res.statusCode).toBe(500);
             expect(res.text).toContain("CSVエラー");
@@ -692,7 +692,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("GET /api/download-csv は mode=unexported で未エクスポートのみ返す", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/download-csv?mode=unexported");
             expect([200, 500]).toContain(res.statusCode);
             if (res.statusCode === 200) {
@@ -714,7 +714,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const markSpy = jest.spyOn(orderService, "markOrdersAsExported").mockResolvedValue();
             try {
                 const admin = request.agent(app);
-                await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+                await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
                 const res = await admin.get("/api/download-csv?mode=unexported");
                 expect(res.statusCode).toBe(200);
                 expect(markSpy).toHaveBeenCalledWith([9001]);
@@ -733,7 +733,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const orderService = require("../../services/orderService");
             jest.spyOn(orderService, "registerShipment").mockResolvedValueOnce({});
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/import-shipping-csv").attach("file", Buffer.from("dummy"), "ship.csv");
             expect(res.statusCode).toBe(200);
             expect(orderService.registerShipment).toHaveBeenCalledWith("9002", expect.arrayContaining([expect.objectContaining({ trackingNumber: "TRACK99", deliveryCompany: "佐川" })]));
@@ -743,7 +743,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("GET /api/download-csv は keyword/start/end でフィルタ可能", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/download-csv?keyword=TEST001&start=2020-01-01&end=2030-12-31");
             expect(res.statusCode).toBe(200);
             expect(String(res.headers["content-type"])).toContain("text/csv");
@@ -766,7 +766,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
                 ]
             });
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/download-csv?mode=unexported");
             expect(res.statusCode).toBe(200);
             orderService.getAllDataForCsv.mockRestore();
@@ -790,7 +790,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
                 ]
             });
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/download-csv?status=発送済");
             expect(res.statusCode).toBe(200);
             orderService.getAllDataForCsv.mockRestore();
@@ -813,7 +813,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
                 ]
             });
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/download-csv?start=2020-01-01&end=2030-12-31");
             expect(res.statusCode).toBe(200);
             orderService.getAllDataForCsv.mockRestore();
@@ -837,7 +837,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
                 ]
             });
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/download-csv?start=2025-01-01&end=2025-12-31");
             expect(res.statusCode).toBe(200);
             expect(String(res.headers["content-type"])).toContain("text/csv");
@@ -847,7 +847,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
         // 第2期Phase2: orders-api 分岐強化
         test("GET /delivery-history は keyword でマッチしない場合は空リストを返す", async () => {
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.get("/delivery-history?keyword=存在しないキーワード999");
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(true);
@@ -856,7 +856,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("GET /shipper-history は keyword でマッチしない場合は空リストを返す", async () => {
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const res = await agent.get("/shipper-history?keyword=マッチしないキーワード999");
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(true);
@@ -867,7 +867,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const csvService = require("../../services/csvService");
             jest.spyOn(csvService, "parseShippingCsv").mockReturnValueOnce([]);
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/import-shipping-csv")
                 .attach("file", Buffer.from(""), "empty.csv");
             expect(res.statusCode).toBe(200);
@@ -880,7 +880,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const orderService = require("../../services/orderService");
             jest.spyOn(orderService, "resetExportStatus").mockRejectedValueOnce(new Error("保存失敗"));
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/reset-export-status").send({ orderId: 1 });
             expect(res.statusCode).toBe(500);
             expect(res.body.message).toContain("保存失敗");
@@ -891,7 +891,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const orderService = require("../../services/orderService");
             jest.spyOn(orderService, "updateOrderStatus").mockRejectedValueOnce(new Error("保存失敗"));
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/update-order-status").send({ orderId: 99999, status: "発送済" });
             expect(res.statusCode).toBe(500);
             expect(res.body.message).toContain("保存失敗");
@@ -902,7 +902,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const orderService = require("../../services/orderService");
             jest.spyOn(orderService, "registerShipment").mockRejectedValueOnce(new Error("処理に失敗"));
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/register-shipment").send({
                 orderId: 1,
                 deliveryCompany: "ヤマト",
@@ -918,7 +918,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const orderService = require("../../services/orderService");
             jest.spyOn(orderService, "registerShipment").mockRejectedValueOnce(new Error("一括処理に失敗"));
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/register-shipment-batch").send({
                 orderId: 1,
                 shipmentsPayload: [{ deliveryCompany: "ヤマト", trackingNumber: "123" }]
@@ -932,7 +932,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const orderService = require("../../services/orderService");
             jest.spyOn(orderService, "updateShipment").mockRejectedValueOnce(new Error("保存失敗"));
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/update-shipment-info").send({
                 orderId: 1,
                 shipmentId: "sh1",
@@ -976,7 +976,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("GET /api/admin/settings は管理者が設定取得できる", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/settings");
             expect(res.statusCode).toBe(200);
             expect(res.body).toHaveProperty("features");
@@ -987,7 +987,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
         // Phase1: GET /admin/settings は getSettings 失敗時500を返す（admin-api catch分岐）
         test("GET /api/admin/settings は getSettings 失敗時500を返す", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const settingsService = require("../../services/settingsService");
             jest.spyOn(settingsService, "getSettings").mockRejectedValueOnce(new Error("IO Error"));
             try {
@@ -1004,7 +1004,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const settingsService = require("../../services/settingsService");
             jest.spyOn(settingsService, "updateSettings").mockRejectedValueOnce(new Error("書き込み失敗"));
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.put("/api/admin/settings").send({ features: {} });
             expect(res.statusCode).toBe(500);
             expect(res.body.message).toMatch(/書き込み失敗|保存に失敗/);
@@ -1018,7 +1018,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             productService.importProductCsv = jest.fn().mockRejectedValueOnce(new Error("CSVパース失敗"));
             try {
                 const admin = request.agent(app);
-                await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+                await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
                 const res = await admin.post("/api/upload-product-data").send({ fileData: "invalid" });
                 expect(res.statusCode).toBe(200);
                 expect(res.body.success).toBe(false);
@@ -1032,7 +1032,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const productService = require("../../services/productService");
             jest.spyOn(productService, "addProduct").mockRejectedValueOnce(new Error("商品追加失敗"));
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/add-product").send({
                 productCode: "ERR", name: "x", manufacturer: "x", category: "x", basePrice: 100, stockStatus: "x", active: true
             });
@@ -1044,7 +1044,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const customerService = require("../../services/customerService");
             jest.spyOn(customerService, "getAllCustomers").mockRejectedValueOnce(new Error("DB Error"));
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/customers");
             expect(res.statusCode).toBe(500);
             customerService.getAllCustomers.mockRestore();
@@ -1061,7 +1061,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
                 allowProxyLogin: false
             });
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/admin/send-invite-email").send({ customerId: "TEST001" });
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(false);
@@ -1073,7 +1073,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const customerService = require("../../services/customerService");
             jest.spyOn(customerService, "addCustomer").mockRejectedValueOnce(new Error("重複ID"));
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/add-customer").send({
                 customerId: "DUP", customerName: "x", priceRank: "A", password: "Pass123!"
             });
@@ -1086,7 +1086,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const customerService = require("../../services/customerService");
             jest.spyOn(customerService, "updateCustomer").mockRejectedValueOnce(new Error("更新失敗"));
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/update-customer").send({
                 customerId: "TEST001", customerName: "x", priceRank: "A"
             });
@@ -1097,21 +1097,21 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("POST /admin/stocks/manual-reserve は items 未指定で400", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/admin/stocks/manual-reserve").send({});
             expect(res.statusCode).toBe(400);
         });
 
         test("POST /admin/stocks/manual-release は items 未指定で400", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/admin/stocks/manual-release").send({});
             expect(res.statusCode).toBe(400);
         });
 
         test("POST /admin/stocks/manual-reserve は在庫マスタにない商品で400", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/admin/stocks/manual-reserve").send({
                 items: [{ productCode: "NO_MASTER_CODE", quantity: 1 }]
             });
@@ -1121,7 +1121,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("POST /admin/stocks/manual-reserve は在庫不足で400", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             await admin.post("/api/admin/stocks/manual-adjust").send({
                 productCode: "P001",
                 totalQty: 2,
@@ -1136,7 +1136,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("POST /add-product は管理者が商品追加できる", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/add-product").send({
                 productCode: "COV001",
                 name: "カバレッジテスト商品",
@@ -1152,7 +1152,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("GET /admin/products は管理者が商品一覧取得できる", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/products");
             expect(res.statusCode).toBe(200);
             expect(Array.isArray(res.body)).toBe(true);
@@ -1163,7 +1163,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const productService = require("../../services/productService");
             jest.spyOn(productService, "getAllProductsForAdmin").mockRejectedValueOnce(new Error("商品データの読み込みに失敗しました"));
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/products");
             expect(res.statusCode).toBe(500);
             expect(res.body.message).toContain("読み込みに失敗");
@@ -1172,7 +1172,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("POST /add-product は既存商品コードで success:false とメッセージを返す", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/add-product").send({
                 productCode: "P001",
                 name: "重複",
@@ -1189,7 +1189,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("POST /update-product は存在しない商品コードで success:false を返す", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/update-product").send({
                 productCode: "NOEXIST",
                 name: "x",
@@ -1210,7 +1210,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             try {
                 await fs.writeFile(pricesPath, "{", "utf-8");
                 const admin = request.agent(app);
-                await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+                await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
                 const res = await admin.get("/api/admin/customer-price-list").query({ customerId: "TEST001" });
                 expect(res.statusCode).toBe(200);
                 expect(Array.isArray(res.body)).toBe(true);
@@ -1225,7 +1225,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             try {
                 await fs.writeFile(stocksPath, "{", "utf-8");
                 const admin = request.agent(app);
-                await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+                await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
                 const res = await admin.get("/api/admin/stocks");
                 expect(res.statusCode).toBe(200);
                 expect(res.body.success).toBe(true);
@@ -1241,7 +1241,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             try {
                 await fs.writeFile(estimatesPath, "{", "utf-8");
                 const admin = request.agent(app);
-                await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+                await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
                 const res = await admin.post("/api/admin/delete-estimates-by-manufacturer").send({ manufacturer: "X" });
                 expect(res.statusCode).toBe(200);
                 expect(res.body.success).toBe(true);
@@ -1256,7 +1256,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             try {
                 await fs.writeFile(rpPath, "{", "utf-8");
                 const admin = request.agent(app);
-                await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+                await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
                 const res = await admin.get("/api/admin/rank-prices-list");
                 expect(res.statusCode).toBe(200);
                 expect(res.body && typeof res.body === "object").toBe(true);
@@ -1267,7 +1267,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("POST /add-customer は既存顧客IDで success:false を返す", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/add-customer").send({
                 customerId: "TEST001",
                 customerName: "重複",
@@ -1282,7 +1282,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("POST /update-customer は存在しない顧客IDで success:false を返す", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/update-customer").send({
                 customerId: "NOEXIST99",
                 customerName: "x",
@@ -1298,7 +1298,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const customerService = require("../../services/customerService");
             jest.spyOn(customerService, "getAllCustomers").mockResolvedValueOnce({ customers: [], totalCount: 0 });
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/customers");
             expect(res.statusCode).toBe(200);
             expect(res.body.customers).toEqual([]);
@@ -1308,7 +1308,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("GET /admin/customers は管理者が顧客一覧取得できる", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/customers");
             expect(res.statusCode).toBe(200);
             expect(res.body).toHaveProperty("customers");
@@ -1317,7 +1317,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("POST /admin/send-invite-email はメールアドレスあり顧客に送信できる", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/admin/send-invite-email").send({
                 customerId: "TEST001",
                 isPasswordReset: false
@@ -1331,7 +1331,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const mailService = require("../../services/mailService");
             mailService.sendInviteEmail.mockResolvedValueOnce({ success: false, message: "SMTP送信失敗" });
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/admin/send-invite-email").send({
                 customerId: "TEST001",
                 isPasswordReset: false
@@ -1343,7 +1343,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("POST /admin/send-invite-email は顧客ID未指定でエラー", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/admin/send-invite-email").send({});
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(false);
@@ -1352,7 +1352,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("POST /admin/proxy-request は代理ログイン申請できる", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/admin/proxy-request").send({ customerId: "TEST001" });
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(true);
@@ -1360,7 +1360,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("GET /admin/proxy-request-status はポーリングで状態返す", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/proxy-request-status?customerId=TEST001");
             expect(res.statusCode).toBe(200);
             expect(["none", "pending", "approved"]).toContain(res.body.status);
@@ -1368,7 +1368,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("POST /api/update-order-status は管理者がステータス更新できる", async () => {
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const placed = await agent.post("/place-order").send({
                 cart: [{ code: "P001", quantity: 1 }],
                 deliveryInfo: { name: "テスト", address: "東京都", tel: "03-1111-2222" }
@@ -1377,7 +1377,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const orderId = placed.body.orderId;
 
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/update-order-status").send({
                 orderId,
                 status: "発送済",
@@ -1389,7 +1389,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("POST /api/register-shipment は管理者が出荷登録できる", async () => {
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const placed = await agent.post("/place-order").send({
                 cart: [{ code: "P001", quantity: 1 }],
                 deliveryInfo: { name: "テスト", address: "東京都", tel: "03-1111-2222" }
@@ -1400,7 +1400,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const orderId = placed.body.orderId;
 
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/register-shipment").send({
                 orderId,
                 shipItems: [{ code: "P001", quantity: 1 }],
@@ -1414,7 +1414,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("GET /admin/proxy-request-status は customerId 未指定で status none", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/proxy-request-status");
             expect(res.statusCode).toBe(200);
             expect(res.body.status).toBe("none");
@@ -1432,7 +1432,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             });
             try {
                 const admin = request.agent(app);
-                await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+                await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
                 const res = await admin.post("/api/admin/proxy-request").send({ customerId: "TEST001" });
                 expect(res.statusCode).toBe(500);
                 expect(res.body.message).toBeDefined();
@@ -1451,7 +1451,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
                 }
             });
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/proxy-request-status?customerId=TEST001");
             expect(res.statusCode).toBe(200);
             expect(res.body.status).toBe("none");
@@ -1470,7 +1470,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             });
             try {
                 const admin = request.agent(app);
-                await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+                await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
                 const res = await admin.get("/api/admin/proxy-request-status?customerId=TEST001");
                 expect(res.statusCode).toBe(200);
                 expect(res.body.status).toBe("none");
@@ -1481,7 +1481,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("POST /admin/proxy-login は顧客許可なしで失敗", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/admin/proxy-login").send({ customerId: "TEST001" });
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(false);
@@ -1507,7 +1507,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             });
             try {
                 const admin = request.agent(app);
-                await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+                await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
                 const res = await admin.post("/api/admin/proxy-login").send({ customerId: "TEST001" });
                 expect(res.statusCode).toBe(200);
                 expect(res.body.success).toBe(false);
@@ -1524,7 +1524,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const customerService = require("../../services/customerService");
             jest.spyOn(customerService, "getCustomerById").mockResolvedValueOnce(null);
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/admin/proxy-login").send({ customerId: "TEST001" });
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(false);
@@ -1534,7 +1534,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("POST /admin/proxy-logout は代理ログイン中でないと400", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/admin/proxy-logout");
             expect(res.statusCode).toBe(400);
             expect(res.body.message).toContain("代理ログイン");
@@ -1542,7 +1542,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("send-invite-email-with-token は customerId/tempPassword 未指定で失敗", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/admin/send-invite-email-with-token").send({});
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(false);
@@ -1551,7 +1551,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("send-invite-email-with-token は顧客不在で失敗", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/admin/send-invite-email-with-token").send({
                 customerId: "NOTEXIST", tempPassword: "tmp123"
             });
@@ -1574,7 +1574,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             await writeJson("customers.json", updated);
             try {
                 const admin = request.agent(app);
-                await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+                await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
                 const res = await admin.post("/api/admin/send-invite-email-with-token").send({
                     customerId: "TEST_NOEMAIL", tempPassword: "tmp123"
                 });
@@ -1591,7 +1591,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const mailService = require("../../services/mailService");
             mailService.sendInviteEmail.mockResolvedValueOnce({ success: false, message: "SMTP送信失敗" });
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/admin/send-invite-email-with-token").send({
                 customerId: "TEST001", tempPassword: "tmp123"
             });
@@ -1602,7 +1602,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("POST /admin/send-invite-email は顧客不在で失敗", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/admin/send-invite-email").send({ customerId: "NOTEXIST" });
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(false);
@@ -1611,7 +1611,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("GET /admin/customers は keyword と page で検索可能", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/customers?keyword=TEST&page=1");
             expect(res.statusCode).toBe(200);
             expect(res.body).toHaveProperty("customers");
@@ -1619,7 +1619,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("POST /update-product は管理者が商品更新できる", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/update-product").send({
                 productCode: "P001",
                 name: "更新後商品名",
@@ -1635,7 +1635,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("POST /admin/save-rank-prices はランク価格を保存できる", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/admin/save-rank-prices").send({ rows: [] });
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(true);
@@ -1646,7 +1646,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const priceService = require("../../services/priceService");
             jest.spyOn(priceService, "saveRankPrices").mockRejectedValueOnce(new Error("保存エラー"));
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/admin/save-rank-prices").send({ rows: [] });
             expect(res.statusCode).toBe(500);
             expect(res.body.message).toContain("保存失敗");
@@ -1655,14 +1655,14 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("GET /admin/rank-prices-list はランク価格一覧を返す", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/rank-prices-list");
             expect(res.statusCode).toBe(200);
         });
 
         test("GET /admin/customer-price-list は顧客特価を返す", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/customer-price-list?customerId=TEST001");
             expect(res.statusCode).toBe(200);
             expect(Array.isArray(res.body) || res.body === null).toBe(true);
@@ -1670,14 +1670,14 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("GET /admin/special-prices-list は特価一覧を返す", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/special-prices-list");
             expect(res.statusCode).toBe(200);
         });
 
         test("GET /admin/download-pricelist-by-rank/A はCSVを返す", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/download-pricelist-by-rank/A");
             expect(res.statusCode).toBe(200);
             expect(String(res.headers["content-type"])).toContain("text/csv");
@@ -1685,7 +1685,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("GET /admin/stocks/settings は在庫設定を返す", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/stocks/settings");
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(true);
@@ -1694,7 +1694,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("GET /admin/stocks は在庫一覧を返す", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/stocks");
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(true);
@@ -1705,7 +1705,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const stockService = require("../../services/stockService");
             jest.spyOn(stockService, "getAllStocks").mockRejectedValueOnce(new Error("IO Error"));
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/stocks");
             expect(res.statusCode).toBe(500);
             expect(res.body.success).toBe(false);
@@ -1715,7 +1715,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("GET /admin/stocks/template はExcelを返す", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/stocks/template");
             expect(res.statusCode).toBe(200);
             expect(String(res.headers["content-type"])).toContain("spreadsheet");
@@ -1723,7 +1723,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("GET /admin/stocks/history は履歴を返す", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/stocks/history");
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(true);
@@ -1731,7 +1731,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("POST /admin/stocks/manual-adjust は手動調整できる", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/admin/stocks/manual-adjust").send({
                 productCode: "P001",
                 totalQty: 100,
@@ -1743,7 +1743,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("POST /admin/stocks/manual-reserve は在庫がある商品で成功する", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             await admin.post("/api/admin/stocks/manual-adjust").send({
                 productCode: "P001",
                 totalQty: 20,
@@ -1758,7 +1758,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("POST /admin/stocks/manual-release は引当後に解放できる", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             await admin.post("/api/admin/stocks/manual-adjust").send({
                 productCode: "P002",
                 totalQty: 30,
@@ -1776,7 +1776,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("GET /admin/stocks/:productCode は存在しない商品で404を返す", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/stocks/NOTEXIST_CODE");
             expect(res.statusCode).toBe(404);
             expect(res.body.success).toBe(false);
@@ -1785,7 +1785,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("PUT /admin/stocks/settings は display を更新できる", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.put("/api/admin/stocks/settings").send({
                 display: { enabled: true, hiddenMessage: "テスト非表示文言" }
             });
@@ -1798,7 +1798,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const stockService = require("../../services/stockService");
             jest.spyOn(stockService, "saveAdapterConfig").mockRejectedValueOnce(new Error("IO Error"));
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.put("/api/admin/stocks/settings").send({ display: {} });
             expect(res.statusCode).toBe(500);
             expect(res.body.message).toContain("保存に失敗");
@@ -1809,7 +1809,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const stockService = require("../../services/stockService");
             jest.spyOn(stockService, "getAdapterConfig").mockRejectedValueOnce(new Error("Config Error"));
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/stocks/settings");
             expect(res.statusCode).toBe(500);
             expect(res.body.message).toContain("取得に失敗");
@@ -1818,7 +1818,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("GET /admin/stocks/:productCode は在庫詳細を返す", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/stocks/P001");
             expect([200, 404]).toContain(res.statusCode);
             if (res.statusCode === 200) expect(res.body.success).toBe(true);
@@ -1826,7 +1826,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("POST /admin/delete-estimates-by-manufacturer はメーカー指定で削除", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/admin/delete-estimates-by-manufacturer").send({ manufacturer: "NonExistentMaker" });
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(true);
@@ -1834,7 +1834,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("POST /admin/delete-estimates-by-products は商品コード指定で削除", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/admin/delete-estimates-by-products").send({ productCodes: ["P999"] });
             expect(res.statusCode).toBe(200);
             expect(res.body.success).toBe(true);
@@ -1854,7 +1854,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const priceService = require("../../services/priceService");
             jest.spyOn(priceService, "getCustomerPriceList").mockRejectedValueOnce(new Error("IO Error"));
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/customer-price-list").query({ customerId: "TEST001" });
             expect(res.statusCode).toBe(200);
             expect(Array.isArray(res.body)).toBe(true);
@@ -1867,7 +1867,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const priceService = require("../../services/priceService");
             jest.spyOn(priceService, "getAllSpecialPrices").mockRejectedValueOnce(new Error("DB Error"));
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/special-prices-list");
             expect(res.statusCode).toBe(500);
             expect(res.body.message).toContain("取得失敗");
@@ -1877,7 +1877,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
         // 第2期Phase1: download-pricelist-by-rank は不正 rank で A フォールバックする（admin-api 分岐）
         test("GET /admin/download-pricelist-by-rank は不正 rank で A 相当のCSVを返す", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/download-pricelist-by-rank/!!");
             expect(res.statusCode).toBe(200);
             expect(String(res.headers["content-type"])).toContain("text/csv");
@@ -1888,7 +1888,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const priceService = require("../../services/priceService");
             jest.spyOn(priceService, "getPricelistCsvForRank").mockRejectedValueOnce(new Error("CSV生成失敗"));
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/download-pricelist-by-rank/A");
             expect(res.statusCode).toBe(500);
             expect(res.text).toContain("価格表の生成に失敗");
@@ -1900,7 +1900,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const priceService = require("../../services/priceService");
             jest.spyOn(priceService, "getRankPrices").mockRejectedValueOnce(new Error("IO Error"));
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/rank-prices-list");
             expect(res.statusCode).toBe(500);
             expect(res.body.message).toContain("取得失敗");
@@ -1912,7 +1912,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const stockService = require("../../services/stockService");
             jest.spyOn(stockService, "getStock").mockRejectedValueOnce(new Error("IO Error"));
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/stocks/P001");
             expect(res.statusCode).toBe(500);
             expect(res.body.message).toContain("取得に失敗");
@@ -1924,7 +1924,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
                 { customerId: "TEST001", productCode: "NO_PRODUCT", specialPrice: 500 }
             ]);
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/customer-price-list").query({ customerId: "TEST001" });
             expect(res.statusCode).toBe(200);
             expect(Array.isArray(res.body)).toBe(true);
@@ -1939,7 +1939,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
                 { customerId: "DELETED_CUST", productCode: "DELETED_PROD", specialPrice: 100 }
             ]);
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.get("/api/admin/special-prices-list");
             expect(res.statusCode).toBe(200);
             expect(Array.isArray(res.body)).toBe(true);
@@ -1954,7 +1954,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
 
         test("POST /admin/save-rank-prices は map が object のときも保存できる", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/admin/save-rank-prices").send({
                 P001: { A: 1000, B: 1100 },
                 P002: { A: 2000 }
@@ -1966,7 +1966,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
         // 第2期Phase2: priceService 分岐強化
         test("POST /admin/save-rank-prices は data.rows 配列形式でも保存できる", async () => {
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/admin/save-rank-prices").send({
                 rows: [
                     { productCode: "P001", prices: { A: 500, B: 600 } },
@@ -2057,7 +2057,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
                 reservedQty: 2
             }]);
             const admin = request.agent(app);
-            await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+            await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
             const res = await admin.post("/api/update-order-status").send({
                 orderId: 1,
                 status: "キャンセル"
@@ -2691,7 +2691,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
         // Phase 1: products-api buildStockInfo 分岐強化（warehouses が配列でない場合）
         test("GET /products は stock.warehouses が配列でない場合もエラーなく処理する", async () => {
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             await writeJson("stocks.json", [
                 {
                     productCode: "P001",
@@ -2724,7 +2724,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
         // Phase 1: products-api buildStockInfo 分岐（lastSyncedAt 不正値で isStale は false）
         test("GET /products は lastSyncedAt が不正な在庫でもエラーなく isStale:false で返す", async () => {
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             await writeJson("stocks.json", [
                 {
                     productCode: "P001",
@@ -2761,7 +2761,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
         // Phase 1: products-api buildStockInfo 分岐（古い lastSyncedAt で isStale: true）
         test("GET /products は highlightThresholdMinutes を超えた lastSyncedAt で isStale:true を返す", async () => {
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             const oldDate = new Date(Date.now() - 200 * 60 * 1000).toISOString(); // 200分前
             await writeJson("stocks.json", [
                 {
@@ -2801,7 +2801,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             const orderService = require("../../services/orderService");
             jest.spyOn(orderService, "placeOrder").mockRejectedValueOnce(new Error("DB connection failed"));
             const agent = request.agent(app);
-            await agent.post("/api/login").send({ id: "TEST001", pass: "CustPass123!" });
+            await agent.post("/api/login").send({ id: "test001@example.com", pass: "CustPass123!" });
             try {
                 const res = await agent.post("/place-order").send({
                     cart: [{ productCode: "P001", quantity: 1 }],
@@ -2822,7 +2822,7 @@ describe("Aランク: カバレッジ改善（auth/orders/admin）", () => {
             try {
                 await fs.writeFile(dbPath, "not valid json", "utf-8");
                 const admin = request.agent(app);
-                await admin.post("/api/admin/login").send({ id: "test-admin", pass: "AdminPass123!" });
+                await admin.post("/api/admin/login").send({ id: "test-admin@example.com", pass: "AdminPass123!" });
                 const res = await admin.get("/admin/support-tickets");
                 expect(res.statusCode).toBe(200);
                 expect(Array.isArray(res.body)).toBe(true);
